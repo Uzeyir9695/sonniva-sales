@@ -8,6 +8,7 @@ import {Link} from "@inertiajs/vue3";
        Welcome, Sonniva is coming soon!
         <div class="mt-6 font-bold">
             We are going to build an awesome application.
+            Let's get started.
         </div>
     </div>
 </template>
