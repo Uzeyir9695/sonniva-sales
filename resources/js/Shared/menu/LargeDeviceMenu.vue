@@ -12,7 +12,7 @@ const isAuthenticated = computed(() => page.props.isLoggedIn);
     <!--****************************************************
             Large screen devices navbar
     *****************************************************-->
-    <header class="bg-sky-500 sticky top-0 flex justify-around items-center shadow-sm h-24 z-50">
+    <header class="bg-sky-400 sticky top-0 flex justify-around items-center shadow-sm h-24 z-50">
         <div class="flex space-x-12 items-center">
 <!--            <Link :href="route('home')" class="flex items-center h-16">-->
 <!--                <img src="/logo/logo.png" alt="logo" class="w-32 h-full object-cover ">-->
