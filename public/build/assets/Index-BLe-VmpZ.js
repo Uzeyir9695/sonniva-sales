@@ -1,1 +1,0 @@
-import{c as e,o as t}from"./app-f6RwKniR.js";/* empty css            */const o={class:"min-h-screen bg-white text-center text-2xl p-6 italic"},a={__name:"Index",setup(c){return(n,s)=>(t(),e("div",o," Welcome, Sonniva is coming soon! "))}};export{a as default};

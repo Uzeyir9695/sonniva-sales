@@ -1,1 +1,0 @@
-import{_ as e}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{c as o,o as r}from"./app-f6RwKniR.js";/* empty css            */const c={},t={class:"min-h-screen bg-white"};function s(n,a){return r(),o("div",t," Read More Page ")}const d=e(c,[["render",s]]);export{d as default};
