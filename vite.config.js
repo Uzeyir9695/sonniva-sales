@@ -41,12 +41,6 @@ export default defineConfig({
             'ziggy-js': path.resolve(__dirname, 'vendor/tightenco/ziggy'),
         },
     },
-    server: {
-        hmr: {
-            host: '127.0.0.1', // Explicitly set HMR host
-        },
-    },
-
     optimizeDeps: {
         include: ['vue', '@inertiajs/vue3', 'laravel-vue-i18n', 'primevue'],
     },
