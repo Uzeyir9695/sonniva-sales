@@ -1,15 +1,15 @@
-
-
 <script setup>
 import {Head, Link, useForm} from '@inertiajs/vue3';
 import { Divider } from 'primevue';
 import {ref} from "vue";
+
 const props = defineProps(['errors']);
 
 const userTypes = ref([
     { key: 'individual' },
     { key: 'legal_entity' },
 ]);
+
 const selectedUserType = ref({ key: 'individual' });
 
 const selectedCountryCode = ref('GE');
@@ -31,9 +31,6 @@ async function register(){
     })
 }
 
-const signUpWith = (provider) => {
-    window.location.href = route('social.redirect', { provider });
-}
 </script>
 
 <template>
