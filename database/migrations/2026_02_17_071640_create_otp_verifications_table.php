@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('phone');
             $table->string('otp');
-            $table->json('registration_data')->nullable(); // store pending reg data
+            $table->json('registration_data')->nullable();
             $table->timestamp('expires_at');
             $table->timestamps();
         });
