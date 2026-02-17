@@ -9,7 +9,16 @@ class OtpVerification extends Model
 {
     use HasUuids;
 
-    protected $guarded = ['id', 'created_at', 'updated_at'];
-    protected $casts = ['expires_at' => 'datetime'];
+    protected $fillable = [
+        'phone',
+        'otp',
+        'registration_data',
+        'expires_at',
+    ];
+
+    protected $casts = [
+        'registration_data' => 'array',
+        'expires_at'        => 'datetime',
+    ];
 
 }
