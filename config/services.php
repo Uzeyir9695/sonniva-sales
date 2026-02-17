@@ -14,6 +14,12 @@ return [
     |
     */
 
+    'smsoffice' => [
+        'key' => env('SMS_OFFICE_KEY'),
+        'sender' => env('SMS_OFFICE_SENDER'),
+        'callback_url' => env('SMS_OFFICE_CALLBACK_URL'),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
