@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('bc_customer_no')->nullable();
             $table->string('user_type')->nullable();
             $table->string('role')->default('user');
-            $table->string('bc_customer_no')->nullable();
             $table->string('name')->nullable();
             $table->string('lastname')->nullable();
             $table->string('phone_country')->default('GE');
