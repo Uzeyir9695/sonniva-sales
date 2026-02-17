@@ -3,22 +3,26 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Services\BusinessCentralService;
-use App\Services\SmsService;
+use App\Services\RegisterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
-use Propaganistas\LaravelPhone\PhoneNumber;
 
 class RegisterController extends Controller
 {
-    protected $bcService;
-    public function __construct(BusinessCentralService $bcService)
+    protected RegisterService $registerService;
+
+    public function __construct(RegisterService $registerService)
     {
-        $this->bcService = $bcService;
+        $this->registerService = $registerService;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Show Forms
+    |--------------------------------------------------------------------------
+    */
+
     public function showRegisterForm()
     {
         return Inertia::render('auth/Register');
@@ -31,80 +35,90 @@ class RegisterController extends Controller
         ]);
     }
 
-    public function register(Request $request, SmsService $smsService)
+    /*
+    |--------------------------------------------------------------------------
+    | Step 1 — Validate, format phone, send OTP, store in session
+    |--------------------------------------------------------------------------
+    */
+
+    public function register(Request $request)
     {
         $validated = $request->validate([
-            'user_type' => 'required|string|max:20',
-            'tax_id' => 'required|string|min:9|max:50',
-            'name' => 'required|string|max:30',
-            'phone_country'  => 'required|string',
-            'phone'          => 'required|phone:phone_country|unique:users,phone',
-            'email' => 'required|email|unique:users,email,max:255',
-            'password' => 'required|string|min:6|confirmed',
+            'user_type'     => 'required|string|max:20',
+            'tax_id'        => 'required|string|min:9|max:50',
+            'name'          => 'required|string|max:30',
+            'phone_country' => 'required|string',
+            'phone'         => 'required|phone:phone_country',
+            'email'         => 'required|email|unique:users,email|max:255',
+            'password'      => 'required|string|min:6|confirmed',
         ]);
 
-        $phone = new PhoneNumber($request->phone, 'GE');
+        $phone = $this->registerService->formatPhone($request->phone, $request->phone_country);
 
-        if (User::where('phone', $phone->formatE164())->exists()) {
-            return back()->withErrors(['phone' => __('controller-messages.phone_exists')]);
+        if ($this->registerService->phoneExists($phone)) {
+            return back()->withErrors(['phone' => __('This phone number is already registered.')]);
         }
 
-        // Generate OTP
-        $otp = $smsService->generateOtp(6); // 6-digit code
+        $result = $this->registerService->generateAndSendOtp($phone);
 
+        if (!$result['success']) {
+            return back()->with('error', $result['message']);
+        }
+
+        // Web uses session to hold OTP and registration data between steps
         session([
             'register_data' => [
-                'user_type' => $validated['user_type'],
-                'tax_id' => $validated['tax_id'],
-                'name' => $validated['name'],
+                'user_type'     => $validated['user_type'],
+                'tax_id'        => $validated['tax_id'],
+                'name'          => $validated['name'],
                 'phone_country' => $validated['phone_country'],
-                'phone' => $phone,
-                'email' => $validated['email'] ?? null,
-                'password' => $validated['password'], // hash later
+                'email'         => $validated['email'] ?? null,
+                'password'      => $validated['password'], // hashed in service on createUser()
             ],
-            'otp' => $otp,
-            'otp_expires_at' => now()->addMinutes(15),
+            'phone'          => $phone,
+            'otp'            => $result['otp'],
+            'otp_expires_at' => now()->addMinutes(15)->toDateTimeString(),
         ]);
 
-        session(['phone' => $phone]);
-
-        $result = $smsService->sendOtp($phone, $otp);
-
-        if ($result['success']) {
-            return to_route('register.verify-phone.show')->with([
-                'success' => __('controller-messages.verification_code_sent')
-            ]);
-        }
-
-        return back()->with('error', $result['message']);
+        return to_route('register.verify-phone.show')->with([
+            'success' => $result['message'],
+        ]);
     }
 
-    public function resendCode(SmsService $smsService)
+    /*
+    |--------------------------------------------------------------------------
+    | Step 2 — Resend OTP
+    |--------------------------------------------------------------------------
+    */
+
+    public function resendCode()
     {
         $phone = session('phone');
 
-        $result = $this->sendSMS($phone, $smsService);
-
-        if ($result['success']) {
-            return back()->with('message', __('controller-messages.verification_code_sent'));
+        if (!$phone) {
+            return back()->withErrors(['message' => __('Session expired. Please try again.')]);
         }
 
-        return back()->withErrors(['message' =>  $result['message']]);
-    }
+        $result = $this->registerService->generateAndSendOtp($phone);
 
-    public function sendSMS($phone, $smsService)
-    {
-        $otp = $smsService->generateOtp(6);
+        if (!$result['success']) {
+            return back()->withErrors(['message' => $result['message']]);
+        }
 
+        // Refresh OTP in session
         session([
-            'otp' => $otp,
-            'otp_expires_at' => now()->addMinutes(15),
+            'otp'            => $result['otp'],
+            'otp_expires_at' => now()->addMinutes(15)->toDateTimeString(),
         ]);
 
-        $result = $smsService->sendOtp(phoneNumber: $phone, code: $otp,);
-
-        return $result;
+        return back()->with('message', $result['message']);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Step 3 — Verify OTP, create user, sync BC, log in
+    |--------------------------------------------------------------------------
+    */
 
     public function verifyCode(Request $request)
     {
@@ -112,80 +126,36 @@ class RegisterController extends Controller
             'otp' => 'required|string|size:6',
         ]);
 
-        $otp = session('otp');
-
-        $otpExpiresAt = session('otp_expires_at');
         $registerData = session('register_data');
+        $phone        = session('phone');
 
-        if (!$otp || !$registerData) {
-            return back()->withErrors(['message' => __('controller-messages.session_expired')]);
+        // Verify OTP from session
+        $verification = $this->registerService->verifyOtpFromSession(
+            sessionOtp:       session('otp'),
+            sessionExpiresAt: session('otp_expires_at'),
+            submittedOtp:     $request->otp,
+        );
+
+        if (!$verification['valid']) {
+            if (str_contains($verification['message'], 'expired')) {
+                session()->forget(['otp', 'otp_expires_at', 'register_data', 'phone']);
+            }
+            return back()->withErrors(['message' => $verification['message']]);
         }
 
-        // Check expiration
-        if (now()->greaterThan($otpExpiresAt)) {
-            session()->forget(['otp', 'otp_expires_at', 'register_data']);
-            return back()->withErrors(['message' => __('controller-messages.verification_code_expired')]);
-        }
+        // Create user
+        $user = $this->registerService->createUser($registerData, $phone);
 
-        // Check code
-        if ($otp !== $request->otp) {
-            return back()->withErrors(['message' => __('controller-messages.invalid_verification_code')]);
-        }
+        // Sync with Business Central
+        $this->registerService->syncWithBusinessCentral($user);
 
-        // Create user after successful verification
-        $user = User::create([
-            'user_type' => $registerData['user_type'],
-            'tax_id' => $registerData['tax_id'],
-            'name' => $registerData['name'],
-            'phone_country' => $registerData['phone_country'],
-            'phone' => $registerData['phone'],
-            'email' => $registerData['email'],
-            'password' => Hash::make($registerData['password']),
-            'phone_verified_at' => now(),
-        ]);
-
-        $custEndpoint = 'Customers?$filter=VAT_Registration_No eq '."'".$user->tax_id."'";
-
-        $bcCustomer = $this->bcService->getCustomer($custEndpoint);
-
-        if(empty($bcCustomer['value'])) {
-            $this->addCustomerToBC($user);
-        } else {
-            $user->bc_customer_no = $bcCustomer['value'][0]['No'];
-            $user->save();
-        }
-
+        // Log in via session (web)
         Auth::login($user);
         $request->session()->regenerate();
 
-        // Clear session data
+        // Clean up session
         session()->forget(['otp', 'otp_expires_at', 'phone', 'register_data']);
 
         return to_route('account.index');
-    }
-
-    public function addCustomerToBC($user)
-    {
-        $payload = [
-            'Name' => $user->name . ' ' . $user->lastname,
-            'Search_Name' => $user->name . ' ' . $user->lastname,
-            'Address' => $user->address,
-            'Address_2' => '',
-            'Salesperson_Code' => '6002',
-            'Phone_No' => $user->phone,
-            'E_Mail' => $user->email?? 'Email not provided',
-            'VAT_Registration_No' => $user->tax_id,
-        ];
-
-        $result = $this->bcService->addCustomer($payload);
-
-        if ($result) {
-            $user->bc_customer_no = $result['No'];
-            $user->save();
-
-            return response()->json(['status' => 'ok'], 201);
-        } else {
-            return response()->json(['status' => 'failed'], 422);
-        }
     }
 }
