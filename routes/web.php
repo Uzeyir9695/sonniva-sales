@@ -15,7 +15,7 @@ use Inertia\Inertia;
      * Auth Routes
      * *****************************************************************************************************************/
     Route::get('register', [RegisterController::class, 'showRegisterForm'])->name('register.show')->middleware('guest');
-    Route::get('register/submit-form', [RegisterController::class, 'register'])->name('register')->middleware('guest');
+    Route::post('register/submit-form', [RegisterController::class, 'register'])->name('register')->middleware('guest');
     Route::get('register/verify-phone', [RegisterController::class, 'showRegisterVerifyPhone'])->name('register.verify-phone.show');
     Route::post('registration/verify/phone', [RegisterController::class, 'verifyCode'])->name('register.verify-code');
     Route::post('register/resend-code', [RegisterController::class, 'resendCode'])->name('register.resend-code');
@@ -44,7 +44,7 @@ use Inertia\Inertia;
     Route::get('forgot-password/verify-phone', [ForgotPasswordController::class, 'showFPVerifyPhone'])
         ->name('forgot-password.verify-phone.show');
 
-    Route::get('forgot-password/verify-code', [ForgotPasswordController::class, 'verifyCode'])
+    Route::post('forgot-password/verify-code', [ForgotPasswordController::class, 'verifyCode'])
         ->name('forgot-password.verify-code');
 
     Route::get('forgot-password/reset', [ForgotPasswordController::class, 'showResetPasswordForm'])
