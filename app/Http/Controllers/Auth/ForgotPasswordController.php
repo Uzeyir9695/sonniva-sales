@@ -3,15 +3,25 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use App\Services\SmsService;
+use App\Services\ForgotPasswordService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
-use Propaganistas\LaravelPhone\PhoneNumber;
 
 class ForgotPasswordController extends Controller
 {
+    protected ForgotPasswordService $forgotPasswordService;
+
+    public function __construct(ForgotPasswordService $forgotPasswordService)
+    {
+        $this->forgotPasswordService = $forgotPasswordService;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Show Forms
+    |--------------------------------------------------------------------------
+    */
+
     public function showForgetPasswordForm()
     {
         return Inertia::render('auth/ForgotPassword');
@@ -29,58 +39,75 @@ class ForgotPasswordController extends Controller
         return Inertia::render('auth/ResetPassword');
     }
 
-    public function sendVerificationCode(Request $request, SmsService $smsService)
+    /*
+    |--------------------------------------------------------------------------
+    | Step 1 — Send OTP
+    |--------------------------------------------------------------------------
+    */
+
+    public function sendVerificationCode(Request $request)
     {
         $request->validate([
-            'phone_country'  => 'required|string',
-            'phone' => 'required|phone:phone_country',
+            'phone_country' => 'required|string',
+            'phone'         => 'required|phone:phone_country',
         ]);
 
-        $phone = new PhoneNumber($request->phone, 'GE');
+        $phone = $this->forgotPasswordService->formatPhone($request->phone, $request->phone_country);
 
-        if (!User::where('phone', $phone->formatE164())->exists()) {
+        if (!$this->forgotPasswordService->phoneExists($phone)) {
             return back()->withErrors(['phone' => 'This phone number is not registered.']);
         }
 
-        session([
-            'phone' => $phone,
-        ]);
+        $result = $this->forgotPasswordService->generateAndSendOtp($phone);
 
-        $result = $this->sendSMS($phone, $smsService);
-
-        if ($result['success']) {
-            return to_route('forgot-password.verify-phone.show')->with('message', __('controller-messages.verification_code_sent'));
+        if (!$result['success']) {
+            return back()->withErrors(['message' => $result['message']]);
         }
 
-        return back()->withErrors(['message' =>  $result['message']]);
+        // Store in session for web flow
+        session([
+            'phone'          => $phone,
+            'otp'            => $result['otp'],
+            'otp_expires_at' => now()->addMinutes(5)->toDateTimeString(),
+        ]);
+
+        return to_route('forgot-password.verify-phone.show')->with('message', $result['message']);
     }
 
-    public function resendCode(SmsService $smsService)
+    /*
+    |--------------------------------------------------------------------------
+    | Step 2 — Resend OTP
+    |--------------------------------------------------------------------------
+    */
+
+    public function resendCode()
     {
         $phone = session('phone');
 
-        $result = $this->sendSMS($phone, $smsService);
-
-        if ($result['success']) {
-            return back()->with('message', __('controller-messages.verification_code_resent'));
+        if (!$phone) {
+            return back()->withErrors(['message' => __('controller-messages.session_expired')]);
         }
 
-        return back()->withErrors(['message' =>  $result['message']]);
-    }
+        $result = $this->forgotPasswordService->generateAndSendOtp($phone);
 
-    public function sendSMS($phone, $smsService)
-    {
-        $otp = $smsService->generateOtp(6);
+        if (!$result['success']) {
+            return back()->withErrors(['message' => $result['message']]);
+        }
 
+        // Refresh OTP in session
         session([
-            'otp' => $otp,
-            'otp_expires_at' => now()->addMinutes(5),
+            'otp'            => $result['otp'],
+            'otp_expires_at' => now()->addMinutes(5)->toDateTimeString(),
         ]);
 
-        $result = $smsService->sendOtp(phoneNumber: $phone, code: $otp,);
-
-        return $result;
+        return back()->with('message', __('controller-messages.verification_code_resent'));
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Step 3 — Verify OTP
+    |--------------------------------------------------------------------------
+    */
 
     public function verifyCode(Request $request)
     {
@@ -88,40 +115,64 @@ class ForgotPasswordController extends Controller
             'otp' => 'required|string|size:6',
         ], [
             'otp.required' => 'The OTP code is required.',
-            'otp.size' => 'The OTP code must be 6-digit.',
+            'otp.size'     => 'The OTP code must be 6-digit.',
         ]);
 
-        $otp = session('otp');
-        $otpExpiresAt = session('otp_expires_at');
+        $phone = session('phone');
 
-        if (!$otp) {
-            return back()->withErrors(['message' => __('controller-messages.session_expired')]);
-        }
-        // Check expiration
-        if (now()->greaterThan($otpExpiresAt)) {
-            session()->forget(['otp', 'otp_expires_at']);
-            return back()->withErrors(['message' => __('controller-messages.verification_code_expired')]);
-        }
+        $verification = $this->forgotPasswordService->verifyOtpFromSession(
+            sessionOtp:       session('otp'),
+            sessionExpiresAt: session('otp_expires_at'),
+            submittedOtp:     $request->otp,
+        );
 
-        // Check code
-        if ($otp !== $request->otp) {
-            return back()->withErrors(['message' => __('controller-messages.invalid_verification_code')]);
+        if (!$verification['valid']) {
+            if (str_contains($verification['message'], 'expired')) {
+                session()->forget(['otp', 'otp_expires_at']);
+            }
+            return back()->withErrors(['message' => $verification['message']]);
         }
 
-        // Clear session data
-        session()->forget(['otp', 'otp_expires_at', 'phone']);
+        // OTP verified — store verified phone for reset step
+        session([
+            'verified_phone' => $phone,
+        ]);
+
+        // Clear OTP but keep phone for potential resend on reset page
+        session()->forget(['otp', 'otp_expires_at']);
 
         return to_route('forgot-password.reset.show');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Step 4 — Reset Password
+    |--------------------------------------------------------------------------
+    */
+
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'phone' => 'required|numeric|exists:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        User::where('phone', $request->phone)->update(['password' => Hash::make($request->password)]);
+        $verifiedPhone = session('verified_phone');
+
+        if (!$verifiedPhone) {
+            return back()->withErrors(['message' => __('controller-messages.session_expired')]);
+        }
+
+        $success = $this->forgotPasswordService->resetPassword(
+            $verifiedPhone->formatE164(),
+            $request->password
+        );
+
+        if (!$success) {
+            return back()->withErrors(['message' => 'Failed to reset password.']);
+        }
+
+        // Clear all session data
+        session()->forget(['verified_phone', 'phone']);
 
         return to_route('login')->with(['message' => __('controller-messages.password_changed')]);
     }

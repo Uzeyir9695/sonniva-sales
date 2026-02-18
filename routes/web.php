@@ -22,15 +22,18 @@ use Inertia\Inertia;
 
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
     Route::post('login', [LoginController::class, 'login'])->name('login.post')->middleware('guest');
+    /*******************************************************************************************************************
+     * Log-out
+     * *****************************************************************************************************************/
+    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
     /*******************************************************************************************************************
      * Phone Verification Routes
      * *****************************************************************************************************************/
-    // 2.1 Notice page
     Route::get('/phone-verify', [PhoneVerifyController::class, 'showVerifyPage'])->name('phone-verify.show');
 
     /***********************************************************************************************************************
-     * Forgot / Reset Password Routesf
+     * Forgot / Reset Password Routes
      * *********************************************************************************************************************/
     Route::get('forgot-password', [ForgotPasswordController::class, 'showForgetPasswordForm'])
         ->name('show.forgot.password');
@@ -52,12 +55,6 @@ use Inertia\Inertia;
 
     Route::post('forgot-password/reset', [ForgotPasswordController::class, 'resetPassword'])
         ->name('forgot-password.reset');
-
-    /*******************************************************************************************************************
-     * Log-out / Post Ad
-     * *****************************************************************************************************************/
-    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
-
 
     /*******************************************************************************************************************
      * FAQ Route
