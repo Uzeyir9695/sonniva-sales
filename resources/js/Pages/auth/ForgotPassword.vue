@@ -32,7 +32,7 @@ async function  forgotPassword(){
 
     <div class="flex mt-8 flex-col h-[400px] justify-evenly">
         <form @submit.prevent="forgotPassword" class="flex flex-col bg-white p-8 gap-6 self-center w-full sm:w-[450px] rounded-lg">
-            <p class="text-center">{{ $t('authorize.forgot_password_header') }}</p>
+            <p class="text-center">Enter the phone number associated with your account</p>
             <!-- Error Message -->
             <Message v-if="Object.keys(errors)?.length > 0" severity="error" icon="pi pi-exclamation-circle" :closable="false">
                 {{ errors.phone }}
@@ -40,11 +40,11 @@ async function  forgotPassword(){
 
             <FloatLabel variant="on">
                 <InputText id="email" v-model="form.phone" class="p-3" :invalid="!!form.errors.phone" fluid />
-                <label for="email">{{ $t('authorize.phone_number') }}</label>
+                <label for="email">Phone Number</label>
             </FloatLabel>
 
             <div class="flex xs:flex-col gap-2 sm:justify-between sm:items-center">
-                <Button :disabled="form.processing" type="submit" class="custom-button w-full" :label="form.processing ? $t('authorize.wait') : $t('authorize.continue')" size="medium" :icon="form.processing ? 'pi pi-spin pi-spinner' :'pi pi-user'" />
+                <Button :disabled="form.processing" type="submit" class="custom-button w-full" :label="form.processing ? 'Please wait...' : 'Continue'" size="medium" :icon="form.processing ? 'pi pi-spin pi-spinner' :'pi pi-user'" />
             </div>
         </form>
     </div>

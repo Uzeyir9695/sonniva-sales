@@ -40,15 +40,15 @@ async function resendCode(){
     <div class="flex mt-8 flex-col h-[400px] justify-evenly">
         <form @submit.prevent="verifyPhone" class="flex flex-col bg-white p-8 gap-6 self-center border border-slate-200 rounded-lg w-full sm:w-[450px]">
             <div class="flex flex-col items-center">
-                <div class="font-bold text-xl mb-2">{{ $t('authorize.authenticate_account') }}</div>
-                <p class="text-surface-500 dark:text-surface-400 block mb-8">{{ $t('authorize.enter_code') }}</p>
+                <div class="font-bold text-xl mb-2">Authenticate your account</div>
+                <p class="text-surface-500 dark:text-surface-400 block mb-8">Please enter the code sent to your phone.</p>
                 <InputOtp v-model="form.otp" :length="6" />
                 <div class="flex justify-between mt-8 self-stretch">
                     <Button label="Resend Code" @click="resendCode" link class="p-0"></Button>
                 </div>
             </div>
             <div class="flex xs:flex-col gap-2 sm:justify-between sm:items-center">
-                <Button :disabled="form.processing" type="submit" class="custom-button w-full" :label="form.processing ? $t('authorize.wait') : $t('authorize.submit')" size="medium" :icon="form.processing ? 'pi pi-spin pi-spinner' :'pi pi-check-circle'" />
+                <Button :disabled="form.processing" type="submit" class="custom-button w-full" :label="form.processing ? 'Please wait...' : 'Submit'" size="medium" :icon="form.processing ? 'pi pi-spin pi-spinner' :'pi pi-check-circle'" />
             </div>
         </form>
     </div>
