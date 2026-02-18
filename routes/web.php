@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\ItemController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PhoneVerifyController;
@@ -22,15 +27,7 @@ use Inertia\Inertia;
 
     Route::get('login', [LoginController::class, 'showLoginForm'])->name('login')->middleware('guest');
     Route::post('login', [LoginController::class, 'login'])->name('login.post')->middleware('guest');
-    /*******************************************************************************************************************
-     * Log-out
-     * *****************************************************************************************************************/
-    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
-
-    /*******************************************************************************************************************
-     * Phone Verification Routes
-     * *****************************************************************************************************************/
-    Route::get('/phone-verify', [PhoneVerifyController::class, 'showVerifyPage'])->name('phone-verify.show');
+    Route::post('logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
     /***********************************************************************************************************************
      * Forgot / Reset Password Routes
@@ -56,6 +53,18 @@ use Inertia\Inertia;
     Route::post('forgot-password/reset', [ForgotPasswordController::class, 'resetPassword'])
         ->name('forgot-password.reset');
 
+/*******************************************************************************************************************
+ * Admin Routes
+ * *****************************************************************************************************************/
+Route::name('admin.')->prefix('admin')->middleware(['can:access-admin'])->group( function () {
+    //******** Admin Users Controllers ********//
+    Route::get('/', [AdminController::class, 'index'])->name('index');
+
+    //******** Admin Users Controllers ********//
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::get('/user/{user}', [AdminUserController::class, 'edit'])->name('users.get-user');
+    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.delete');
+});
     /*******************************************************************************************************************
      * FAQ Route
      * *****************************************************************************************************************/

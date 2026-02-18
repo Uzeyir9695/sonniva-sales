@@ -25,9 +25,6 @@ function login() {
     });
 }
 
-const loginWith = (provider) => {
-    window.location.href = route('social.redirect', { provider });
-}
 </script>
 
 <template>
@@ -38,7 +35,7 @@ const loginWith = (provider) => {
     <div class="w-full max-w-md mx-auto mt-6">
         <!-- Login Card -->
         <div class="bg-white dark:secondary-dark-bg rounded-xl shadow-lg transition-shadow duration-500 ease-in-out hover:dark:shadow-blue-500/30 border border-slate-300 dark:border-slate-700/50 p-8">
-            <h1 class="text-2xl font-bold dark:primary-dark-mode-text mb-6 text-center">{{ $t('authorize.sign_in') }}</h1>
+            <h1 class="text-2xl font-bold dark:primary-dark-mode-text mb-6 text-center">Sign in</h1>
             <!-- Form Validation Errors -->
 <!--            <div v-if="Object.keys(errors).length > 0" class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex">-->
 <!--                <i class="pi pi-exclamation-circle text-red-400 mr-3 mt-0.5"></i>-->
@@ -67,7 +64,7 @@ const loginWith = (provider) => {
                         </InputGroupAddon>
                         <FloatLabel variant="on">
                             <InputText id="email_or_phone" v-model="form.login" pt:root:class="rounded-l-none border-slate-300 dark:border-slate-100/20 focus:dark:border-slate-100/20" :class="{ 'p-invalid': form.errors.login }" />
-                            <label for="email_or_phone">{{ $t('authorize.email_or_phone') }}</label>
+                            <label for="email_or_phone">Email or Phone</label>
                         </FloatLabel>
                     </InputGroup>
 
@@ -78,7 +75,7 @@ const loginWith = (provider) => {
                         </InputGroupAddon>
                         <FloatLabel variant="on">
                             <Password toggleMask pt:unmaskIcon:class="-mt -2" :feedback="false" inputClass="w-full rounded-md focus:shadow-none rounded-l-none border-slate-300 dark:border-slate-100/20 focus:dark:border-slate-100/20" :class="{ 'p-invalid': form.errors.password }" class="w-full" v-model="form.password" inputId="password" />
-                            <label for="password" :class="{'text-danger': form.errors.password }">{{ $t('authorize.password') }}</label>
+                            <label for="password" :class="{'text-danger': form.errors.password }">Password</label>
                         </FloatLabel>
                     </InputGroup>
 
@@ -87,12 +84,12 @@ const loginWith = (provider) => {
                         <div class="flex items-center gap-2">
                             <Checkbox v-model="form.remember" inputId="remember" binary />
                             <label for="remember" class="max-sm:!text-xs">
-                                {{ $t('authorize.remember_me') }}
+                                Remember Me
                             </label>
                         </div>
 
                         <Link :href="route('show.forgot.password')" class="text-xs sm:text-sm text-slate-800 dark:secondary-dark-mode-text">
-                            {{ $t('authorize.forgot_password') }}
+                            Forgot Password?
                         </Link>
                     </div>
                     <!-- Submit Button -->
@@ -100,7 +97,7 @@ const loginWith = (provider) => {
                         <Button
                             type="submit"
                             icon="pi pi-user"
-                            :label="$t('authorize.sign_in')"
+                            label="Sign in"
                             class="w-full flex justify-center items-center py-2.5 px-4 rounded-lg border-none shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-500/90"
                         />
                     </div>
@@ -110,9 +107,9 @@ const loginWith = (provider) => {
             <div class="mt-6">
                 <Divider/>
                 <p class="text-center text-sm dark:secondary-dark-mode-text">
-                    {{ $t('authorize.dont_have_account') }}
+                    Don't have an account?
                     <Link :href="route('register.show')" class="font-medium text-blue-500 hover:text-brand-500/80 transition-colors">
-                        {{ $t('authorize.create_account') }}
+                        Sign up
                     </Link>
                 </p>
             </div>
