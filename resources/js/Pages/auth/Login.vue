@@ -84,7 +84,7 @@ function login() {
                         <div class="flex items-center gap-2">
                             <Checkbox v-model="form.remember" inputId="remember" binary />
                             <label for="remember" class="max-sm:!text-xs">
-                                Remember Me
+                                Remember me
                             </label>
                         </div>
 
