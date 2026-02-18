@@ -3,17 +3,22 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\LoginService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
 use Inertia\Inertia;
 
 class LoginController extends Controller
 {
+    protected LoginService $loginService;
+
+    public function __construct(LoginService $loginService)
+    {
+        $this->loginService = $loginService;
+    }
+
     public function showLoginForm()
     {
-        $url = url()->previous();
-        session()->put('intended-url', $url);
         return Inertia::render('auth/Login');
     }
 
@@ -24,47 +29,40 @@ class LoginController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
-        $key = 'login-attempt:' . $credentials['login'];
+        // Service handles: phone format, rate limit, auth attempt, last_login_at update
+        $result = $this->loginService->attemptLogin(
+            $credentials['login'],
+            $credentials['password'],
+            $request->boolean('remember'),
+        );
 
-        if (RateLimiter::tooManyAttempts($key, 3)) {
-
-            $seconds = RateLimiter::availableIn($key);
-            $minutes = ceil($seconds / 60);
-
-            return back()->withErrors([
-                'message' => "Too many login attempts. Try again in {$minutes} minute(s)."
-            ]);
+        if (!$result['success']) {
+            return back()->withErrors(['message' => $result['message']]);
         }
 
-        $loginField = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+        $request->session()->regenerate();
 
-        if (Auth::attempt([$loginField => $credentials['login'], 'password' => $credentials['password']], $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            RateLimiter::clear($key);
+        $user = $result['user'];
 
-            Auth::user()->update(['last_login_at' => now()]);
-
-            if(Auth::user()->role === 'admin') {
-                return to_route('admin.invoices.index');
-            }
-
-            return redirect()->intended(session('intended-url'));
+        if ($user->role === 'admin' || $user->role === 'manager') {
+            return to_route('admin.index');
         }
 
-        $decayMinutes = 15 * 60;
-        RateLimiter::hit($key, $decayMinutes);
-
-        return redirect()->back()->withErrors(['message' => 'Invalid credentials. Please try again.']);
+        return redirect()->intended('/home');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Logout
+    |--------------------------------------------------------------------------
+    */
 
     public function logout(Request $request)
     {
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-        // regenerate CSRF token
         $request->session()->regenerateToken();
-
 
         return redirect()->route('login');
     }
