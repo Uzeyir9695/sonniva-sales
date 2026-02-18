@@ -1,13 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\Admin\ItemController;
-use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\PhoneVerifyController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
@@ -53,18 +49,21 @@ use Inertia\Inertia;
     Route::post('forgot-password/reset', [ForgotPasswordController::class, 'resetPassword'])
         ->name('forgot-password.reset');
 
-/*******************************************************************************************************************
- * Admin Routes
- * *****************************************************************************************************************/
-Route::name('admin.')->prefix('admin')->middleware(['can:access-admin'])->group( function () {
-    //******** Admin Users Controllers ********//
-    Route::get('/', [AdminController::class, 'index'])->name('index');
 
-    //******** Admin Users Controllers ********//
-    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
-    Route::get('/user/{user}', [AdminUserController::class, 'edit'])->name('users.get-user');
-    Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.delete');
-});
+    Route::middleware(['auth'])->group( function () {
+        /*******************************************************************************************************************
+         * Admin Routes
+         * *****************************************************************************************************************/
+        Route::name('admin.')->prefix('admin')->middleware(['can:access-admin'])->group(function () {
+            //******** Admin Users Controllers ********//
+            Route::get('/', [AdminController::class, 'index'])->name('index');
+
+            //******** Admin Users Controllers ********//
+            Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+            Route::get('/user/{user}', [AdminUserController::class, 'edit'])->name('users.get-user');
+            Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.delete');
+        });
+    });
     /*******************************************************************************************************************
      * FAQ Route
      * *****************************************************************************************************************/

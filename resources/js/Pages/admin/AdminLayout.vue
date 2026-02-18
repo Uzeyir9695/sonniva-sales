@@ -5,54 +5,15 @@ import {useToast} from "primevue/usetoast";
 
 const toast = useToast();
 const page = usePage();
-const invoicesCount = computed(() => page.props.invoicesCount);
-const unseenInvoices = computed(() => page.props.unseenInvoices);
-const salesCount = computed(() => page.props.salesCount);
-const unseenSales = computed(() => page.props.unseenSales);
 
 const menuItems = [
-    {
-        name: 'Invoices',
-        route: 'admin.invoices.index',
-        icon: 'pi-file'
-    },
-    {
-        name: 'Sales',
-        route: 'admin.sales.index',
-        icon: 'pi-cart-plus'
-    },
-    {
-        name: 'Ready Orders',
-        route: 'admin.ready-orders',
-        icon: 'pi-truck'
-    },
     {
         name: 'Users',
         route: 'admin.users.index',
         icon: 'pi-users'
     },
-    {
-        name: 'Manage Items',
-        route: 'admin.items.index',
-        icon: 'pi-box'
-    },
-    {
-       name: 'Analytics & Reports',
-       route: 'admin.reports.index',
-       icon: 'pi-chart-bar'
-    },
-    // {
-    //    name: 'Scanner',
-    //    route: 'scanner.show',
-    //    icon: 'pi-qrcode'
-    // },
 ];
 
-usePoll(10000, {
-    only: ['unseenInvoices', 'unseenSales'],   // fetch ONLY these props
-    preserveScroll: true,
-    preserveState: true,
-})
 </script>
 
 <template>
@@ -87,9 +48,6 @@ usePoll(10000, {
                                     <i :class="['pi text-lg', item.icon, route().current(item.route) ? 'text-green-600' : 'text-gray-500']"></i>
                                     <span class="">{{ item.name }}</span>
                                 </div>
-
-                                <span v-if="unseenInvoices > 0 && item.name === 'Invoices'" class="font-bold bg-red- 600 text-black px-2 py-0.5 rounded-md text-xs">{{unseenInvoices}}</span>
-                                <span v-if="unseenSales > 0 && item.name === 'Sales'" class="flex items-center justify-center font-bold text-black w-5 h-5 p-2 rounded-full text-xs">{{unseenSales}}</span>
                             </div>
                         </Link>
                     </li>

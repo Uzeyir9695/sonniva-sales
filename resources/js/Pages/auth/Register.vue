@@ -41,12 +41,12 @@ async function register(){
     <div class="w-full max-w-md mx-auto my-6">
         <!-- Register Card -->
         <div class="bg-white rounded-xl shadow-lg transition-shadow duration-500 ease-in-out border transiton-all border-gray-200 p-8">
-            <h1 class="text-2xl font-bold text-gray-800 dark:primary-dark-mode-text text-center">{{ $t('authorize.register') }}</h1>
+            <h1 class="text-2xl font-bold text-gray-800 dark:primary-dark-mode-text text-center">Sign Up</h1>
 
             <div class="flex justify-center my-4">
                 <SelectButton v-model="selectedUserType" optionLabel="key" :options="userTypes">
                     <template #option="slotProps">
-                        <p>{{ $t('authorize.'+slotProps.option.key) }}</p>
+                        <p>{{ slotProps.option.key }}</p>
                     </template>
                 </SelectButton>
             </div>
@@ -73,7 +73,7 @@ async function register(){
                             :invalid="!!form.errors.name"
                         />
                         <label for="name">
-                            {{ $t('authorize.name') }}  {{ $t('authorize.last_name') }}
+                            Name
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -92,7 +92,7 @@ async function register(){
                             :invalid="!!form.errors.phone"
                         />
                         <label for="phone">
-                            {{ $t('authorize.phone_number') }}
+                            Phone Number
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -111,7 +111,7 @@ async function register(){
                             pt:root:class="rounded-l-none border-slate-300"
                             :invalid="!!form.errors.tax_id"
                         />
-                        <label for="id-number">{{ selectedUserType?.key === 'individual' ? $t('authorize.id_number') : $t('authorize.tax_number') }}</label>
+                        <label for="id-number">{{ selectedUserType?.key === 'individual' ? 'ID Number' : 'TAX ID' }}</label>
                     </FloatLabel>
                 </InputGroup>
 
@@ -127,7 +127,7 @@ async function register(){
                             pt:root:class="rounded-l-none border-slate-300"
                             :invalid="!!form.errors.email"
                         />
-                        <label for="email">{{ $t('authorize.email') }}</label>
+                        <label for="email">Email</label>
                     </FloatLabel>
                 </InputGroup>
 
@@ -147,7 +147,7 @@ async function register(){
                             inputClass="w-full border-left-none border border-gray-300 rounded-r-lg text-gray-800 focus:shadow-none"
                         />
                         <label for="password">
-                            {{ $t('authorize.password') }}
+                            Password
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -168,7 +168,7 @@ async function register(){
                             inputClass="w-full border-left-none border border-gray-300 rounded-r-lg text-gray-800 focus:shadow-none"
                         />
                         <label for="password_confirm">
-                            {{ $t('authorize.repeat_password') }}
+                            Repeat Password
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -178,7 +178,7 @@ async function register(){
                     <Button
                         type="submit"
                         icon="pi pi-user-plus"
-                        :label="$t('authorize.submit')"
+                        label="Submit"
                         class="w-full bg-blue-500 hover:bg-blue-500/90 border-none text-white rounded-lg py-2.5"
                     />
                 </div>
@@ -186,12 +186,12 @@ async function register(){
                 <Divider pt:root:class="m-0"></Divider>
                 <div>
                     <div class="flex justify-center gap-x-2 text-sm dark:secondary-dark-mode-text">
-                        <p class="w-fit">{{ $t('authorize.already_have_account') }}</p>
+                        <p class="w-fit">Already have an account?</p>
                         <!-- Login Link -->
                         <div class="flex items-center w-fit gap-x-2 text-nowrap">
                             <i class="pi pi-user text-brand-500"></i>
                             <Link :href="route('login')" class="flex items-center text-brand-500 text-sm no-underline">
-                                {{ $t('authorize.sign_in') }}
+                                Sign in
                             </Link>
                         </div>
                     </div>

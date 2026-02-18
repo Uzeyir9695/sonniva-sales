@@ -38,6 +38,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $isAdmin = auth()?->user()?->role === 'admin';
+
         return [
             ...parent::share($request),
             'ziggy' => function () use ($request) {
@@ -50,6 +52,7 @@ class HandleInertiaRequests extends Middleware
             },
 
             'isLoggedIn' => Auth::check(),
+            'isAdmin' => $isAdmin,
             'user' => Auth::user(),
 
             'flash' => [

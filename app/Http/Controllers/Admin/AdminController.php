@@ -11,7 +11,7 @@ use Inertia\Inertia;
 class AdminController extends Controller
 {
     //
-    public function index(string $locale)
+    public function index()
     {
         return Inertia::render('admin/AdminLayout');
     }

@@ -37,7 +37,7 @@ class LoginService
                 return [
                     'success' => false,
                     'user'    => null,
-                    'message' => __('controller-messages.use_email_or_phone'),
+                    'message' => __('Use a valid email address or phone number.'),
                     'locked'  => false,
                     'seconds' => null,
                     'error_type' => 'invalid_phone',
