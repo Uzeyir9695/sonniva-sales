@@ -22,14 +22,15 @@ class AdminSeeder extends Seeder
                 'name' => 'Admin',
                 'lastname' => 'Panel',
                 'tax_id' => '12345678910',
-                'email' => 'frame@sonniva.ge',
+                'email' => 'sales@sonniva.ge',
                 'role' => 'admin',
                 'phone_country' => 'GE',
                 'phone_verified_at' => now(),
                 'email_verified_at' => now(),
-                'password' => Hash::make('SonnivaFrame2025@'),
+                'password' => Hash::make('SonnivaSales2025@'),
             ]
         );
+
         User::updateOrCreate(
             [
                 'phone' => '+995596720001'],
