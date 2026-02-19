@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -62,6 +63,15 @@ use Inertia\Inertia;
             Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
             Route::get('/user/{user}', [AdminUserController::class, 'edit'])->name('users.get-user');
             Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.delete');
+        });
+
+        /*******************************************************************************************************************
+         * Settings (Profile / Account) Routes
+         * *****************************************************************************************************************/
+        Route::name('account.')->prefix('account')->group(function () {
+            Route::get('/', [AccountController::class, 'index'])->name('index');
+            Route::put('/update/{user}', [AccountController::class, 'update'])->name('update');
+            Route::put('/change-password', [AccountController::class, 'changePassword'])->name('change-password');
         });
     });
     /*******************************************************************************************************************
