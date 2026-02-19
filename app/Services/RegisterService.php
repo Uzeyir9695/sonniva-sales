@@ -205,7 +205,9 @@ class RegisterService
         return User::create([
             'user_type'         => $data['user_type'],
             'tax_id'            => $data['tax_id'],
+            'is_handyman'       => $data['is_handyman'],
             'name'              => $data['name'],
+            'lastname'          => $data['lastname'] ?? null,
             'phone_country'     => $data['phone_country'],
             'phone'             => $phone->formatE164(),
             'email'             => $data['email'] ?? null,

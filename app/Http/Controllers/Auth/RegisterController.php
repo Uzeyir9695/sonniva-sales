@@ -47,6 +47,7 @@ class RegisterController extends Controller
         $validated = $request->validate([
             'user_type' => 'required|string|max:20',
             'tax_id' => 'required|string|min:9|max:50',
+            'is_handyman' => 'required',
             'name' => 'required|string|max:30',
             'lastname'  => 'required_if:user_type,individual|max:30',
             'phone_country'  => 'required|string',
@@ -58,9 +59,9 @@ class RegisterController extends Controller
                 app()->environment('testing') ? null : new RecaptchaV3('signup'),
             ]),
         ],
-            [
-                'lastname.required_if' => __('The lastname field is required when user type is individual.'),
-            ]);
+        [
+            'lastname.required_if' => __('The lastname field is required when user type is individual.'),
+        ]);
 
         $phone = $this->registerService->formatPhone($request->phone, $request->phone_country);
 
@@ -77,12 +78,15 @@ class RegisterController extends Controller
         // Web uses session to hold OTP and registration data between steps
         session([
             'register_data' => [
-                'user_type'     => $validated['user_type'],
-                'tax_id'        => $validated['tax_id'],
-                'name'          => $validated['name'],
+                'user_type' => $validated['user_type'],
+                'tax_id' => $validated['tax_id'],
+                'is_handyman' => $validated['is_handyman'],
+                'name' => $validated['name'],
+                'lastname' => $validated['lastname'] ?? null,
                 'phone_country' => $validated['phone_country'],
-                'email'         => $validated['email'] ?? null,
-                'password'      => $validated['password'], // hashed in service on createUser()
+                'phone' => $phone,
+                'email' => $validated['email'] ?? null,
+                'password' => $validated['password'], // hash later
             ],
             'phone'          => $phone,
             'otp'            => $result['otp'],

@@ -17,6 +17,7 @@ const selectedCountryCode = ref('GE');
 
 const form = useForm({
     user_type: null,
+    is_handyman: false,
     name: null,
     lastname: null,
     phone_country: selectedCountryCode.value,
@@ -85,7 +86,7 @@ async function register(){
                             :invalid="!!form.errors.name"
                         />
                         <label for="name">
-                            Name
+                            {{  selectedUserType?.key === 'individual' ? 'Name' : 'Company Name' }}
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -202,6 +203,11 @@ async function register(){
                         </label>
                     </FloatLabel>
                 </InputGroup>
+
+                <div v-if="selectedUserType?.key === 'individual'" class="flex items-center gap-2">
+                    <Checkbox v-model="form.is_handyman" binary />
+                    <label for="ingredient1"> I am a handyman </label>
+                </div>
 
                 <!-- Submit Button -->
                 <div>

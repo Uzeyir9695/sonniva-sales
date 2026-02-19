@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('bc_customer_no')->nullable();
             $table->string('user_type')->nullable();
             $table->string('role')->default('user');
+            $table->boolean('is_handyman')->default(false);
             $table->string('name')->nullable();
             $table->string('lastname')->nullable();
             $table->string('phone_country')->default('GE');

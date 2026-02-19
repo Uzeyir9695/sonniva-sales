@@ -14,18 +14,15 @@ const isAuthenticated = computed(() => page.props.isLoggedIn);
     *****************************************************-->
     <header class="bg-sky-400 sticky top-0 flex justify-around items-center shadow-sm h-24 z-50">
         <div class="flex space-x-12 items-center">
-<!--            <Link :href="route('home')" class="flex items-center h-16">-->
-<!--                <img src="/logo/logo.png" alt="logo" class="w-32 h-full object-cover ">-->
-<!--            </Link>-->
+            <Link v-if="!isAuthenticated" :href="route('login')" class="flex items-center space-x-2 hover:text-brand-500 text-sm border border-gray-300 px-3 py-2 rounded-md">
+                <i class="pi pi-user mr-2"></i>
+                Login
+            </Link>
 
-<!--            <div class="flex space-x-6">-->
-<!--                <Link :href="route('about-us')" class="flex items-center hover:text-brand-500 h-16">-->
-<!--                    {{ $t('menu.about_us') }}-->
-<!--                </Link>-->
-<!--                <Link :href="route('user.ordered-frames')" class="flex items-center hover:text-brand-500 h-16">-->
-<!--                    {{ $t('menu.orders') }}-->
-<!--                </Link>-->
-<!--            </div>-->
+            <Link v-if="isAuthenticated" :href="route('logout')" method="post" as="button" type="button" :replace="true" class="bg-blue-500 cursor-pointer">
+                <i class="pi pi-sign-out sm:text-md mr-2 font-bold"></i>
+                Log Out
+            </Link>
         </div>
     </header>
 </template>
