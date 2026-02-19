@@ -9,7 +9,7 @@ const form = useForm({
     otp: '',
 })
 async function  verifyPhone(){
-    form.get(route('forgot-password.verify-code'), {
+    form.post(route('forgot-password.verify-code'), {
         onSuccess: (res) => {
             form.reset();
         },
