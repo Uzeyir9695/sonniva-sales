@@ -11,7 +11,7 @@ const userTypes = ref([
     { key: 'individual', value: 'Individual' },
     { key: 'legal_entity', value: 'Legal Entity' },
 ]);
-const selectedUserType = ref({ key: 'individual' });
+const selectedUserType = ref({ key: 'individual', value: 'Individual' });
 
 const selectedCountryCode = ref('GE');
 
