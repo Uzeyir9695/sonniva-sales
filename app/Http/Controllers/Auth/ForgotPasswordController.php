@@ -30,7 +30,7 @@ class ForgotPasswordController extends Controller
     public function showFPVerifyPhone()
     {
         return Inertia::render('auth/ForgotPasswordVerifyPhone', [
-            'success' => __('controller-messages.verification_code_sent')
+            'success' => __('Verification code sent. Please check you phone!')
         ]);
     }
 
@@ -85,7 +85,7 @@ class ForgotPasswordController extends Controller
         $phone = session('phone');
 
         if (!$phone) {
-            return back()->withErrors(['message' => __('controller-messages.session_expired')]);
+            return back()->withErrors(['message' => __('Session expired. Please try resend code.')]);
         }
 
         $result = $this->forgotPasswordService->generateAndSendOtp($phone);
@@ -100,7 +100,7 @@ class ForgotPasswordController extends Controller
             'otp_expires_at' => now()->addMinutes(5)->toDateTimeString(),
         ]);
 
-        return back()->with('message', __('controller-messages.verification_code_resent'));
+        return back()->with('message', __('Verification code resent. Please check your phone!'));
     }
 
     /*
@@ -159,7 +159,7 @@ class ForgotPasswordController extends Controller
         $verifiedPhone = session('verified_phone');
 
         if (!$verifiedPhone) {
-            return back()->withErrors(['message' => __('controller-messages.session_expired')]);
+            return back()->withErrors(['message' => __('Session expired. Please try resend code.')]);
         }
 
         $success = $this->forgotPasswordService->resetPassword(
@@ -174,6 +174,6 @@ class ForgotPasswordController extends Controller
         // Clear all session data
         session()->forget(['verified_phone', 'phone']);
 
-        return to_route('login')->with(['message' => __('controller-messages.password_changed')]);
+        return to_route('login')->with(['message' => __('Your password has been changed. Please log in again.')]);
     }
 }

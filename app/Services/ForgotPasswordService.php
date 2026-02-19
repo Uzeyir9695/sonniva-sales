@@ -66,7 +66,7 @@ class ForgotPasswordService
             return [
                 'success' => true,
                 'otp'     => $otp,
-                'message' => __('controller-messages.verification_code_sent'),
+                'message' => __('Verification code sent. Please check you phone!'),
             ];
         }
 
