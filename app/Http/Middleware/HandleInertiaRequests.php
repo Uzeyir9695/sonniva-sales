@@ -51,6 +51,8 @@ class HandleInertiaRequests extends Middleware
                 ]);
             },
 
+            'recaptcha_site_key' => config('services.google_recaptcha.site_key'),
+
             'isLoggedIn' => Auth::check(),
             'isAdmin' => $isAdmin,
             'user' => Auth::user(),
