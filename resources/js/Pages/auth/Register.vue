@@ -1,32 +1,44 @@
 <script setup>
-import {Head, Link, useForm} from '@inertiajs/vue3';
+import {Head, Link, useForm, usePage} from '@inertiajs/vue3';
 import { Divider } from 'primevue';
 import {ref} from "vue";
 
 const props = defineProps(['errors']);
+const page = usePage();
+const recaptchaSiteKey = page.props.recaptcha_site_key;
 
 const userTypes = ref([
-    { key: 'individual' },
-    { key: 'legal_entity' },
+    { key: 'individual', value: 'Individual' },
+    { key: 'legal_entity', value: 'Legal Entity' },
 ]);
-
 const selectedUserType = ref({ key: 'individual' });
 
 const selectedCountryCode = ref('GE');
 
 const form = useForm({
-    user_type: selectedUserType.value?.key,
+    user_type: null,
     name: null,
+    lastname: null,
     phone_country: selectedCountryCode.value,
     phone: null,
     tax_id: null,
     email: null,
     password: null,
     password_confirmation: null,
+    captcha_token: null,
 })
 
 async function register(){
-    form.get(route('register'), {
+    form.captcha_token = await grecaptcha.enterprise.execute(recaptchaSiteKey, { action: 'signup' });
+
+    if (selectedUserType.value?.key !== 'individual') {
+        delete form.lastname
+    }
+
+    form.transform((data) => ({
+        ...data,
+        user_type: selectedUserType.value ? selectedUserType.value?.key : null,
+    })).post(route('register'), {
         preserveState: true,
     })
 }
@@ -41,12 +53,12 @@ async function register(){
     <div class="w-full max-w-md mx-auto my-6">
         <!-- Register Card -->
         <div class="bg-white rounded-xl shadow-lg transition-shadow duration-500 ease-in-out border transiton-all border-gray-200 p-8">
-            <h1 class="text-2xl font-bold text-gray-800 dark:primary-dark-mode-text text-center">Sign Up</h1>
+            <h1 class="text-2xl font-bold text-gray-800 dark:primary-dark-mode-text text-center">Register</h1>
 
             <div class="flex justify-center my-4">
-                <SelectButton v-model="selectedUserType" optionLabel="key" :options="userTypes">
+                <SelectButton v-model="selectedUserType" optionLabel="key" :allow-empty="false" :options="userTypes">
                     <template #option="slotProps">
-                        <p>{{ slotProps.option.key }}</p>
+                        <p>{{ slotProps.option.value }}</p>
                     </template>
                 </SelectButton>
             </div>
@@ -78,6 +90,24 @@ async function register(){
                     </FloatLabel>
                 </InputGroup>
 
+                <!-- Lastname Field -->
+                <InputGroup v-if="selectedUserType?.key === 'individual'">
+                    <InputGroupAddon>
+                        <i class="pi pi-users text-gray-400"></i>
+                    </InputGroupAddon>
+                    <FloatLabel variant="on">
+                        <InputText
+                            id="lastname"
+                            v-model="form.lastname"
+                            pt:root:class="rounded-l-none border-slate-300"
+                            :invalid="!!form.errors.lastname"
+                        />
+                        <label for="lastname">
+                            Lastname
+                        </label>
+                    </FloatLabel>
+                </InputGroup>
+
                 <!-- Mobile Field -->
                 <InputGroup>
                     <InputGroupAddon>
@@ -103,15 +133,15 @@ async function register(){
                         <i class="pi pi-id-card text-gray-400"></i>
                     </InputGroupAddon>
                     <FloatLabel variant="on">
-                        <InputNumber
-                            :useGrouping="false"
-                            :max="11"
+                        <InputText
+                            v-keyfilter="{ pattern: /[\d+]+$/, validateOnly: true }"
                             id="id-number"
                             v-model="form.tax_id"
+                            :maxlength="11"
                             pt:root:class="rounded-l-none border-slate-300"
                             :invalid="!!form.errors.tax_id"
                         />
-                        <label for="id-number">{{ selectedUserType?.key === 'individual' ? 'ID Number' : 'TAX ID' }}</label>
+                        <label for="id-number">{{ selectedUserType?.key === 'individual' ? 'ID Number' : 'Tax ID' }}</label>
                     </FloatLabel>
                 </InputGroup>
 
@@ -191,23 +221,12 @@ async function register(){
                         <div class="flex items-center w-fit gap-x-2 text-nowrap">
                             <i class="pi pi-user text-brand-500"></i>
                             <Link :href="route('login')" class="flex items-center text-brand-500 text-sm no-underline">
-                                Sign in
+                                Sing in
                             </Link>
                         </div>
                     </div>
 
-                    <!-- Social Login -->
                     <div>
-<!--                        <Divider align="center" pt:content:class="dark:secondary-dark-bg">-->
-<!--                            <label for="continue" class="ml-2 block text-sm text-slate-800 dark:secondary-dark-mode-text">OR</label>-->
-<!--                        </Divider>-->
-
-<!--                        <div>-->
-<!--                            <button @click="signUpWith('google')" class="w-full inline-flex gap-x-2 font-bold items-center justify-center py-3.5 px-4 bg-brand-300/20 text-sm dark:primary-dark-bg rounded-lg">-->
-<!--                                <i class="pi pi-google text-blue-500"></i>-->
-<!--                                <span>Sign up with Google</span>-->
-<!--                            </button>-->
-<!--                        </div>-->
                     </div>
                 </div>
             </form>

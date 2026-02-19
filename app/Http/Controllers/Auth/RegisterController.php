@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Rules\RecaptchaV3;
 use App\Services\RegisterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -44,14 +45,22 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
-            'user_type'     => 'required|string|max:20',
-            'tax_id'        => 'required|string|min:9|max:50',
-            'name'          => 'required|string|max:30',
-            'phone_country' => 'required|string',
-            'phone'         => 'required|phone:phone_country',
-            'email'         => 'required|email|unique:users,email|max:255',
-            'password'      => 'required|string|min:6|confirmed',
-        ]);
+            'user_type' => 'required|string|max:20',
+            'tax_id' => 'required|string|min:9|max:50',
+            'name' => 'required|string|max:30',
+            'lastname'  => 'required_if:user_type,individual|max:30',
+            'phone_country'  => 'required|string',
+            'phone'          => 'required|phone:phone_country|unique:users,phone',
+            'email' => 'required|email|unique:users,email,max:255',
+            'password' => 'required|string|min:6|confirmed',
+            'captcha_token' => array_filter([
+                'required',
+                app()->environment('testing') ? null : new RecaptchaV3('signup'),
+            ]),
+        ],
+            [
+                'lastname.required_if' => __('The lastname field is required when user type is individual.'),
+            ]);
 
         $phone = $this->registerService->formatPhone($request->phone, $request->phone_country);
 
@@ -129,12 +138,16 @@ class RegisterController extends Controller
         $registerData = session('register_data');
         $phone        = session('phone');
 
-        // Verify OTP from session
-        $verification = $this->registerService->verifyOtpFromSession(
-            sessionOtp:       session('otp'),
-            sessionExpiresAt: session('otp_expires_at'),
-            submittedOtp:     $request->otp,
-        );
+        if(session('otp')) {
+            // Verify OTP from session
+            $verification = $this->registerService->verifyOtpFromSession(
+                sessionOtp:       session('otp'),
+                sessionExpiresAt: session('otp_expires_at'),
+                submittedOtp:     $request->otp,
+            );
+        } else {
+            return back()->withErrors(['message' => 'Session expired. Please try resend code.']);
+        }
 
         if (!$verification['valid']) {
             if (str_contains($verification['message'], 'expired')) {
@@ -156,6 +169,6 @@ class RegisterController extends Controller
         // Clean up session
         session()->forget(['otp', 'otp_expires_at', 'phone', 'register_data']);
 
-        return to_route('account.index');
+        return to_route('home');
     }
 }
