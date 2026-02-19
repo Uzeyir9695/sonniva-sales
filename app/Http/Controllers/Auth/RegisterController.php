@@ -173,6 +173,6 @@ class RegisterController extends Controller
         // Clean up session
         session()->forget(['otp', 'otp_expires_at', 'phone', 'register_data']);
 
-        return to_route('home');
+        return to_route('account.index');
     }
 }
