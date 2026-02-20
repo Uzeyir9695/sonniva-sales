@@ -1,9 +1,8 @@
 <script setup>
-import MenuLayout from "./menu/MenuLayout.vue";
 import Footer from "./Footer.vue";
 import {router, usePage} from "@inertiajs/vue3";
 import {computed, onMounted} from "vue";
-import ContactButtons from "../Pages/contact/ContactButtons.vue";
+import Navbar from '@/Shared/menu/Navbar.vue';
 
 const page = usePage();
 const isAuthenticated = computed(() => page.props.isLoggedIn);
@@ -23,7 +22,7 @@ onMounted(() => {
 
 <template>
     <div class="flex flex-col min-h-screen">
-        <MenuLayout />
+        <Navbar />
 
         <main class="flex-1">
             <slot />

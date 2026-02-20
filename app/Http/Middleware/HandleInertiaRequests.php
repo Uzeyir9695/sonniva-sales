@@ -2,9 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Category;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
@@ -40,6 +42,26 @@ class HandleInertiaRequests extends Middleware
     {
         $isAdmin = auth()?->user()?->role === 'admin';
 
+        $categories = fn() => Cache::rememberForever('nav_categories', function () {
+            return Category::whereNull('parent_id')
+                ->whereIn('code', ['1100','1200','1300','1400','1500','1600','1700','1800','1900','2000','2100','2200'])
+                ->orderBy('sort_order')
+                ->with(['children' => function ($query) {
+                    $query->orderBy('sort_order')->with(['children' => function ($query) {
+                        $query->orderBy('sort_order');
+                    }]);
+                }])
+                ->get()
+                ->map(fn($cat) => [
+                    'name' => $cat->name,
+                    'icon' => $cat->image ?? '📦',
+                    'subs' => $cat->children->map(fn($sub) => [
+                        'name'  => $sub->name,
+                        'items' => $sub->children->map(fn($item) => $item->name)->values(),
+                    ])->values(),
+                ]);
+        });
+
         return [
             ...parent::share($request),
             'ziggy' => function () use ($request) {
@@ -50,6 +72,7 @@ class HandleInertiaRequests extends Middleware
                     ],
                 ]);
             },
+            'categories' => $categories,
 
             'recaptcha_site_key' => config('services.google_recaptcha.site_key'),
 

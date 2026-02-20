@@ -1,14 +1,17 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import LargeDeviceMegaMenu from '@/Shared/menu/LargeDeviceMegaMenu.vue';
+import Navbar from '@/Shared/menu/Navbar.vue';
+import SmallDeviceMegaMenu from '@/Shared/menu/SmallDeviceMegaMenu.vue';
+import { usePage } from '@inertiajs/vue3';
 
-import {Link} from "@inertiajs/vue3";
+const page = usePage()
+
+const categories = page.props.categories ?? []
+
 </script>
 
 <template>
-    <div class="min-h-screen bg-white text-center text-2xl p-6 italic">
-       Welcome, Sonniva is coming soon!
-        <div class="mt-6 font-bold">
-            We are going to build an awesome application.
-            Let's get started.
-        </div>
-    </div>
+    <!-- Category Sidebar + Mega Menu -->
+    <LargeDeviceMegaMenu class="hidden lg:flex" :categories="categories"/>
 </template>
