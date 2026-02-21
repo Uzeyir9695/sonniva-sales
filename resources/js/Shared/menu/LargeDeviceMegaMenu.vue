@@ -54,7 +54,7 @@ onUnmounted(() => {
                         :class="[category.name === 'Sale' ? 'text-amber-500' : activeCategory?.name === category.name ? 'text-gray-900' : 'text-gray-700']"
                     >{{ category.name }}</span>
                 </div>
-                <i class="pi pi-chevron-right text-xs" :class="activeCategory?.name === category.name ? 'text-gray-400' : 'text-gray-400'"></i>
+                <i class="pi pi-chevron-right text-xs" :class="activeCategory?.name === category.name ? 'text-amber-500' : 'text-gray-400'"></i>
             </div>
         </div>
 
