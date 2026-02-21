@@ -11,6 +11,7 @@ const categories = page.props.categories ?? []
 
 const searchOpen = ref(false)
 const searchInput = ref(null)
+const mobileMenuRef = ref(null)
 
 const openSearch = async () => {
     searchOpen.value = true
@@ -49,7 +50,7 @@ const openSearch = async () => {
                     <div class="flex lg:hidden items-center justify-between w-full">
                         <div class="flex items-center gap-x-4">
                             <!-- Left: hamburger -->
-                            <SmallDeviceMegaMenu :categories="categories" />
+                            <SmallDeviceMegaMenu ref="mobileMenuRef" :categories="categories" />
 
                             <!-- Center: logo -->
                             <Link :href="route('home')">
@@ -75,6 +76,13 @@ const openSearch = async () => {
 
                 <!-- ── LARGE DEVICE: always shown ── -->
                 <template class="hidden lg:contents">
+                    <button
+                        @click="mobileMenuRef?.openDrawer()"
+                        class="flex items-center cursor-pointer bg-amber-400 hover:bg-amber-500 text-gray-900 font-semibold p-2.5 h-fit rounded-full transition-colors"
+                    >
+                        <i class="pi pi-th-large text-sm text-white"></i>
+                    </button>
+
                     <Link :href="route('home')" class="hidden lg:flex items-center">
                         <img src="/logo/logo.png" alt="logo" class="w-20 h-full object-cover">
                     </Link>

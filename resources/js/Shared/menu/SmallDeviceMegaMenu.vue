@@ -23,6 +23,7 @@ const drawerRef = ref(null)
 onClickOutside(drawerRef, () => closeDrawer())
 
 const openDrawer  = () => drawerOpen.value = true
+
 const closeDrawer = () => {
     drawerOpen.value = false
     // Reset levels after animation
@@ -78,6 +79,10 @@ const fadeOut = (callback) => {
         fadeVisible.value = true
     }, 150)
 }
+
+defineExpose({
+    openDrawer
+})
 </script>
 
 <template>
