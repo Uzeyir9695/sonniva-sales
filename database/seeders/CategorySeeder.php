@@ -22,7 +22,7 @@ class CategorySeeder extends Seeder
 
         Category::truncate();
 
-        $this->insertLevel($items, null, 0);
+        $this->insertLevel($items, null, 1);
 
         $this->command->info('Categories seeded successfully.');
     }
@@ -76,7 +76,7 @@ class CategorySeeder extends Seeder
                 'sort_order' => $index,
             ]);
 
-            if ($level < 2) {
+            if ($level < 3) {
                 $this->insertLevel($all, $item['code'], $level + 1);
             }
         }
