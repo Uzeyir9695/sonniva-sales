@@ -39,7 +39,9 @@ onUnmounted(() => {
         </Teleport>
 
         <!-- Left Category List -->
-        <div class="w-64 bg-white shadow-sm shrink-0 z-40" ref="sidebarRef">
+        <div class="w-64 bg-white shadow-sm shrink-0 z-40" ref="sidebarRef"
+             :class="activeCategory ? 'rounded-r-none' : 'rounded-xl'"
+        >
             <div
                 v-for="category in categories"
                 :key="category.name"
@@ -61,7 +63,7 @@ onUnmounted(() => {
         <!-- Mega Menu Panel -->
         <div
             v-if="activeCategory && activeCategory.subs?.length"
-            class="absolute left-64 top-0 z-50 bg-white border border-gray-200 shadow-2xl min-w-[680px] p-8 overflow-y-auto"
+            class="absolute left-64 top-0 z-50 bg-white rounded-r-xl border border-gray-200 shadow-2xl min-w-[680px] p-8 overflow-y-auto"
             :style="{ height: sidebarHeight + 'px' }"
             @mouseleave="activeCategory = null"
         >

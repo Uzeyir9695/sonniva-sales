@@ -21,8 +21,8 @@ const openSearch = async () => {
 </script>
 
 <template>
-    <div class="flex-col sticky top-0 z-50">
-        <nav class="bg-white border-b border-gray-200 shadow-sm">
+    <div class="flex-col sticky top-0 mb-4 z-50">
+        <nav class="bg-white shadow-sm">
             <div class="max-w-7xl mx-auto px-6 h-20 flex items-center gap-4">
 
                 <!-- ── SMALL DEVICE: search open state ── -->
