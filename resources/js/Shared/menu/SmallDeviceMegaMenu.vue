@@ -112,17 +112,19 @@ defineExpose({
             >
                 <!-- Drawer header -->
                 <div class="flex items-center gap-3 px-4 py-4 border-b border-gray-100">
-                    <button
+                    <div
                         @click="goBack"
-                        class="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                        class="w-8 h-8 flex items-center justify-center rounded-full cursor-pointer hover:bg-gray-100 transition-colors shrink-0"
                     >
-                        <i class="pi pi-arrow-left text-gray-600"></i>
-                    </button>
+                        <i class="pi pi-arrow-left text-gray-600 text-sm"></i>
+                    </div>
+
                     <span class="font-semibold text-gray-900 text-sm">
                         {{ stack.length ? stack[stack.length - 1] : 'კატეგორია' }}
                     </span>
-                    <button @click="closeDrawer" class="ml-auto p-1.5 rounded-full hover:bg-gray-100">
-                        <i class="pi pi-times text-gray-400"></i>
+
+                    <button @click="closeDrawer" class="ml-auto w-8 h-8 flex items-center justify-center cursor-pointer rounded-full hover:bg-gray-100 shrink-0">
+                        <i class="pi pi-times text-gray-400 text-sm"></i>
                     </button>
                 </div>
 
@@ -134,7 +136,7 @@ defineExpose({
                                 v-for="item in currentItems"
                                 :key="item.name"
                                 @click="navigateTo(item)"
-                                class="w-full flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors text-left"
+                                class="w-full flex items-center justify-between cursor-pointer px-5 py-3.5 hover:bg-gray-50 transition-colors text-left"
                             >
                                 <span class="text-sm font-medium text-gray-800">{{ item.name }}</span>
                                 <i

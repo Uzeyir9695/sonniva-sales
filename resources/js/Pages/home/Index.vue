@@ -14,4 +14,7 @@ const categories = page.props.categories ?? []
 <template>
     <!-- Category Sidebar + Mega Menu -->
     <LargeDeviceMegaMenu class="hidden lg:flex" :categories="categories"/>
+    <div class="flex ring ring-amber-400 rounded-lg h-96 items-center justify-center">
+
+    </div>
 </template>

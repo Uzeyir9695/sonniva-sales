@@ -28,7 +28,7 @@ onUnmounted(() => {
 
 <template>
     <!-- Category Sidebar + Mega Menu -->
-    <div class="relative flex" @mouseleave="activeCategory = null">
+    <div class="relative flex gap-x-4" @mouseleave="activeCategory = null">
 
         <Teleport to="body">
             <div
@@ -39,8 +39,8 @@ onUnmounted(() => {
         </Teleport>
 
         <!-- Left Category List -->
-        <div class="w-64 bg-white shadow-sm shrink-0 z-40" ref="sidebarRef"
-             :class="activeCategory ? 'rounded-r-none' : 'rounded-xl'"
+        <div class="w-64 bg-white rounded-xl shadow-sm shrink-0 z-40" ref="sidebarRef"
+             :class="activeCategory ? 'rounded-r-none' : ''"
         >
             <div
                 v-for="category in categories"
@@ -90,5 +90,6 @@ onUnmounted(() => {
             </div>
         </div>
 
+        <div class="flex-1 ring ring-amber-400 rounded-lg"></div>
     </div>
 </template>
