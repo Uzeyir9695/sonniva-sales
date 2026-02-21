@@ -29,8 +29,8 @@ const openSearch = async () => {
                 <template v-if="searchOpen">
                     <div class="flex lg:hidden items-center w-full gap-3">
                         <!-- Search input -->
-                        <div class="flex-1 flex items-center bg-gray-100 rounded-xl px-4 h-11 gap-3 focus-within:ring-2 focus-within:ring-amber-400 focus-within:bg-white transition-all">
-                            <i class="pi pi-search text-amber-500 text-sm shrink-0"></i>
+                        <div class="flex-1 flex items-center bg-gray-100 rounded-xl px-4 h-11 gap-3 focus-within:ring-2 focus-within:ring-brand-400 focus-within:bg-white transition-all">
+                            <i class="pi pi-search text-brand-500 text-sm shrink-0"></i>
                             <input
                                 ref="searchInput"
                                 type="text"
@@ -68,7 +68,7 @@ const openSearch = async () => {
                             </Link>
                             <a href="/cart" class="relative flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100">
                                 <i class="pi pi-shopping-cart text-xl"></i>
-                                <span class="absolute top-1 right-1 w-4 h-4 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
+                                <span class="absolute top-1 right-1 w-4 h-4 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
                             </a>
                         </div>
                     </div>
@@ -78,7 +78,7 @@ const openSearch = async () => {
                 <template class="hidden lg:contents">
                     <button
                         @click="mobileMenuRef?.openDrawer()"
-                        class="flex items-center cursor-pointer bg-amber-400 hover:bg-amber-500 text-gray-900 font-semibold p-2.5 h-fit rounded-full transition-colors"
+                        class="flex items-center cursor-pointer bg-brand-400 hover:bg-brand-500 text-gray-900 font-semibold p-2.5 h-fit rounded-full transition-colors"
                     >
                         <i class="pi pi-th-large text-sm text-white"></i>
                     </button>
@@ -87,7 +87,7 @@ const openSearch = async () => {
                         <img src="/logo/logo.png" alt="logo" class="w-20 h-full object-cover">
                     </Link>
 
-                    <div class="hidden lg:flex items-center bg-gray-100 rounded-xl px-4 h-11 gap-3 focus-within:ring-2 focus-within:ring-amber-400 focus-within:bg-white transition-all flex-[4]">
+                    <div class="hidden lg:flex items-center bg-gray-100 rounded-xl px-4 h-11 gap-3 focus-within:ring-2 focus-within:ring-brand-400 focus-within:bg-white transition-all flex-[4]">
                         <i class="pi pi-search text-gray-400 text-sm shrink-0"></i>
                         <input
                             type="text"
@@ -97,7 +97,7 @@ const openSearch = async () => {
                     </div>
 
                     <a href="tel:+995591047372" class="hidden lg:flex items-center gap-2 text-gray-600 hover:text-gray-900 shrink-0">
-                        <i class="pi pi-phone text-amber-500"></i>
+                        <i class="pi pi-phone text-brand-500"></i>
                         <span class="text-sm font-medium whitespace-nowrap">+995 591 04-73-72</span>
                     </a>
 
@@ -108,7 +108,7 @@ const openSearch = async () => {
                         </a>
                         <a href="/cart" class="relative flex items-center justify-center w-12 h-12 rounded-full text-gray-600 hover:bg-gray-100 transition-all">
                             <i class="pi pi-shopping-cart text-xl!"></i>
-                            <span class="absolute top-1 right-1 w-4 h-4 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
+                            <span class="absolute top-1 right-1 w-4 h-4 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
                         </a>
                         <Link v-if="!isAuthenticated" :href="route('login')" class="flex items-center justify-center w-12 h-12 rounded-full text-gray-600 hover:bg-gray-100 transition-all">
                             <i class="pi pi-user text-xl!"></i>

@@ -88,7 +88,7 @@ defineExpose({
 <template>
     <button
         @click="openDrawer"
-        class="flex items-center cursor-pointer bg-amber-400 hover:bg-amber-500 text-gray-900 font-semibold p-2.5 h-fit rounded-full transition-colors"
+        class="flex items-center cursor-pointer bg-brand-400 hover:bg-brand-500 text-gray-900 font-semibold p-2.5 h-fit rounded-full transition-colors"
     >
         <i class="pi pi-th-large text-sm text-white"></i>
     </button>

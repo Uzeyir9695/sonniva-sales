@@ -51,10 +51,10 @@ onUnmounted(() => {
                     <span class="text-lg">{{ category.icon }}</span>
                     <span
                         class="text-sm font-medium"
-                        :class="[category.name === 'Sale' ? 'text-amber-500' : activeCategory?.name === category.name ? 'text-gray-900' : 'text-gray-700']"
+                        :class="[category.name === 'Sale' ? 'text-brand-500' : activeCategory?.name === category.name ? 'text-gray-900' : 'text-gray-700']"
                     >{{ category.name }}</span>
                 </div>
-                <i class="pi pi-chevron-right text-xs" :class="activeCategory?.name === category.name ? 'text-amber-500' : 'text-gray-400'"></i>
+                <i class="pi pi-chevron-right text-xs" :class="activeCategory?.name === category.name ? 'text-brand-500' : 'text-gray-400'"></i>
             </div>
         </div>
 
@@ -70,15 +70,15 @@ onUnmounted(() => {
                 <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                     <span>{{ activeCategory.icon }}</span> {{ activeCategory.name }}
                 </h2>
-                <a href="#" class="text-amber-500 text-sm font-semibold hover:text-amber-600 flex items-center gap-1">
-                    View all <i class="pi pi-arrow-right text-xs"></i>
+                <a href="#" class="text-brand-500 text-sm font-semibold hover:text-brand-600 flex items-center gap-1">
+                    View all <i class="pi pi-arrow-right text-xs!"></i>
                 </a>
             </div>
 
             <!-- Sub categories grid -->
             <div class="grid grid-cols-2 gap-x-12 gap-y-6">
                 <div v-for="sub in activeCategory.subs" :key="sub.name">
-                    <h3 class="text-sm font-bold text-gray-900 mb-2 pb-1.5 border-b border-amber-400">{{ sub.name }}</h3>
+                    <h3 class="text-sm font-bold text-gray-900 mb-2 pb-1.5 border-b border-gray-100">{{ sub.name }}</h3>
                     <ul class="space-y-1.5">
                         <li v-for="item in sub.items" :key="item">
                             <a href="#" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">{{ item }}</a>
