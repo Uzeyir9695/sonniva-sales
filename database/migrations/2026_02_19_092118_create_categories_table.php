@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->string('parent_id')->nullable(); // stores BC code e.g. '1100'
             $table->string('name');
+            $table->string('slug')->nullable();
             $table->unsignedTinyInteger('level')->default(0);
             $table->unsignedInteger('sort_order')->default(0);
             $table->string('image')->nullable();

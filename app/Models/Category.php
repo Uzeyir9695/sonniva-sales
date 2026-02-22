@@ -12,6 +12,7 @@ class Category extends Model
     use HasUuids;
     protected $fillable = [
         'name',
+        'slug',
         'parent_id',
         'level',
         'sort_order',

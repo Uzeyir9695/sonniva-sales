@@ -7,6 +7,7 @@ use App\Services\BusinessCentralService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
@@ -70,7 +71,8 @@ class CategorySeeder extends Seeder
         foreach ($items as $index => $item) {
             Category::create([
                 'code'       => $item['code'],
-                'name'       => $item['description'] ?: $item['code'],
+                'name'       => $item['description'] ?: null,
+                'slug'       => $this->makeSlug($item['description'] ?: null),
                 'parent_id'  => $parentCode,
                 'level'      => $level,
                 'sort_order' => $index,
@@ -80,5 +82,10 @@ class CategorySeeder extends Seeder
                 $this->insertLevel($all, $item['code'], $level + 1);
             }
         }
+    }
+
+    private function makeSlug(string $text): string
+    {
+        return mb_strtolower(preg_replace('/\s+/u', '-', trim($text)));
     }
 }

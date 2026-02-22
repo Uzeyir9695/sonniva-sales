@@ -54,10 +54,15 @@ class HandleInertiaRequests extends Middleware
                 ->get()
                 ->map(fn($cat) => [
                     'name' => $cat->name,
+                    'slug' => $cat->slug,
                     'icon' => $cat->image ?? '📦',
                     'subs' => $cat->children->map(fn($sub) => [
                         'name'  => $sub->name,
-                        'items' => $sub->children->map(fn($item) => $item->name)->values(),
+                        'slug' => $sub->slug,
+                        'items' => $sub->children->map(fn($item) => [
+                            'name' => $item->name,
+                            'slug' => $item->slug,
+                        ])->values(),
                     ])->values(),
                 ]);
         });
