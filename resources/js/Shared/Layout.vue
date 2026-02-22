@@ -24,7 +24,7 @@ onMounted(() => {
     <div class="flex flex-col min-h-screen">
         <Navbar />
 
-        <main class="container w-7xl mx-auto space-y-4 mb-4">
+        <main class="container md:w-7xl mx-auto space-y-4 px-4 mb-4">
             <slot />
         </main>
 
