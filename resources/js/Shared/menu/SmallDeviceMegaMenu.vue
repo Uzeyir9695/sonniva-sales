@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import { onClickOutside } from '@vueuse/core'
 
@@ -45,7 +45,7 @@ const navigateTo = (category) => {
         stack.value.push(category.name)
         currentItems.value = category.subs.map(sub => ({
             name: sub.name,
-            subs: sub.items?.map(item => ({ name: item, subs: [] })) ?? [],
+            subs: sub.items?.map(item => ({ name: item.name, subs: [] })) ?? [],
         }))
     })
 }
@@ -64,7 +64,7 @@ const goBack = () => {
                 const found = items.find(c => c.name === name)
                 if (found) items = found.subs?.map(sub => ({
                     name: sub.name,
-                    subs: sub.items?.map(i => ({ name: i, subs: [] })) ?? [],
+                    subs: sub.items?.map(i => ({ name: i.name, subs: [] })) ?? [],
                 })) ?? []
             }
             currentItems.value = items
@@ -131,17 +131,19 @@ defineExpose({
                 <!-- Category items with fade -->
                 <div class="flex-1 overflow-y-auto">
                     <Transition name="fade">
-                        <div v-if="fadeVisible" class="py-2">
+                        <div v-if="fadeVisible" class="p-2">
                             <button
                                 v-for="item in currentItems"
                                 :key="item.name"
+                                style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
+                                v-ripple
                                 @click="navigateTo(item)"
-                                class="w-full flex items-center justify-between cursor-pointer px-5 py-3.5 hover:bg-gray-50 transition-colors text-left"
+                                class="w-full flex items-center justify-between cursor-pointer px-5 py-3.5 rounded-xl hover:bg-gray-50 hover:text-brand-400 transition-colors text-left"
                             >
-                                <span class="text-sm font-medium text-gray-800">{{ item.name }}</span>
+                                <span class="text-sm font-medium text-inherit">{{ item.name }}</span>
                                 <i
                                     v-if="item.subs?.length"
-                                    class="pi pi-chevron-right text-xs text-gray-400"
+                                    class="pi pi-chevron-right text-xs text-inherit"
                                 ></i>
                             </button>
                         </div>

@@ -10,14 +10,16 @@ use Inertia\Inertia;
 class CategoryController extends Controller
 {
     //
-    public function index(string $slug, ?string $parentSlug = null, ?string $grandparentSlug = null)
+    public function index(Request $request)
     {
-        $category = Category::where('slug', $slug)->firstOrFail();
+        $activeSlug = last(array_filter($request->segments()));
+
+        $category = Category::where('slug', $activeSlug)->firstOrFail();
 
         $code = $category->code;
 
         // Collect all codes to filter items by
-        $codes = collect([$code]);
+        $codes = collect([$code]); // in order to include the current category code as well, pass $code to the collection as array
 
         if ($category->level === 1) {
             // root: get all sub and leaf codes
@@ -31,6 +33,7 @@ class CategoryController extends Controller
             $codes = $codes->merge($leaves);
         }
 
+        dd($codes);
         $items = Item::whereIn('category_code', $codes)
             ->paginate(24);
 

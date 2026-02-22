@@ -8,22 +8,7 @@ const categories = page.props.categories ?? []
 const activeCategory = ref(null)
 
 const sidebarRef = ref(null)
-const sidebarHeight = ref(0)
 
-const updateHeight = () => {
-    if (sidebarRef.value) {
-        sidebarHeight.value = sidebarRef.value.offsetHeight
-    }
-}
-
-onMounted(() => {
-    updateHeight()
-    window.addEventListener('resize', updateHeight)
-})
-
-onUnmounted(() => {
-    window.removeEventListener('resize', updateHeight)
-})
 </script>
 
 <template>
@@ -39,35 +24,36 @@ onUnmounted(() => {
         </Teleport>
 
         <!-- Left Category List -->
-        <div class="w-64 bg-white rounded-xl shadow-sm shrink-0 z-40" ref="sidebarRef"
+        <div class="w-72 bg-white p-2 rounded-xl shadow-sm shrink-0 z-40" ref="sidebarRef"
              :class="activeCategory ? 'rounded-r-none' : ''"
         >
             <div
                 v-for="category in categories"
                 :key="category.name"
+                style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
+                v-ripple
                 @mouseenter="activeCategory = category"
-                class="flex items-center justify-between px-5 py-3.5 cursor-pointer transition-colors"
-                :class="activeCategory?.name === category.name ? 'bg-gray-100' : 'hover:bg-gray-300'"
+                class="flex items-center justify-between rounded-xl px-5 py-3.5 cursor-pointer transition-colors"
+                :class="activeCategory?.name === category.name ? 'bg-gray-50' : 'hover:bg-gray-300'"
             >
                 <div class="flex items-center gap-3">
                     <span class="text-lg">{{ category.icon }}</span>
                     <Link
-                        :href="route('category.index', { slug: category.slug })"
+                        :href="route('category.index', category.slug)"
                         class="text-sm font-medium"
-                        :class="[category.name === 'Sale' ? 'text-brand-500' : activeCategory?.name === category.name ? 'text-gray-900' : 'text-gray-700']"
+                        :class="[category.name === 'Sale' ? 'text-brand-500' : activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-700']"
                     >
                         {{ category.name }}
                     </Link>
                 </div>
-                <i class="pi pi-chevron-right text-xs" :class="activeCategory?.name === category.name ? 'text-brand-500' : 'text-gray-400'"></i>
+                <i class="pi pi-chevron-right text-xs" :class="activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-400'"></i>
             </div>
         </div>
 
         <!-- Mega Menu Panel -->
         <div
             v-if="activeCategory && activeCategory.subs?.length"
-            class="absolute left-64 top-0 z-50 bg-white rounded-r-xl border border-gray-200 shadow-2xl min-w-[680px] p-8 overflow-y-auto"
-            :style="{ height: sidebarHeight + 'px' }"
+            class="absolute left-72 top-0 h-full z-50 bg-white rounded-r-xl border border-gray-200 shadow-2xl min-w-[680px] p-8 overflow-y-auto"
             @mouseleave="activeCategory = null"
         >
             <!-- Header -->
@@ -76,7 +62,7 @@ onUnmounted(() => {
                     <span>{{ activeCategory.icon }}</span> {{ activeCategory.name }}
                 </h2>
                 <Link
-                    :href="route('category.index', { slug: activeCategory.slug })"
+                    :href="route('category.index', activeCategory.slug)"
                     class="text-brand-500 text-sm font-semibold hover:text-brand-600 flex items-center gap-1"
                 >
                     View all <i class="pi pi-arrow-right text-xs!"></i>
@@ -87,16 +73,16 @@ onUnmounted(() => {
             <div class="grid grid-cols-2 gap-x-12 gap-y-6">
                 <div v-for="sub in activeCategory.subs" :key="sub.name">
                     <Link
-                        :href="route('category.sub', { parentSlug: activeCategory.slug, slug: sub.slug })"
-                        class="text-sm font-bold text-gray-900 mb-2 pb-1.5 border-b border-gray-100 block"
+                        :href="route('category.index', [activeCategory.slug, sub.slug])"
+                        class="text-sm font-semibold text-gray-900 hover:text-brand-400 mb- 2 pb- 1.5 borde r-b border-gray-100 inline-block"
                     >
                         {{ sub.name }}
                     </Link>
                     <ul class="space-y-1.5 mt-2">
                         <li v-for="item in sub.items" :key="item.name">
                             <Link
-                                :href="route('category.leaf', { grandparentSlug: activeCategory.slug, parentSlug: sub.slug, slug: item.slug })"
-                                class="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+                                :href="route('category.index', [activeCategory.slug, sub.slug, item.slug])"
+                                class="text-sm text-gray-500 hover:text-brand-400 transition-colors"
                             >
                                 {{ item.name }}
                             </Link>
@@ -106,6 +92,8 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <div class="flex-1 ring ring-amber-400 rounded-lg"></div>
+        <div class="flex-1 ring ring-amber-400 rounded-lg">
+
+        </div>
     </div>
 </template>

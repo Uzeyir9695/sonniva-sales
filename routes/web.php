@@ -79,9 +79,9 @@ use Inertia\Inertia;
     /*******************************************************************************************************************
      * Categories Routes
      * *****************************************************************************************************************/
-    Route::get('/{slug}', [CategoryController::class, 'index'])->name('category.index');
-    Route::get('/{parentSlug}/{slug}', [CategoryController::class, 'index'])->name('category.sub');
-    Route::get('/{grandparentSlug}/{parentSlug}/{slug}', [CategoryController::class, 'index'])->name('category.leaf');
+    Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [CategoryController::class, 'index'])->name('category.index');
+//    Route::get('/{parentSlug}/{slug}', [CategoryController::class, 'index'])->name('category.sub');
+//    Route::get('/{slug}', [CategoryController::class, 'index'])->name('category.leaf');
 
     /*******************************************************************************************************************
      * FAQ Route
