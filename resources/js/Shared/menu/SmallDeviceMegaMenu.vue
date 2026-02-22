@@ -1,9 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { Link, usePage } from '@inertiajs/vue3'
+import { Link } from '@inertiajs/vue3'
 import { onClickOutside } from '@vueuse/core'
-
-const page = usePage()
 
 const props = defineProps({
     categories: Array,
