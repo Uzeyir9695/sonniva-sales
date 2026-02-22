@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -74,6 +75,14 @@ use Inertia\Inertia;
             Route::put('/change-password', [AccountController::class, 'changePassword'])->name('change-password');
         });
     });
+
+    /*******************************************************************************************************************
+     * Categories Routes
+     * *****************************************************************************************************************/
+    Route::get('/{slug}', [CategoryController::class, 'index'])->name('category.index');
+    Route::get('/{parentSlug}/{slug}', [CategoryController::class, 'index'])->name('category.sub');
+    Route::get('/{grandparentSlug}/{parentSlug}/{slug}', [CategoryController::class, 'index'])->name('category.leaf');
+
     /*******************************************************************************************************************
      * FAQ Route
      * *****************************************************************************************************************/

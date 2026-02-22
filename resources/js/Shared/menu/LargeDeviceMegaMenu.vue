@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 
 const page = usePage()
 
@@ -51,10 +51,13 @@ onUnmounted(() => {
             >
                 <div class="flex items-center gap-3">
                     <span class="text-lg">{{ category.icon }}</span>
-                    <span
+                    <Link
+                        :href="route('category.index', { slug: category.slug })"
                         class="text-sm font-medium"
                         :class="[category.name === 'Sale' ? 'text-brand-500' : activeCategory?.name === category.name ? 'text-gray-900' : 'text-gray-700']"
-                    >{{ category.name }}</span>
+                    >
+                        {{ category.name }}
+                    </Link>
                 </div>
                 <i class="pi pi-chevron-right text-xs" :class="activeCategory?.name === category.name ? 'text-brand-500' : 'text-gray-400'"></i>
             </div>
@@ -72,18 +75,31 @@ onUnmounted(() => {
                 <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                     <span>{{ activeCategory.icon }}</span> {{ activeCategory.name }}
                 </h2>
-                <a href="#" class="text-brand-500 text-sm font-semibold hover:text-brand-600 flex items-center gap-1">
+                <Link
+                    :href="route('category.index', { slug: activeCategory.slug })"
+                    class="text-brand-500 text-sm font-semibold hover:text-brand-600 flex items-center gap-1"
+                >
                     View all <i class="pi pi-arrow-right text-xs!"></i>
-                </a>
+                </Link>
             </div>
 
             <!-- Sub categories grid -->
             <div class="grid grid-cols-2 gap-x-12 gap-y-6">
                 <div v-for="sub in activeCategory.subs" :key="sub.name">
-                    <h3 class="text-sm font-bold text-gray-900 mb-2 pb-1.5 border-b border-gray-100">{{ sub.name }}</h3>
-                    <ul class="space-y-1.5">
-                        <li v-for="item in sub.items" :key="item">
-                            <a href="#" class="text-sm text-gray-500 hover:text-gray-900 transition-colors">{{ item }}</a>
+                    <Link
+                        :href="route('category.sub', { parentSlug: activeCategory.slug, slug: sub.slug })"
+                        class="text-sm font-bold text-gray-900 mb-2 pb-1.5 border-b border-gray-100 block"
+                    >
+                        {{ sub.name }}
+                    </Link>
+                    <ul class="space-y-1.5 mt-2">
+                        <li v-for="item in sub.items" :key="item.name">
+                            <Link
+                                :href="route('category.leaf', { grandparentSlug: activeCategory.slug, parentSlug: sub.slug, slug: item.slug })"
+                                class="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+                            >
+                                {{ item.name }}
+                            </Link>
                         </li>
                     </ul>
                 </div>
