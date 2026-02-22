@@ -128,7 +128,7 @@ createInertiaApp({
         app.use(ToastService);
 
         app.use(PrimeVue, {
-            ripple: false,
+            ripple: true,
             theme: {
                 preset: MyPreset,
                 options: {
