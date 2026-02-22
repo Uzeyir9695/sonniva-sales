@@ -65,7 +65,7 @@ const sidebarRef = ref(null)
                     :href="route('category.index', activeCategory.slug)"
                     class="text-brand-500 text-sm font-semibold hover:text-brand-600 flex items-center gap-1"
                 >
-                    View all <i class="pi pi-arrow-right text-xs!"></i>
+                    ყველას ნახვა <i class="pi pi-arrow-right text-xs!"></i>
                 </Link>
             </div>
 
