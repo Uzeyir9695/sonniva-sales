@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Services\BusinessCentralService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -22,6 +23,8 @@ class CategorySeeder extends Seeder
         $this->command->info("Fetched {$items->count()} categories.");
 
         Category::truncate();
+
+        Cache::forget('nav_categories');
 
         $this->insertLevel($items, null, 1);
 
