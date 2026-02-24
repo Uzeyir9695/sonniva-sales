@@ -9,5 +9,6 @@ class Attribute extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['id', 'created_at', 'updated_at'];
+    protected $guarded = ['id'];
+    public $timestamps = false;
 }
