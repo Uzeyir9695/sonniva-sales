@@ -19,10 +19,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('slug')->unique();
             $table->integer('inventory')->default(0);
-            $table->string('base_uom_desc')->nullable();
             $table->decimal('unit_price', 10, 2)->default(0);
+            $table->string('base_uom_desc')->nullable();
             $table->decimal('min_qty_unit_price', 10, 2)->default(0);
-            $table->string('barcode')->nullable()->index();
             $table->string('image')->nullable();
             $table->timestamp('synced_at')->nullable();
             $table->timestamps();

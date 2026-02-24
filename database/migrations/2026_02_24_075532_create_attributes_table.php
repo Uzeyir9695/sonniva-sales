@@ -13,12 +13,10 @@ return new class extends Migration
     {
         Schema::create('attributes', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('item_id')->constrained('items')->cascadeOnDelete();
-            $table->string('item_no')->index();
+            $table->foreignUuid('item_id')->constrained()->cascadeOnDelete();
             $table->unsignedInteger('bc_attribute_id')->index(); // BC's itemAttributeId
             $table->string('name')->nullable();
-            $table->string('value')->nullable();
-            $table->index(['bc_attribute_id', 'value']);
+            $table->string('value')->nullable()->index();
         });
     }
 
