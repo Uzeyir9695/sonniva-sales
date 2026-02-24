@@ -15,9 +15,17 @@
         <script src="https://kit.fontawesome.com/2ba6cc2cc6.js" crossorigin="anonymous"></script>
         <script src="https://www.google.com/recaptcha/enterprise.js?render=6Le1gHAsAAAAAA6p7osMt8gjcndj6hdsKPzRcHmE"></script>
 
+        <script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>
+        <script>
+            Weglot.initialize({
+                api_key: 'wg_569a623c969491c7096dc0032fea46d24'
+            });
+        </script>
+
         @routes
         @vite('resources/js/app.js')
         @inertiaHead
+
     </head>
     <body class="font-sans antialiased">
         @inertia
