@@ -89,6 +89,9 @@ class CategorySeeder extends Seeder
 
     private function makeSlug(string $text): string
     {
-        return mb_strtolower(preg_replace('/\s+/u', '-', trim($text)));
+        $text = trim($text);
+        $text = preg_replace('/[-]+/u', ' ', $text);   // dashes to spaces
+        $text = preg_replace('/\s+/u', '-', $text);     // spaces to dashes
+        return mb_strtolower($text);
     }
 }
