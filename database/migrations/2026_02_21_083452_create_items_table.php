@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('items', function (Blueprint $table) {
-            $table->uuid('id')->primary();        // BC's id field
-            $table->string('no')->unique();       // BC's no (e.g. HANDLE00001)
+            $table->uuid('id')->primary();
+            $table->string('no')->unique(); // BC's no (e.g. HANDLE00001)
             $table->string('category_code')->nullable()->index();
             $table->string('title')->nullable();
             $table->text('description')->nullable();
+            $table->string('slug')->unique();
             $table->integer('inventory')->default(0);
             $table->string('base_uom_desc')->nullable();
             $table->decimal('unit_price', 10, 2)->default(0);
