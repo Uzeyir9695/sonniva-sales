@@ -7,7 +7,7 @@ use App\Models\Item;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class CategoryController extends Controller
+class ItemController extends Controller
 {
     //
     public function index(Request $request)
@@ -33,13 +33,11 @@ class CategoryController extends Controller
             $codes = $codes->merge($leaves);
         }
 
-        dd($codes);
         $items = Item::whereIn('category_code', $codes)
             ->paginate(24);
 
         return Inertia::render('items/Index', [
-            'category' => $category,
-            'items' => $items,
+            'items' => Inertia::defer(fn () => $items),
         ]);
     }
 }
