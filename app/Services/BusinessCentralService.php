@@ -83,7 +83,7 @@ class BusinessCentralService
 
         $token = $this->getAccessToken();
 
-        $baseUrl = "https://api.businesscentral.dynamics.com/v2.0/904668f4-6aa7-44ce-8285-5c27b33faeeb/Production/ODataV4/Company('SONNIVA')/retailitemlistbybarcodes";
+        $baseUrl = $this->baseUrl . "904668f4-6aa7-44ce-8285-5c27b33faeeb/Production/ODataV4/Company('SONNIVA')/retailitemlistbybarcodes";
 
         $response = Http::withToken($token)->get($baseUrl, [
             '$filter' => "Barcode_No eq '{$barcode}'",
@@ -103,7 +103,7 @@ class BusinessCentralService
 
         $token = $this->getAccessToken();
 
-        $baseUrl = "https://api.businesscentral.dynamics.com/v2.0/Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed";
+        $baseUrl = $this->baseUrl . "Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed";
 
         // Use startswith instead of contains for items starting with search term
         $response = Http::withToken($token)->get($baseUrl, [
@@ -126,7 +126,7 @@ class BusinessCentralService
 
         $token = $this->getAccessToken();
 
-        $baseUrl = "https://api.businesscentral.dynamics.com/v2.0/904668f4-6aa7-44ce-8285-5c27b33faeeb/Production/ODataV4/Company('SONNIVA')/Item_Ledger_Entries_Excel";
+        $baseUrl = $this->baseUrl . "904668f4-6aa7-44ce-8285-5c27b33faeeb/Production/ODataV4/Company('SONNIVA')/Item_Ledger_Entries_Excel";
 
         $response = Http::withToken($token)->get($baseUrl, [
             '$filter' => "Item_No eq '{$itemNo}'",
@@ -146,7 +146,7 @@ class BusinessCentralService
 
         $token = $this->getAccessToken();
 
-        $baseUrl = "https://api.businesscentral.dynamics.com/v2.0/Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed('$itemNo')";
+        $baseUrl = $this->baseUrl . "Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed('$itemNo')";
 
         $response = Http::withToken($token)->get($baseUrl, [
             '$select' => implode(',', $fields),
