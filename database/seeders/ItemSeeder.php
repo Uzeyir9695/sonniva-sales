@@ -63,7 +63,7 @@ class ItemSeeder extends Seeder
                     'id'                 => $item['id'],
                     'no'                 => $item['no'],
                     'category_code'      => $item['itemCategoryCode'],
-                    'title'              => $item['description'] ?? null,
+                    'name'              => $item['description'] ?? null,
                     'description'        => $item['itemReview'] ?? null,
                     'slug'               => $this->makeSlug($item['description']),
                     'inventory'          => $item['inventory'] ?? 0,

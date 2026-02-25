@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('no')->unique(); // BC's no (e.g. HANDLE00001)
             $table->string('category_code')->nullable()->index();
-            $table->string('title')->nullable();
+            $table->string('name')->nullable();
             $table->text('description')->nullable();
             $table->string('slug')->unique();
             $table->integer('inventory')->default(0);
