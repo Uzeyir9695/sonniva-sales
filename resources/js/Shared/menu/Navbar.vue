@@ -84,7 +84,7 @@ const openSearch = async () => {
                     </button>
 
                     <Link :href="route('home')" class="hidden lg:flex items-center">
-                        <img src="/logo/logo.png" alt="logo" class="w-20 h-full object-cover">
+                        <img src="/logo/logo1.jpeg" alt="logo" class="w-20 h-full object-cover">
                     </Link>
 
                     <div class="hidden lg:flex items-center bg-gray-100 rounded-xl px-4 h-11 gap-3 focus-within:ring-2 focus-within:ring-brand-400 focus-within:bg-white transition-all flex-[4]">
@@ -102,6 +102,9 @@ const openSearch = async () => {
                     </a>
 
                     <div class="hidden lg:flex items-center gap-1 shrink-0">
+                        <div class="weglot-localizer">
+
+                        </div>
                         <a href="/wishlist" class="relative flex items-center justify-center w-12 h-12 rounded-full text-gray-600 hover:bg-gray-100 transition-all">
                             <i class="pi pi-heart text-xl!"></i>
                             <span class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">5</span>

@@ -21,10 +21,10 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="flex flex-col min-h-screen">
+    <div class="body-content flex flex-col min-h-screen">
         <Navbar />
 
-        <main class="container md:w-7xl mx-auto space-y-4 px-4 mb-4">
+        <main class="container md:w-7xl mx-auto space-y-4 px- 4 mb-4">
             <slot />
         </main>
 
