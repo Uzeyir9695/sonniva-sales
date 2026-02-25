@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Item;
 use Illuminate\Http\Request;
@@ -33,11 +34,49 @@ class ItemController extends Controller
             $codes = $codes->merge($leaves);
         }
 
+        // Get distinct attributes for filter sidebar
+        $attributes = Attribute::whereHas('item', fn($q) => $q->whereIn('category_code', $codes))
+            ->select('bc_attribute_id', 'name')
+            ->distinct()
+            ->get()
+            ->groupBy('bc_attribute_id')
+            ->map(fn($group) => [
+                'id'     => $group->first()->bc_attribute_id,
+                'name'   => $group->first()->name,
+                'values' => Attribute::whereHas('item', fn($q) => $q->whereIn('category_code', $codes))
+                    ->where('bc_attribute_id', $group->first()->bc_attribute_id)
+                    ->distinct()
+                    ->pluck('value')
+                    ->filter()
+                    ->values(),
+            ])
+            ->values()
+            ->filter(fn($attr) => $attr['values']->count() >= 2)
+            ->values();
+
+        $filters = json_decode($request->input('filters'), true) ?? [];
+
         $items = Item::whereIn('category_code', $codes)
+            ->when(!empty($filters), function ($query) use ($filters) {
+                foreach ($filters as $attributeId => $values) {
+                    if (!empty($values)) {
+                        $query->whereHas('attributes', function ($q) use ($attributeId, $values) {
+                            $q->where('bc_attribute_id', $attributeId)
+                                ->whereIn('value', $values);
+                        });
+                    }
+                }
+            })
             ->paginate(24);
 
         return Inertia::render('items/Index', [
+            'attributes' => $attributes,
             'items' => Inertia::defer(fn () => $items),
         ]);
+    }
+
+    public function show(Item $item)
+    {
+
     }
 }

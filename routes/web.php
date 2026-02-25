@@ -80,6 +80,7 @@ use Inertia\Inertia;
      * Items Routes
      * *****************************************************************************************************************/
     Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])->name('items.index');
+    Route::get('/items/{item}', [ItemController::class, 'show'])->name('items.show');
 //    Route::get('/{parentSlug}/{slug}', [CategoryController::class, 'index'])->name('category.sub');
 //    Route::get('/{slug}', [CategoryController::class, 'index'])->name('category.leaf');
 
