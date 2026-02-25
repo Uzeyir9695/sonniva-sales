@@ -24,7 +24,6 @@ class ItemSeeder extends Seeder
 
         $this->command->info("Found {$categories->count()} leaf categories.");
 
-
         foreach ($categories as $category) {
             $this->command->info("Fetching items for category: {$category->code}");
 
@@ -33,7 +32,35 @@ class ItemSeeder extends Seeder
             $this->command->info("  → {$items->count()} items found.");
 
             foreach ($items as $item) {
+                // Skip if already exists
+                if (Item::where('no', $item['no'])->exists()) {
+                    $this->command->info("  → Skipping {$item['no']} (already seeded)");
+                    continue;
+                }
+
+                $baseUrl = "https://api.businesscentral.dynamics.com/v2.0/Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed('{$item['no']}')";
+
+                $response = Http::withToken($token)
+                    ->timeout(180)
+                    ->retry(3, 2000)
+                    ->get($baseUrl, [
+                        '$expand' => 'itemUnitPrices',
+                    ]);
+
+                $detailed = $response->json();
+
+                // Collect and store images
+                $images = [];
+                foreach (['image1', 'image2', 'image3', 'image4', 'image5'] as $imageKey) {
+                    $base64 = $detailed[$imageKey] ?? '';
+                    $fileName = $this->storeImage($base64);
+                    if ($fileName) {
+                        $images[] = $fileName;
+                    }
+                }
+
                 $created = Item::create([
+                    'id'                 => $item['id'],
                     'no'                 => $item['no'],
                     'category_code'      => $item['itemCategoryCode'],
                     'title'              => $item['description'] ?? null,
@@ -43,7 +70,8 @@ class ItemSeeder extends Seeder
                     'base_uom_desc'      => $item['baseUOMDesc'] ?? null,
                     'unit_price'         => $item['unitPrice'] ?? 0,
                     'min_qty_unit_price' => $item['minQtyUnitPrice'] ?? 0,
-                    'image'              => $this->storeImage($item['imageBase64']),
+                    'prices'             => $detailed['itemUnitPrices'] ?? [],
+                    'images'             => $images,
                 ]);
 
                 $attrs = $item['itemAttributeValues'] ?? [];
@@ -69,7 +97,10 @@ class ItemSeeder extends Seeder
         $url  = $base . "Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items?\$expand=itemAttributeValues&\$filter=itemCategoryCode eq '{$categoryCode}'";
 
         do {
-            $response = Http::withToken($token)->timeout(180) ->get($url);
+            $response = Http::withToken($token)
+                ->timeout(180)
+                ->retry(3, 2000)
+                ->get($url);
 
             if ($response->failed()) {
                 throw new \RuntimeException("BC API error for {$categoryCode}: " . $response->body());
