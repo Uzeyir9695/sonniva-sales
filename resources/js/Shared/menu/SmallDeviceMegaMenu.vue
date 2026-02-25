@@ -36,7 +36,7 @@ const currentItems = computed(() => {
 })
 
 const currentTitle = computed(() => {
-    if (stack.value.length === 0) return 'კატეგორია'
+    if (stack.value.length === 0) return 'აარიჩიე კატეგორია'
     return stack.value[stack.value.length - 1].name
 })
 
@@ -52,19 +52,19 @@ const goBack = () => {
 // Route based on stack depth
 const getItemRoute = (item) => {
     if (stack.value.length === 0) {
-        return route('category.index', [item.slug])
+        return route('items.index', [item.slug])
     } else if (stack.value.length === 1) {
-        return route('category.index', [stack.value[0].slug, item.slug])
+        return route('items.index', [stack.value[0].slug, item.slug])
     } else {
-        return route('category.index', [stack.value[0].slug, stack.value[1].slug, item.slug])
+        return route('items.index', [stack.value[0].slug, stack.value[1].slug, item.slug])
     }
 }
 
 const getViewAllRoute = () => {
     if (stack.value.length === 1) {
-        return route('category.index', [stack.value[0].slug])
+        return route('items.index', [stack.value[0].slug])
     } else if (stack.value.length === 2) {
-        return route('category.index', [stack.value[0].slug, stack.value[1].slug])
+        return route('items.index', [stack.value[0].slug, stack.value[1].slug])
     }
     return '#'
 }

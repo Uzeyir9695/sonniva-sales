@@ -6,7 +6,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -77,9 +77,9 @@ use Inertia\Inertia;
     });
 
     /*******************************************************************************************************************
-     * Categories Routes
+     * Items Routes
      * *****************************************************************************************************************/
-    Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [CategoryController::class, 'index'])->name('category.index');
+    Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])->name('items.index');
 //    Route::get('/{parentSlug}/{slug}', [CategoryController::class, 'index'])->name('category.sub');
 //    Route::get('/{slug}', [CategoryController::class, 'index'])->name('category.leaf');
 

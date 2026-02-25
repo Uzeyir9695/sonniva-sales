@@ -39,7 +39,7 @@ const sidebarRef = ref(null)
                 <div class="flex items-center gap-3">
                     <span class="text-lg">{{ category.icon }}</span>
                     <Link
-                        :href="route('category.index', category.slug)"
+                        :href="route('items.index', category.slug)"
                         class="text-sm font-medium"
                         :class="[category.name === 'Sale' ? 'text-brand-500' : activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-700']"
                     >
@@ -62,7 +62,7 @@ const sidebarRef = ref(null)
                     <span>{{ activeCategory.icon }}</span> {{ activeCategory.name }}
                 </h2>
                 <Link
-                    :href="route('category.index', activeCategory.slug)"
+                    :href="route('items.index', activeCategory.slug)"
                     class="text-brand-500 text-sm font-semibold hover:text-brand-600 flex items-center gap-1"
                 >
                     ყველას ნახვა <i class="pi pi-arrow-right text-xs!"></i>
@@ -73,7 +73,7 @@ const sidebarRef = ref(null)
             <div class="grid grid-cols-2 gap-x-12 gap-y-6">
                 <div v-for="sub in activeCategory.subs" :key="sub.name">
                     <Link
-                        :href="route('category.index', [activeCategory.slug, sub.slug])"
+                        :href="route('items.index', [activeCategory.slug, sub.slug])"
                         class="text-sm font-semibold text-gray-900 hover:text-brand-400 mb- 2 pb- 1.5 borde r-b border-gray-100 inline-block"
                     >
                         {{ sub.name }}
@@ -81,7 +81,7 @@ const sidebarRef = ref(null)
                     <ul class="space-y-1.5 mt-2">
                         <li v-for="item in sub.items" :key="item.name">
                             <Link
-                                :href="route('category.index', [activeCategory.slug, sub.slug, item.slug])"
+                                :href="route('items.index', [activeCategory.slug, sub.slug, item.slug])"
                                 class="text-sm text-gray-500 hover:text-brand-400 transition-colors"
                             >
                                 {{ item.name }}
