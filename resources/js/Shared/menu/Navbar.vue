@@ -21,7 +21,7 @@ const openSearch = async () => {
 </script>
 
 <template>
-    <div class="flex-col sticky top-0 mb-4 z-50">
+    <div class="flex-col sticky top-0 z-50">
         <nav class="bg-white shadow-sm">
             <div class="max-w-7xl mx-auto px-6 h-20 flex items-center gap-4">
 
@@ -84,14 +84,14 @@ const openSearch = async () => {
                     </button>
 
                     <Link :href="route('home')" class="hidden lg:flex items-center">
-                        <img src="/logo/logo1.jpeg" alt="logo" class="w-20 h-full object-cover">
+                        <img src="/logo/logo2.jpeg" alt="logo" class="w-20 h-full object-cover">
                     </Link>
 
                     <div class="hidden lg:flex items-center bg-gray-100 rounded-xl px-4 h-11 gap-3 focus-within:ring-2 focus-within:ring-brand-400 focus-within:bg-white transition-all flex-[4]">
                         <i class="pi pi-search text-gray-400 text-sm shrink-0"></i>
                         <input
                             type="text"
-                            placeholder="Search products..."
+                            placeholder="მოძებნე ის რაც გჭირდება..."
                             class="w-full bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400"
                         />
                     </div>
