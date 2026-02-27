@@ -67,6 +67,10 @@ class ItemController extends Controller
                     }
                 }
             })
+            ->when($request->price_min, fn($q) => $q->where('unit_price', '>=', $request->price_min))
+            ->when($request->price_max, fn($q) => $q->where('unit_price', '<=', $request->price_max))
+            ->when($request->stock === 'in',  fn($q) => $q->where('inventory', '>', 0))
+            ->when($request->stock === 'out', fn($q) => $q->where('inventory', '<=', 0))
             ->paginate(24);
 
         return Inertia::render('items/Index', [
