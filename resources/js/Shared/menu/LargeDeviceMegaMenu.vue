@@ -13,7 +13,7 @@ const sidebarRef = ref(null)
 
 <template>
     <!-- Category Sidebar + Mega Menu -->
-    <div class="relative flex gap-x-4" @mouseleave="activeCategory = null">
+    <div class="relative flex gap-x-4 mt-4" @mouseleave="activeCategory = null">
 
         <Teleport to="body">
             <div
