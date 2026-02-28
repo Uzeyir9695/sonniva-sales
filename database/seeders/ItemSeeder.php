@@ -54,7 +54,7 @@ class ItemSeeder extends Seeder
                 foreach (['image1', 'image2', 'image3', 'image4', 'image5'] as $imageKey) {
                     $base64 = $detailed[$imageKey] ?? '';
                     $fileName = $this->storeImage($base64);
-                    if ($fileName) {
+                    if ($fileName && !in_array($fileName, $images)) {
                         $images[] = $fileName;
                     }
                 }
@@ -118,8 +118,9 @@ class ItemSeeder extends Seeder
     private function makeSlug(string $text): string
     {
         $text = trim($text, " \t\n\r\0\x0B,.*");
-        $text = preg_replace('/[-]+/u', ' ', $text);
-        $text = preg_replace('/\s+/u', '-', $text);
+        $text = preg_replace('/[\/=]+/u', '-', $text);
+        $text = preg_replace('/[-\s]+/u', '-', $text);  // collapse multiple dashes/spaces into one
+        $text = trim($text, '-');                         // trim leading/trailing dashes
         return mb_strtolower($text);
     }
 
