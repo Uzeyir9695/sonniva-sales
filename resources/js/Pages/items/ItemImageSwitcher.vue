@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
     item: Object,
@@ -35,6 +36,10 @@ function onMouseMove(e) {
 function onMouseLeave() {
     activeIndex.value = 0;
 }
+
+function showItemDetailsPage() {
+    router.get(route('items.show', props.item.slug));
+}
 </script>
 
 <template>
@@ -44,7 +49,7 @@ function onMouseLeave() {
         @mouseleave="onMouseLeave"
     >
         <!-- Image area -->
-        <div class="relative overflow-hidden aspect-square">
+        <div @click="showItemDetailsPage" class="relative overflow-hidden aspect-square cursor-pointer">
             <template v-if="displayImages.length">
                 <img
                     v-for="(img, i) in displayImages"
