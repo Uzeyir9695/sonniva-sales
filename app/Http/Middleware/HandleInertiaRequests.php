@@ -7,6 +7,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Inertia\Inertia;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
@@ -72,9 +73,6 @@ class HandleInertiaRequests extends Middleware
             'ziggy' => function () use ($request) {
                 return array_merge((new Ziggy())->toArray(), [
                     'location' => $request->url(),
-                    'defaults' => [
-                        'locale' => app()->getLocale(), // Use the locale already set by SetLocale middleware
-                    ],
                 ]);
             },
             'categories' => $categories,
