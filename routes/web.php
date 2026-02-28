@@ -76,13 +76,14 @@ use Inertia\Inertia;
         });
     });
 
+
     /*******************************************************************************************************************
      * Items Routes
      * *****************************************************************************************************************/
-    Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])->name('items.index');
-    Route::get('/items/{item}', [ItemController::class, 'show'])->name('items.show');
-//    Route::get('/{parentSlug}/{slug}', [CategoryController::class, 'index'])->name('category.sub');
-//    Route::get('/{slug}', [CategoryController::class, 'index'])->name('category.leaf');
+    Route::get('/item/{item:slug}', [ItemController::class, 'show'])->name('items.show');
+
+    Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])
+        ->name('items.index');
 
     /*******************************************************************************************************************
      * FAQ Route
@@ -119,5 +120,5 @@ use Inertia\Inertia;
  * Fallback Route
  * *********************************************************************************************************************/
 Route::fallback(function() {
-    return to_route('home');
+    return Inertia::render('404');
 });
