@@ -9,7 +9,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        return Inertia::render('home/Index', []);
+        return Inertia::render('home/Index');
     }
 
     public function readMore()
