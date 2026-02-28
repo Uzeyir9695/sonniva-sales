@@ -7,17 +7,6 @@ import Navbar from '@/Shared/menu/Navbar.vue';
 const page = usePage();
 const isAuthenticated = computed(() => page.props.isLoggedIn);
 
-// Avoid showing login/protected page after login/logout
-onMounted(() => {
-    window.addEventListener('popstate', (event) => {
-        if (!isAuthenticated.value) {
-            router.get(route('login'), {}, {replace: true});
-        } else {
-            router.get(route('home'));
-        }
-        event.stopImmediatePropagation();
-    });
-});
 </script>
 
 <template>
