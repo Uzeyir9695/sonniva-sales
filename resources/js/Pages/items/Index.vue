@@ -71,6 +71,8 @@ function openQuickView(item) {
 </script>
 
 <template>
+    <Head :title="Object.values(route().params).filter(Boolean).pop() ?? 'Home'" />
+
     <div class="min-h-screen bg-[#f7f6f 3]">
         <!-- Mobile Filter Toggle Bar -->
         <div class="lg:hidden sticky top-20 z-20 bg-white border-b border-gray-100 px-4 py-2 flex items-center justify-between shadow-sm">
@@ -253,9 +255,9 @@ function openQuickView(item) {
                                     </ItemImageSwitcher>
 
                                     <div class="p-3 sm:p-4 flex flex-col flex-1">
-                                        <h2 class="text-sm font-medium text-gray-900 leading-snug mb-1 line-clamp-2">
+                                        <Link :href="route('items.show', item.slug)" class="text-sm font-medium text-gray-900 leading-snug mb-1 line-clamp-2">
                                             {{ item.name }}
-                                        </h2>
+                                        </Link>
 
                                         <div class="mt-auto pt-3 flex items-center justify-between gap-2">
                                             <span class="text-base font-semibold text-gray-900">
