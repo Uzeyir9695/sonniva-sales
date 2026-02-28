@@ -1,15 +1,17 @@
 import './bootstrap'
 import '../css/app.css'
 import {createApp, h} from 'vue'
-import {createInertiaApp} from '@inertiajs/vue3'
+import {createInertiaApp, router } from '@inertiajs/vue3'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
+import { Head } from '@inertiajs/vue3'
 import { ZiggyVue } from 'ziggy-js'
 import Layout from "./Shared/Layout.vue"
 import mitt from "mitt"
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
+
 
 const emitter = mitt()
 window.emitter = emitter // Make it globally accessible
@@ -108,7 +110,7 @@ createInertiaApp({
         return page;
     },
     setup({ el, App, props, plugin }) {
-        window.Ziggy = props.initialPage.props.ziggy || {};
+        // window.Ziggy = props.initialPage.props.ziggy || {};
 
         const app = createApp({ render: () => h(App, props) });
         app.use(plugin);
@@ -117,6 +119,7 @@ createInertiaApp({
 
         app.provide('emitter', emitter);
 
+        app.component("Head", Head);
         app.component("Select", Select);
         app.component("FloatLabel", FloatLabel);
 
