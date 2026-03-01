@@ -12,7 +12,6 @@ import mitt from "mitt"
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
-
 const emitter = mitt()
 window.emitter = emitter // Make it globally accessible
 
