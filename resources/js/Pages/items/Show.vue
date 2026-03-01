@@ -68,10 +68,7 @@ const activeTab = ref('0')
 
                 <!-- ========== LEFT: GALLERY ========== -->
                 <div class="lg:col-span-4 lg:row-start-1 lg:row-end-2 order-1">
-
-
                     <ItemGallery :images="images" :item-name="item.name" />
-
                 </div>
 
                 <!-- ========== RIGHT: DETAILS ========== -->
@@ -95,7 +92,7 @@ const activeTab = ref('0')
 
                             <div
                                 @click="copy(item.no)"
-                                v-tooltip.bottom="'პროდუქტის კოდის კოპირება'"
+                                v-tooltip.bottom="'დააკოპირე პროდუქტის კოდი'"
                                 class="flex items-center justify-center w-8 h-8 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-150 cursor-pointer"
                             >
                                 <i v-if="copied" class="pi pi-check text-emerald-500 text-xs"></i>
