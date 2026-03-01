@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\RegisterController;
+use App\Http\Controllers\ItemController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,4 +31,5 @@ Route::prefix('v1')->group(function () {
     Route::post('/forgot-password/verify-code', [ForgotPasswordController::class, 'verifyCode']);
     Route::post('/forgot-password/reset', [ForgotPasswordController::class, 'resetPassword']);
 
+    Route::get('/search', [ItemController::class, 'search'])->name('items.search');
 });

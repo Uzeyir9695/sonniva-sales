@@ -92,4 +92,19 @@ class ItemController extends Controller
             'similarItems' => $similarItems,
         ]);
     }
+
+    public function search(Request $request)
+    {
+        $q = $request->input('q', '');
+
+        if (strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        $items = Item::where('name', 'like', "%{$q}%")
+            ->limit(8)
+            ->get(['id', 'no', 'name', 'slug', 'unit_price', 'images', 'inventory']);
+
+        return response()->json($items);
+    }
 }

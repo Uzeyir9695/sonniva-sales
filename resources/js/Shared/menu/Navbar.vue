@@ -3,6 +3,7 @@ import { ref, computed, nextTick } from 'vue'
 import {Link, usePage} from '@inertiajs/vue3';
 import LargeDeviceMegaMenu from '@/Shared/menu/LargeDeviceMegaMenu.vue';
 import SmallDeviceMegaMenu from '@/Shared/menu/SmallDeviceMegaMenu.vue';
+import SearchBar from '@/Shared/components/SearchBar.vue';
 
 const page = usePage();
 const user = computed(() => page.props.user);
@@ -28,17 +29,9 @@ const openSearch = async () => {
                 <!-- ── SMALL DEVICE: search open state ── -->
                 <template v-if="searchOpen">
                     <div class="flex lg:hidden items-center w-full gap-3">
-                        <!-- Search input -->
-                        <div class="flex-1 flex items-center bg-gray-100 rounded-xl px-4 h-11 gap-3 focus-within:ring-2 focus-within:ring-brand-400 focus-within:bg-white transition-all">
-                            <i class="pi pi-search text-brand-500 text-sm shrink-0"></i>
-                            <input
-                                ref="searchInput"
-                                type="text"
-                                placeholder="რას ეძებთ?"
-                                class="w-full bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400"
-                            />
+                        <div class="flex-1">
+                            <SearchBar @close="searchOpen = false" placeholder="რას ეძებთ?" />
                         </div>
-                        <!-- Close -->
                         <button @click="searchOpen = false" class="p-2 text-gray-500 hover:text-gray-900">
                             <i class="pi pi-times text-lg"></i>
                         </button>
@@ -87,13 +80,8 @@ const openSearch = async () => {
                         <img src="/logo/logo2.jpeg" alt="logo" class="w-20 h-full object-cover">
                     </Link>
 
-                    <div class="hidden lg:flex items-center bg-gray-100 rounded-xl px-4 h-11 gap-3 focus-within:ring-2 focus-within:ring-brand-400 focus-within:bg-white transition-all flex-[4]">
-                        <i class="pi pi-search text-gray-400 text-sm shrink-0"></i>
-                        <input
-                            type="text"
-                            placeholder="მოძებნე ის რაც გჭირდება..."
-                            class="w-full bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400"
-                        />
+                    <div class="hidden lg:flex flex-4">
+                        <SearchBar placeholder="მოძებნე ის რაც გჭირდება..." />
                     </div>
 
                     <a href="tel:+995591047372" class="hidden lg:flex items-center gap-2 text-gray-600 hover:text-gray-900 shrink-0">
