@@ -3,9 +3,12 @@ import { Link } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 import { useClipboard } from '@vueuse/core';
 import { ZoomImg } from 'vue3-zoomer';
+import SimilarItems from '@/Pages/items/SimilarItems.vue';
+import ItemGallery from '@/Pages/items/ItemGallery.vue';
 
 const props = defineProps({
     item: Object,
+    similarItems: Array,
     attributes: Array,
 })
 
@@ -55,91 +58,24 @@ const activeTab = ref('0')
 </script>
 
 <template>
+    <Head :title="item?.slug" />
+
     <div class="min-h-screen bg-[#f8f7 f4]">
         <div class="mx-auto px-4 py-5 sm:py-10">
 
             <!-- ================= TOP SECTION ================= -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div class="grid grid-cols-1 lg:grid-cols-7 gap-6">
 
                 <!-- ========== LEFT: GALLERY ========== -->
-                <div class="flex flex-col gap-4">
+                <div class="lg:col-span-4 lg:row-start-1 lg:row-end-2 order-1">
 
-                    <!-- Main Image -->
-                    <div class="relative bg-white rounded-3xl overflow-hidden aspect-square border border-gray-100 shadow-sm">
 
-                        <template v-if="images.length">
-<!--                            <img-->
-<!--                                v-for="(img, i) in images"-->
-<!--                                :key="i"-->
-<!--                                :src="imageUrl(img)"-->
-<!--                                :alt="item.name"-->
-<!--                                class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"-->
-<!--                                :class="i === activeIndex ? 'opacity-100' : 'opacity-0'"-->
-<!--                            />-->
-                            <ZoomImg
-                                v-for="(img, i) in images"
-                                :key="i"
-                                :src="imageUrl(img)"
-                                :alt="item.name"
-                                class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
-                                :class="i === activeIndex ? 'opacity-100' : 'opacity-0'"
-                                zoom-type="move"
-                                trigger="click"
-                                :zoom-scale="4"
-                                :step="1"
-                                :show-zoom-btns="false"
-                            />
-                        </template>
-
-                        <div v-else class="w-full h-full flex items-center justify-center bg-gray-50">
-                            <i class="pi pi-image text-5xl text-gray-300"></i>
-                        </div>
-
-                        <!-- Arrows -->
-                        <template v-if="images.length > 1">
-                            <button
-                                @click="prevImage"
-                                class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:scale-105 transition"
-                            >
-                                <i class="pi pi-chevron-left text-xs"></i>
-                            </button>
-
-                            <button
-                                @click="nextImage"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center hover:scale-105 transition"
-                            >
-                                <i class="pi pi-chevron-right text-xs"></i>
-                            </button>
-                        </template>
-
-                        <!-- Counter -->
-                        <div
-                            v-if="images.length > 1"
-                            class="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-3 py-1 rounded-full"
-                        >
-                            {{ activeIndex + 1 }} / {{ images.length }}
-                        </div>
-                    </div>
-
-                    <!-- Thumbnails -->
-                    <div v-if="images.length > 1" class="flex gap-3 overflow-x-auto">
-                        <button
-                            v-for="(img, i) in images"
-                            :key="i"
-                            @click="activeIndex = i"
-                            class="w-16 h-16 rounded-xl overflow-hidden border-2 transition-all"
-                            :class="i === activeIndex
-                        ? 'border-gray-500'
-                        : 'border-transparent opacity-60 hover:opacity-100'"
-                        >
-                            <img :src="imageUrl(img)" class="w-full h-full object-cover" :alt="item.slug" />
-                        </button>
-                    </div>
+                    <ItemGallery :images="images" :item-name="item.name" />
 
                 </div>
 
                 <!-- ========== RIGHT: DETAILS ========== -->
-                <div class="flex flex-col border border-gray-100 p-3 rounded-2xl shadow-xs">
+                <div class="lg:col-span-3 lg:row-start-1 lg:row-end-3 order-2 lg:sticky lg:top-22 h-fit border border-gray-100 p-3 rounded-2xl shadow-xs">
 
                     <!-- Stock -->
                     <div class="flex justify-between items-center mb-4">
@@ -185,7 +121,6 @@ const activeTab = ref('0')
 
                     <!-- Divider -->
                     <div class="h-px bg-gray-200 mb-8"></div>
-
 
                     <!-- Action Buttons -->
                     <div class="space-y-3">
@@ -264,74 +199,116 @@ const activeTab = ref('0')
                         </div>
                     </div>
 
+                    <!-- Delivery & Payment Info -->
+                    <div class="mt-6 space-y-2">
+
+                        <Panel toggleable :collapsed="false" pt:root:class="!border-gray-100 !rounded-2xl !shadow-none">
+                            <template #header>
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-truck text-brand-500"></i>
+                                    <span class="text-sm font-semibold text-gray-800">მიწოდება</span>
+                                </div>
+                            </template>
+                            <template #toggleicon="{ collapsed }">
+                                <i :class="['pi text-xs text-gray-400', collapsed ? 'pi-plus' : 'pi-minus']"></i>
+                            </template>
+                            <ul class="space-y-2 text-xs text-gray-600">
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span><strong>თვითგატანა ოფისიდან:</strong> უფასო. გატანის წერტილები <a href="#" class="text-blue-500 hover:underline">რუკაზე</a></span></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>მიწოდება თბილისში: 1000+ ₾ უფასო, 1000-მდე ₾ 70 </span></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>მიწოდება რეგიონებში: 200 ლარიდან</span></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <a href="#" class="text-blue-500 hover:underline">დეტალურად მიწოდების შესახებ</a></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>13:00-მდე გაფორმებულ შეკვეთებს გაწვდით იმავე დღეს!</span></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>მიტანის სერვისის ფარგლებში პროდუქციის მანქანიდან ჩამოტვირთვა და სართულზე ატანა არ შედის მომსახურებაში.</span></li>
+                            </ul>
+                        </Panel>
+
+                        <Panel toggleable :collapsed="false" pt:root:class="!border-gray-100 !rounded-2xl !shadow-none">
+                            <template #header>
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-credit-card text-brand-500"></i>
+                                    <span class="text-sm font-semibold text-gray-800">გადახდის მეთოდები</span>
+                                </div>
+                            </template>
+                            <template #toggleicon="{ collapsed }">
+                                <i :class="['pi text-xs text-gray-400', collapsed ? 'pi-plus' : 'pi-minus']"></i>
+                            </template>
+                            <ul class="space-y-2 text-xs text-gray-600">
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>ბარათებით Visa, MasterCard, ლოიალობის ქულებით</span></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>საბანკო გადარიცხვით</span></li>
+                           </ul>
+                        </Panel>
+
+                    </div>
+
+                </div>
+
+                <!-- ================= TABS ================= -->
+                <div class="lg:col-span-4 lg:row-start-2 lg:row-end-6 order-3 sm:mt-10">
+                    <div class="col-span-2">
+
+                        <Tabs v-model:value="activeTab" class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+
+                            <!-- Tab Headers -->
+                            <TabList
+                                pt:root:class="border-b border-gray-100 bg-transparent px-6"
+                                pt:activeBar:class="bg-brand-500 h-[2px]"
+                            >
+                                <Tab
+                                    value="0"
+                                    pt:root:class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition"
+                                    pt:selected:class="text-gray-900"
+                                >
+                                    აღწერა
+                                </Tab>
+
+                                <Tab
+                                    value="1"
+                                    pt:root:class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition"
+                                    pt:selected:class="text-gray-900"
+                                >
+                                    მახასიათებლები
+                                </Tab>
+                            </TabList>
+
+                            <!-- Tab Content -->
+                            <TabPanels pt:root:class="p-8">
+
+                                <!-- Description -->
+                                <TabPanel value="0">
+                                    <div v-if="item.description" class="text-sm text-gray-600 leading-relaxed">
+                                        {{ item.description }}
+                                    </div>
+                                    <div v-else class="text-sm text-gray-400 italic">
+                                        აღწერა არ არის მითითებული.
+                                    </div>
+                                </TabPanel>
+
+                                <!-- Attributes -->
+                                <TabPanel value="1">
+                                    <div v-if="attributes?.length" class="grid gap-3">
+                                        <div
+                                            v-for="attr in attributes"
+                                            :key="attr.id"
+                                            class="flex justify-between bg-gray-50 px-5 py-3 rounded-xl text-sm"
+                                        >
+                                            <span class="text-gray-500">{{ attr.name }}</span>
+                                            <span class="font-medium text-gray-900">{{ attr.value }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div v-else class="text-sm text-gray-400 italic">
+                                        მახასიათებლები არ არის მითითებული.
+                                    </div>
+                                </TabPanel>
+
+                            </TabPanels>
+
+                        </Tabs>
+                    </div>
                 </div>
             </div>
-
-            <!-- ================= TABS ================= -->
-            <!-- ================= TABS ================= -->
-            <div class="mt-16">
-
-                <Tabs v-model:value="activeTab" class="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-
-                    <!-- Tab Headers -->
-                    <TabList
-                        pt:root:class="border-b border-gray-100 bg-transparent px-6"
-                        pt:activeBar:class="bg-brand-500 h-[2px]"
-                    >
-                        <Tab
-                            value="0"
-                            pt:root:class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition"
-                            pt:selected:class="text-gray-900"
-                        >
-                            აღწერა
-                        </Tab>
-
-                        <Tab
-                            value="1"
-                            pt:root:class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition"
-                            pt:selected:class="text-gray-900"
-                        >
-                            მახასიათებლები
-                        </Tab>
-                    </TabList>
-
-                    <!-- Tab Content -->
-                    <TabPanels pt:root:class="p-8">
-
-                        <!-- Description -->
-                        <TabPanel value="0">
-                            <div v-if="item.description" class="text-sm text-gray-600 leading-relaxed">
-                                {{ item.description }}
-                            </div>
-                            <div v-else class="text-sm text-gray-400 italic">
-                                აღწერა არ არის მითითებული.
-                            </div>
-                        </TabPanel>
-
-                        <!-- Attributes -->
-                        <TabPanel value="1">
-                            <div v-if="attributes?.length" class="grid gap-3">
-                                <div
-                                    v-for="attr in attributes"
-                                    :key="attr.id"
-                                    class="flex justify-between bg-gray-50 px-5 py-3 rounded-xl text-sm"
-                                >
-                                    <span class="text-gray-500">{{ attr.name }}</span>
-                                    <span class="font-medium text-gray-900">{{ attr.value }}</span>
-                                </div>
-                            </div>
-
-                            <div v-else class="text-sm text-gray-400 italic">
-                                მახასიათებლები არ არის მითითებული.
-                            </div>
-                        </TabPanel>
-
-                    </TabPanels>
-
-                </Tabs>
-
-            </div>
-
         </div>
+
+        <SimilarItems :items="similarItems" />
     </div>
 </template>

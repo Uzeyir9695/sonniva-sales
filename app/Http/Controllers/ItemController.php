@@ -81,9 +81,15 @@ class ItemController extends Controller
 
     public function show(Item $item)
     {
+        $similarItems = Item::where('category_code', $item->category_code)
+            ->where('id', '!=', $item->id)
+            ->limit(10)
+            ->get(['id', 'name', 'slug', 'unit_price', 'images', 'inventory']);
+
         return Inertia::render('items/Show', [
             'item' => $item,
             'attributes' => $item->attributes,
+            'similarItems' => $similarItems,
         ]);
     }
 }
