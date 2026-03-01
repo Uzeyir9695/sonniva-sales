@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 import { useClipboard } from '@vueuse/core';
+import { ZoomImg } from 'vue3-zoomer';
 
 const props = defineProps({
     item: Object,
@@ -67,13 +68,26 @@ const activeTab = ref('0')
                     <div class="relative bg-white rounded-3xl overflow-hidden aspect-square border border-gray-100 shadow-sm">
 
                         <template v-if="images.length">
-                            <img
+<!--                            <img-->
+<!--                                v-for="(img, i) in images"-->
+<!--                                :key="i"-->
+<!--                                :src="imageUrl(img)"-->
+<!--                                :alt="item.name"-->
+<!--                                class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"-->
+<!--                                :class="i === activeIndex ? 'opacity-100' : 'opacity-0'"-->
+<!--                            />-->
+                            <ZoomImg
                                 v-for="(img, i) in images"
                                 :key="i"
                                 :src="imageUrl(img)"
                                 :alt="item.name"
                                 class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
                                 :class="i === activeIndex ? 'opacity-100' : 'opacity-0'"
+                                zoom-type="move"
+                                trigger="click"
+                                :zoom-scale="4"
+                                :step="1"
+                                :show-zoom-btns="false"
                             />
                         </template>
 
