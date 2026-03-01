@@ -48,7 +48,7 @@ const demoCarousels = [
         </div>
     </div>
 
-    <div class="mt-8 flex flex-col gap-10">
+    <div class="flex flex-col">
         <SwiperCarousel
             v-for="carousel in demoCarousels"
             :key="carousel.title"
