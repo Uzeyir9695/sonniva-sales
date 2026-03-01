@@ -286,8 +286,8 @@ function openQuickView(item) {
                             <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                                 <i class="pi pi-th-large text-3xl text-gray-300"></i>
                             </div>
-                            <h3 class="text-lg font-medium text-gray-500">No items found</h3>
-                            <p class="text-sm text-gray-400 mt-1">Try adjusting your filters</p>
+                            <h3 class="text-lg font-medium text-gray-500">პროდუქტი არ მოიძებნა</h3>
+                            <p class="text-sm text-gray-400 mt-1">გამოიყენეთ სხვა ფილტრაცია</p>
                         </div>
                     </template>
 
