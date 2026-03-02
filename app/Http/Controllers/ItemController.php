@@ -71,6 +71,7 @@ class ItemController extends Controller
             ->when($request->price_max, fn($q) => $q->where('unit_price', '<=', $request->price_max))
             ->when($request->stock === 'in',  fn($q) => $q->where('inventory', '>', 0))
             ->when($request->stock === 'out', fn($q) => $q->where('inventory', '<=', 0))
+            ->with('attributes:id,bc_attribute_id,name,value,item_id')
             ->paginate(24);
 
         return Inertia::render('items/Index', [
@@ -102,6 +103,7 @@ class ItemController extends Controller
         }
 
         $items = Item::where('name', 'like', "%{$q}%")
+            ->with('attributes:id,bc_attribute_id,name,value,item_id')
             ->limit(100)
             ->get(['id', 'no', 'name', 'slug', 'unit_price', 'images', 'inventory']);
 

@@ -57,18 +57,23 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
                         >
                             {{ inStock ? 'მარაგშია' : 'მარაგში არაა' }}
                         </span>
-<!--                        <span class="text-sm">-->
-<!--                            {{ item.no }}-->
-<!--                        </span>-->
+
                     </div>
 
                     <h2 class="sm:text-xl font-semibold text-gray-900 mt-2 mb-2 leading-snug pr-6" style="font-family: 'Playfair Display', serif;">
                         {{ item.name }}
                     </h2>
 
-                    <p v-if="item.description" class="text-sm text-gray-500 leading-relaxed mb-4 flex-1">
-                        {{ item.description }}
-                    </p>
+                    <div v-if="item.attributes?.length" class="flex flex-col gap-1.5 mb-4 flex-1">
+                        <div
+                            v-for="attr in item.attributes"
+                            :key="attr.id"
+                            class="flex items-center justify-between py-1.5 px-3 bg-gray-50 rounded-xl"
+                        >
+                            <span class="text-xs text-gray-500 font-medium">{{ attr.name }}</span>
+                            <span class="text-xs text-gray-700 font-semibold">{{ attr.value }}</span>
+                        </div>
+                    </div>
                     <div v-else class="flex-1" />
 
                     <div class="border-t border-gray-100 pt-5 mt-2">
