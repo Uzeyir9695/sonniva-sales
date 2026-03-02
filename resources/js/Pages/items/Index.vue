@@ -42,7 +42,7 @@ const buildQuery = (attrVal) => {
         filters: Object.keys(filters).length ? JSON.stringify(filters) : undefined,
         price_min: priceMin.value || undefined,
         price_max: priceMax.value || undefined,
-        stock: stockFilter.value || undefined,
+        stock: stockFilter.value?.value || undefined,
     };
 };
 
@@ -72,11 +72,32 @@ function openQuickView(item) {
 function showItemDetailsPage(item) {
     router.get(route('items.show', item.slug));
 }
+
+const resetFilters = () => {
+    loading.value = true;
+
+    // Reset attribute checkboxes
+    selected.value = Object.fromEntries(
+        props.attributes.map(attr => [attr.id, []])
+    );
+
+    // Reset price
+    priceMin.value = null;
+    priceMax.value = null;
+
+    // Reset stock
+    stockFilter.value = { label: 'ყველა', value: '' };
+
+    // Reset attribute search inputs
+    attrSearch.value = {};
+
+    // Reload without any filters
+    applyFilters({});
+};
 </script>
 
 <template>
-    <Head :title="Object.values(route().params).filter(Boolean).pop() ?? 'Home'" />
-
+    <Head :title="decodeURIComponent(Object.values(route().params).filter(Boolean)[0] || 'Home')" />
     <div class="min-h-screen bg-[#f7f6f 3]">
         <!-- Mobile Filter Toggle Bar -->
         <div class="lg:hidden sticky top-20 z-20 bg-white border-b border-gray-100 px-4 py-2 flex items-center justify-between shadow-sm">
@@ -119,9 +140,20 @@ function showItemDetailsPage(item) {
                 </div>
 
                 <div class="px-5 py-5">
-                    <div class="items-center gap-x-3 mb-5 hidden lg:flex">
-                        <i class="pi pi-sliders-h"></i>
-                        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">ფილტრაცია</p>
+                    <div class="items-center justify-between mb-5 hidden lg:flex">
+                        <div class="items-center gap-x-3 mb- 5 hidden lg:flex">
+                            <i class="pi pi-sliders-h"></i>
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">ფილტრაცია</p>
+                        </div>
+                        <div class="items-center gap-x-1 mb- 5 rounded-xl bg-slate-100 cursor-pointer px-2 py-1 hidden lg:flex">
+                            <i class="text-sm pi pi-refresh text-gray-500"></i>
+                            <button
+                                @click="resetFilters"
+                                class="text-xs text-gray-400 cursor-pointer hover:text-gray-900 transition-colors"
+                            >
+                                გასუფთავება
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Price Range -->
