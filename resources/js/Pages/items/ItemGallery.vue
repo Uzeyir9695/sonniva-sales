@@ -33,11 +33,11 @@ const imageUrl = (img) => `/storage/items/${img}`;
             :loop="images.length > 1"
             class="main-gallery w-full rounded-3xl overflow-hidden border border-gray-100 shadow-sm h-[270px] sm:h-[500px]"
         >
-            <SwiperSlide v-for="(img, i) in images" :key="i">
+            <SwiperSlide v-for="(img, i) in images" :key="i" class="flex items-center justify-center">
                 <ZoomImg
                     :src="imageUrl(img)"
                     :alt="itemName"
-                    class="w-full h-full object-cover"
+                    class="max-w-[500px] mx-auto ring h-full object-cover"
                     zoom-type="move"
                     trigger="click"
                     :zoom-scale="4"
