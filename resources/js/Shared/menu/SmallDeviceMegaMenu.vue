@@ -14,7 +14,7 @@ const drawerButtonRef = ref(null)
 
 onClickOutside(drawerRef, () => closeDrawer(), { ignore: [drawerButtonRef] })
 
-const openDrawer = () => drawerOpen.value = true
+const openDrawer = () => drawerOpen.value = !drawerOpen.value
 
 const closeDrawer = () => {
     drawerOpen.value = false
