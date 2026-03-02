@@ -102,7 +102,7 @@ class ItemController extends Controller
         }
 
         $items = Item::where('name', 'like', "%{$q}%")
-            ->limit(8)
+            ->limit(100)
             ->get(['id', 'no', 'name', 'slug', 'unit_price', 'images', 'inventory']);
 
         return response()->json($items);
