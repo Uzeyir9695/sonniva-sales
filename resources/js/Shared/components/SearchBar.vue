@@ -120,7 +120,7 @@ defineExpose({ inputRef });
         <!-- Dropdown -->
         <div
             v-if="showDropdown"
-            class="absolute left-0 right-0 top-full bg-white border-2 border-t-0 border-brand-400 rounded-b-xl shadow-xl z-50 max-h-[700px] overflow-y-auto"
+            class="absolute left-0 right-0 top-full bg-white border-2 border-t-0 border-brand-400 rounded-b-xl shadow-xl z-50 sm:max-h-[700px] max-h-[500px] overflow-y-auto"
         >
             <div
                 class="flex items-center justify-center gap-2 sticky top-0 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors text-xs font-medium text-gray-500"
