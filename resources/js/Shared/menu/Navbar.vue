@@ -43,7 +43,7 @@ const openSearch = async () => {
                     <div class="flex lg:hidden items-center justify-between w-full">
                         <div class="flex items-center gap-x-4">
                             <!-- Left: hamburger -->
-                            <SmallDeviceMegaMenu ref="mobileMenuRef" :categories="categories" />
+                            <SmallDeviceMegaMenu :categories="categories" />
 
                             <!-- Center: logo -->
                             <Link :href="route('home')">
