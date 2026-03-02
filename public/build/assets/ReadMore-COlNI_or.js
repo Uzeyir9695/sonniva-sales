@@ -1,0 +1,1 @@
+import{aO as e,c,o}from"./app-DFVQZLTp.js";/* empty css            */const r={},t={class:"min-h-screen bg-white"};function s(a,n){return o(),c("div",t," Read More Page ")}const d=e(r,[["render",s]]);export{d as default};
