@@ -75,6 +75,11 @@ function openQuickView(item) {
     quickViewOpen.value = true;
 }
 
+function onDetailsClick() {
+    showDropdown.value = false
+    query.value = ''
+}
+
 onMounted(() => document.addEventListener('mousedown', onClickOutside));
 onUnmounted(() => document.removeEventListener('mousedown', onClickOutside));
 
@@ -157,7 +162,7 @@ defineExpose({ inputRef });
                         <!-- Stock  + Price-->
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <p class="text-xs sm:text-sm text-brand-500 font-bold mt-0.5">₾{{ item.unit_price }}</p>
+                                <p class="text-xs sm:text-sm text-brand-500 font-bold mt-0.5">{{ item.unit_price }} ₾</p>
 
                                 <span
                                     class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
@@ -201,5 +206,6 @@ defineExpose({ inputRef });
     <QuickViewDialog
         v-model:visible="quickViewOpen"
         :item="quickViewItem"
+        @details-clicked="onDetailsClick"
     />
 </template>

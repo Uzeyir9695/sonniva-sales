@@ -11,7 +11,12 @@ const props = defineProps({
     item: Object,
 })
 
-const emit = defineEmits(['update:visible'])
+const emit = defineEmits(['update:visible', 'details-clicked'])
+
+const handleDetailsClick = () => {
+    emit('update:visible', false)
+    emit('details-clicked')
+}
 
 const show = computed({
     get: () => props.visible,
@@ -78,7 +83,7 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
 
                     <div class="border-t border-gray-100 pt-5 mt-2">
                         <div class="text-2xl font-bold text-gray-900 mb-4">
-                            {{ item.unit_price ? `₾${item.unit_price}` : '—' }}
+                            {{ item.unit_price ? `${item.unit_price} ₾` : '—' }}
                         </div>
 
                         <div class="flex gap-2">
@@ -99,9 +104,9 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
                         </div>
 
                         <Link
-                            :href="route('items.show', item.id)"
+                            :href="route('items.show', item.slug)"
                             class="mt-3 w-full flex items-center justify-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors py-2"
-                            @click="show = false"
+                            @click="handleDetailsClick"
                         >
                             დეტალურად ნახვა <i class="pi pi-arrow-right text-xs"></i>
                         </Link>
