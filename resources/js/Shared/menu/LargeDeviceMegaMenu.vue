@@ -54,7 +54,7 @@ const sidebarRef = ref(null)
         <!-- Mega Menu Panel -->
         <div
             v-if="activeCategory && activeCategory.subs?.length"
-            class="absolute left-72 top-0 h-full z-50 bg-white rounded-r-xl border border-gray-200 shadow-2xl min-w-[680px] p-8 overflow-y-auto"
+            class="absolute left-72 top-0 h-full z-40 bg-white rounded-r-xl border border-gray-200 shadow-2xl min-w-[680px] p-8 overflow-y-auto"
             @mouseleave="activeCategory = null"
         >
             <!-- Header -->
