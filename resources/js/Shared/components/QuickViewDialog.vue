@@ -1,10 +1,13 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import ItemImageSwitcher from './ItemImageSwitcher.vue';
+import ItemImageSwitcher from '../../Pages/items/ItemImageSwitcher.vue';
 
 const props = defineProps({
-    visible: Boolean,
+    visible: {
+        type: Boolean,
+        default: false,
+    },
     item: Object,
 })
 
@@ -24,15 +27,19 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
         modal
         :closable="true"
         :draggable="false"
-        :style="{ width: '990px', maxWidth: '135vw', borderRadius: '1.5rem', overflow: 'hidden' }"
+        :style="{ width: '990px', maxWidth: '95vw', borderRadius: '1.5rem', overflow: 'hidden' }"
         :pt="{
-            root: { class: '!rounded-3xl !overflow-hidden !border-0 !shadow-2xl' },
-            header: { style: 'display:none' },
+            root: { class: '!rounded-3xl !overflow-hidden !border-0 !shadow-2xl !mx-4' },
+            header: {  class: 'self-end' },
             content: { class: '!p-0' },
             mask: { class: 'backdrop-blur-sm' },
             closeButton: { style: 'display:none' },
         }"
     >
+        <template #header>
+
+        </template>
+
         <div v-if="item" class="grid grid-cols-1 sm:grid-cols-5 p-3">
             <!-- Images -->
             <div class="col-span-2">
@@ -42,14 +49,6 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
             <!-- Details -->
             <div class="col-span-3">
                 <div class="p-6 sm:p-8 flex flex-col relative">
-                    <!-- Close button -->
-                    <button
-                        @click="show = false"
-                        class="absolute top-1.5 right-1.5 w-6 h-6 cursor-pointer bg-gray-100 rounded-full flex items-center justify-center text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition-colors"
-                    >
-                        <i class="pi pi-times text-xs"></i>
-                    </button>
-
                     <!-- Stock badge -->
                     <div class="flex justify-between items-center mb-2">
                         <span
@@ -63,7 +62,7 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
 <!--                        </span>-->
                     </div>
 
-                    <h2 class="text-xl font-semibold text-gray-900 mt-2 mb-2 leading-snug pr-6" style="font-family: 'Playfair Display', serif;">
+                    <h2 class="sm:text-xl font-semibold text-gray-900 mt-2 mb-2 leading-snug pr-6" style="font-family: 'Playfair Display', serif;">
                         {{ item.name }}
                     </h2>
 

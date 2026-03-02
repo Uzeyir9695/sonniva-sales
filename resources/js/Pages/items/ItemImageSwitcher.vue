@@ -37,9 +37,6 @@ function onMouseLeave() {
     activeIndex.value = 0;
 }
 
-function showItemDetailsPage() {
-    router.get(route('items.show', props.item.slug));
-}
 </script>
 
 <template>
@@ -49,7 +46,7 @@ function showItemDetailsPage() {
         @mouseleave="onMouseLeave"
     >
         <!-- Image area -->
-        <div @click="showItemDetailsPage" class="relative overflow-hidden aspect-square cursor-pointer">
+        <div class="relative overflow-hidden aspect-square cursor-pointer">
             <template v-if="displayImages.length">
                 <img
                     v-for="(img, i) in displayImages"

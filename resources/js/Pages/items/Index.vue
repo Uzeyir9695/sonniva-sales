@@ -3,7 +3,7 @@ import { Deferred, Link, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import GridSkeletonLoader from '@/Shared/skeleton-loaders/GridSkeletonLoader.vue';
 import Paginate from '@/Shared/components/Paginate.vue';
-import QuickViewDialog from './QuickViewDialog.vue';
+import QuickViewDialog from '../../Shared/components/QuickViewDialog.vue';
 import ItemImageSwitcher from './ItemImageSwitcher.vue';
 import debounce from 'lodash/debounce';
 
@@ -67,6 +67,10 @@ watch([priceMin, priceMax, stockFilter], () => {
 function openQuickView(item) {
     quickViewItem.value = item;
     quickViewOpen.value = true;
+}
+
+function showItemDetailsPage(item) {
+    router.get(route('items.show', item.slug));
 }
 </script>
 
@@ -224,6 +228,7 @@ function openQuickView(item) {
                                 <div
                                     v-for="(item, index) in items.data"
                                     :key="index"
+                                    @click.stop="showItemDetailsPage(item)"
                                     class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 flex flex-col"
                                 >
                                     <ItemImageSwitcher :item="item">
