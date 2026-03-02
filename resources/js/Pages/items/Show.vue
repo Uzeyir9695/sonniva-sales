@@ -255,7 +255,7 @@ const activeTab = ref('0')
                                     pt:root:class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition"
                                     pt:selected:class="text-gray-900"
                                 >
-                                    აღწერა
+                                    მახასიათებლები
                                 </Tab>
 
                                 <Tab
@@ -263,25 +263,15 @@ const activeTab = ref('0')
                                     pt:root:class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition"
                                     pt:selected:class="text-gray-900"
                                 >
-                                    მახასიათებლები
+                                    აღწერა
                                 </Tab>
                             </TabList>
 
                             <!-- Tab Content -->
                             <TabPanels pt:root:class="p-8">
 
-                                <!-- Description -->
-                                <TabPanel value="0">
-                                    <div v-if="item.description" class="text-sm text-gray-600 leading-relaxed">
-                                        {{ item.description }}
-                                    </div>
-                                    <div v-else class="text-sm text-gray-400 italic">
-                                        აღწერა არ არის მითითებული.
-                                    </div>
-                                </TabPanel>
-
                                 <!-- Attributes -->
-                                <TabPanel value="1">
+                                <TabPanel value="0">
                                     <div v-if="attributes?.length" class="grid gap-3">
                                         <div
                                             v-for="attr in attributes"
@@ -295,6 +285,16 @@ const activeTab = ref('0')
 
                                     <div v-else class="text-sm text-gray-400 italic">
                                         მახასიათებლები არ არის მითითებული.
+                                    </div>
+                                </TabPanel>
+
+                                <!-- Description -->
+                                <TabPanel value="1">
+                                    <div v-if="item.description" class="text-sm text-gray-600 leading-relaxed">
+                                        {{ item.description }}
+                                    </div>
+                                    <div v-else class="text-sm text-gray-400 italic">
+                                        აღწერა არ არის მითითებული.
                                     </div>
                                 </TabPanel>
 

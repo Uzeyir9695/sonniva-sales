@@ -126,7 +126,7 @@ const resetFilters = () => {
             <aside
                 :class="[
                     'shrink-0 w-72 bg-white border lg:rounded-2xl border-gray-100 shadow-sm overflow-y-auto transition-all duration-300',
-                    'lg:sticky lg:top-6 lg:h-[830px] lg:block',
+                    'lg:sticky lg:top-6 max-h-screen lg:h-[750px] lg:block',
                     'fixed top-20 lg:top-24 left-0 h-full z-40 lg:relative lg:z-auto',
                     sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
                 ]"
