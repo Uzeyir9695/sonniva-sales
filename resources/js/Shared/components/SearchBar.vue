@@ -24,6 +24,7 @@ watch(query, (val) => {
     if (val.trim().length < 2) {
         results.value = [];
         showDropdown.value = false;
+        loading.value = false;
         return;
     }
     loading.value = true;
@@ -37,7 +38,7 @@ watch(query, (val) => {
         } finally {
             loading.value = false;
         }
-    }, 350);
+    }, 450);
 });
 
 function goToItem(item) {
@@ -71,8 +72,15 @@ defineExpose({ inputRef });
 </script>
 
 <template>
-    <div ref="wrapperRef" class="relative w-full">
+    <Teleport to="body">
+        <div
+            v-if="showDropdown && results?.length > 0"
+            class="fixed inset-0 z-30 backdrop-blur-sm bg-black/20"
+            @clickr="results = []; showDropdown = false"
+        />
+    </Teleport>
 
+    <div ref="wrapperRef" class="relative w-full">
         <!-- Input -->
         <div
             class="flex items-center bg-gray-100 rounded-xl px-4 h-11 gap-3 transition-all focus-within:ring-2 focus-within:ring-brand-400 focus-within:bg-white"
@@ -102,8 +110,15 @@ defineExpose({ inputRef });
         <!-- Dropdown -->
         <div
             v-if="showDropdown"
-            class="absolute left-0 right-0 top-full bg-white ring-2 ring-brand-400 rounded-b-xl shadow-xl z-50 overflow-hidden"
+            class="absolute left-0 right-0 top-full bg-white ring-2 ring-brand-400 rounded-b-xl shadow-xl z-50 max-h-[700px] overflow-y-auto"
         >
+            <div
+                @click="goToSearch"
+                class="flex items-center justify-center gap-2 sticky top-0 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors text-xs font-medium text-gray-500"
+            >
+                <i class="pi pi-search text-xs"></i>
+                სულ მოიძებნა {{ results.length }} შედეგი
+            </div>
             <ul>
                 <li
                     v-for="item in results"
@@ -171,16 +186,6 @@ defineExpose({ inputRef });
                     </div>
                 </li>
             </ul>
-
-            <!-- Footer: see all results -->
-            <div
-                @click="goToSearch"
-                class="flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors text-xs font-medium text-gray-500"
-            >
-                <i class="pi pi-search text-xs"></i>
-                ყველა შედეგის ნახვა „{{ query }}"
-            </div>
         </div>
-
     </div>
 </template>
