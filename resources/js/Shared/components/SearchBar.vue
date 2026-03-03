@@ -116,7 +116,7 @@ defineExpose({ inputRef });
             <button
                 v-if="query"
                 @click="query = ''; results = []; showDropdown = false"
-                class="text-gray-400 hover:text-gray-600 shrink-0"
+                class="text-gray-400 hover:text-gray-600 shrink-0 cursor-pointer"
             >
                 <i class="pi pi-times text-xs"></i>
             </button>

@@ -109,7 +109,7 @@ defineExpose({ openDrawer })
             <div
                 v-if="drawerOpen"
                 ref="drawerRef"
-                class="fixed top-20 left-0 z-50 min-h-screen w-80 bg-white shadow-2xl flex flex-col"
+                class="fixed top-20 left-0 z-50 min-h-[calc(100vh-80px)] w-80 bg-white shadow-2xl flex flex-col"
             >
                 <!-- Header -->
                 <div class="flex items-center gap-3 px-4 py-4 border-b border-gray-100">

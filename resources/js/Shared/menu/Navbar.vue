@@ -24,16 +24,16 @@ const openSearch = async () => {
 <template>
     <div class="flex-col sticky top-0 z-50">
         <nav class="bg-white shadow-sm">
-            <div class="max-w-7xl mx-auto px-6 h-20 flex items-center gap-4">
+            <div class="max-w-7xl mx-auto max-sm:pl-4 px-3 h-20 flex items-center gap-4">
 
                 <!-- ── SMALL DEVICE: search open state ── -->
                 <template v-if="searchOpen">
-                    <div class="flex lg:hidden items-center w-full gap-3">
+                    <div class="flex lg:hidden items-center w-full gap-1">
                         <div class="flex-1">
                             <SearchBar @close="searchOpen = false" placeholder="რას ეძებთ?" />
                         </div>
                         <button @click="searchOpen = false" class="p-2 text-gray-500 hover:text-gray-900">
-                            <i class="pi pi-times text-lg"></i>
+                            <i class="pi pi-times text-"></i>
                         </button>
                     </div>
                 </template>
