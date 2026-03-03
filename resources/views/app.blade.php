@@ -14,7 +14,7 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
         <script src="https://kit.fontawesome.com/2ba6cc2cc6.js" crossorigin="anonymous"></script>
-        <script src="https://www.google.com/recaptcha/enterprise.js?render=6Le1gHAsAAAAAA6p7osMt8gjcndj6hdsKPzRcHmE"></script>
+        <script src="https://www.google.com/recaptcha/enterprise.js?render=6LcW6nwsAAAAAAm5AmwLcYU2MkUEtJczfTdo_vXh"></script>
 
 {{--        <script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>--}}
 {{--        <script>--}}
