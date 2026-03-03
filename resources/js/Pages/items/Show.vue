@@ -64,7 +64,7 @@ const activeTab = ref('0')
     <div class="min-h-screen bg-[#f8f7 f4]">
 
         <!-- ================= BREADCRUMBS ================= -->
-        <div class="bg-white text-sm w-full sticky top-19 sm:mt-6 max-sm:px-3 flex text-nowrap text-gray-500 border-b border-b-gray-100 py-2 overflow-x-auto no-scrollbar scroll-smooth z-20">
+        <div class="bg-white flex items-center text-sm w-full sticky top-19 sm:mt-6 max-sm:px-3 text-nowrap text-gray-500 border-b border-b-gray-100 py-2 overflow-x-auto no-scrollbar scroll-smooth z-20">
             <template v-for="(crumb, i) in breadcrumbs" :key="i">
                 <template v-if="i < breadcrumbs.length - 1">
                     <Link
@@ -81,7 +81,7 @@ const activeTab = ref('0')
                     </span>
                 </template>
 
-                <span v-if="i < breadcrumbs.length - 1" class="mx-1">/</span>
+                <span v-if="i < breadcrumbs.length - 1" class="pi pi-chevron-right text-xs mx-1"></span>
             </template>
         </div>
         <div class="mx-auto py-5 sm:pb-10 max-sm:mx-3">

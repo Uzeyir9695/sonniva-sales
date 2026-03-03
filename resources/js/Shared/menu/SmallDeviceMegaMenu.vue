@@ -36,7 +36,7 @@ const currentItems = computed(() => {
 })
 
 const currentTitle = computed(() => {
-    if (stack.value.length === 0) return 'აარიჩიე კატეგორია'
+    if (stack.value.length === 0) return 'აირჩიე კატეგორია'
     return stack.value[stack.value.length - 1].name
 })
 

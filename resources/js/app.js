@@ -155,6 +155,7 @@ createInertiaApp({
                 select: {
                     listContainer: {class: 'text-sm'},
                 },
+
                 toast: {
                     root: () => ({
                         class: `!fixed max-sm:!bottom-14 sm:!right-4 !right-0 max-sm:!w-full px-4 pointer-events-none`

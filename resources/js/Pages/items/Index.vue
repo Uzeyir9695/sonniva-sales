@@ -1,11 +1,12 @@
 <script setup>
 import { Deferred, Link, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import GridSkeletonLoader from '@/Shared/skeleton-loaders/GridSkeletonLoader.vue';
 import Paginate from '@/Shared/components/Paginate.vue';
 import QuickViewDialog from '../../Shared/components/QuickViewDialog.vue';
 import ItemImageSwitcher from './ItemImageSwitcher.vue';
 import debounce from 'lodash/debounce';
+import ActiveFilterChips from '@/Pages/items/ActiveFilterChips.vue';
 
 const props = defineProps({
     items: Object,
@@ -95,13 +96,68 @@ const resetFilters = () => {
     // Reload without any filters
     applyFilters({});
 };
+
+const activeChips = computed(() => {
+    const chips = []
+
+    // Price first
+    if (priceMin.value || priceMax.value) {
+        chips.push({
+            id: 'price',                  // unique id
+            type: 'price',
+            label: `${priceMin.value || 0} - ${priceMax.value || '∞'} ₾`
+        })
+    }
+
+    // Stock
+    if (stockFilter.value?.value) {
+        chips.push({
+            id: 'stock',                  // unique id
+            type: 'stock',
+            value: stockFilter.value.value,
+            label: stockFilter.value.label
+        })
+    }
+
+    // Attributes
+    Object.entries(selected.value).forEach(([attrId, values]) => {
+        values.forEach(val => {
+            chips.push({
+                id: `attr-${attrId}-${val}`, // unique id
+                type: 'attribute',
+                attrId,
+                value: val,
+                label: val
+            })
+        })
+    })
+
+    return chips
+})
+
+function removeChip(chip) {
+    loading.value = true
+
+    switch(chip.type) {
+        case 'attribute':
+            selected.value[chip.attrId] = selected.value[chip.attrId].filter(v => v !== chip.value)
+            break
+        case 'price':
+            priceMin.value = null
+            priceMax.value = null
+            break
+        case 'stock':
+            stockFilter.value = { label: 'ყველა', value: '' }
+            break
+    }
+}
 </script>
 
 <template>
     <Head :title="decodeURIComponent(Object.values(route().params).filter(Boolean)[0] || 'Home')" />
 
     <div class="min-h-screen bg-[#f7f6f 3]">  <!-- ================= BREADCRUMBS ================= -->
-        <div class="bg-white text-sm text-gray-500 sm:mt-4 max-sm:px-3 border-b border-b-gray-100 py-2 sticky top-19 flex text-nowrap overflow-x-auto no-scrollbar scroll-smooth z-20">
+        <div class="bg-white text-sm text-gray-500 sm:mt-4 max-sm:px-3 border-b border-b-gray-100 py-2 sticky top-19 flex items-center text-nowrap overflow-x-auto no-scrollbar scroll-smooth z-20">
             <template v-for="(crumb, i) in breadcrumbs" :key="i">
                 <template v-if="i < breadcrumbs.length - 1">
                     <Link
@@ -118,19 +174,25 @@ const resetFilters = () => {
                     </span>
                 </template>
 
-                <span v-if="i < breadcrumbs.length - 1" class="mx-1">/</span>
+                <i v-if="i < breadcrumbs.length - 1" class="pi pi-chevron-right text-xs mx-1"></i>
             </template>
         </div>
 
         <!-- Mobile Filter Toggle Bar -->
-        <div class="lg:hidden sticky top-28 z-20 bg-white border-b border-gray-100 px-4 py-1 flex items-center justify-between shadow-sm">
-            <span class="text-sm font-semibold text-gray-700 tracking-wide uppercase"></span>
+        <div class="lg:hidden sticky top-28 z-20 bg-white border-b border-gray-100 px-2 py-1 flex items-center gap-2 shadow-sm"
+             :class="activeChips?.length > 0 ? ' justify-between' : 'justify-end'"
+        >
+            <ActiveFilterChips
+                :chips="activeChips"
+                @remove="removeChip"
+                @reset="resetFilters"
+                class="sm:hidden"
+            />
             <button
                 @click="sidebarOpen = !sidebarOpen"
-                class="flex items-center gap-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                class="flex items-center gap-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 px-3 py-2.5 rounded-lg hover:bg-gray-100 transition-colors"
             >
                 <i class="pi pi-sliders-h text-xs"></i>
-                ფილტრაცია
             </button>
         </div>
 
@@ -149,26 +211,19 @@ const resetFilters = () => {
             <aside
                 :class="[
                     'shrink-0 w-72 bg-white border lg:rounded-2xl border-gray-100 shadow-sm overflow-y-auto transition-all duration-300',
-                    'lg:sticky lg:top-6 max-h-screen lg:h-[750px] lg:block',
-                    'fixed top-20 lg:top-24 left-0 h-full z-40 lg:relative lg:z-auto',
+                    'lg:sticky max-h-[calc(100vh-80px)] lg:max-h-[690px] lg:block',
+                    'fixed top-20 lg:top-24 left-0 h-full z-40 lg:re lg:z-auto',
                     sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
                 ]"
                 style="min-width:288px;"
             >
-                <div class="lg:hidden flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                    <span class="font-semibold text-sm text-gray-800">ფილტრაცია</span>
-                    <button @click="sidebarOpen = false" class="text-gray-400 hover:text-gray-700">
-                        <i class="pi pi-times"></i>
-                    </button>
-                </div>
-
-                <div class="px-5 py-5">
-                    <div class="items-center mt-2 justify-between mb-5 hidden lg:flex">
-                        <div class="items-center gap-x-3 mb- 5 hidden lg:flex">
+                <div class="px-5 py-2">
+                    <div class="items-center mt-2 justify-between mb-5 flex">
+                        <div class="items-center gap-x-1.5 flex">
                             <i class="pi pi-sliders-h"></i>
-                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">ფილტრაცია</p>
+                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">ფილტრი</p>
                         </div>
-                        <div class="items-center gap-x-1 mb- 5 rounded-xl bg-slate-100 cursor-pointer px-2 py-1 hidden lg:flex">
+                        <div class="items-center gap-x-1 rounded-xl bg-slate-100 cursor-pointer px-2 py-1 flex">
                             <i class="text-sm pi pi-refresh text-gray-500"></i>
                             <button
                                 @click="resetFilters"
@@ -177,6 +232,9 @@ const resetFilters = () => {
                                 გასუფთავება
                             </button>
                         </div>
+                        <button @click="sidebarOpen = false" class="text-gray-400 hover:text-gray-700 sm:hidden">
+                            <i class="pi pi-times"></i>
+                        </button>
                     </div>
 
                     <!-- Price Range -->
@@ -274,6 +332,14 @@ const resetFilters = () => {
 
             <!-- MAIN CONTENT -->
             <div class="flex-1 min-w-0">
+
+                <ActiveFilterChips
+                    :chips="activeChips"
+                    @remove="removeChip"
+                    @reset="resetFilters"
+                    class="max-sm:hidden"
+                />
+
                 <GridSkeletonLoader v-if="loading" />
 
                 <Deferred v-else data="items">
