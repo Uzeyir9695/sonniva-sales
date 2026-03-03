@@ -1,1 +1,0 @@
-import{_ as e}from"./SwiperCarousel-TV_GmAWR.js";import{ae as r,o as m}from"./app-mYjpiQEg.js";import"./navigation-Csuruku1.js";/* empty css            */const _={__name:"SimilarItems",props:{items:Array},setup(t){return(s,a)=>(m(),r(e,{items:t.items},null,8,["items"]))}};export{_ as default};
