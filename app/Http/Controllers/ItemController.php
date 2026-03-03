@@ -6,6 +6,7 @@ use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Item;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 class ItemController extends Controller
@@ -74,9 +75,12 @@ class ItemController extends Controller
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
             ->paginate(24);
 
+        $breadcrumbs = $this->buildCategoryBreadcrumbs($category);
+
         return Inertia::render('items/Index', [
             'attributes' => $attributes,
             'items' => Inertia::defer(fn () => $items),
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 
@@ -87,11 +91,46 @@ class ItemController extends Controller
             ->limit(10)
             ->get(['id', 'name', 'slug', 'unit_price', 'images', 'inventory']);
 
+        $breadcrumbs = $this->buildBreadcrumbs($item);
+
         return Inertia::render('items/Show', [
             'item' => $item,
             'attributes' => $item->attributes,
             'similarItems' => $similarItems,
+            'breadcrumbs' => $breadcrumbs,
         ]);
+    }
+
+    private function buildBreadcrumbs(Item $item): array
+    {
+        $category = Category::where('code', $item->category_code)->first();
+
+        $crumbs = $category
+            ? $this->buildCategoryBreadcrumbs($category)
+            : [];
+
+        $crumbs[] = [
+            'label' => $item->name,
+            'slug'  => null,
+        ];
+
+        return $crumbs;
+    }
+
+    private function buildCategoryBreadcrumbs(Category $category): array
+    {
+        $chain = [];
+        $current = $category;
+
+        while ($current) {
+            array_unshift($chain, $current);
+            $current = $current->parent;
+        }
+
+        return collect($chain)->map(fn($cat) => [
+            'label' => $cat->name,
+            'slug'  => $cat->slug,
+        ])->toArray();
     }
 
     public function search(Request $request)

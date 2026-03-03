@@ -10,6 +10,7 @@ const props = defineProps({
     item: Object,
     similarItems: Array,
     attributes: Array,
+    breadcrumbs: Array,
 })
 
 const source = ref(props.item?.no);
@@ -61,7 +62,29 @@ const activeTab = ref('0')
     <Head :title="item?.slug" />
 
     <div class="min-h-screen bg-[#f8f7 f4]">
-        <div class="mx-auto px-4 py-5 sm:py-10">
+
+        <!-- ================= BREADCRUMBS ================= -->
+        <div class="bg-white text-sm w-full sticky top-19 sm:mt-6 max-sm:px-3 flex text-nowrap text-gray-500 border-b border-b-gray-100 py-2 overflow-x-auto no-scrollbar scroll-smooth z-20">
+            <template v-for="(crumb, i) in breadcrumbs" :key="i">
+                <template v-if="i < breadcrumbs.length - 1">
+                    <Link
+                        :href="route('items.index', breadcrumbs.slice(0, i + 1).map(c => c.slug))"
+                        class=""
+                    >
+                        {{ crumb.label }}
+                    </Link>
+                </template>
+
+                <template v-else>
+                    <span class="text-gray-400 cursor-not-allowed">
+                        {{ crumb.label }}
+                    </span>
+                </template>
+
+                <span v-if="i < breadcrumbs.length - 1" class="mx-1">/</span>
+            </template>
+        </div>
+        <div class="mx-auto py-5 sm:pb-10 max-sm:mx-3">
 
             <!-- ================= TOP SECTION ================= -->
             <div class="grid grid-cols-1 lg:grid-cols-7 gap-6">
@@ -72,7 +95,7 @@ const activeTab = ref('0')
                 </div>
 
                 <!-- ========== RIGHT: DETAILS ========== -->
-                <div class="lg:col-span-3 lg:row-start-1 lg:row-end-3 order-2 lg:sticky lg:top-22 h-fit border border-gray-100 p-3 rounded-2xl shadow-xs">
+                <div class="lg:col-span-3 lg:row-start-1 lg:row-end-3 order-2 lg:sticky lg:top-28 h-fit border border-gray-100 p-3 rounded-2xl shadow-xs">
 
                     <!-- Stock -->
                     <div class="flex justify-between items-center mb-4">
@@ -109,7 +132,7 @@ const activeTab = ref('0')
                     <!-- Price -->
                     <div class="flex items-center gap-3 mb-8">
                         <span class="text-lg sm:text-2xl font-bold text-brand-500 tracking-tight">
-                            ₾{{ item.unit_price }}
+                         {{ item.unit_price }} ₾
                         </span>
                                 <span v-if="item.base_uom_desc" class="text-sm text-gray-400">
                             / {{ item.base_uom_desc }}

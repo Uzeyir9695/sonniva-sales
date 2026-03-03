@@ -10,6 +10,7 @@ import debounce from 'lodash/debounce';
 const props = defineProps({
     items: Object,
     attributes: Array,
+    breadcrumbs: Array,
 })
 
 const loading = ref(false);
@@ -98,9 +99,31 @@ const resetFilters = () => {
 
 <template>
     <Head :title="decodeURIComponent(Object.values(route().params).filter(Boolean)[0] || 'Home')" />
-    <div class="min-h-screen bg-[#f7f6f 3]">
+
+    <div class="min-h-screen bg-[#f7f6f 3]">  <!-- ================= BREADCRUMBS ================= -->
+        <div class="bg-white text-sm text-gray-500 sm:mt-4 max-sm:px-3 border-b border-b-gray-100 py-2 sticky top-19 flex text-nowrap overflow-x-auto no-scrollbar scroll-smooth z-20">
+            <template v-for="(crumb, i) in breadcrumbs" :key="i">
+                <template v-if="i < breadcrumbs.length - 1">
+                    <Link
+                        :href="route('items.index', breadcrumbs.slice(0, i + 1).map(c => c.slug))"
+                        class=""
+                    >
+                        {{ crumb.label }}
+                    </Link>
+                </template>
+
+                <template v-else>
+                    <span class="text-gray-400 cursor-not-allowed">
+                        {{ crumb.label }}
+                    </span>
+                </template>
+
+                <span v-if="i < breadcrumbs.length - 1" class="mx-1">/</span>
+            </template>
+        </div>
+
         <!-- Mobile Filter Toggle Bar -->
-        <div class="lg:hidden sticky top-20 z-20 bg-white border-b border-gray-100 px-4 py-2 flex items-center justify-between shadow-sm">
+        <div class="lg:hidden sticky top-28 z-20 bg-white border-b border-gray-100 px-4 py-1 flex items-center justify-between shadow-sm">
             <span class="text-sm font-semibold text-gray-700 tracking-wide uppercase"></span>
             <button
                 @click="sidebarOpen = !sidebarOpen"
@@ -120,7 +143,7 @@ const resetFilters = () => {
             />
         </Transition>
 
-        <div class="max-w-screen-2xl mx-auto px-4 py-6 flex gap-6 relative">
+        <div class="max-w-screen-2xl max-sm:mx-3 py-6 flex gap-6 relative">
 
             <!-- SIDEBAR -->
             <aside
@@ -140,7 +163,7 @@ const resetFilters = () => {
                 </div>
 
                 <div class="px-5 py-5">
-                    <div class="items-center justify-between mb-5 hidden lg:flex">
+                    <div class="items-center mt-2 justify-between mb-5 hidden lg:flex">
                         <div class="items-center gap-x-3 mb- 5 hidden lg:flex">
                             <i class="pi pi-sliders-h"></i>
                             <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">ფილტრაცია</p>
