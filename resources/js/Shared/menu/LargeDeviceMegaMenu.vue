@@ -77,7 +77,7 @@ const sidebarRef = ref(null)
                         :href="route('items.index', [activeCategory.slug, sub.slug])"
                         class="text-sm font-semibold text-gray-900 hover:text-brand-400 mb- 2 pb- 1.5 borde r-b border-gray-100 inline-block"
                     >
-                        {{ sub.name }}
+                        {{ sub.name }} {{ sub.items_count ? `(${sub.items_count})` : sub.items.length < 1 ? '(0)' : '' }}
                     </Link>
                     <ul class="space-y-1.5 mt-2">
                         <li v-for="item in sub.items" :key="item.name">
@@ -85,7 +85,7 @@ const sidebarRef = ref(null)
                                 :href="route('items.index', [activeCategory.slug, sub.slug, item.slug])"
                                 class="text-sm text-gray-500 hover:text-brand-400 transition-colors"
                             >
-                                {{ item.name }}
+                                {{ item.name }} {{ item.items_count ? `(${item.items_count})` : '(0)'}}
                             </Link>
                         </li>
                     </ul>

@@ -43,13 +43,18 @@ class HandleInertiaRequests extends Middleware
     {
         $isAdmin = auth()?->user()?->role === 'admin';
 
+        //Cache::forget('nav_categories');
+
         $categories = fn() => Cache::rememberForever('nav_categories', function () {
             return Category::whereNull('parent_id')
                 ->whereIn('code', ['1100','1200','1300','1400','1500','1600','1700','1800','1900','2000','2100','2200'])
                 ->orderBy('sort_order')
                 ->with(['children' => function ($query) {
-                    $query->orderBy('sort_order')->with(['children' => function ($query) {
-                        $query->orderBy('sort_order');
+                    $query->orderBy('sort_order')
+                        ->withCount('items') // for 2-level branches where this IS last level
+                        ->with(['children' => function ($query) {
+                        $query->orderBy('sort_order')
+                            ->withCount('items');
                     }]);
                 }])
                 ->get()
@@ -60,9 +65,14 @@ class HandleInertiaRequests extends Middleware
                     'subs' => $cat->children->map(fn($sub) => [
                         'name'  => $sub->name,
                         'slug' => $sub->slug,
+                        'items_count' => $sub->children->isEmpty()
+                            ? $sub->items_count  // 2nd level — no children, count items
+                            : null,
+
                         'items' => $sub->children->map(fn($item) => [
                             'name' => $item->name,
                             'slug' => $item->slug,
+                            'items_count' => $item->items_count, // 3rd level count of items
                         ])->values(),
                     ])->values(),
                 ]);
