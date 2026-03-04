@@ -152,8 +152,25 @@ createInertiaApp({
                         })
                     }
                 },
+
                 select: {
                     listContainer: {class: 'text-sm'},
+                },
+
+                panel: {
+                    root: { class: 'border-none !m-0' },
+                    header: {
+                        class: 'text-sm font-medium text-gray-500 !p-0 cursor-pointer select-none',
+                        onClick: (e) => {
+                            if (!e.target.closest('button')) {
+                                e.currentTarget.querySelector('button')?.click()
+                            }
+                        }
+                    },
+                    pcTogglebutton: {
+                        root: { class: 'size-5' }
+                    },
+                    content: { class: 'mt-3 p-0!' },
                 },
 
                 toast: {
