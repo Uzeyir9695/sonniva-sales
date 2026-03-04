@@ -222,7 +222,7 @@ function removeChip(chip) {
                 <div v-if="relatedCategories?.length" class="max-sm:mx-2 border rounded-xl shadow-xs border-gray-100 px-5 py-3">
                     <Panel
                         toggleable
-                        :collapsed="false"
+                        :collapsed="true"
                     >
                         <template #header>
                             <span class="text-sm font-bold text-gray-500">კატეგორიები</span>
