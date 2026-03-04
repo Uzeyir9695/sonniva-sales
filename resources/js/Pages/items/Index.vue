@@ -413,7 +413,6 @@ function removeChip(chip) {
                                 <i class="pi pi-th-large text-3xl text-gray-300"></i>
                             </div>
                             <h3 class="text-lg font-medium text-gray-500">პროდუქტი არ მოიძებნა</h3>
-                            <p class="text-sm text-gray-400 mt-1">გამოიყენეთ სხვა ფილტრაცია</p>
                         </div>
                     </template>
 
