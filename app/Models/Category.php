@@ -34,4 +34,9 @@ class Category extends Model
     {
         return $this->children()->with('childrenRecursive');
     }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(Item::class, 'category_code', 'code');
+    }
 }
