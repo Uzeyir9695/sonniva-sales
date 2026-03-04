@@ -36,20 +36,17 @@ class ItemController extends Controller
         }
 
         // Get distinct attributes for filter sidebar
-        $attributes = Attribute::whereHas('item', fn($q) => $q->whereIn('category_code', $codes))
-            ->select('bc_attribute_id', 'name')
+        $allAttributes = Attribute::whereHas('item', fn($q) => $q->whereIn('category_code', $codes))
+            ->select('bc_attribute_id', 'name', 'value')
             ->distinct()
-            ->get()
+            ->get();
+
+        $attributes = $allAttributes
             ->groupBy('bc_attribute_id')
             ->map(fn($group) => [
                 'id'     => $group->first()->bc_attribute_id,
                 'name'   => $group->first()->name,
-                'values' => Attribute::whereHas('item', fn($q) => $q->whereIn('category_code', $codes))
-                    ->where('bc_attribute_id', $group->first()->bc_attribute_id)
-                    ->distinct()
-                    ->pluck('value')
-                    ->filter()
-                    ->values(),
+                'values' => $group->pluck('value')->filter()->unique()->values(),
             ])
             ->values()
             ->filter(fn($attr) => $attr['values']->count() >= 2)
@@ -70,7 +67,7 @@ class ItemController extends Controller
             })
             ->when($request->price_min, fn($q) => $q->where('unit_price', '>=', $request->price_min))
             ->when($request->price_max, fn($q) => $q->where('unit_price', '<=', $request->price_max))
-            ->when($request->stock === 'in',  fn($q) => $q->where('inventory', '>', 0))
+            ->when($request->stock === 'in', fn($q) => $q->where('inventory', '>', 0))
             ->when($request->stock === 'out', fn($q) => $q->where('inventory', '<=', 0))
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
             ->paginate(24);
@@ -79,7 +76,7 @@ class ItemController extends Controller
 
         return Inertia::render('items/Index', [
             'attributes' => $attributes,
-            'items' => Inertia::defer(fn () => $items),
+            'items' => Inertia::defer(fn() => $items),
             'breadcrumbs' => $breadcrumbs,
         ]);
     }
@@ -111,7 +108,7 @@ class ItemController extends Controller
 
         $crumbs[] = [
             'label' => $item->name,
-            'slug'  => null,
+            'slug' => null,
         ];
 
         return $crumbs;
@@ -129,7 +126,7 @@ class ItemController extends Controller
 
         return collect($chain)->map(fn($cat) => [
             'label' => $cat->name,
-            'slug'  => $cat->slug,
+            'slug' => $cat->slug,
         ])->toArray();
     }
 
