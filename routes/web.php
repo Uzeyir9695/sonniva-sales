@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -82,8 +83,23 @@ use Inertia\Inertia;
      * *****************************************************************************************************************/
     Route::get('/item/{item:slug}', [ItemController::class, 'show'])->name('items.show');
 
-    Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])
+    Route::get('/search/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])
         ->name('items.index');
+
+Route::get('/wishlist-test', function() {
+    dd(auth()->check(), auth()->user());
+});
+    /*******************************************************************************************************************
+     * Wishlist Routes
+     * *****************************************************************************************************************/
+    Route::middleware('auth')->group(function () {
+        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+
+    Route::get('wishlist/ids',        [WishlistController::class, 'ids'])->name('api.wishlist.ids');
+    Route::post('wishlist/sync',      [WishlistController::class, 'syncGuest'])->name('api.wishlist.sync');
+    Route::post('wishlist/{item}',    [WishlistController::class, 'toggle'])->name('api.wishlist.toggle');
+    Route::delete('wishlist/{item}',  [WishlistController::class, 'destroy'])->name('api.wishlist.destroy');
+    });
 
     /*******************************************************************************************************************
      * FAQ Route
@@ -119,6 +135,6 @@ use Inertia\Inertia;
 /***********************************************************************************************************************
  * Fallback Route
  * *********************************************************************************************************************/
-Route::fallback(function() {
-    return Inertia::render('404');
-});
+//Route::fallback(function() {
+//    return Inertia::render('404');
+//});

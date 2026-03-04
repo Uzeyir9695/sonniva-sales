@@ -7,6 +7,8 @@ import QuickViewDialog from '../../Shared/components/QuickViewDialog.vue';
 import ItemImageSwitcher from './ItemImageSwitcher.vue';
 import debounce from 'lodash/debounce';
 import ActiveFilterChips from '@/Pages/items/ActiveFilterChips.vue';
+import WishlistButton from '@/Shared/components/WishlistButton.vue';
+import { useWishlist } from '@/composables/useWishlist'
 
 const props = defineProps({
     items: Object,
@@ -16,6 +18,8 @@ const props = defineProps({
     relatedCategoriesParent: Object,
     currentCategorySlug: String,
 })
+
+const { isWishlisted } = useWishlist()
 
 const loading = ref(false);
 const attrSearch = ref({})
@@ -210,7 +214,6 @@ function removeChip(chip) {
 
         <div class="max-w-screen-2xl max-sm:mx-3 py-6 flex gap-6 relative">
             <!-- SIDEBAR -->
-
             <div class="shrink-0 w-72 max-sm:pt-3 lg:block lg:sticky top-20 lg:top-32 fixed left-0 h-full bg-white   space-y-5
                      max-h-[calc(100vh-80px)] lg:max-h-[690px]
                      overflow-x-hidden overflow-y-auto transition-all duration-300 z-40 lg:z-auto
@@ -407,9 +410,8 @@ function removeChip(chip) {
                                         </div>
 
                                         <div class="absolute top-2.5 right-2.5 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0">
-                                            <button class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-gray-500 hover:text-rose-500 hover:shadow-lg transition-all duration-150">
-                                                <i class="pi pi-heart text-xs"></i>
-                                            </button>
+                                            <WishlistButton :item-id="item.id" />
+
                                             <button class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-gray-500 hover:text-indigo-500 hover:shadow-lg transition-all duration-150">
                                                 <i class="pi pi-arrows-h text-xs"></i>
                                             </button>

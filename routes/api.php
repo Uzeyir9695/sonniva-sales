@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,4 +33,15 @@ Route::prefix('v1')->group(function () {
     Route::post('/forgot-password/reset', [ForgotPasswordController::class, 'resetPassword']);
 
     Route::get('/search', [ItemController::class, 'search'])->name('items.search');
+
+
+    // ── Wishlist (auth required) ─────────────────────────────────────
+    Route::middleware('auth:sanctum')->group(function () {
+
+//        Route::get('wishlist/ids',        [WishlistController::class, 'ids'])->name('api.wishlist.ids');
+//        Route::post('wishlist/sync',      [WishlistController::class, 'syncGuest'])->name('api.wishlist.sync');
+//        Route::post('wishlist/{item}',    [WishlistController::class, 'toggle'])->name('api.wishlist.toggle');
+//        Route::delete('wishlist/{item}',  [WishlistController::class, 'destroy'])->name('api.wishlist.destroy');
+
+    });
 });

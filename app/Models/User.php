@@ -76,4 +76,32 @@ class User extends Authenticatable
                 : null
         );
     }
+
+    public function wishlists(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    public function wishlistedItems(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Item::class, 'wishlists')->withTimestamps();
+    }
+
+    public function hasWishlisted(int $itemId): bool
+    {
+        return $this->wishlists()->where('item_id', $itemId)->exists();
+    }
+
+    public function toggleWishlist(string $itemId): bool
+    {
+        $exists = $this->wishlists()->where('item_id', $itemId)->exists();
+
+        if ($exists) {
+            $this->wishlists()->where('item_id', $itemId)->delete();
+            return false; // removed
+        }
+
+        $this->wishlists()->create(['item_id' => $itemId]);
+        return true; // added
+    }
 }

@@ -2,9 +2,9 @@
 import { Link } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 import { useClipboard } from '@vueuse/core';
-import { ZoomImg } from 'vue3-zoomer';
 import SimilarItems from '@/Pages/items/SimilarItems.vue';
 import ItemGallery from '@/Pages/items/ItemGallery.vue';
+import WishlistButton from '@/Shared/components/WishlistButton.vue';
 
 const props = defineProps({
     item: Object,
@@ -14,38 +14,13 @@ const props = defineProps({
 })
 
 const source = ref(props.item?.no);
-const { text, copy, copied, isSupported } = useClipboard({ source });
-
-/* ---------------- Wishlist ---------------- */
-const inWishlist = ref(false)
-const toggleWishlist = () => {
-    inWishlist.value = !inWishlist.value
-}
-
-/* ---------------- Images ---------------- */
-const activeIndex = ref(0)
+const { copy, copied } = useClipboard({ source });
 
 const images = computed(() => {
     if (props.item?.images?.length) return props.item.images
     if (props.item?.image) return [props.item.image]
     return []
 })
-
-const imageUrl = (img) => `/storage/items/${img}`
-
-function prevImage() {
-    activeIndex.value =
-        activeIndex.value === 0
-            ? images.value.length - 1
-            : activeIndex.value - 1
-}
-
-function nextImage() {
-    activeIndex.value =
-        activeIndex.value === images.value.length - 1
-            ? 0
-            : activeIndex.value + 1
-}
 
 /* ---------------- Quantity ---------------- */
 const quantity = ref(1)
@@ -200,21 +175,10 @@ const activeTab = ref('0')
                             </button>
 
                             <!-- Wishlist -->
-                            <Button
-                                @click="toggleWishlist"
-                                :icon="inWishlist ? 'pi pi-heart-fill' : 'pi pi-heart'"
-                                severity="secondary"
-                                outlined
-                                :class="inWishlist ? 'bg-red-50 border-red-200' : ' '"
-                                class="px-6 rounded-2xl flex items-center justify-center ml-auto
-                                   border-gray-500
-                                   hover:bg-gray-100
-                                   active:scale-[0.95] transition-all"
-                                    :pt="{
-                                        icon: {
-                                            class: inWishlist ? 'text-red-500 text-xl' : 'text-gray-700 text-xl'
-                                        }
-                                    }"
+                            <WishlistButton
+                                :item-id="item.id"
+                                size="lg"
+                                variant="pill"
                             />
                         </div>
                     </div>

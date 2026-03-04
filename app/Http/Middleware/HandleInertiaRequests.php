@@ -93,6 +93,15 @@ class HandleInertiaRequests extends Middleware
             'isAdmin' => $isAdmin,
             'user' => Auth::user(),
 
+            // ── Wishlist IDs shared to every page ──────────────────────────
+            // Loaded only once per request; the Vue composable merges these
+            // with the localStorage guest list on the client side.
+            'wishlist' => [
+                'ids' => $request->user()
+                    ? $request->user()->wishlists()->pluck('item_id')
+                    : [],
+                ],
+
             'flash' => [
                 'message' => fn () => $request->session()->get('message'),
                 'error' => fn () => $request->session()->get('error'),

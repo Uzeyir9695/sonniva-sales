@@ -4,6 +4,7 @@ import {Link, usePage} from '@inertiajs/vue3';
 import LargeDeviceMegaMenu from '@/Shared/menu/LargeDeviceMegaMenu.vue';
 import SmallDeviceMegaMenu from '@/Shared/menu/SmallDeviceMegaMenu.vue';
 import SearchBar from '@/Shared/components/SearchBar.vue';
+import WishlistNavIcon from '@/Shared/components/WishlistNavIcon.vue';
 
 const page = usePage();
 const user = computed(() => page.props.user);
@@ -85,13 +86,13 @@ const openSearch = async () => {
                     </a>
 
                     <div class="hidden lg:flex items-center gap-1 shrink-0">
+
                         <div class="weglot-localizer">
 
                         </div>
-                        <a href="/wishlist" class="relative flex items-center justify-center w-12 h-12 rounded-full text-gray-600 hover:bg-gray-100 transition-all">
-                            <i class="pi pi-heart text-xl!"></i>
-                            <span class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">5</span>
-                        </a>
+
+                        <WishlistNavIcon></WishlistNavIcon>
+
                         <a href="/cart" class="relative flex items-center justify-center w-12 h-12 rounded-full text-gray-600 hover:bg-gray-100 transition-all">
                             <i class="pi pi-shopping-cart text-xl!"></i>
                             <span class="absolute top-1 right-1 w-4 h-4 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
@@ -99,8 +100,8 @@ const openSearch = async () => {
                         <Link v-if="!isAuthenticated" :href="route('login')" class="flex items-center justify-center w-12 h-12 rounded-full text-gray-600 hover:bg-gray-100 transition-all">
                             <i class="pi pi-user text-xl!"></i>
                         </Link>
-                        <Link v-if="isAuthenticated" :href="route('logout')" method="post" as="button" type="button" :replace="true" class="bg-blue-500 cursor-pointer">
-                            <i class="pi pi-sign-out sm:text-md mr-2 font-bold"></i>
+                        <Link v-if="isAuthenticated" :href="route('logout')" method="post" as="button" type="button" :replace="true" class="text-sm cursor-pointer">
+                            <i class="pi pi-sign-out text-sm mr-1 font-bold"></i>
                             Log Out
                         </Link>
                     </div>

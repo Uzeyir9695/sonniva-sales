@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import ItemImageSwitcher from '../../Pages/items/ItemImageSwitcher.vue';
+import WishlistButton from '@/Shared/components/WishlistButton.vue';
 
 const props = defineProps({
     visible: {
@@ -98,9 +99,7 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
                                 კალათაში დამატება
                             </button>
 
-                            <button class="w-12 h-12 rounded-2xl cursor-pointer border border-gray-200 flex items-center justify-center text-gray-500 hover:text-rose-500 hover:border-rose-200 transition-colors">
-                                <i class="pi pi-heart"></i>
-                            </button>
+                            <WishlistButton :item-id="item?.id" size="md" />
                         </div>
 
                         <Link

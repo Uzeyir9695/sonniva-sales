@@ -27,7 +27,7 @@ class AdminSeeder extends Seeder
                 'phone_country' => 'GE',
                 'phone_verified_at' => now(),
                 'email_verified_at' => now(),
-                'password' => Hash::make('SonnivaSales2025@'),
+                'password' => Hash::make('SonnivaSales2026@'),
             ]
         );
 
@@ -43,7 +43,7 @@ class AdminSeeder extends Seeder
                 'phone_country' => 'GE',
                 'phone_verified_at' => now(),
                 'email_verified_at' => now(),
-                'password' => Hash::make('Sonniva2025@'),
+                'password' => Hash::make('Sonniva2026@'),
             ]);
     }
 }
