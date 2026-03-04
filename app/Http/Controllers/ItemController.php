@@ -72,12 +72,44 @@ class ItemController extends Controller
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
             ->paginate(24);
 
+        // Build related categories for sidebar navigation
+        $relatedCategories = match($category->level) {
+            1 => Category::where('parent_id', $category->code)
+                ->orderBy('sort_order')
+                ->get(['name', 'slug', 'code']),
+
+            2 => $category->children->isEmpty()
+                // no children → show siblings
+                ? Category::where('parent_id', $category->parent_id)
+                    ->orderBy('sort_order')
+                    ->get(['name', 'slug', 'code'])
+                // has children → show itself + children
+                : Category::where('parent_id', $category->code)
+                    ->orderBy('sort_order')
+                    ->get(['name', 'slug', 'code']),
+
+            3 => Category::where('parent_id', $category->parent_id)
+                ->orderBy('sort_order')
+                ->get(['name', 'slug', 'code']),
+
+            default => collect(),
+        };
+
+        $relatedCategoriesParent = $category->level === 3
+            ? ['name' => $category->parent->name, 'slug' => $category->parent->slug]
+            : ($category->level === 2 && $category->children->isNotEmpty()
+                ? ['name' => $category->name, 'slug' => $category->slug]
+                : null);
+
         $breadcrumbs = $this->buildCategoryBreadcrumbs($category);
 
         return Inertia::render('items/Index', [
             'attributes' => $attributes,
             'items' => Inertia::defer(fn() => $items),
             'breadcrumbs' => $breadcrumbs,
+            'relatedCategories' => $relatedCategories,
+            'relatedCategoriesParent' => $relatedCategoriesParent,
+            'currentCategorySlug' => $category->slug,
         ]);
     }
 

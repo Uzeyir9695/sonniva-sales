@@ -12,6 +12,9 @@ const props = defineProps({
     items: Object,
     attributes: Array,
     breadcrumbs: Array,
+    relatedCategories: Array,
+    relatedCategoriesParent: Object,
+    currentCategorySlug: String,
 })
 
 const loading = ref(false);
@@ -206,129 +209,168 @@ function removeChip(chip) {
         </Transition>
 
         <div class="max-w-screen-2xl max-sm:mx-3 py-6 flex gap-6 relative">
-
             <!-- SIDEBAR -->
-            <aside
-                :class="[
-                    'shrink-0 w-72 bg-white border lg:rounded-2xl border-gray-100 shadow-sm overflow-y-auto transition-all duration-300',
-                    'lg:sticky max-h-[calc(100vh-80px)] lg:max-h-[690px] lg:block',
-                    'fixed top-20 lg:top-24 left-0 h-full z-40 lg:re lg:z-auto',
-                    sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-                ]"
-                style="min-width:288px;"
+
+            <div class="shrink-0 w-72 max-sm:pt-3 lg:block lg:sticky top-20 lg:top-32 fixed left-0 h-full bg-white   space-y-5
+                     max-h-[calc(100vh-80px)] lg:max-h-[690px]
+                     overflow-x-hidden overflow-y-auto transition-all duration-300 z-40 lg:z-auto
+                    "
+                 :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
             >
-                <div class="px-5 py-2">
-                    <div class="items-center mt-2 justify-between mb-5 flex">
-                        <div class="items-center gap-x-1.5 flex">
-                            <i class="pi pi-sliders-h"></i>
-                            <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">ფილტრი</p>
-                        </div>
-                        <div class="items-center gap-x-1 rounded-xl bg-slate-100 cursor-pointer px-2 py-1 flex">
-                            <i class="text-sm pi pi-refresh text-gray-500"></i>
-                            <button
-                                @click="resetFilters"
-                                class="text-xs text-gray-400 cursor-pointer hover:text-gray-900 transition-colors"
-                            >
-                                გასუფთავება
+
+                <!-- Related Categories -->
+                <div v-if="relatedCategories?.length" class="max-sm:mx-2 border rounded-xl shadow-xs border-gray-100 px-5 py-3">
+                    <Panel
+                        toggleable
+                        :collapsed="false"
+                    >
+                        <template #header>
+                            <span class="text-sm font-bold text-gray-500">კატეგორიები</span>
+                        </template>
+                        <template #toggleicon="{ collapsed }">
+                            <i :class="['pi text-xs text-gray-400', collapsed ? 'pi-chevron-down' : 'pi-chevron-up']"></i>
+                        </template>
+
+                        <!-- Parent / "View all" link -->
+                        <Link
+                            v-if="relatedCategoriesParent"
+                            :href="route('items.index', [relatedCategoriesParent.slug])"
+                            class="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold text-brand-500 hover:bg-brand-50 transition-colors mb-1"
+                        >
+                            <i class="pi pi-th-large text-xs"></i>
+                            {{ relatedCategoriesParent.name }}
+                        </Link>
+
+                        <!-- Category links -->
+                        <Link
+                            v-for="cat in relatedCategories"
+                            :key="cat.slug"
+                            :href="route('items.index', [cat.slug])"
+                            class="flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-colors"
+                            :class="cat.slug === currentCategorySlug
+                            ? 'bg-brand-50 text-brand-500 font-semibold'
+                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
+                        >
+                            <span>{{ cat.name }}</span>
+                            <i v-if="cat.slug === currentCategorySlug" class="pi pi-check text-xs text-brand-400"></i>
+                        </Link>
+                    </Panel>
+                </div>
+
+                <aside
+                    class="bg-white border lg:rounded-2xl border-gray-100 shadow-xs"
+                    style="min-width:288px;"
+                >
+                    <div class="px-5 py-6">
+                        <!-- Filter Reset -->
+                        <div class="items-center mt-2 justify-between mb-5 flex">
+                            <div class="items-center gap-x-1.5 flex">
+                                <i class="pi pi-sliders-h"></i>
+                                <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">ფილტრი</p>
+                            </div>
+                            <div class="items-center gap-x-1 rounded-xl bg-slate-100 cursor-pointer px-2 py-1 flex">
+                                <i class="text-sm pi pi-refresh text-gray-500"></i>
+                                <button
+                                    @click="resetFilters"
+                                    class="text-xs text-gray-400 cursor-pointer hover:text-gray-900 transition-colors"
+                                >
+                                    გასუფთავება
+                                </button>
+                            </div>
+                            <button @click="sidebarOpen = false" class="text-gray-400 hover:text-gray-700 sm:hidden">
+                                <i class="pi pi-times"></i>
                             </button>
                         </div>
-                        <button @click="sidebarOpen = false" class="text-gray-400 hover:text-gray-700 sm:hidden">
-                            <i class="pi pi-times"></i>
-                        </button>
-                    </div>
 
-                    <!-- Price Range -->
-                    <div class="mb-4 border-b border-gray-100 pb-4">
-                        <p class="text-sm font-semibold text-gray-500 mb-3">ფასი</p>
-                        <div class="flex items-center gap-2">
-                            <InputNumber
-                                v-model="priceMin"
-                                placeholder="მინ."
-                                :min="0"
-                                :useGrouping="false"
+                        <!-- Price Range -->
+                        <div class="mb-4 border-b border-gray-100 pb-4">
+                            <p class="text-sm font-semibold text-gray-500 mb-3">ფასი</p>
+                            <div class="flex items-center gap-2">
+                                <InputNumber
+                                    v-model="priceMin"
+                                    placeholder="მინ."
+                                    :min="0"
+                                    :useGrouping="false"
+                                    fluid
+                                    :minFractionDigits="0" :maxFractionDigits="2"
+                                    showButtons
+                                    suffix=" ₾"
+                                    pt:root:class="w-full"
+                                    pt:pcInputText:root:class="text-sm rounded-lg border-gray-200 py-1.5 w-full"
+                                />
+                                <span class="text-gray-300 shrink-0">—</span>
+                                <InputNumber
+                                    v-model="priceMax"
+                                    placeholder="მაქს."
+                                    :min="0"
+                                    :useGrouping="false"
+                                    fluid
+                                    :minFractionDigits="0" :maxFractionDigits="2"
+                                    showButtons
+                                    suffix=" ₾"
+                                    pt:root:class="w-full"
+                                    pt:pcInputText:root:class="text-sm rounded-lg border-gray-200 py-1.5 w-full"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Stock Filter -->
+                        <div class="mb-4 border-b border-gray-100 pb-4">
+                            <p class="text-sm font-semibold text-gray-500 mb-3">მარაგი</p>
+                            <Select
+                                v-model="stockFilter"
+                                :options="stockOptions"
+                                optionLabel="label"
                                 fluid
-                                :minFractionDigits="0" :maxFractionDigits="2"
-                                showButtons
-                                suffix=" ₾"
-                                pt:root:class="w-full"
-                                pt:pcInputText:root:class="text-sm rounded-lg border-gray-200 py-1.5 w-full"
-                            />
-                            <span class="text-gray-300 shrink-0">—</span>
-                            <InputNumber
-                                v-model="priceMax"
-                                placeholder="მაქს."
-                                :min="0"
-                                :useGrouping="false"
-                                fluid
-                                :minFractionDigits="0" :maxFractionDigits="2"
-                                showButtons
-                                suffix=" ₾"
-                                pt:root:class="w-full"
-                                pt:pcInputText:root:class="text-sm rounded-lg border-gray-200 py-1.5 w-full"
+                                pt:root:class="w-full !rounded-lg !border-gray-200"
+                                pt:label:class="!text-sm !py-1.5"
                             />
                         </div>
-                    </div>
 
-                    <!-- Stock Filter -->
-                    <div class="mb-4 border-b border-gray-100 pb-4">
-                        <p class="text-sm font-semibold text-gray-500 mb-3">მარაგი</p>
-                        <Select
-                            v-model="stockFilter"
-                            :options="stockOptions"
-                            optionLabel="label"
-                            fluid
-                            pt:root:class="w-full !rounded-lg !border-gray-200"
-                            pt:label:class="!text-sm !py-1.5"
-                        />
-                    </div>
+                        <!-- Dynamic Attribute Filters -->
+                        <div v-for="attr in attributes" :key="attr.id" class="mb-4 border-b border-gray-100 pb-4">
+                            <Panel
+                                :header="attr.name"
+                                toggleable
+                                :collapsed="true"
+                            >
+                                <template #toggleicon="{ collapsed }">
+                                    <i :class="['pi text-xs text-gray-400', collapsed ? 'pi-chevron-down' : 'pi-chevron-up']"></i>
+                                </template>
 
-                    <!-- Dynamic Attribute Filters -->
-                    <div v-for="attr in attributes" :key="attr.id" class="mb-4 border-b border-gray-100 pb-4">
-                        <Panel
-                            :header="attr.name"
-                            toggleable
-                            :collapsed="true"
-                            pt:root:class="border-none !m-0"
-                            pt:header:class="text-sm font-medium text-gray-500 !p-0"
-                            pt:pcTogglebutton:root:class="size-5"
-                            pt:content:class="mt-3 p-0!"
-                        >
-                            <template #toggleicon="{ collapsed }">
-                                <i :class="['pi text-xs text-gray-400', collapsed ? 'pi-chevron-down' : 'pi-chevron-up']"></i>
-                            </template>
+                                <div v-if="attr.values.length > 5" class="relative mb-3">
+                                    <input
+                                        v-model="attrSearch[attr.id]"
+                                        type="text"
+                                        placeholder="ძებნა..."
+                                        class="w-full border border-gray-200 rounded-lg text-sm px-3 py-1.5 pr-7 outline-none focus:border-gray-400 bg-gray-50"
+                                    />
+                                    <i
+                                        v-if="attrSearch[attr.id]"
+                                        class="pi pi-times-circle absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer text-xs"
+                                        @click="attrSearch[attr.id] = ''"
+                                    />
+                                </div>
 
-                            <div v-if="attr.values.length > 5" class="relative mb-3">
-                                <input
-                                    v-model="attrSearch[attr.id]"
-                                    type="text"
-                                    placeholder="ძებნა..."
-                                    class="w-full border border-gray-200 rounded-lg text-sm px-3 py-1.5 pr-7 outline-none focus:border-gray-400 bg-gray-50"
-                                />
-                                <i
-                                    v-if="attrSearch[attr.id]"
-                                    class="pi pi-times-circle absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer text-xs"
-                                    @click="attrSearch[attr.id] = ''"
-                                />
-                            </div>
-
-                            <div
-                                v-for="val in attr.values.filter(v =>
+                                <div
+                                    v-for="val in attr.values.filter(v =>
                                     !attrSearch[attr.id] || v.toLowerCase().includes(attrSearch[attr.id].toLowerCase())
                                 )"
-                                :key="val"
-                                class="flex items-center gap-2.5 mb-2"
-                            >
-                                <Checkbox
-                                    :inputId="`attr-${attr.id}-${val}`"
-                                    :value="val"
-                                    v-model="selected[attr.id]"
-                                />
-                                <label :for="`attr-${attr.id}-${val}`" class="text-sm text-gray-600 cursor-pointer hover:text-gray-900 transition-colors">{{ val }}</label>
-                            </div>
-                        </Panel>
+                                    :key="val"
+                                    class="flex items-center gap-2.5 mb-2"
+                                >
+                                    <Checkbox
+                                        :inputId="`attr-${attr.id}-${val}`"
+                                        :value="val"
+                                        v-model="selected[attr.id]"
+                                    />
+                                    <label :for="`attr-${attr.id}-${val}`" class="text-sm text-gray-600 cursor-pointer hover:text-gray-900 transition-colors">{{ val }}</label>
+                                </div>
+                            </Panel>
+                        </div>
                     </div>
-                </div>
-            </aside>
+                </aside>
+            </div>
 
             <!-- MAIN CONTENT -->
             <div class="flex-1 min-w-0">
