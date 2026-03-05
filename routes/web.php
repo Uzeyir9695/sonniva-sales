@@ -77,18 +77,9 @@ use Inertia\Inertia;
         });
     });
 
-
-    /*******************************************************************************************************************
-     * Items Routes
-     * *****************************************************************************************************************/
-    Route::get('/item/{item:slug}', [ItemController::class, 'show'])->name('items.show');
-
-    Route::get('/search/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])
-        ->name('items.index');
-
-Route::get('/wishlist-test', function() {
-    dd(auth()->check(), auth()->user());
-});
+    Route::get('/wishlist-test', function() {
+        dd(auth()->check(), auth()->user());
+    });
     /*******************************************************************************************************************
      * Wishlist Routes
      * *****************************************************************************************************************/
@@ -132,9 +123,17 @@ Route::get('/wishlist-test', function() {
     })->name('cookie-policy');
 
 
+    /*******************************************************************************************************************
+     * Items Routes
+     * *****************************************************************************************************************/
+    Route::get('/item/{item:slug}', [ItemController::class, 'show'])->name('items.show');
+
+    Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])
+        ->name('items.index');
+
 /***********************************************************************************************************************
  * Fallback Route
  * *********************************************************************************************************************/
-//Route::fallback(function() {
-//    return Inertia::render('404');
-//});
+    Route::fallback(function() {
+        return Inertia::render('404');
+    });
