@@ -19,6 +19,12 @@ class Category extends Model
         'image',
     ];
 
+    protected $appends = ['storage_path'];
+    public function getStoragePathAttribute()
+    {
+        return "/storage/categories";
+    }
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'parent_id', 'code');
