@@ -1,15 +1,3 @@
-<template>
-    <button
-        type="button"
-        :aria-label="isWishlisted(itemId) ? 'Remove from wishlist' : 'Add to wishlist'"
-        :disabled="isLoading(itemId)"
-        :class="buttonClasses"
-        @click.prevent.stop="toggle(itemId)"
-    >
-        <i :class="['text-sm', isWishlisted(itemId) ? 'pi pi-heart-fill' : 'pi pi-heart']" />
-    </button>
-</template>
-
 <script setup>
 import { computed } from 'vue'
 import { useWishlist } from '@/composables/useWishlist'
@@ -34,3 +22,15 @@ const buttonClasses = computed(() => [
         : 'bg-white/80 border-gray-200 text-gray-400 hover:bg-red-50 hover:border-red-300 hover:text-red-400',
 ])
 </script>
+
+<template>
+    <button
+        type="button"
+        :aria-label="isWishlisted(itemId) ? 'Remove from wishlist' : 'Add to wishlist'"
+        :disabled="isLoading(itemId)"
+        :class="buttonClasses"
+        @click.prevent.stop="toggle(itemId)"
+    >
+        <i :class="['text-sm', isWishlisted(itemId) ? 'pi pi-heart-fill' : 'pi pi-heart']" />
+    </button>
+</template>

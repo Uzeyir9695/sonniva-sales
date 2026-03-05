@@ -133,7 +133,23 @@ class BusinessCentralService
             '$select' => implode(',', $fields),
         ]);
 
-        return $response->json();
+
+        $data = $response->json();
+
+        $collection = collect($data['value']);
+
+        $shop01Total = $collection
+            ->where('Location_Code', 'SHOP01')
+            ->sum('Remaining_Quantity');
+
+        $shop02Total = $collection
+            ->where('Location_Code', 'SHOP02')
+            ->sum('Remaining_Quantity');
+
+        return [
+            'shop1Total' => $shop01Total,
+            'shop2Total' => $shop02Total,
+        ];
     }
 
     public function getScannedItemDetails($itemNo)

@@ -11,6 +11,7 @@ const props = defineProps({
     similarItems: Array,
     attributes: Array,
     breadcrumbs: Array,
+    inventory: Object,
 })
 
 const source = ref(props.item?.no);
@@ -114,6 +115,46 @@ const activeTab = ref('0')
                         </span>
                     </div>
 
+                    <div class="flex items-center gap-3 mt-4 mb-6">
+                        <div class="flex-1 flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <i class="pi pi-warehouse text-brand-500 text-sm"></i>
+                                <span class="text-xs text-gray-500">მაღაზია 1</span>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-800">{{ inventory.shop1Total }}</span>
+                        </div>
+
+                        <div class="flex-1 flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <i class="pi pi-warehouse text-brand-500 text-sm"></i>
+                                <span class="text-xs text-gray-500">მაღაზია 2</span>
+                            </div>
+                            <span class="text-sm font-semibold text-gray-800">{{ inventory.shop2Total }}</span>
+                        </div>
+                    </div>
+
+                    <template v-for="price in item.prices" :key="price.id">
+                        <div class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 mb-2 hover:border-brand-200 hover:bg-brand-50/30 transition-all duration-150">
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-gray-800 mb-1">
+                                    {{ price.priceGroup }}
+                                </p>
+                                <div class="flex items-center gap-1.5">
+                                    <i class="pi pi-box text-gray-400 text-xs"></i>
+                                    <p class="text-xs text-gray-400">
+                                        მინ. რაოდენობა: <span class="text-gray-600 font-medium">{{ price.custMinQuantity }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right ml-4">
+                                <p class="text-xs text-gray-400 mb-0.5">ცალის ფასი</p>
+                                <p class="text-brand-500 font-bold text-xl">
+                                    {{ price.price }}<span class="text-sm ml-0.5">₾</span>
+                                </p>
+                            </div>
+                        </div>
+                    </template>
+
                     <!-- Divider -->
                     <div class="h-px bg-gray-200 mb-8"></div>
 
@@ -179,6 +220,7 @@ const activeTab = ref('0')
                                 :item-id="item.id"
                                 size="lg"
                                 variant="pill"
+                                class="w-14 h-14"
                             />
                         </div>
                     </div>
@@ -186,7 +228,7 @@ const activeTab = ref('0')
                     <!-- Delivery & Payment Info -->
                     <div class="mt-6 space-y-2">
 
-                        <Panel toggleable :collapsed="false" pt:root:class="!border-gray-100 !rounded-2xl !shadow-none">
+                        <Panel toggleable :collapsed="false" pt:root:class="px-4 py-3 !border-gray-100 !rounded-2xl !shadow-none">
                             <template #header>
                                 <div class="flex items-center gap-2">
                                     <i class="pi pi-truck text-brand-500"></i>
@@ -206,7 +248,7 @@ const activeTab = ref('0')
                             </ul>
                         </Panel>
 
-                        <Panel toggleable :collapsed="false" pt:root:class="!border-gray-100 !rounded-2xl !shadow-none">
+                        <Panel toggleable :collapsed="false" pt:root:class="px-4 py-3 !border-gray-100 !rounded-2xl !shadow-none">
                             <template #header>
                                 <div class="flex items-center gap-2">
                                     <i class="pi pi-credit-card text-brand-500"></i>

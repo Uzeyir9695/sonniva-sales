@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Item;
+use App\Services\BusinessCentralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -113,12 +114,14 @@ class ItemController extends Controller
         ]);
     }
 
-    public function show(Item $item)
+    public function show(Item $item, BusinessCentralService $bcService)
     {
         $similarItems = Item::where('category_code', $item->category_code)
             ->where('id', '!=', $item->id)
             ->limit(10)
             ->get(['id', 'name', 'slug', 'unit_price', 'images', 'inventory']);
+
+        $inventory = $bcService->calcInventory($item->no);
 
         $breadcrumbs = $this->buildBreadcrumbs($item);
 
@@ -127,6 +130,7 @@ class ItemController extends Controller
             'attributes' => $item->attributes,
             'similarItems' => $similarItems,
             'breadcrumbs' => $breadcrumbs,
+            'inventory' => $inventory,
         ]);
     }
 
