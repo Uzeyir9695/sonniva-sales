@@ -5,6 +5,7 @@ import ItemImageSwitcher from '@/Shared/components/ItemImageSwitcher.vue'
 import Paginate from '@/Shared/components/Paginate.vue'
 import QuickViewDialog from '@/Shared/components/QuickViewDialog.vue';
 import { ref } from 'vue';
+import AddToCartButton from '@/Shared/components/AddToCartButton.vue';
 
 defineProps({
     items: { type: Object, required: true },
@@ -65,21 +66,12 @@ function showItemDetailsPage(item) {
                         {{ item.name }}
                     </Link>
 
-                    <div class="mt-auto pt-3 flex items-center justify-between gap-2">
+                    <div class="mt-auto pt-3 flex text-nowrap items-center justify-between gap-2">
                         <span class="text-base font-semibold text-gray-900">
                             {{ item.unit_price ? `${item.unit_price} ₾` : '—' }}
                         </span>
 
-                        <button
-                            :disabled="!item.inventory || item.inventory === 0"
-                            class="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl transition-all duration-150"
-                            :class="(!item.inventory || item.inventory === 0)
-                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : 'bg-brand-500 text-white cursor-pointer hover:bg-brand-400 active:scale-95'"
-                        >
-                            <i class="pi pi-cart-plus text-xs"></i>
-                            <span class="hidden sm:inline">Add</span>
-                        </button>
+                        <AddToCartButton :item="item" />
                     </div>
                 </div>
             </div>
