@@ -1,6 +1,6 @@
 // composables/useWishlist.js
 
-import { reactive, computed } from 'vue'
+import { reactive, computed, watch } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 
@@ -15,7 +15,7 @@ const state = reactive({
 export function useWishlist() {
     const page = usePage()
 
-    const isLoggedIn = computed(() => !!page.props?.user)
+    const isLoggedIn = computed(() => !!page.props?.isLoggedIn)
 
     // ─── Setup ────────────────────────────────────────────────────────────────
 
@@ -24,14 +24,15 @@ export function useWishlist() {
         state.ready = true
 
         if (isLoggedIn.value) {
-            const serverIds = page.props.wishlist?.ids ?? []
+            const serverIds = Array.from(page.props.wishlist?.ids ?? [])
             serverIds.forEach(id => {
-                state.wishlisted[id] = true
+                state.wishlisted[String(id)] = true
             })
             mergeGuestItems()
         } else {
+            // Load guest wishlist from localStorage
             loadFromStorage().forEach(id => {
-                state.wishlisted[id] = true
+                state.wishlisted[String(id)] = true
             })
         }
     }
@@ -124,6 +125,23 @@ export function useWishlist() {
     function clearStorage() {
         localStorage.removeItem('guest_wishlist')
     }
+
+    watch(isLoggedIn, (newVal, oldVal) => {
+        // User just logged out — save their wishlist to localStorage
+        // so the count persists for guests
+        if (oldVal === true && newVal === false) {
+            const ids = Object.keys(state.wishlisted).filter(id => state.wishlisted[id])
+            if (ids.length) {
+                localStorage.setItem('guest_wishlist', JSON.stringify(ids))
+            }
+        }
+
+        state.ready = false
+        Object.keys(state.wishlisted).forEach(key => delete state.wishlisted[key])
+        Object.keys(state.loading).forEach(key => delete state.loading[key])
+        setup()
+    })
+
 
     setup()
 
