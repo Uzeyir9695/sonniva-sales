@@ -1,7 +1,7 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import ItemImageSwitcher from '../../Pages/items/ItemImageSwitcher.vue';
+import ItemImageSwitcher from './ItemImageSwitcher.vue';
 import WishlistButton from '@/Shared/components/WishlistButton.vue';
 
 const props = defineProps({
@@ -87,7 +87,7 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
                             {{ item.unit_price ? `${item.unit_price} ₾` : '—' }}
                         </div>
 
-                        <div class="flex gap-2">
+                        <div class="flex items-center gap-2">
                             <button
                                 :disabled="!inStock"
                                 class="flex-1 flex items-center justify-center gap-2 cursor-pointer text-sm font-semibold py-3 rounded-2xl transition-all duration-150"

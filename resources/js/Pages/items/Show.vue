@@ -66,7 +66,7 @@ const activeTab = ref('0')
 
                 <!-- ========== LEFT: GALLERY ========== -->
                 <div class="lg:col-span-4 lg:row-start-1 lg:row-end-2 order-1">
-                    <ItemGallery :images="images" :item-name="item.name" />
+                    <ItemGallery :images="images" :item-name="item.name" :image-path="item.storage_path" />
                 </div>
 
                 <!-- ========== RIGHT: DETAILS ========== -->

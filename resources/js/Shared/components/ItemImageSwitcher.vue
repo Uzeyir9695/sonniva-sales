@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
     item: Object,
@@ -16,8 +15,6 @@ const images = computed(() => {
     if (props.item?.images?.length) return props.item.images;
     return null;
 })
-
-const imageUrl = (img) => `/storage/items/${img}`;
 
 const displayImages = computed(() => {
     if (images.value?.length) return images.value;
@@ -51,7 +48,7 @@ function onMouseLeave() {
                 <img
                     v-for="(img, i) in displayImages"
                     :key="i"
-                    :src="imageUrl(img)"
+                    :src="`${item.storage_path}/${img}`"
                     :alt="item?.name"
                     class="absolute inset-0 w-full h-full object-cover transition-opacity duration-200"
                     :class="i === activeIndex ? 'opacity-100' : 'opacity-0'"

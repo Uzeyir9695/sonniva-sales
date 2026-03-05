@@ -10,6 +10,7 @@ import { ZoomImg } from 'vue3-zoomer';
 const props = defineProps({
     images: Array,
     itemName: String,
+    imagePath: String,
 });
 
 const modules = [Thumbs, Navigation];
@@ -19,7 +20,6 @@ function setThumbsSwiper(swiper) {
     thumbsSwiper.value = swiper;
 }
 
-const imageUrl = (img) => `/storage/items/${img}`;
 </script>
 
 <template>
@@ -35,7 +35,7 @@ const imageUrl = (img) => `/storage/items/${img}`;
         >
             <SwiperSlide v-for="(img, i) in images" :key="i" class="flex items-center justify-center">
                 <ZoomImg
-                    :src="imageUrl(img)"
+                    :src="`${imagePath}/${img}`"
                     :alt="itemName"
                     class="max-w-[500px] mx-auto ring h-full object-cover"
                     zoom-type="move"
@@ -60,7 +60,7 @@ const imageUrl = (img) => `/storage/items/${img}`;
         >
             <SwiperSlide v-for="(img, i) in images" :key="i">
                 <div class="w-full aspect-square rounded-xl overflow-hidden border-2 border-transparent cursor-pointer transition-all">
-                    <img :src="imageUrl(img)" :alt="itemName" class="w-full h-full object-cover" />
+                    <img :src="`${imagePath}/${img}`" :alt="itemName" class="w-full h-full object-cover" />
                 </div>
             </SwiperSlide>
         </Swiper>

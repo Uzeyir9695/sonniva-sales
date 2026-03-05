@@ -11,11 +11,17 @@ class Item extends Model
     use HasUuids;
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
+    protected $appends = ['storage_path'];
 
     protected $casts = [
         'images' => 'array',
         'prices' => 'array',
     ];
+
+    public function getStoragePathAttribute()
+    {
+        return "/storage/items";
+    }
 
     public function attributes(): HasMany
     {
