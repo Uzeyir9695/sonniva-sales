@@ -115,23 +115,23 @@ const activeTab = ref('0')
                         </span>
                     </div>
 
-                    <div class="flex items-center gap-3 mt-4 mb-6">
-                        <div class="flex-1 flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">
-                            <div class="flex items-center gap-2">
-                                <i class="pi pi-warehouse text-brand-500 text-sm"></i>
-                                <span class="text-xs text-gray-500">მაღაზია 1</span>
-                            </div>
-                            <span class="text-sm font-semibold text-gray-800">{{ inventory.shop1Total }}</span>
-                        </div>
+<!--                    <div class="flex items-center gap-3 mt-4 mb-6">-->
+<!--                        <div class="flex-1 flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">-->
+<!--                            <div class="flex items-center gap-2">-->
+<!--                                <i class="pi pi-warehouse text-brand-500 text-sm"></i>-->
+<!--                                <span class="text-xs text-gray-500">მაღაზია 1</span>-->
+<!--                            </div>-->
+<!--                            <span class="text-sm font-semibold text-gray-800">{{ inventory.shop1Total }}</span>-->
+<!--                        </div>-->
 
-                        <div class="flex-1 flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">
-                            <div class="flex items-center gap-2">
-                                <i class="pi pi-warehouse text-brand-500 text-sm"></i>
-                                <span class="text-xs text-gray-500">მაღაზია 2</span>
-                            </div>
-                            <span class="text-sm font-semibold text-gray-800">{{ inventory.shop2Total }}</span>
-                        </div>
-                    </div>
+<!--                        <div class="flex-1 flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">-->
+<!--                            <div class="flex items-center gap-2">-->
+<!--                                <i class="pi pi-warehouse text-brand-500 text-sm"></i>-->
+<!--                                <span class="text-xs text-gray-500">მაღაზია 2</span>-->
+<!--                            </div>-->
+<!--                            <span class="text-sm font-semibold text-gray-800">{{ inventory.shop2Total }}</span>-->
+<!--                        </div>-->
+<!--                    </div>-->
 
                     <template v-for="price in item.prices" :key="price.id">
                         <div class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 mb-2 hover:border-brand-200 hover:bg-brand-50/30 transition-all duration-150">

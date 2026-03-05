@@ -121,7 +121,7 @@ class ItemController extends Controller
             ->limit(10)
             ->get(['id', 'name', 'slug', 'unit_price', 'images', 'inventory']);
 
-        $inventory = $bcService->calcInventory($item->no);
+//        $inventory = $bcService->calcInventory($item->no);
 
         $breadcrumbs = $this->buildBreadcrumbs($item);
 
@@ -130,7 +130,7 @@ class ItemController extends Controller
             'attributes' => $item->attributes,
             'similarItems' => $similarItems,
             'breadcrumbs' => $breadcrumbs,
-            'inventory' => $inventory,
+//            'inventory' => $inventory,
         ]);
     }
 
