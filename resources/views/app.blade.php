@@ -23,6 +23,13 @@
 {{--            });--}}
 {{--        </script>--}}
 
+        <script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>
+        <script>
+            Weglot.initialize({
+                api_key: 'wg_23adeb49d3aba0bd4a948b450978bcda9'
+            });
+        </script>
+
         @routes
         @vite('resources/js/app.js')
         @inertiaHead
