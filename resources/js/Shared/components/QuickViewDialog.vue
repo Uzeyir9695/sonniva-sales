@@ -70,7 +70,7 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
                         {{ item.name }}
                     </h2>
 
-                    <div v-if="item.attributes?.length" class="flex flex-col gap-1.5 mb-4 flex-1">
+                    <div v-if="item.attributes?.length" class="flex flex-col gap-1.5 my-4 flex-1">
                         <div
                             v-for="attr in item.attributes"
                             :key="attr.id"
@@ -89,6 +89,15 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
 
                         <div class="flex items-center gap-2">
                             <button
+                                :disabled="!inStock"
+                                class="flex-1 flex items-center justify-center gap-2 cursor-pointer text-sm font-semibold py-3 rounded-2xl border border-gray-500 text-gray-900 hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all"
+                                :class="inStock
+                                ? 'bg- brand-500 text- white hover:bg-brand-400'
+                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
+                            >
+                                <i class="pi pi-bolt"></i>
+                                შეუკვეთე ახლავე
+                            </button> <button
                                 :disabled="!inStock"
                                 class="flex-1 flex items-center justify-center gap-2 cursor-pointer text-sm font-semibold py-3 rounded-2xl transition-all duration-150"
                                 :class="inStock
