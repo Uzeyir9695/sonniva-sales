@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use Spatie\Image\Image;
 
 class CategorySeeder extends Seeder
 {
@@ -22,8 +23,6 @@ class CategorySeeder extends Seeder
         $items = $this->fetchAllCategories($token);
         $this->command->info("Fetched {$items->count()} categories.");
 
-        Category::truncate();
-
         Cache::forget('nav_categories');
 
         $this->insertLevel($items, null, 1);
@@ -31,7 +30,7 @@ class CategorySeeder extends Seeder
         $this->command->info('Categories seeded successfully.');
     }
 
-    private function fetchAllCategories(string $token): \Illuminate\Support\Collection
+    private function fetchAllCategories(string $token): Collection
     {
         $all = collect();
         $url = config('bc.api_base_url') . '904668f4-6aa7-44ce-8285-5c27b33faeeb/Production/ODataV4/Company(\'SONNIVA\')/ItemCategories';
@@ -60,6 +59,7 @@ class CategorySeeder extends Seeder
             'code'           => trim($item['Code'] ?? $item['code'] ?? ''),
             'description'    => $item['Description'] ?? $item['description'] ?? '',
             'parentCategory' => trim($item['Parent_Category'] ?? $item['parentCategory'] ?? ''),
+            'imageBase64'    => $item['imageBase64'] ?? null,
         ];
     }
 
@@ -72,14 +72,23 @@ class CategorySeeder extends Seeder
         );
 
         foreach ($items as $index => $item) {
-            Category::create([
-                'code'       => $item['code'],
-                'name'       => $item['description'] ?: null,
-                'slug'       => $this->makeSlug($item['description'] ?: null),
-                'parent_id'  => $parentCode,
-                'level'      => $level,
-                'sort_order' => $index,
-            ]);
+            $category = Category::updateOrCreate(
+                ['code' => $item['code']],
+                [
+                    'name'       => $item['description'] ?: null,
+                    'slug'       => $this->makeSlug($item['description'] ?: null),
+                    'parent_id'  => $parentCode,
+                    'level'      => $level,
+                    'sort_order' => $index,
+                ]
+            );
+
+            if (!empty($item['imageBase64'])) {
+                $fileName = $this->storeImage($item['imageBase64']);
+                if ($fileName) {
+                    $category->update(['image' => $fileName]);
+                }
+            }
 
             if ($level < 3) {
                 $this->insertLevel($all, $item['code'], $level + 1);
@@ -90,8 +99,32 @@ class CategorySeeder extends Seeder
     private function makeSlug(string $text): string
     {
         $text = trim($text);
-        $text = preg_replace('/[-]+/u', ' ', $text);   // dashes to spaces
-        $text = preg_replace('/\s+/u', '-', $text);     // spaces to dashes
+        $text = preg_replace('/[-]+/u', ' ', $text);
+        $text = preg_replace('/\s+/u', '-', $text);
         return mb_strtolower($text);
+    }
+
+    private function storeImage(string $base64): ?string
+    {
+        if (empty($base64)) {
+            return null;
+        }
+
+        $imageData = base64_decode($base64);
+        $hash      = md5($imageData);
+        $fileName  = $hash . '.jpg';
+        $path      = "categories/{$fileName}";
+
+        if (!\Storage::disk('public')->exists($path)) {
+            \Storage::disk('public')->put($path, $imageData);
+
+            $fullPath = storage_path("app/public/{$path}");
+
+            Image::load($fullPath)
+                ->optimize()
+                ->save($fullPath);
+        }
+
+        return $fileName;
     }
 }
