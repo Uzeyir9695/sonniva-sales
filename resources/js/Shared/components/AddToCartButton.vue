@@ -1,10 +1,13 @@
 <script setup>
 import { ref } from 'vue'
 import InputNumber from 'primevue/inputnumber'
+import { useCart } from '@/composables/useCart.js';
 
 const props = defineProps({
     item: { type: Object, required: true },
 })
+
+const { addToCart } = useCart()
 
 const quantity = ref(1)
 const showStepper = ref(false)
@@ -59,7 +62,7 @@ function onMouseLeave() {
             </InputNumber>
 
             <button
-                @click.stop
+                @click.stop="addToCart(item.id, quantity)"
                 class="flex items-center justify-center rounded-xl p-2
                        bg-brand-500 cursor-pointer hover:bg-brand-400 active:scale-95
                        text-white transition-all duration-150"

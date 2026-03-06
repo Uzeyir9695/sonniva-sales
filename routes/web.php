@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\WishlistController;
@@ -90,6 +91,18 @@ use Inertia\Inertia;
     Route::post('wishlist/sync',      [WishlistController::class, 'syncGuest'])->name('api.wishlist.sync');
     Route::post('wishlist/{item}',    [WishlistController::class, 'toggle'])->name('api.wishlist.toggle');
     Route::delete('wishlist/{item}',  [WishlistController::class, 'destroy'])->name('api.wishlist.destroy');
+    });
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+//    });
+
+    // routes/api.php — add inside auth:sanctum middleware group (under v1 prefix)
+//    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('cart/sync',       [CartController::class, 'syncGuest'])->name('api.cart.sync');
+        Route::post('cart/{item}',     [CartController::class, 'add'])->name('api.cart.add');
+        Route::put('cart/{item}',      [CartController::class, 'update'])->name('api.cart.update');
+        Route::delete('cart/{item}',   [CartController::class, 'remove'])->name('api.cart.remove');
     });
 
     /*******************************************************************************************************************

@@ -5,6 +5,7 @@ import { useClipboard } from '@vueuse/core';
 import SimilarItems from '@/Pages/items/SimilarItems.vue';
 import ItemGallery from '@/Pages/items/ItemGallery.vue';
 import WishlistButton from '@/Shared/components/WishlistButton.vue';
+import { useCart } from '@/composables/useCart.js';
 
 const props = defineProps({
     item: Object,
@@ -13,6 +14,8 @@ const props = defineProps({
     breadcrumbs: Array,
     inventory: Object,
 })
+
+const { addToCart } = useCart()
 
 const source = ref(props.item?.no);
 const { copy, copied } = useClipboard({ source });
@@ -200,6 +203,7 @@ const activeTab = ref('0')
 
                             <!-- Add to Cart -->
                             <button
+                                @click="addToCart(item.id, quantity)"
                                 class="w-full max-sm:px-2 max-sm:text-sm py-3 rounded-2xl cursor-pointer bg-brand-500 text-white font-semibold
                                 hover:bg-brand-400 active:scale-[0.98] transition-all shadow-md"
                             >

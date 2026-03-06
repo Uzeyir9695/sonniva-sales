@@ -100,7 +100,14 @@ class HandleInertiaRequests extends Middleware
                 'ids' => $request->user()
                     ? $request->user()->wishlists()->pluck('item_id')
                     : [],
-                ],
+            ],
+
+            'cart' => [
+                'items' => $request->user()
+                    ? $request->user()->carts()->get(['item_id', 'quantity'])
+                        ->mapWithKeys(fn($c) => [$c->item_id => $c->quantity])
+                    : [],
+            ],
 
             'flash' => [
                 'message' => fn () => $request->session()->get('message'),

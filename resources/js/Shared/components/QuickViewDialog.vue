@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import ItemImageSwitcher from './ItemImageSwitcher.vue';
 import WishlistButton from '@/Shared/components/WishlistButton.vue';
+import { useCart } from '@/composables/useCart.js';
 
 const props = defineProps({
     visible: {
@@ -13,6 +14,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:visible', 'details-clicked'])
+
+const { addToCart } = useCart()
 
 const handleDetailsClick = () => {
     emit('update:visible', false)
@@ -97,7 +100,9 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
                             >
                                 <i class="pi pi-bolt"></i>
                                 შეუკვეთე ახლავე
-                            </button> <button
+                            </button>
+                            <button
+                                @click="addToCart(item.id)"
                                 :disabled="!inStock"
                                 class="flex-1 flex items-center justify-center gap-2 cursor-pointer text-sm font-semibold py-3 rounded-2xl transition-all duration-150"
                                 :class="inStock

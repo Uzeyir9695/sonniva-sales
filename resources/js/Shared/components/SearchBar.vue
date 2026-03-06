@@ -3,6 +3,7 @@ import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
 import QuickViewDialog from '@/Shared/components/QuickViewDialog.vue';
+import { useCart } from '@/composables/useCart.js';
 
 const props = defineProps({
     placeholder: { type: String, default: 'მოძებნე ის რაც გჭირდება...' },
@@ -10,6 +11,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close']);
+
+const { addToCart } = useCart()
 
 const query       = ref('');
 const results     = ref([]);
@@ -182,7 +185,7 @@ defineExpose({ inputRef });
                                     <i class="pi pi-heart text-xs"></i>
                                 </button>
                                 <button
-                                    @click.stop
+                                    @click.stop="addToCart(item.id)"
                                     class="w-5 sm:w-7 h-5 sm:h-7 rounded-lg cursor-pointer flex items-center justify-center text-gray-400 hover:text-brand-500 hover:bg-brand-50 transition-colors"
                                     v-tooltip.top="'დაამატე კალათაში'"
                                 >

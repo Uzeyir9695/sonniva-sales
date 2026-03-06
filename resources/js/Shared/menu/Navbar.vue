@@ -6,6 +6,7 @@ import SmallDeviceMegaMenu from '@/Shared/menu/SmallDeviceMegaMenu.vue';
 import SearchBar from '@/Shared/components/SearchBar.vue';
 import WishlistNavIcon from '@/Shared/components/WishlistNavIcon.vue';
 import LogoutButton from '@/Shared/components/LogoutButton.vue';
+import CartNavIcon from '@/Shared/components/CartNavIcon.vue';
 
 const page = usePage();
 const user = computed(() => page.props.user);
@@ -92,10 +93,8 @@ const openSearch = async () => {
 
                         <WishlistNavIcon></WishlistNavIcon>
 
-                        <a href="/cart" class="relative flex items-center justify-center w-12 h-12 rounded-full text-gray-600 hover:bg-gray-100 transition-all">
-                            <i class="pi pi-shopping-cart text-xl!"></i>
-                            <span class="absolute top-1 right-1 w-4 h-4 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
-                        </a>
+                        <CartNavIcon />
+
                         <Link v-if="!isAuthenticated" :href="route('login')" class="flex items-center justify-center w-12 h-12 rounded-full text-gray-600 hover:bg-gray-100 transition-all">
                             <i class="pi pi-user text-xl!"></i>
                         </Link>
