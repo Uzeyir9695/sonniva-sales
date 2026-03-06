@@ -200,7 +200,7 @@ const activeTab = ref('0')
 
                             <!-- Add to Cart -->
                             <button
-                                class="w-full max-sm:px-2 max-sm:text-sm py-3.5 rounded-2xl cursor-pointer bg-brand-500 text-white font-semibold
+                                class="w-full max-sm:px-2 max-sm:text-sm py-3 rounded-2xl cursor-pointer bg-brand-500 text-white font-semibold
                                 hover:bg-brand-400 active:scale-[0.98] transition-all shadow-md"
                             >
                                 <i class="pi pi-shopping-cart lg:mr-2"></i>
@@ -208,9 +208,9 @@ const activeTab = ref('0')
                             </button>
                         </div>
 
-                        <div class="flex gap-3 mt-8">
+                        <div class="flex gap-2 mt-8">
                             <!-- Buy Now -->
-                            <button v-if="inStock" class="w-full py-3.5 rounded-2xl max-sm:text-sm cursor-pointer border border-gray-500 text-gray-900 font-semibold hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all" >
+                            <button v-if="inStock" class="w-full rounded-2xl max-sm:text-sm cursor-pointer border border-gray-500 text-gray-900 font-semibold hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all" >
                                 <i class="pi pi-bolt mr-2"></i>
                                 ახლავე შეძენა
                             </button>
@@ -220,7 +220,7 @@ const activeTab = ref('0')
                                 :item-id="item.id"
                                 size="lg"
                                 variant="pill"
-                                class="w-14 h-14"
+                                class="shrink-0"
                             />
                         </div>
                     </div>

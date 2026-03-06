@@ -15,7 +15,7 @@ const buttonClasses = computed(() => [
     'focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400',
     'disabled:cursor-wait disabled:opacity-60',
 
-    { sm: 'w-7 h-7', md: 'w-8 h-8' }[props.size],
+    { sm: 'w-7 h-7', md: 'w-8 h-8', lg: 'w-12 h-12' }[props.size],
 
     isWishlisted(props.itemId)
         ? 'bg-red-50 border-red-300 text-red-500 hover:bg-red-100'
