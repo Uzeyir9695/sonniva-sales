@@ -197,7 +197,7 @@ function removeChip(chip) {
 
         <div class="max-w-screen-2xl max-sm:mx-3 py-6 flex gap-6 relative">
             <!-- SIDEBAR -->
-            <div class="shrink-0 w-72 max-sm:pt-3 lg:block lg:sticky top-20 lg:top-32 fixed left-0 h-full bg-white   space-y-5
+            <div class="shrink-0 w-72 max-sm:pt-3 lg:block lg:sticky top-20 lg:top-32 fixed left-0 h-full bg-white space-y-5
                      max-h-[calc(100vh-80px)] lg:max-h-[690px]
                      overflow-x-hidden overflow-y-auto transition-all duration-300 z-40 lg:z-auto
                     "
