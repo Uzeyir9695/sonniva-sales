@@ -17,13 +17,13 @@ const menuItems = [
 </script>
 
 <template>
-    <div class="flex bg-gray-50">
+    <div class="flex min-h-[calc(100vh-80px)] overflow-y-auto bg-gray-50">
         <!-- Sidebar -->
         <aside class="w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm">
             <!-- Logo Section -->
             <div class="h-16 flex items-center px-6 border-b border-gray-200">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-gradient-to-br from-brand-500 to-brand-600 rounded-lg flex items-center justify-center">
+                    <div class="w-9 h-9 bg-linear-to-br from-brand-500 to-brand-600 rounded-lg flex items-center justify-center">
                         <i class="pi pi-bolt text-white text-lg"></i>
                     </div>
                     <span class="text-xl font-bold text-gray-900">Admin Panel</span>
