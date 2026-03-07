@@ -9,6 +9,7 @@ import { Head } from '@inertiajs/vue3'
 import { ZiggyVue } from 'ziggy-js'
 import Layout from "./Shared/Layout.vue"
 import mitt from "mitt"
+
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 

@@ -6,6 +6,7 @@ import SimilarItems from '@/Pages/items/SimilarItems.vue';
 import ItemGallery from '@/Pages/items/ItemGallery.vue';
 import WishlistButton from '@/Shared/components/WishlistButton.vue';
 import { useCart } from '@/composables/useCart.js';
+import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';
 
 const props = defineProps({
     item: Object,
@@ -43,28 +44,9 @@ const activeTab = ref('0')
     <div class="min-h-screen bg-[#f8f7 f4]">
 
         <!-- ================= BREADCRUMBS ================= -->
-        <div class="bg-white flex items-center text-sm w-full sticky top-19 sm:mt-6 max-sm:px-3 text-nowrap text-gray-500 border-b border-b-gray-100 py-2 overflow-x-auto no-scrollbar scroll-smooth z-20">
-            <template v-for="(crumb, i) in breadcrumbs" :key="i">
-                <template v-if="i < breadcrumbs.length - 1">
-                    <Link
-                        :href="route('items.index', breadcrumbs.slice(0, i + 1).map(c => c.slug))"
-                        class=""
-                    >
-                        {{ crumb.label }}
-                    </Link>
-                </template>
+        <Breadcrumbs :breadcrumbs="breadcrumbs"/>
 
-                <template v-else>
-                    <span class="text-gray-400 cursor-not-allowed">
-                        {{ crumb.label }}
-                    </span>
-                </template>
-
-                <span v-if="i < breadcrumbs.length - 1" class="pi pi-chevron-right text-xs mx-1"></span>
-            </template>
-        </div>
         <div class="mx-auto py-5 sm:pb-10 max-sm:mx-3">
-
             <!-- ================= TOP SECTION ================= -->
             <div class="grid grid-cols-1 lg:grid-cols-7 gap-6">
 
@@ -74,7 +56,7 @@ const activeTab = ref('0')
                 </div>
 
                 <!-- ========== RIGHT: DETAILS ========== -->
-                <div class="lg:col-span-3 lg:row-start-1 lg:row-end-3 order-2 lg:sticky lg:top-28 h-fit border border-gray-100 p-3 rounded-2xl shadow-xs">
+                <div class="bg-white lg:col-span-3 lg:row-start-1 lg:row-end-3 order-2 lg:sticky lg:top-28 h-fit border border-gray-100 p-3 rounded-2xl shadow-xs">
 
                     <!-- Stock -->
                     <div class="flex justify-between items-center mb-4">

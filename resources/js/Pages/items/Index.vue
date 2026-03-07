@@ -5,6 +5,7 @@ import GridSkeletonLoader from '@/Shared/skeleton-loaders/GridSkeletonLoader.vue
 import debounce from 'lodash/debounce';
 import ActiveFilterChips from '@/Pages/items/ActiveFilterChips.vue';
 import ItemsGrid from '@/Shared/components/ItemsGrid.vue';
+import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';
 
 const props = defineProps({
     items: Object,
@@ -146,27 +147,11 @@ function removeChip(chip) {
 <template>
     <Head :title="decodeURIComponent(Object.values(route().params).filter(Boolean)[0] || 'Home')" />
 
-    <div class="min-h-screen bg-[#f7f6f 3]">  <!-- ================= BREADCRUMBS ================= -->
-        <div class="bg-white text-sm text-gray-500 sm:mt-4 max-sm:px-3 border-b border-b-gray-100 py-2 sticky top-19 flex items-center text-nowrap overflow-x-auto no-scrollbar scroll-smooth z-20">
-            <template v-for="(crumb, i) in breadcrumbs" :key="i">
-                <template v-if="i < breadcrumbs.length - 1">
-                    <Link
-                        :href="route('items.index', breadcrumbs.slice(0, i + 1).map(c => c.slug))"
-                        class=""
-                    >
-                        {{ crumb.label }}
-                    </Link>
-                </template>
 
-                <template v-else>
-                    <span class="text-gray-400 cursor-not-allowed">
-                        {{ crumb.label }}
-                    </span>
-                </template>
+    <div class="min-h-[calc(100vh-80px)] bg-[#f7f6f 3]">
 
-                <i v-if="i < breadcrumbs.length - 1" class="pi pi-chevron-right text-xs mx-1"></i>
-            </template>
-        </div>
+        <!-- ================= BREADCRUMBS ================= -->
+        <Breadcrumbs :breadcrumbs="breadcrumbs"/>
 
         <!-- Mobile Filter Toggle Bar -->
         <div class="lg:hidden sticky top-28 z-20 bg-white border-b border-gray-100 px-2 py-1 flex items-center gap-2 shadow-sm"
@@ -197,7 +182,7 @@ function removeChip(chip) {
 
         <div class="max-w-screen-2xl max-sm:mx-3 py-6 flex gap-6 relative">
             <!-- SIDEBAR -->
-            <div class="shrink-0 w-72 max-sm:pt-3 lg:block lg:sticky top-20 lg:top-32 fixed left-0 h-full bg-white space-y-5
+            <div class="shrink-0 w-72 max-sm:pt-3 lg:block lg:sticky top-20 lg:top-32 fixed left-0 h-full space-y-5
                      max-h-[calc(100vh-80px)] lg:max-h-[690px]
                      overflow-x-hidden overflow-y-auto transition-all duration-300 z-40 lg:z-auto
                     "
@@ -205,7 +190,7 @@ function removeChip(chip) {
             >
 
                 <!-- Related Categories -->
-                <div v-if="relatedCategories?.length" class="max-sm:mx-2 border rounded-xl shadow-xs border-gray-100 px-5 py-3">
+                <div v-if="relatedCategories?.length" class="bg-white max-sm:mx-2 border rounded-xl shadow-xs border-gray-100 px-5 py-3">
                     <Panel
                         toggleable
                         :collapsed="true"
@@ -244,8 +229,7 @@ function removeChip(chip) {
                 </div>
 
                 <aside
-                    class="bg-white border lg:rounded-2xl border-gray-100 shadow-xs"
-                    style="min-width:288px;"
+                    class="bg-white min-w-[288px] border lg:rounded-2xl border-gray-100 shadow-xs"
                 >
                     <div class="px-5 py-6">
                         <!-- Filter Reset -->

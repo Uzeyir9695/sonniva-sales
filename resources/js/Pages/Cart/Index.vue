@@ -163,7 +163,7 @@ const formatted = (val) => Number(val).toFixed(2)
                 <!-- ── Order summary ── -->
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-28">
-                        <h2 class="text-base font-bold text-gray-900 mb-5">შეკვეთის სარეზერვო</h2>
+                        <h2 class="text-base font-bold text-gray-900 mb-5">შეკვეთის შეჯამება</h2>
 
                         <div class="space-y-3 text-sm">
                             <div class="flex justify-between text-gray-500">

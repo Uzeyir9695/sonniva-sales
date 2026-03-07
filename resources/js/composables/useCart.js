@@ -1,6 +1,7 @@
 import { reactive, computed, watch } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
+import { useToast } from 'primevue/usetoast';
 
 const state = reactive({
     items:   {},  // { [itemId]: quantity }
@@ -10,6 +11,7 @@ const state = reactive({
 
 export function useCart() {
     const page = usePage()
+    const toast = useToast()
 
     const isLoggedIn = computed(() => !!page.props.user)
 
@@ -51,6 +53,9 @@ export function useCart() {
             } else {
                 saveToStorage()
             }
+            // success('Item added to your wishlist')
+            toast.add({ severity: 'success', summary: 'Success', detail: 'Item added to your wishlist', life: 3000 });
+
         } catch (error) {
             state.items[id] = previous  // rollback
             if (previous === 0) delete state.items[id]

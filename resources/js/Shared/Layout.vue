@@ -18,6 +18,8 @@ const isAuthenticated = computed(() => page.props.isLoggedIn);
         </main>
 
 <!--        <ContactButtons />-->
+        <Toast position="top-right" />
+
         <Footer />
     </div>
 </template>

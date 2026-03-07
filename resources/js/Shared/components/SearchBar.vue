@@ -101,7 +101,7 @@ defineExpose({ inputRef });
     <div ref="wrapperRef" class="relative w-full">
         <!-- Input -->
         <div
-            class="flex items-center bg-gray-100 rounded-xl px-4 h-11 gap-3 transition-all focus-within:border-2 focus-within:border-brand-400 focus-within:bg-white"
+            class="flex items-center bg-gray-100/60 rounded-xl px-4 h-11 gap-3 transition-all focus-within:border-2 focus-within:border-brand-400 focus-within:bg-white"
             :class="showDropdown ? 'rounded-b-none border-2 border-brand-400' : ''"
         >
             <i v-if="!loading" class="pi pi-search text-gray-400 text-sm shrink-0"></i>
