@@ -4,6 +4,7 @@ import { router } from '@inertiajs/vue3';
 import axios from 'axios';
 import QuickViewDialog from '@/Shared/components/QuickViewDialog.vue';
 import { useCart } from '@/composables/useCart.js';
+import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 
 const props = defineProps({
     placeholder: { type: String, default: 'მოძებნე ის რაც გჭირდება...' },
@@ -182,21 +183,23 @@ defineExpose({ inputRef });
                                     class="w-5 sm:w-7 h-5 sm:h-7 rounded-lg cursor-pointer flex items-center justify-center text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
                                     v-tooltip.top="'სურვილების სია'"
                                 >
-                                    <i class="pi pi-heart text-xs"></i>
+                                    <i class="pi pi-heart"></i>
                                 </button>
                                 <button
                                     @click.stop="addToCart(item.id)"
-                                    class="w-5 sm:w-7 h-5 sm:h-7 rounded-lg cursor-pointer flex items-center justify-center text-gray-400 hover:text-brand-500 hover:bg-brand-50 transition-colors"
+                                    class="relative w-5 sm:w-7 h-5 sm:h-7 rounded-lg cursor-pointer flex items-center justify-center text-gray-400 hover:text-brand-500 hover:bg-brand-50 transition-colors"
                                     v-tooltip.top="'დაამატე კალათაში'"
                                 >
-                                    <i class="pi pi-cart-plus text-xs"></i>
+                                    <i class="pi pi-cart-plus"></i>
+
+                                    <CartCountBadge class="-top-1.5! -right-1.5! !min-w-3 !h-3 !p-0.5" :item="item" />
                                 </button>
                                 <button
                                     @click.stop="openQuickView(item)"
                                     class="w-5 sm:w-7 h-5 sm:h-7 rounded-lg cursor-pointer flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
                                     v-tooltip.top="'სწრაფი დათვალიერება'"
                                 >
-                                    <i class="pi pi-eye text-xs"></i>
+                                    <i class="pi pi-eye"></i>
                                 </button>
                             </div>
                         </div>

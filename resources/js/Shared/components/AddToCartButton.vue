@@ -2,12 +2,13 @@
 import { ref } from 'vue'
 import InputNumber from 'primevue/inputnumber'
 import { useCart } from '@/composables/useCart.js';
+import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 
 const props = defineProps({
     item: { type: Object, required: true },
 })
 
-const { addToCart } = useCart()
+const { addToCart, isInCart, getQuantity } = useCart()
 
 const quantity = ref(1)
 const showStepper = ref(false)
@@ -31,11 +32,14 @@ function onMouseLeave() {
         <button
             :disabled="isOutOfStock"
             :class="isOutOfStock
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-brand-500 text-white hover:bg-brand-400 active:scale-95 cursor-pointer'"
-            class="flex items-center text-xs font-semibold p-2 rounded-xl transition-all duration-150"
+        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+        : 'bg-brand-500 text-white hover:bg-brand-400 active:scale-95 cursor-pointer'"
+            class="relative flex items-center text-xs font-semibold p-2 rounded-xl transition-all duration-150"
         >
-            <i class="pi pi-cart-plus"></i>
+            <i :class="isInCart(item.id) ? 'pi pi-shopping-cart' : 'pi pi-cart-plus'"></i>
+
+            <!-- Badge -->
+            <CartCountBadge :item="item" />
         </button>
 
         <!-- Stepper -->

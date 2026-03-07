@@ -53,8 +53,8 @@ export function useCart() {
             } else {
                 saveToStorage()
             }
-            // success('Item added to your wishlist')
-            toast.add({ severity: 'success', summary: 'Success', detail: 'Item added to your wishlist', life: 3000 });
+
+            toast.add({ severity: 'success', summary: 'Success', detail: qty + (qty > 1 ? ' items' : ' item') +' added to your wishlist', life: 3000 });
 
         } catch (error) {
             state.items[id] = previous  // rollback

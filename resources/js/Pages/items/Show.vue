@@ -7,6 +7,7 @@ import ItemGallery from '@/Pages/items/ItemGallery.vue';
 import WishlistButton from '@/Shared/components/WishlistButton.vue';
 import { useCart } from '@/composables/useCart.js';
 import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';
+import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 
 const props = defineProps({
     item: Object,
@@ -16,7 +17,7 @@ const props = defineProps({
     inventory: Object,
 })
 
-const { addToCart } = useCart()
+const { addToCart, isInCart, getQuantity } = useCart()
 
 const source = ref(props.item?.no);
 const { copy, copied } = useClipboard({ source });
@@ -186,11 +187,14 @@ const activeTab = ref('0')
                             <!-- Add to Cart -->
                             <button
                                 @click="addToCart(item.id, quantity)"
-                                class="w-full max-sm:px-2 max-sm:text-sm py-3 rounded-2xl cursor-pointer bg-brand-500 text-white font-semibold
+                                class="relative w-full max-sm:px-2 max-sm:text-sm py-3 rounded-2xl cursor-pointer bg-brand-500 text-white font-semibold
                                 hover:bg-brand-400 active:scale-[0.98] transition-all shadow-md"
                             >
-                                <i class="pi pi-shopping-cart lg:mr-2"></i>
+                                <i :class="['lg:mr-2', isInCart(item.id) ? 'pi pi-shopping-cart' : 'pi pi-cart-plus']"></i>
                                 კალათაში დამატება
+
+                                <!-- Badge -->
+                                <CartCountBadge class="sm:!min-w-5 sm:!h-5 !min-w-4 !h-4" :item="item" />
                             </button>
                         </div>
 

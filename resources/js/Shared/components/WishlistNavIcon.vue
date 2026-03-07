@@ -18,7 +18,7 @@
         >
       <span
           v-if="count > 0"
-          class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1
+          class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px]
                flex items-center justify-center rounded-full
                bg-red-500 text-white text-[10px] font-bold leading-none"
       >

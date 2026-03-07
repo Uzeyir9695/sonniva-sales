@@ -50,7 +50,7 @@ const openSearch = async () => {
 
                             <!-- Center: logo -->
                             <Link :href="route('home')">
-                                <img src="/logo/logo.png" alt="logo" class="w-20 object-cover">
+                                <img src="/logo/logo2.jpeg" alt="logo" class="w-20 object-cover">
                             </Link>
                         </div>
 
@@ -59,13 +59,14 @@ const openSearch = async () => {
                             <button @click="openSearch" class="flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100">
                                 <i class="pi pi-search text-xl"></i>
                             </button>
+
+                            <WishlistNavIcon></WishlistNavIcon>
+
                             <Link v-if="!isAuthenticated" :href="route('login')" class="flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100">
                                 <i class="pi pi-user text-xl"></i>
                             </Link>
-                            <a href="/cart" class="relative flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100">
-                                <i class="pi pi-shopping-cart text-xl"></i>
-                                <span class="absolute top-1 right-1 w-4 h-4 bg-brand-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">3</span>
-                            </a>
+
+                            <CartNavIcon />
 
                             <LogoutButton />
                         </div>

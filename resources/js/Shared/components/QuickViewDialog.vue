@@ -4,6 +4,7 @@ import { computed } from 'vue';
 import ItemImageSwitcher from './ItemImageSwitcher.vue';
 import WishlistButton from '@/Shared/components/WishlistButton.vue';
 import { useCart } from '@/composables/useCart.js';
+import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 
 const props = defineProps({
     visible: {
@@ -15,7 +16,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:visible', 'details-clicked'])
 
-const { addToCart } = useCart()
+const { addToCart, isInCart } = useCart()
 
 const handleDetailsClick = () => {
     emit('update:visible', false)
@@ -104,13 +105,16 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
                             <button
                                 @click="addToCart(item.id)"
                                 :disabled="!inStock"
-                                class="flex-1 flex items-center justify-center gap-2 cursor-pointer text-sm font-semibold py-3 rounded-2xl transition-all duration-150"
+                                class="relative flex-1 flex items-center justify-center gap-2 cursor-pointer text-sm font-semibold py-3 rounded-2xl transition-all duration-150"
                                 :class="inStock
                                 ? 'bg-brand-500 text-white hover:bg-brand-400'
                                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
                             >
-                                <i class="pi pi-cart-plus"></i>
+                                <i :class="isInCart(item.id) ? 'pi pi-shopping-cart' : 'pi pi-cart-plus'"></i>
+
                                 კალათაში დამატება
+
+                                <CartCountBadge :item="item" />
                             </button>
 
                             <WishlistButton :item-id="item?.id" size="md" />

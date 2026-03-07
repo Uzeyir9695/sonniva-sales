@@ -24,7 +24,7 @@ const { count } = useCart()
         >
             <span
                 v-if="count > 0"
-                class="absolute top-1 right-1 min-w-4 h-4 px-1
+                class="absolute sm:top-1 -top-0.5 sm:right-1 -right-0.5 min-w-4.5 h-4.5
                        flex items-center justify-center rounded-full
                        bg-brand-500 text-white text-[10px] font-bold leading-none"
             >
