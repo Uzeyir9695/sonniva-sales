@@ -22,12 +22,24 @@ async function handleRemove(itemId) {
     await removeFromCart(itemId)
 }
 
-const subtotal = computed(() =>
-    items.value.reduce((sum, c) =>
-        sum + (c.item.unit_price * getQuantity(c.item_id)), 0)
-)
-
 const formatted = (val) => Number(val).toFixed(2)
+
+function calculateTierPrice(item, qty) {
+    if (!item.prices?.length) return item.unit_price
+
+    const tier = [...item.prices]
+        .sort((a, b) => b.custMinQuantity - a.custMinQuantity)
+        .find(p => qty >= p.custMinQuantity)
+
+    return tier?.price ?? item.unit_price
+}
+
+const subtotal = computed(() =>
+    items.value.reduce((sum, c) => {
+        const qty = getQuantity(c.item_id)
+        return sum + (calculateTierPrice(c.item, qty) * qty)
+    }, 0)
+)
 </script>
 
 <template>
@@ -96,9 +108,17 @@ const formatted = (val) => Number(val).toFixed(2)
                                     {{ cartItem.item.name }}
                                 </Link>
 
-                                <p class="text-brand-500 font-bold text-base mt-1">
-                                    {{ formatted(cartItem.item.unit_price) }} ₾
-                                </p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span
+                                        v-if="calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id)) < cartItem.item.unit_price"
+                                        class="text-sm text-gray-400 line-through"
+                                    >
+                                        {{ formatted(cartItem.item.unit_price) }} ₾
+                                    </span>
+                                    <p class="text-brand-500 font-bold text-base">
+                                        {{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id))) }} ₾
+                                    </p>
+                                </div>
 
                                 <!-- Quantity stepper -->
                                 <div class="flex items-center gap-3 mt-3">
@@ -132,7 +152,15 @@ const formatted = (val) => Number(val).toFixed(2)
 
                                     <!-- Row total -->
                                     <span class="text-sm text-gray-400">
-                                        სულ: <span class="font-semibold text-gray-700">{{ formatted(cartItem.item.unit_price * getQuantity(cartItem.item_id)) }} ₾</span>
+                                        სულ: <span class="font-semibold text-gray-700">{{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id)) * getQuantity(cartItem.item_id)) }} ₾</span>
+                                    </span>
+                                    <!-- Savings badge -->
+                                    <span
+                                        v-if="calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id)) < cartItem.item.unit_price"
+                                        class="flex items-center text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full"
+                                    >
+                                        <i class="pi pi-tag text-xs mr-1"></i>
+                                        დანაზოგი: {{ formatted((cartItem.item.unit_price - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id))) * getQuantity(cartItem.item_id)) }} ₾
                                     </span>
                                 </div>
                             </div>
@@ -188,7 +216,7 @@ const formatted = (val) => Number(val).toFixed(2)
                                    text-white font-semibold text-sm
                                    active:scale-[0.98] transition-all shadow-md"
                         >
-                            <i class="pi pi-bolt mr-2"></i>
+                            <i class="pi pi-wallet mr-2"></i>
                             შეკვეთის გაფორმება
                         </button>
 
