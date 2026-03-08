@@ -29,13 +29,13 @@ function login() {
 
 <template>
     <Head>
-        <title>Login</title>
+        <title>აუტორიზაცია</title>
     </Head>
 
     <div class="w-full max-w-md mx-auto mt-6">
         <!-- Login Card -->
         <div class="bg-white dark:secondary-dark-bg rounded-xl shadow-lg transition-shadow duration-500 ease-in-out hover:dark:shadow-blue-500/30 border border-slate-300 dark:border-slate-700/50 p-8">
-            <h1 class="text-2xl font-bold dark:primary-dark-mode-text mb-6 text-center">Sign in</h1>
+            <h1 class="text-2xl font-bold dark:primary-dark-mode-text mb-6 text-center">აუტორიზაცია</h1>
             <!-- Form Validation Errors -->
 <!--            <div v-if="Object.keys(errors).length > 0" class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex">-->
 <!--                <i class="pi pi-exclamation-circle text-red-400 mr-3 mt-0.5"></i>-->
@@ -64,7 +64,7 @@ function login() {
                         </InputGroupAddon>
                         <FloatLabel variant="on">
                             <InputText id="email_or_phone" v-model="form.login" pt:root:class="rounded-l-none border-slate-300 dark:border-slate-100/20 focus:dark:border-slate-100/20" :class="{ 'p-invalid': form.errors.login }" />
-                            <label for="email_or_phone">Email or Phone</label>
+                            <label for="email_or_phone">ელ.ფოსტა ან ტელეფონი</label>
                         </FloatLabel>
                     </InputGroup>
 
@@ -75,21 +75,21 @@ function login() {
                         </InputGroupAddon>
                         <FloatLabel variant="on">
                             <Password toggleMask pt:unmaskIcon:class="-mt -2" :feedback="false" inputClass="w-full rounded-md focus:shadow-none rounded-l-none border-slate-300 dark:border-slate-100/20 focus:dark:border-slate-100/20" :class="{ 'p-invalid': form.errors.password }" class="w-full" v-model="form.password" inputId="password" />
-                            <label for="password" :class="{'text-danger': form.errors.password }">Password</label>
+                            <label for="password" :class="{'text-danger': form.errors.password }">პაროლი</label>
                         </FloatLabel>
                     </InputGroup>
 
                     <!-- Remember Me and Forgot Password -->
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <Checkbox v-model="form.remember" inputId="remember" binary />
-                            <label for="remember" class="max-sm:!text-xs">
-                                Remember me
+                            <Checkbox v-model="form.remember" size="small" inputId="remember" binary />
+                            <label for="remember" class="text-sm max-sm:text-xs!">
+                                დამახსოვრება
                             </label>
                         </div>
 
                         <Link :href="route('show.forgot.password')" class="text-xs sm:text-sm text-slate-800 dark:secondary-dark-mode-text">
-                            Forgot Password?
+                            დაგავიწყდა პაროლი?
                         </Link>
                     </div>
                     <!-- Submit Button -->
@@ -97,7 +97,7 @@ function login() {
                         <Button
                             type="submit"
                             icon="pi pi-user"
-                            label="Sign in"
+                            label="შესვლა"
                             class="w-full flex justify-center items-center py-2.5 px-4 rounded-lg border-none shadow-sm text-sm font-medium text-white bg-blue-500 hover:bg-blue-500/90"
                         />
                     </div>
@@ -107,9 +107,9 @@ function login() {
             <div class="mt-6">
                 <Divider/>
                 <p class="text-center text-sm dark:secondary-dark-mode-text">
-                    Don't have an account?
+                    არ ხარ რეგისტრირებული?
                     <Link :href="route('register.show')" class="font-medium text-blue-500 hover:text-brand-500/80 transition-colors">
-                        Sign up
+                        დარეგისტრირდი
                     </Link>
                 </p>
             </div>

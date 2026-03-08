@@ -1,12 +1,12 @@
 <template>
     <Head>
-        <title>Reset Password</title>
+        <title>პაროლის შეცვლა</title>
     </Head>
 
     <div class="flex mt-8 flex-col justify-evenly">
-        <form @submit.prevent="resetPassword" class="flex flex-col bg-white p-8 gap-6 self-center w-full w-[250px] sm:w-[450px] rounded-lg">
+        <form @submit.prevent="resetPassword" class="flex flex-col bg-white p-8 gap-6 self-center w-[250px] sm:w-[450px] rounded-lg">
             <div class="flex flex-col space-y-5">
-                <div class="self-center text-2xl font-semibold">New password</div>
+                <div class="self-center text-2xl font-semibold">ახალი პაროლი</div>
             </div>
             <Message
                 v-if="$page.props.flash.message"
@@ -30,7 +30,7 @@
 
             <FloatLabel variant="on">
                 <InputText id="phone" v-model="form.phone" :invalid="form.errors.phone" fluid/>
-                <label for="phone">Phone Number</label>
+                <label for="phone">ტელეფონი</label>
             </FloatLabel>
 
             <FloatLabel variant="on">
@@ -43,16 +43,23 @@
                     v-model="form.password"
                     inputId="password"
                 />
-                <label for="password">New password</label>
+                <label for="password">ახალი პაროლი</label>
             </FloatLabel>
 
             <FloatLabel variant="on">
                 <Password toggleMask :feedback="false" inputClass="w-full rounded-md focus:shadow-none" :invalid="form.errors.password_confirmation" class="w-full" v-model="form.password_confirmation" inputId="password_confirmation" />
-                <label for="password_confirmation">Repeat new password</label>
+                <label for="password_confirmation">გაიმეორე ახალი პაროლი</label>
             </FloatLabel>
 
             <div class="flex xs:flex-col gap-2 sm:justify-between sm:items-center">
-                <Button :disabled="form.processing" type="submit" class="custom-button w-full" :label="form.processing ? 'Please wait...' : 'Submit'" size="medium" :icon="form.processing ? 'pi pi-spin pi-spinner' :''" />
+                <Button
+                    :disabled="form.processing"
+                    type="submit"
+                    class="custom-button w-full"
+                    :label="form.processing ? 'გთხოვ დაიცადო...' : 'დადასტურება'"
+                    size="medium"
+                    :icon="form.processing ? 'pi pi-spin pi-spinner' :''"
+                />
             </div>
         </form>
     </div>

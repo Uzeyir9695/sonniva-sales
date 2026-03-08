@@ -8,10 +8,10 @@ const page = usePage();
 const recaptchaSiteKey = page.props.recaptcha_site_key;
 
 const userTypes = ref([
-    { key: 'individual', value: 'Individual' },
-    { key: 'legal_entity', value: 'Legal Entity' },
+    { key: 'individual', value: 'პერსონალური' },
+    { key: 'legal_entity', value: 'იურიდიული' },
 ]);
-const selectedUserType = ref({ key: 'individual', value: 'Individual' });
+const selectedUserType = ref({ key: 'individual', value: 'პერსონალური' });
 
 const selectedCountryCode = ref('GE');
 
@@ -48,13 +48,13 @@ async function register(){
 
 <template>
     <Head>
-        <title>Register</title>
+        <title>რეგისტრაცია</title>
     </Head>
 
     <div class="w-full max-w-md mx-auto my-6">
         <!-- Register Card -->
         <div class="bg-white rounded-xl shadow-lg transition-shadow duration-500 ease-in-out border transiton-all border-gray-200 p-8">
-            <h1 class="text-2xl font-bold text-gray-800 dark:primary-dark-mode-text text-center">Register</h1>
+            <h1 class="text-2xl font-bold text-gray-800 dark:primary-dark-mode-text text-center">რეგისტრაცია</h1>
 
             <div class="flex justify-center my-4">
                 <SelectButton v-model="selectedUserType" optionLabel="key" :allow-empty="false" :options="userTypes">
@@ -86,7 +86,7 @@ async function register(){
                             :invalid="!!form.errors.name"
                         />
                         <label for="name">
-                            {{  selectedUserType?.key === 'individual' ? 'Name' : 'Company Name' }}
+                            {{  selectedUserType?.key === 'individual' ? 'სახელი' : 'კომპანიის სახელი' }}
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -104,7 +104,7 @@ async function register(){
                             :invalid="!!form.errors.lastname"
                         />
                         <label for="lastname">
-                            Lastname
+                            გვარი
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -123,7 +123,7 @@ async function register(){
                             :invalid="!!form.errors.phone"
                         />
                         <label for="phone">
-                            Phone Number
+                            ტელეფონი
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -142,7 +142,7 @@ async function register(){
                             pt:root:class="rounded-l-none border-slate-300"
                             :invalid="!!form.errors.tax_id"
                         />
-                        <label for="id-number">{{ selectedUserType?.key === 'individual' ? 'ID Number' : 'Tax ID' }}</label>
+                        <label for="id-number">{{ selectedUserType?.key === 'individual' ? 'პირადი ნომერი' : 'საიდენტიფიკაციო ნომერი' }}</label>
                     </FloatLabel>
                 </InputGroup>
 
@@ -158,7 +158,7 @@ async function register(){
                             pt:root:class="rounded-l-none border-slate-300"
                             :invalid="!!form.errors.email"
                         />
-                        <label for="email">Email</label>
+                        <label for="email">ელ. ფოსტა</label>
                     </FloatLabel>
                 </InputGroup>
 
@@ -178,7 +178,7 @@ async function register(){
                             inputClass="w-full border-left-none border border-gray-300 rounded-r-lg text-gray-800 focus:shadow-none"
                         />
                         <label for="password">
-                            Password
+                            პაროლი
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -199,14 +199,14 @@ async function register(){
                             inputClass="w-full border-left-none border border-gray-300 rounded-r-lg text-gray-800 focus:shadow-none"
                         />
                         <label for="password_confirm">
-                            Repeat Password
+                            გაიმეორე პაროლი
                         </label>
                     </FloatLabel>
                 </InputGroup>
 
                 <div v-if="selectedUserType?.key === 'individual'" class="flex items-center gap-2">
                     <Checkbox v-model="form.is_handyman" binary />
-                    <label for="ingredient1"> I am a handyman </label>
+                    <label for="ingredient1"> ვარ ხელოსანი </label>
                 </div>
 
                 <!-- Submit Button -->
@@ -214,7 +214,7 @@ async function register(){
                     <Button
                         type="submit"
                         icon="pi pi-user-plus"
-                        label="Submit"
+                        label="დადასტურება"
                         class="w-full bg-blue-500 hover:bg-blue-500/90 border-none text-white rounded-lg py-2.5"
                     />
                 </div>
@@ -222,12 +222,12 @@ async function register(){
                 <Divider pt:root:class="m-0"></Divider>
                 <div>
                     <div class="flex justify-center gap-x-2 text-sm dark:secondary-dark-mode-text">
-                        <p class="w-fit">Already have an account?</p>
+                        <p class="w-fit">უკვე ხარ რეგისტრირებული?</p>
                         <!-- Login Link -->
                         <div class="flex items-center w-fit gap-x-2 text-nowrap">
-                            <i class="pi pi-user text-brand-500"></i>
-                            <Link :href="route('login')" class="flex items-center text-brand-500 text-sm no-underline">
-                                Sing in
+                            <Link :href="route('login')" class="flex items-center gap-x-1 text-brand-500 text-sm no-underline">
+                                <i class="pi pi-user text-brand-500"></i>
+                                შესვლა
                             </Link>
                         </div>
                     </div>
