@@ -16,14 +16,14 @@
             leave-from-class="scale-100 opacity-100"
             leave-to-class="scale-0 opacity-0"
         >
-      <span
-          v-if="count > 0"
-          class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px]
-               flex items-center justify-center rounded-full
-               bg-red-500 text-white text-[10px] font-bold leading-none"
-      >
-        {{ count > 99 ? '99+' : count }}
-      </span>
+          <span
+              v-if="count > 0"
+              class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px]
+                   flex items-center justify-center rounded-full
+                   bg-red-500 text-white text-[10px] font-bold leading-none"
+          >
+            {{ count > 99 ? '99+' : count }}
+          </span>
         </Transition>
     </Link>
 </template>
