@@ -28,7 +28,6 @@ export function useWishlist() {
             serverIds.forEach(id => {
                 state.wishlisted[String(id)] = true
             })
-            mergeGuestItems()
         } else {
             // Load guest wishlist from localStorage
             loadFromStorage().forEach(id => {
@@ -82,26 +81,6 @@ export function useWishlist() {
         Object.values(state.wishlisted).filter(Boolean).length
     )
 
-    // ─── Guest → Server merge ─────────────────────────────────────────────────
-
-    async function mergeGuestItems() {
-        const guestIds = loadFromStorage()
-        if (!guestIds.length) return
-
-        try {
-            const { data } = await axios.post(route('api.wishlist.sync'), {
-                item_ids: guestIds,
-            })
-            // Replace with merged server state
-            state.wishlisted = {}
-            data.wishlisted_ids.forEach(id => {
-                state.wishlisted[id] = true
-            })
-            clearStorage()
-        } catch (error) {
-            console.error('[Wishlist] guest merge failed', error)
-        }
-    }
 
     // ─── localStorage ─────────────────────────────────────────────────────────
 
@@ -144,6 +123,12 @@ export function useWishlist() {
 
 
     setup()
+
+    watch(
+        () => ({ ...state.wishlisted }),
+        () => saveToStorage(),
+        { deep: true }
+    )
 
     return { toggle, isWishlisted, isLoading, count }
 }

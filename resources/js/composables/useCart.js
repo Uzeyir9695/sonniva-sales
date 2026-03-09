@@ -25,7 +25,6 @@ export function useCart() {
                 Object.entries(page.props.cart?.items ?? {}).map(([k, v]) => [String(k), v])
             )
             Object.assign(state.items, serverItems)
-            mergeGuestCart()
         } else {
             Object.assign(state.items, loadFromStorage())
         }
@@ -54,7 +53,7 @@ export function useCart() {
                 saveToStorage()
             }
 
-            toast.add({ severity: 'success', summary: 'Success', detail: qty + (qty > 1 ? ' items' : ' item') +' added to your wishlist', life: 3000 });
+            toast.add({ severity: 'success', summary: 'Success', detail: qty + (qty > 1 ? ' items' : ' item') +' added to your cart', life: 3000 });
 
         } catch (error) {
             state.items[id] = previous  // rollback
@@ -127,27 +126,6 @@ export function useCart() {
         Object.values(state.items).reduce((sum, qty) => sum + qty, 0)
     )
 
-    // ─── Guest → Server merge ─────────────────────────────────────────────────
-
-    async function mergeGuestCart() {
-        const guest = loadFromStorage()
-        const entries = Object.entries(guest)
-        if (!entries.length) return
-
-        const items = entries.map(([id, quantity]) => ({ id, quantity }))
-
-        try {
-            const { data } = await axios.post(route('api.cart.sync'), { items })
-            // Replace with merged server state
-            Object.keys(state.items).forEach(k => delete state.items[k])
-            Object.entries(data.items).forEach(([id, qty]) => {
-                state.items[String(id)] = qty
-            })
-            clearStorage()
-        } catch (error) {
-            console.error('[Cart] guest merge failed', error)
-        }
-    }
 
     // ─── Auth state changes ───────────────────────────────────────────────────
 
@@ -185,6 +163,12 @@ export function useCart() {
     }
 
     setup()
+
+    watch(
+        () => ({ ...state.items }),
+        () => saveToStorage(),
+        { deep: true }
+    )
 
     return { addToCart, updateQuantity, removeFromCart, isInCart, getQuantity, isLoading, count }
 }
