@@ -200,7 +200,7 @@ const subtotal = computed(() =>
                             </div>
                             <div class="flex justify-between text-gray-500">
                                 <span>მიწოდება</span>
-                                <span class="text-emerald-600 font-medium">ჯერჯერობით უფასო და, მერე ვნახოთ.</span>
+                                <span class="text-emerald-600 font-medium">უფასო</span>
                             </div>
                         </div>
 
