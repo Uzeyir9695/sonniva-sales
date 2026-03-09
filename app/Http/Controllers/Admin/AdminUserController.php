@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\OrderItem;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -27,7 +26,7 @@ class AdminUserController extends Controller
             ->latest()
             ->get();
 
-        return Inertia::render('admin/users/Index', [
+        return Inertia::render('Admin/users/Index', [
             'users' => Inertia::defer(fn() => $users),
             'usersCount' => $users->count(),
             'onlineUsers' => $this->onlineCounts(),

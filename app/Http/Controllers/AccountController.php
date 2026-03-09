@@ -23,7 +23,7 @@ class AccountController extends Controller
     {
         $user = Auth::user();
 
-        return Inertia::render('account/Index', [
+        return Inertia::render('Account/Index', [
             'user' => $user,
         ]);
     }

@@ -26,12 +26,12 @@ class RegisterController extends Controller
 
     public function showRegisterForm()
     {
-        return Inertia::render('auth/Register');
+        return Inertia::render('Auth/Register');
     }
 
     public function showRegisterVerifyPhone()
     {
-        return Inertia::render('auth/RegisterVerifyPhone', [
+        return Inertia::render('Auth/RegisterVerifyPhone', [
             'success' => 'Verification code sent!'
         ]);
     }

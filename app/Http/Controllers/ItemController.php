@@ -104,7 +104,7 @@ class ItemController extends Controller
 
         $breadcrumbs = $this->buildCategoryBreadcrumbs($category);
 
-        return Inertia::render('items/Index', [
+        return Inertia::render('Items/Index', [
             'attributes' => $attributes,
             'items' => Inertia::defer(fn() => $items),
             'breadcrumbs' => $breadcrumbs,
@@ -125,7 +125,7 @@ class ItemController extends Controller
 
         $breadcrumbs = $this->buildBreadcrumbs($item);
 
-        return Inertia::render('items/Show', [
+        return Inertia::render('Items/Show', [
             'item' => $item,
             'attributes' => $item->attributes,
             'similarItems' => $similarItems,

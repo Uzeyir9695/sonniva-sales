@@ -1,9 +1,9 @@
 <script setup>
 import { Deferred, Link, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
-import GridSkeletonLoader from '@/Shared/skeleton-loaders/GridSkeletonLoader.vue';
+import GridSkeletonLoader from '@/Shared/skeletonLoaders/GridSkeletonLoader.vue';
 import debounce from 'lodash/debounce';
-import ActiveFilterChips from '@/Pages/items/ActiveFilterChips.vue';
+import ActiveFilterChips from '@/Pages/Items/ActiveFilterChips.vue';
 import ItemsGrid from '@/Shared/components/ItemsGrid.vue';
 import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';
 

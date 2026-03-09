@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { Deferred, Link } from '@inertiajs/vue3'
 import ItemsGrid from '@/Shared/components/ItemsGrid.vue'
-import GridSkeletonLoader from '@/Shared/skeleton-loaders/GridSkeletonLoader.vue'
+import GridSkeletonLoader from '@/Shared/skeletonLoaders/GridSkeletonLoader.vue'
 import { useWishlist } from '@/composables/useWishlist'
 
 const props = defineProps({

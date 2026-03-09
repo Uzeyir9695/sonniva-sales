@@ -2,8 +2,8 @@
 import { Link } from '@inertiajs/vue3'
 import { ref, computed } from 'vue'
 import { useClipboard } from '@vueuse/core';
-import SimilarItems from '@/Pages/items/SimilarItems.vue';
-import ItemGallery from '@/Pages/items/ItemGallery.vue';
+import SimilarItems from '@/Pages/Items/SimilarItems.vue';
+import ItemGallery from '@/Pages/Items/ItemGallery.vue';
 import WishlistButton from '@/Shared/components/WishlistButton.vue';
 import { useCart } from '@/composables/useCart.js';
 import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';

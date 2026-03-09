@@ -24,19 +24,19 @@ class ForgotPasswordController extends Controller
 
     public function showForgetPasswordForm()
     {
-        return Inertia::render('auth/ForgotPassword');
+        return Inertia::render('Auth/ForgotPassword');
     }
 
     public function showFPVerifyPhone()
     {
-        return Inertia::render('auth/ForgotPasswordVerifyPhone', [
+        return Inertia::render('Auth/ForgotPasswordVerifyPhone', [
             'success' => __('Verification code sent. Please check you phone!')
         ]);
     }
 
     public function showResetPasswordForm()
     {
-        return Inertia::render('auth/ResetPassword');
+        return Inertia::render('Auth/ResetPassword');
     }
 
     /*

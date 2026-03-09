@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import { useCart } from '@/composables/useCart'
-import ItemGallery from '@/Pages/items/ItemGallery.vue';
+import ItemGallery from '@/Pages/Items/ItemGallery.vue';
 
 const props = defineProps({
     cartItems: { type: Array, required: true },

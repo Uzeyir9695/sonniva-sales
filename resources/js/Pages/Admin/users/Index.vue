@@ -5,7 +5,7 @@ import { useConfirm } from "primevue/useconfirm";
 import { useToast } from "primevue/usetoast";
 import {Deferred, router, usePage} from "@inertiajs/vue3";
 import { FilterMatchMode } from '@primevue/core/api';
-import EditUser from "../../account/Index.vue";
+import EditUser from "../../Account/Index.vue";
 
 const confirm = useConfirm();
 const toast = useToast();
