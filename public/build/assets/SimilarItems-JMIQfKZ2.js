@@ -1,0 +1,1 @@
+import{_ as r}from"./SwiperCarousel-Dai4T-uC.js";import{a7 as m,o as e}from"./app-Dy1gO9bV.js";import"./navigation-Dbax66Vl.js";import"./navigation-B_IUN2Hn.js";/* empty css            */const n={__name:"SimilarItems",props:{items:Array},setup(t){return(o,s)=>(e(),m(r,{items:t.items},null,8,["items"]))}};export{n as default};
