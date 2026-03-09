@@ -101,10 +101,6 @@ export function useWishlist() {
         } catch {}
     }
 
-    function clearStorage() {
-        localStorage.removeItem('guest_wishlist')
-    }
-
     watch(isLoggedIn, (newVal, oldVal) => {
         // User just logged out — save their wishlist to localStorage
         // so the count persists for guests
@@ -120,7 +116,6 @@ export function useWishlist() {
         Object.keys(state.loading).forEach(key => delete state.loading[key])
         setup()
     })
-
 
     setup()
 
