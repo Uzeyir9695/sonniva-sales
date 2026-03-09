@@ -1,8 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import { useCart } from '@/composables/useCart'
-import ItemGallery from '@/Pages/Items/ItemGallery.vue';
 
 const props = defineProps({
     cartItems: { type: Array, required: true },
@@ -19,6 +18,7 @@ const removedIds = ref([])
 
 async function handleRemove(itemId) {
     removedIds.value.push(itemId)
+    selectedIds.value = selectedIds.value.filter(id => id !== itemId)
     await removeFromCart(itemId)
 }
 
@@ -26,20 +26,77 @@ const formatted = (val) => Number(val).toFixed(2)
 
 function calculateTierPrice(item, qty) {
     if (!item.prices?.length) return item.unit_price
-
     const tier = [...item.prices]
         .sort((a, b) => b.custMinQuantity - a.custMinQuantity)
         .find(p => qty >= p.custMinQuantity)
-
     return tier?.price ?? item.unit_price
 }
 
+// ─── Selection ────────────────────────────────────────────────────────────────
+
+const selectedIds = ref([])
+
+// Select all by default once items load
+const allIds = computed(() => items.value.map(c => c.item_id))
+
+// Init selectedIds when items first available
+if (allIds.value.length) {
+    selectedIds.value = [...allIds.value]
+}
+
+const allSelected = computed(() =>
+    items.value.length > 0 && selectedIds.value.length === items.value.length
+)
+
+const someSelected = computed(() =>
+    selectedIds.value.length > 0 && selectedIds.value.length < items.value.length
+)
+
+function toggleAll() {
+    if (allSelected.value) {
+        selectedIds.value = []
+    } else {
+        selectedIds.value = [...allIds.value]
+    }
+}
+
+function toggleItem(itemId) {
+    if (selectedIds.value.includes(itemId)) {
+        selectedIds.value = selectedIds.value.filter(id => id !== itemId)
+    } else {
+        selectedIds.value = [...selectedIds.value, itemId]
+    }
+}
+
+// ─── Selected items only ──────────────────────────────────────────────────────
+
+const selectedItems = computed(() =>
+    items.value.filter(c => selectedIds.value.includes(c.item_id))
+)
+
 const subtotal = computed(() =>
-    items.value.reduce((sum, c) => {
+    selectedItems.value.reduce((sum, c) => {
         const qty = getQuantity(c.item_id)
         return sum + (calculateTierPrice(c.item, qty) * qty)
     }, 0)
 )
+
+const totalSavings = computed(() =>
+    selectedItems.value.reduce((sum, c) => {
+        const qty = getQuantity(c.item_id)
+        const originalTotal = c.item.unit_price * qty
+        const tieredTotal = calculateTierPrice(c.item, qty) * qty
+        return sum + Math.max(0, originalTotal - tieredTotal)
+    }, 0)
+)
+
+// ─── Checkout ─────────────────────────────────────────────────────────────────
+
+function goToCheckout() {
+    router.get(route('checkout.index'), {
+        item_ids: selectedIds.value,
+    })
+}
 </script>
 
 <template>
@@ -68,7 +125,7 @@ const subtotal = computed(() =>
                     :href="route('home')"
                     class="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-400
                            text-white rounded-2xl px-6 py-3 text-sm font-semibold
-                           active:scale-[0.98] transition-all"
+                           active:scale-[0.98] transition-all cursor-pointer"
                 >
                     <i class="pi pi-arrow-left text-xs"></i>
                     შოპინგის გაგრძელება
@@ -80,12 +137,42 @@ const subtotal = computed(() =>
 
                 <!-- ── Item list ── -->
                 <div class="lg:col-span-2 flex flex-col gap-3">
+
+                    <!-- Select all row -->
+                    <div class="flex items-center gap-3 px-1 pb-1">
+                        <Checkbox
+                            :modelValue="allSelected"
+                            :indeterminate="someSelected"
+                            binary
+                            @change="toggleAll"
+                            inputId="select-all"
+                            class="cursor-pointer"
+                        />
+                        <label for="select-all" class="text-sm text-gray-500 cursor-pointer select-none">
+                            ყველას არჩევა ({{ items.length }})
+                        </label>
+                        <span v-if="selectedIds.length > 0" class="text-xs text-gray-400 ml-auto">
+                            {{ selectedIds.length }} არჩეულია
+                        </span>
+                    </div>
+
                     <TransitionGroup name="cart-item">
                         <div
                             v-for="cartItem in items"
                             :key="cartItem.item_id"
-                            class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-4 hover:bg-brand-50 0"
+                            class="bg-white rounded-2xl border shadow-sm p-4 flex items-center gap-4 transition-all duration-150"
+                            :class="selectedIds.includes(cartItem.item_id)
+                                ? 'border-brand-200 bg-brand-50/20'
+                                : 'border-gray-100'"
                         >
+                            <!-- Checkbox -->
+                            <Checkbox
+                                :modelValue="selectedIds.includes(cartItem.item_id)"
+                                binary
+                                @change="toggleItem(cartItem.item_id)"
+                                class="cursor-pointer shrink-0"
+                            />
+
                             <!-- Image -->
                             <div class="w-18 h-18 rounded-xl overflow-hidden bg-gray-100 shrink-0">
                                 <img
@@ -121,7 +208,7 @@ const subtotal = computed(() =>
                                 </div>
 
                                 <!-- Quantity stepper -->
-                                <div class="flex items-center gap-3 mt-3">
+                                <div class="flex items-center gap-3 mt-3 flex-wrap">
                                     <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm w-fit">
                                         <button
                                             @click="updateQuantity(cartItem.item_id, getQuantity(cartItem.item_id) - 1)"
@@ -154,12 +241,13 @@ const subtotal = computed(() =>
                                     <span class="text-sm text-gray-400">
                                         სულ: <span class="font-semibold text-gray-700">{{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id)) * getQuantity(cartItem.item_id)) }} ₾</span>
                                     </span>
+
                                     <!-- Savings badge -->
                                     <span
                                         v-if="calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id)) < cartItem.item.unit_price"
-                                        class="flex items-center text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full"
+                                        class="flex items-center text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full"
                                     >
-                                        <i class="pi pi-tag text-xs mr-1"></i>
+                                        <i class="pi pi-percentage text-xs mr-1"></i>
                                         დანაზოგი: {{ formatted((cartItem.item.unit_price - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id))) * getQuantity(cartItem.item_id)) }} ₾
                                     </span>
                                 </div>
@@ -195,12 +283,25 @@ const subtotal = computed(() =>
 
                         <div class="space-y-3 text-sm">
                             <div class="flex justify-between text-gray-500">
-                                <span>პროდუქტები ({{ items.length }})</span>
+                                <span>პროდუქტები ({{ selectedItems.length }})</span>
                                 <span class="font-medium text-gray-700">{{ formatted(subtotal) }} ₾</span>
                             </div>
+
+                            <!-- Savings -->
+                            <div
+                                v-if="totalSavings > 0"
+                                class="flex justify-between text-emerald-600"
+                            >
+                                <span class="flex items-center gap-1">
+                                    <i class="pi pi-percentage text-xs"></i>
+                                    ჯამური დანაზოგი
+                                </span>
+                                <span class="font-medium">-{{ formatted(totalSavings) }} ₾</span>
+                            </div>
+
                             <div class="flex justify-between text-gray-500">
                                 <span>მიწოდება</span>
-                                <span class="text-emerald-600 font-medium">უფასო</span>
+                                <span class="text-emerald-600 font-medium">გამოითვლება</span>
                             </div>
                         </div>
 
@@ -212,12 +313,17 @@ const subtotal = computed(() =>
                         </div>
 
                         <button
-                            class="w-full py-3.5 rounded-2xl bg-brand-500 cursor-pointer hover:bg-brand-400
-                                   text-white font-semibold text-sm
-                                   active:scale-[0.98] transition-all shadow-md"
+                            @click="goToCheckout"
+                            :disabled="selectedIds.length === 0"
+                            class="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all shadow-md cursor-pointer
+                                   active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                            :class="selectedIds.length > 0
+                                ? 'bg-brand-500 hover:bg-brand-400 text-white'
+                                : 'bg-gray-100 text-gray-400'"
                         >
                             <i class="pi pi-wallet mr-2"></i>
                             შეკვეთის გაფორმება
+                            <span v-if="selectedIds.length > 0" class="ml-1 opacity-75">({{ selectedIds.length }})</span>
                         </button>
 
                         <div class="mt-4 flex items-center justify-center gap-2 text-xs text-gray-400">
