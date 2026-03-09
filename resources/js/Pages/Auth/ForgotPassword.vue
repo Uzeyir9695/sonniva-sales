@@ -30,8 +30,8 @@ async function  forgotPassword(){
         <title>დაგავიწყდა პაროლი</title>
     </Head>
 
-    <div class="flex mt-8 flex-col h-[400px] justify-evenly">
-        <form @submit.prevent="forgotPassword" class="flex flex-col bg-white p-8 gap-6 self-center w-full sm:w-[450px] rounded-lg">
+    <div class="bg-white flex flex-col justify-evenly mx-3 sm:mx-auto shadow-lg rounded-xl border border-slate-200 mt-8 w-full sm:w-[450px] h-[400px]">
+        <form @submit.prevent="forgotPassword" class="flex flex-col p-8 gap-6 self-center">
             <p class="text-center">შეიყვანე ტელეფონი, რომლითაც ხარ რეგისტრირებული</p>
             <!-- Error Message -->
             <Message v-if="Object.keys(errors)?.length > 0" severity="error" icon="pi pi-exclamation-circle" :closable="false">

@@ -3,8 +3,8 @@
         <title>პაროლის შეცვლა</title>
     </Head>
 
-    <div class="flex mt-8 flex-col justify-evenly">
-        <form @submit.prevent="resetPassword" class="flex flex-col bg-white p-8 gap-6 self-center w-[250px] sm:w-[450px] rounded-lg">
+    <div class="bg-white flex flex-col justify-evenly mx-3 sm:mx-auto shadow-lg rounded-xl border border-slate-200 mt-8 w-[250px] sm:w-[450px] h-[400px]">
+        <form @submit.prevent="resetPassword" class="flex flex-col p-8 gap-6 self-center">
             <div class="flex flex-col space-y-5">
                 <div class="self-center text-2xl font-semibold">ახალი პაროლი</div>
             </div>
@@ -21,8 +21,8 @@
 
             <!-- Form Validation Errors -->
             <div v-if="Object.keys(errors).length > 0"
-                 class="mb-6 bg-red-50 dark:bg-red-900/40 border border-red-200 dark:border-red-700/50 rounded-lg p-4 flex justify-between">
-                <div class="text-red-600 dark:text-red-200 text-sm">
+                 class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex justify-between">
+                <div class="text-red-600 text-sm">
                     <p v-for="(error, key, index) in errors" :key="key">{{index+1}}) {{ error }}</p>
                 </div>
                 <i class="pi pi-exclamation-circle text-red-400 mr-3 mt-0.5"></i>

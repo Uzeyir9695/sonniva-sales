@@ -53,8 +53,8 @@ async function register(){
 
     <div class="w-full max-w-md mx-auto my-6">
         <!-- Register Card -->
-        <div class="bg-white rounded-xl shadow-lg transition-shadow duration-500 ease-in-out border transiton-all border-gray-200 p-8">
-            <h1 class="text-2xl font-bold text-gray-800 dark:primary-dark-mode-text text-center">რეგისტრაცია</h1>
+        <div class="bg-white mx-3 rounded-xl shadow-lg transition-shadow duration-500 ease-in-out border transiton-all border-gray-200 p-8">
+            <h1 class="text-2xl font-bold text-gray-800 text-center">რეგისტრაცია</h1>
 
             <div class="flex justify-center my-4">
                 <SelectButton v-model="selectedUserType" optionLabel="key" :allow-empty="false" :options="userTypes">
@@ -66,7 +66,7 @@ async function register(){
             <!-- Form Validation Errors -->
             <div v-if="Object.keys(errors).length > 0" class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex">
                 <i class="pi pi-exclamation-circle text-red-400 mr-3 mt-0.5"></i>
-                <div class="text-red-600 dark:text-red-200 text-sm">
+                <div class="text-red-600 text-sm">
                     <p v-for="(error, key) in errors" :key="key">{{ error }}</p>
                 </div>
             </div>
@@ -165,7 +165,7 @@ async function register(){
                 <!-- Password Field -->
                 <InputGroup>
                     <InputGroupAddon>
-                        <i class="pi pi-lock text-gray-400 dark:text-slate-400"></i>
+                        <i class="pi pi-lock text-gray-400"></i>
                     </InputGroupAddon>
                     <FloatLabel variant="on">
                         <Password
@@ -186,7 +186,7 @@ async function register(){
                 <!-- Confirm Password Field -->
                 <InputGroup>
                     <InputGroupAddon>
-                        <i class="pi pi-lock text-gray-400 dark:text-slate-400"></i>
+                        <i class="pi pi-lock text-gray-400"></i>
                     </InputGroupAddon>
                     <FloatLabel variant="on">
                         <Password
@@ -221,7 +221,7 @@ async function register(){
 
                 <Divider pt:root:class="m-0"></Divider>
                 <div>
-                    <div class="flex justify-center gap-x-2 text-sm dark:secondary-dark-mode-text">
+                    <div class="flex justify-center gap-x-2 text-sm">
                         <p class="w-fit">უკვე ხარ რეგისტრირებული?</p>
                         <!-- Login Link -->
                         <div class="flex items-center w-fit gap-x-2 text-nowrap">

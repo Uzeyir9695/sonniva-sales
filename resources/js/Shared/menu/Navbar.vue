@@ -50,7 +50,7 @@ const openSearch = async () => {
 
                             <!-- Center: logo -->
                             <Link :href="route('home')">
-                                <img src="/logo/logo2.jpeg" alt="logo" class="w-20 object-cover">
+                                <img src="/logo/logo3.png" alt="logo" class="w-16 object-cover">
                             </Link>
                         </div>
 
@@ -78,7 +78,7 @@ const openSearch = async () => {
                     <SmallDeviceMegaMenu :categories="categories" />
 
                     <Link :href="route('home')" class="hidden lg:flex items-center">
-                        <img src="/logo/logo2.jpeg" alt="logo" class="w-20 h-full object-cover">
+                        <img src="/logo/logo3.png" alt="logo" class="w-20 h-full object-cover">
                     </Link>
 
                     <div class="hidden lg:flex flex-4">

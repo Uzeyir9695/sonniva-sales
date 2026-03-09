@@ -37,8 +37,8 @@ async function resendCode(){
         <title>ტელეფონის იდენტიფიცირება</title>
     </Head>
 
-    <div class="flex mt-8 flex-col h-[400px] justify-evenly">
-        <form @submit.prevent="verifyPhone" class="flex flex-col bg-white p-8 gap-6 self-center border border-slate-200 rounded-lg w-full sm:w-[450px]">
+    <div class="bg-white flex flex-col justify-evenly mx-3 sm:mx-auto shadow-lg rounded-xl border border-slate-200 mt-8 w-full sm:w-[450px] h-[400px]">
+        <form @submit.prevent="verifyPhone" class="flex flex-col p-8 gap-6 self-center">
             <div class="flex flex-col items-center">
                 <p class="text-surface-500 dark:text-surface-400 block mb-8">შეიყვანე 6 ნიშნა კოდი</p>
                 <InputOtp v-model="form.otp" :length="6" />
