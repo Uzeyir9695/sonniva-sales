@@ -28,6 +28,17 @@
         @apply px-2 py-1 text-xs;
     }
 
+    :root {
+        --brand-500: #f59e0b;
+        --brand-400: #fbbf24;
+
+        --p-checkbox-checked-background: #f59e0b;
+        --p-checkbox-checked-border-color: #f59e0b;
+        --p-checkbox-checked-hover-background: #fbbf24;
+        --p-checkbox-checked-hover-border-color: #fbbf24;
+        --p-checkbox-icon-checked-color: #ffffff;
+    }
+
 }
 
 @config "../../tailwind.config.js";

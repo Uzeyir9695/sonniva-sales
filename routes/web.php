@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\WishlistController;
@@ -87,10 +88,10 @@ use Inertia\Inertia;
     Route::middleware('auth')->group(function () {
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 
-    Route::get('wishlist/ids',        [WishlistController::class, 'ids'])->name('api.wishlist.ids');
-    Route::post('wishlist/sync',      [WishlistController::class, 'syncGuest'])->name('api.wishlist.sync');
-    Route::post('wishlist/{item}',    [WishlistController::class, 'toggle'])->name('api.wishlist.toggle');
-    Route::delete('wishlist/{item}',  [WishlistController::class, 'destroy'])->name('api.wishlist.destroy');
+        Route::get('wishlist/ids',        [WishlistController::class, 'ids'])->name('api.wishlist.ids');
+        Route::post('wishlist/sync',      [WishlistController::class, 'syncGuest'])->name('api.wishlist.sync');
+        Route::post('wishlist/{item}',    [WishlistController::class, 'toggle'])->name('api.wishlist.toggle');
+        Route::delete('wishlist/{item}',  [WishlistController::class, 'destroy'])->name('api.wishlist.destroy');
     });
 
     Route::middleware('auth')->group(function () {
@@ -103,6 +104,10 @@ use Inertia\Inertia;
         Route::post('cart/{item}',     [CartController::class, 'add'])->name('api.cart.add');
         Route::put('cart/{item}',      [CartController::class, 'update'])->name('api.cart.update');
         Route::delete('cart/{item}',   [CartController::class, 'remove'])->name('api.cart.remove');
+    });
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     });
 
     /*******************************************************************************************************************
