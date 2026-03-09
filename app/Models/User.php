@@ -79,12 +79,22 @@ class User extends Authenticatable
         );
     }
 
-    public function wishlists(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function wishlists(): HasMany
     {
         return $this->hasMany(Wishlist::class);
     }
 
-    public function wishlistedItems(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function wishlistedItems(): BelongsToMany
     {
         return $this->belongsToMany(Item::class, 'wishlists')->withTimestamps();
     }
