@@ -19,6 +19,13 @@ const nameMap = {
     tr: 'TUR',
 }
 
+const fullNameMap = {
+    ka: 'ქართული',
+    ru: 'Русский',
+    en: 'English',
+    tr: 'Türkçe',
+}
+
 onMounted(() => {
     const init = () => {
         if (typeof Weglot === 'undefined') return
@@ -77,12 +84,22 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
 <template>
     <div class="weglot-switcher relative">
         <!-- Trigger button -->
+<!--        <button-->
+<!--            @click="toggle"-->
+<!--            class="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 lg:w-12 lg:h-12 rounded-full-->
+<!--           text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"-->
+<!--        >-->
+<!--            <span class="text-2xl leading-none">{{ flagMap[currentLang] ?? '🌐' }}</span>-->
+<!--        </button>-->
         <button
             @click="toggle"
-            class="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 lg:w-12 lg:h-12 rounded-full
+            class="flex items-center justify-center md:w-8 md:h-8 lg:w-12 lg:h-12 gap-1.5 rounded-full
            text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"
         >
             <span class="text-2xl leading-none">{{ flagMap[currentLang] ?? '🌐' }}</span>
+            <span data-wg-notranslate class="sm:hidden text-sm font-medium text-gray-600">
+                <span>{{ fullNameMap[currentLang] ?? currentLang.toUpperCase() }}</span>
+            </span>
         </button>
 
         <!-- Dropdown -->
@@ -96,7 +113,7 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
         >
             <div
                 v-if="open"
-                class="absolute left-1/2 -translate-x-1/2 top-full mt-2 bg-white rounded-2xl shadow-lg
+                class="absolute sm:left-1/2 sm:-translate-x-1/2 top-full mt-2 bg-white rounded-2xl shadow-lg
                         border border-gray-100 overflow-hidden z-50 min-w-[110px]"
             >
                 <button
@@ -111,7 +128,8 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
                 >
                     <span class="text-base">{{ flagMap[lang] ?? '🌐' }}</span>
                     <span data-wg-notranslate>
-                        {{ nameMap[lang] ?? lang.toUpperCase() }}
+                        <span class="hidden sm:inline">{{ nameMap[lang] ?? lang.toUpperCase() }}</span>
+                        <span class="sm:hidden">{{ fullNameMap[lang] ?? lang.toUpperCase() }}</span>
                     </span>
                     <i v-if="currentLang === lang" class="pi pi-check text-xs ml-auto text-brand-500"></i>
                 </button>

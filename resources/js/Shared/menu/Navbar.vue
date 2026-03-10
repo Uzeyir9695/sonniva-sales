@@ -61,8 +61,6 @@ const openSearch = async () => {
                                 <i class="pi pi-search text-xl"></i>
                             </button>
 
-                            <WeglotSwitcher />
-
                             <WishlistNavIcon></WishlistNavIcon>
 
                             <CartNavIcon />
@@ -70,8 +68,6 @@ const openSearch = async () => {
                             <Link v-if="!isAuthenticated" :href="route('login')" class="flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100">
                                 <i class="pi pi-user text-xl"></i>
                             </Link>
-
-                            <LogoutButton />
                         </div>
                     </div>
                 </template>
