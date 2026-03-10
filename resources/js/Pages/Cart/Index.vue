@@ -298,11 +298,6 @@ function goToCheckout() {
                                 </span>
                                 <span class="font-medium">-{{ formatted(totalSavings) }} ₾</span>
                             </div>
-
-                            <div class="flex justify-between text-gray-500">
-                                <span>მიწოდება</span>
-                                <span class="text-emerald-600 font-medium">გამოითვლება</span>
-                            </div>
                         </div>
 
                         <div class="h-px bg-gray-100 my-5"></div>
