@@ -79,7 +79,7 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
         <!-- Trigger button -->
         <button
             @click="toggle"
-            class="flex items-center justify-center w-12 h-12 rounded-full
+            class="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 lg:w-12 lg:h-12 rounded-full
            text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"
         >
             <span class="text-2xl leading-none">{{ flagMap[currentLang] ?? '🌐' }}</span>
@@ -111,8 +111,8 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
                 >
                     <span class="text-base">{{ flagMap[lang] ?? '🌐' }}</span>
                     <span data-wg-notranslate>
-    {{ nameMap[lang] ?? lang.toUpperCase() }}
-</span>
+                        {{ nameMap[lang] ?? lang.toUpperCase() }}
+                    </span>
                     <i v-if="currentLang === lang" class="pi pi-check text-xs ml-auto text-brand-500"></i>
                 </button>
             </div>
