@@ -7,6 +7,7 @@ import SearchBar from '@/Shared/components/SearchBar.vue';
 import WishlistNavIcon from '@/Shared/components/WishlistNavIcon.vue';
 import LogoutButton from '@/Shared/components/LogoutButton.vue';
 import CartNavIcon from '@/Shared/components/CartNavIcon.vue';
+import WeglotSwitcher from '@/Shared/components/WeglotSwitcher.vue';
 
 const page = usePage();
 const user = computed(() => page.props.user);
@@ -60,13 +61,15 @@ const openSearch = async () => {
                                 <i class="pi pi-search text-xl"></i>
                             </button>
 
+                            <WeglotSwitcher />
+
                             <WishlistNavIcon></WishlistNavIcon>
+
+                            <CartNavIcon />
 
                             <Link v-if="!isAuthenticated" :href="route('login')" class="flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100">
                                 <i class="pi pi-user text-xl"></i>
                             </Link>
-
-                            <CartNavIcon />
 
                             <LogoutButton />
                         </div>
@@ -91,6 +94,7 @@ const openSearch = async () => {
                     </a>
 
                     <div class="weglot-localizer hidden lg:flex items-center gap-1 shrink-0">
+                        <WeglotSwitcher />
 
                         <WishlistNavIcon></WishlistNavIcon>
 
