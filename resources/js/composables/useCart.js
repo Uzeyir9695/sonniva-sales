@@ -121,6 +121,10 @@ export function useCart() {
         return !!state.loading[String(itemId)]
     }
 
+    const uniqueCount = computed(() =>
+        Object.keys(state.items).filter(id => state.items[id] > 0).length
+    )
+
     // Sum of all quantities for navbar badge
     const count = computed(() =>
         Object.values(state.items).reduce((sum, qty) => sum + qty, 0)
@@ -158,10 +162,6 @@ export function useCart() {
         } catch {}
     }
 
-    function clearStorage() {
-        localStorage.removeItem('guest_cart')
-    }
-
     setup()
 
     watch(
@@ -170,5 +170,5 @@ export function useCart() {
         { deep: true }
     )
 
-    return { addToCart, updateQuantity, removeFromCart, isInCart, getQuantity, isLoading, count }
+    return { addToCart, updateQuantity, removeFromCart, isInCart, getQuantity, isLoading, uniqueCount, count }
 }
