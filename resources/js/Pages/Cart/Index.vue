@@ -247,7 +247,7 @@ function goToCheckout() {
                                         v-if="calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id)) < cartItem.item.unit_price"
                                         class="flex items-center text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full"
                                     >
-                                        <i class="pi pi-percentage text-xs mr-1"></i>
+                                        <i class="pi pi-tag text-xs mr-1"></i>
                                         დანაზოგი: {{ formatted((cartItem.item.unit_price - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id))) * getQuantity(cartItem.item_id)) }} ₾
                                     </span>
                                 </div>
@@ -293,7 +293,7 @@ function goToCheckout() {
                                 class="flex justify-between text-emerald-600"
                             >
                                 <span class="flex items-center gap-1">
-                                    <i class="pi pi-percentage text-xs"></i>
+                                    <i class="pi pi-tag text-xs"></i>
                                     ჯამური დანაზოგი
                                 </span>
                                 <span class="font-medium">-{{ formatted(totalSavings) }} ₾</span>
