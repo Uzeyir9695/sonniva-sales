@@ -110,7 +110,9 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
                         : 'text-gray-700'"
                 >
                     <span class="text-base">{{ flagMap[lang] ?? '🌐' }}</span>
-                    <span>{{ nameMap[lang] ?? lang.toUpperCase() }}</span>
+                    <span data-wg-notranslate>
+    {{ nameMap[lang] ?? lang.toUpperCase() }}
+</span>
                     <i v-if="currentLang === lang" class="pi pi-check text-xs ml-auto text-brand-500"></i>
                 </button>
             </div>
