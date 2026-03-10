@@ -107,7 +107,7 @@ function goToCheckout() {
             <div class="mb-8">
                 <h1 class="text-2xl font-bold text-gray-900">კალათა</h1>
                 <p class="text-gray-500 text-sm mt-1">
-                    {{ count }} {{ count === 1 ? 'პროდუქტი' : 'პროდუქტი' }}
+                    {{ count }} {{ count === 1 ? 'ჯამური პროდუქტი' : 'ჯამური პროდუქტი' }}
                 </p>
             </div>
 
@@ -283,7 +283,7 @@ function goToCheckout() {
 
                         <div class="space-y-3 text-sm">
                             <div class="flex justify-between text-gray-500">
-                                <span>პროდუქტები ({{ selectedItems.length }})</span>
+                                <span>{{ selectedItems.length }} უნიკალური პროდუქტი</span>
                                 <span class="font-medium text-gray-700">{{ formatted(subtotal) }} ₾</span>
                             </div>
 
