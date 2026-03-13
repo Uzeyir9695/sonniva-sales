@@ -65,7 +65,7 @@ class ItemSeeder extends Seeder
                     'category_code'      => $item['itemCategoryCode'],
                     'name'              => $item['description'] ?? null,
                     'description'        => $item['itemReview'] ?? null,
-                    'slug'               => $this->makeSlug($item['description']),
+                    'slug'               => $this->makeUniqueSlug($item['description'], $item['no']),
                     'inventory'          => $item['inventory'] ?? 0,
                     'base_uom_desc'      => $item['baseUOMDesc'] ?? null,
                     'unit_price'         => $item['unitPrice'] ?? 0,
@@ -119,9 +119,20 @@ class ItemSeeder extends Seeder
     {
         $text = trim($text, " \t\n\r\0\x0B,.*");
         $text = preg_replace('/[\/=]+/u', '-', $text);
-        $text = preg_replace('/[-\s]+/u', '-', $text);  // collapse multiple dashes/spaces into one
-        $text = trim($text, '-');                         // trim leading/trailing dashes
+        $text = preg_replace('/[-\s]+/u', '-', $text);
+        $text = trim($text, '-');
         return mb_strtolower($text);
+    }
+
+    private function makeUniqueSlug(string $text, string $no): string
+    {
+        $base = $this->makeSlug($text);
+
+        if (!Item::where('slug', $base)->exists()) {
+            return $base;
+        }
+
+        return $base . '-' . mb_strtolower($no);
     }
 
     private function storeImage(string $base64): ?string
