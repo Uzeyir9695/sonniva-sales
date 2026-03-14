@@ -101,9 +101,7 @@ export function useWishlist() {
         } catch {}
     }
 
-    watch(isLoggedIn, (newVal, oldVal) => {
-        // User just logged out — save their wishlist to localStorage
-        // so the count persists for guests
+    watch(isLoggedIn, async (newVal, oldVal) => {
         if (oldVal === true && newVal === false) {
             const ids = Object.keys(state.wishlisted).filter(id => state.wishlisted[id])
             if (ids.length) {
@@ -111,9 +109,24 @@ export function useWishlist() {
             }
         }
 
+        const guestIds = Object.keys(state.wishlisted).filter(id => state.wishlisted[id])
+
         state.ready = false
         Object.keys(state.wishlisted).forEach(key => delete state.wishlisted[key])
         Object.keys(state.loading).forEach(key => delete state.loading[key])
+
+        if (newVal === true && oldVal === false && guestIds.length > 0) {
+            try {
+                const { data } = await axios.post(route('api.wishlist.sync'), { item_ids: guestIds })
+                ;(data.wishlisted_ids ?? []).forEach(id => { state.wishlisted[String(id)] = true })
+                localStorage.removeItem('guest_wishlist')
+                state.ready = true
+                return
+            } catch (e) {
+                console.error('[Wishlist] sync failed', e)
+            }
+        }
+
         setup()
     })
 

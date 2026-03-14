@@ -133,15 +133,31 @@ export function useCart() {
 
     // ─── Auth state changes ───────────────────────────────────────────────────
 
-    watch(isLoggedIn, (newVal, oldVal) => {
-        // Save to localStorage on logout so guest still sees their cart
+    watch(isLoggedIn, async (newVal, oldVal) => {
         if (oldVal === true && newVal === false) {
             saveToStorage()
         }
 
+        // Capture guest items before clearing
+        const guestItems = { ...state.items }
+
         state.ready = false
         Object.keys(state.items).forEach(k => delete state.items[k])
         Object.keys(state.loading).forEach(k => delete state.loading[k])
+
+        if (newVal === true && oldVal === false && Object.keys(guestItems).length > 0) {
+            try {
+                const items = Object.entries(guestItems).map(([id, quantity]) => ({ id, quantity }))
+                const { data } = await axios.post(route('api.cart.sync'), { items })
+                Object.assign(state.items, data.items ?? {})
+                localStorage.removeItem('guest_cart')
+                state.ready = true
+                return
+            } catch (e) {
+                console.error('[Cart] sync failed', e)
+            }
+        }
+
         setup()
     })
 
