@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('status')->default('pending'); // pending/approved/ready/cancelled
             $table->string('delivery_type'); // office/tbilisi/regions
             $table->decimal('delivery_cost', 10, 2)->default(0);
-            $table->string('address');
+            $table->string('address')->nullable();
             $table->string('apartment_number')->nullable();
             $table->decimal('subtotal', 12, 2)->default(0);
             $table->decimal('total', 12, 2)->default(0);
