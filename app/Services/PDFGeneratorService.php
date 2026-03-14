@@ -16,7 +16,7 @@ class PDFGeneratorService
         //
     }
 
-    public function generate(array $variables, string $filename = null): string {
+    public function generate(array $variables, ?string $filename = null): string {
         $pdfDir = storage_path('app/public/invoices');
 
         if (!File::exists($pdfDir)) {

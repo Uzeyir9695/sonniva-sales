@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Auth;
 
 use App\Models\OtpVerification;
 use App\Models\PasswordResetToken;
 use App\Models\User;
+use App\Services\SmsService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Propaganistas\LaravelPhone\PhoneNumber;

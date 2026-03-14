@@ -108,16 +108,16 @@ function initiatePayment() {
     loading.value = true
 
     const data = {
-        delivery_type:     selectedDelivery.value.key,
-        delivery_cost:     deliveryCost.value,
-        address:           form.address,
-        apartment_number:  form.apartment_number,
-        comment:           form.comment,
-        provider:          selectedProvider.value.code,
+        delivery_type:    selectedDelivery.value.key,
+        address:          form.address,
+        apartment_number: form.apartment_number,
+        comment:          form.comment,
+        provider:         selectedProvider.value.code,
+        item_ids: items.value.map(c => ( c.item_id)),
     }
 
     if (selectedProvider.value.code === 'invoice') {
-        router.post(route('checkout.invoice'), data, {
+        router.post(route('initiate.payment.invoice'), data, {
             onSuccess: () => { loading.value = false },
             onError: (err) => {
                 error.value = err?.message || 'დაფიქსირდა შეცდომა'
@@ -125,7 +125,7 @@ function initiatePayment() {
             },
         })
     } else {
-        axios.post(route('checkout.pay'), data)
+        axios.post(route('payment.initiate'), data)
             .then(res => {
                 if (res.data.redirect_url) {
                     window.location.href = res.data.redirect_url

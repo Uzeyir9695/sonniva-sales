@@ -115,4 +115,8 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    'company' => [
+        'address' => env('MAIL_TO_ADDRESS', 'alu@sonniva.ge'),
+        'name' => env('MAIL_TO_NAME', 'Sonniva Sales'),
+    ],
 ];

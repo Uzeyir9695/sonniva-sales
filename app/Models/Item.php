@@ -27,4 +27,13 @@ class Item extends Model
     {
         return $this->hasMany(Attribute::class);
     }
+    public function carts(): HasMany
+    {
+        return $this->hasMany(Cart::class);
+    }
+
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }

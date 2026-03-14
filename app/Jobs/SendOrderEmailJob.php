@@ -2,7 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Models\OrderItem;
+use App\Models\Order;
+use App\Models\Payment;
 use App\Models\User;
 use App\Mail\OrderSendMail;
 use App\Mail\OrderApprovedEmail;
@@ -19,35 +20,36 @@ class SendOrderEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 300; // 5 minutes for BC API calls
+    public $timeout = 300;
 
     public function __construct(
-        public array $viewVars,
+        public string $orderId,
+        public string $paymentId,
         public string $invoiceNumber,
-        public string $fileName,
         public ?User $customer = null
     ) {}
 
     public function handle(PDFGeneratorService $pdfService, SmsService $smsService)
     {
-        // Generate PDF & Email Company
-        $pdfService->generate($this->viewVars, $this->fileName);
-        $pdfUrl = route('download.file', ['filename' => $this->fileName]);
+        $order = Order::with(['items.item', 'user'])->findOrFail($this->orderId);
+        $payment = Payment::findOrFail($this->paymentId);
+
+        $viewVars = [
+            'order'   => $order,
+            'payment' => $payment,
+        ];
+
+        $fileName = 'order_' . $this->invoiceNumber . '.pdf';
+
+        $pdfService->generate($viewVars, $fileName);
+        $pdfUrl = route('download.file', ['filename' => $fileName]);
 
         Mail::to(config('mail.company.address'))->send(new OrderSendMail($pdfUrl, $this->invoiceNumber));
 
-
-        // Email/SMS Customer
         if ($this->customer) {
-            $msg = \App\Models\OrderItem::paymentConfirmedMessage($this->invoiceNumber);
+            $msg = Order::paymentConfirmedMessage($this->invoiceNumber);
             Mail::to($this->customer->email)->send(new OrderApprovedEmail($msg));
             $smsService->send($this->customer->phone, $msg, true);
-
-            OrderItem::where('invoice_no', $this->invoiceNumber)
-                ->update([
-                    'email_sent_at' => now(),
-                ]);
         }
     }
 }
-

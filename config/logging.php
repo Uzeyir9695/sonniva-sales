@@ -51,6 +51,12 @@ return [
     */
 
     'channels' => [
+        'payment' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/payment.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'permission' => 0664,
+        ],
 
         'stack' => [
             'driver' => 'stack',

@@ -2,42 +2,38 @@
 
 namespace App\Jobs;
 
+use App\Models\Order;
 use App\Services\BusinessCentralService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class SendOrderToBCJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $timeout = 300; // 10 minutes for large loops/slow APIs
+    public $timeout = 300;
     public $tries = 3;
-    public $backoff = 60; // Wait 1 minute before retrying on API fail
+    public $backoff = 60;
 
     public function __construct(
-        public Collection $orderItems
+        public Order $order
     ) {}
 
     public function handle(BusinessCentralService $bcService)
     {
-        Cache::lock('bc-order-processing', 300)->block(310, function () use ($bcService) {
-            foreach ($this->orderItems as $key => $orderItem) {
-                $orderItem->update(['email_sent_at' => now()]);
+        $order = Order::with(['items.item', 'user'])->findOrFail($this->order->id);
 
+        Cache::lock('bc-order-processing', 300)->block(310, function () use ($bcService, $order) {
+            foreach ($order->items as $key => $orderItem) {
                 $bcService->addSalesOrders($orderItem, $key);
-
-                // Add delay between orders to reduce BC load
-                usleep(500000); // 0.5 seconds
+                usleep(500000);
             }
 
-            if ($this->orderItems->isNotEmpty()) {
-                $bcService->addShipToAddress($this->orderItems->first());
-            }
+            $bcService->addShipToAddress($order);
         });
     }
 }

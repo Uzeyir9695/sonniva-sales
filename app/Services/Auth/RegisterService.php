@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Auth;
 
 use App\Models\OtpVerification;
 use App\Models\User;
+use App\Services\BusinessCentralService;
+use App\Services\SmsService;
 use Illuminate\Support\Facades\Hash;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
