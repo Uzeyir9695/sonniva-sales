@@ -158,7 +158,7 @@ defineExpose({ openDrawer })
                                     @click="navigateTo(item)"
                                     class="w-full flex items-center justify-between cursor-pointer px-5 py-3.5 rounded-xl hover:bg-gray-50 hover:text-brand-400 transition-colors text-left"
                                 >
-                                    <span class="text-sm font-medium text-inherit">{{ item.name }}</span>
+                                    <span class="text-sm font-medium text-inherit">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : item.items?.length < 1 ? '(0)' : '' }}</span>
                                     <i class="pi pi-chevron-right text-xs text-inherit"></i>
                                 </button>
 
@@ -171,7 +171,7 @@ defineExpose({ openDrawer })
                                     @click="closeDrawer"
                                     class="w-full flex items-center justify-between cursor-pointer px-5 py-3.5 rounded-xl hover:bg-gray-50 hover:text-brand-400 transition-colors text-left"
                                 >
-                                    <span class="text-sm font-medium text-inherit">{{ item.name }}</span>
+                                    <span class="text-sm font-medium text-inherit">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : '(0)' }}</span>
                                 </Link>
                             </template>
 
