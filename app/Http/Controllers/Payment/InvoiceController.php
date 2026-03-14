@@ -8,6 +8,7 @@ use App\Mail\PaymentInvoiceMail;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Services\PDFGeneratorService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -19,7 +20,7 @@ class InvoiceController extends Controller
     {
         $this->pdfService = $pdfService;
     }
-    public function initiateInvoice(PaymentRequest $request)
+    public function initiateInvoice(Request $request)
     {
         $request->validated();
 
