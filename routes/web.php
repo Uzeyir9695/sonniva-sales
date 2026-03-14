@@ -10,6 +10,8 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Payment\InvoiceController;
+use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -79,38 +81,44 @@ use Inertia\Inertia;
         });
     });
 
-    Route::get('/wishlist-test', function() {
-        dd(auth()->check(), auth()->user());
-    });
-    /*******************************************************************************************************************
-     * Wishlist Routes
-     * *****************************************************************************************************************/
     Route::middleware('auth')->group(function () {
+        /*******************************************************************************************************************
+         * Wishlist Routes
+         * *****************************************************************************************************************/
+
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 
-        Route::get('wishlist/ids',        [WishlistController::class, 'ids'])->name('api.wishlist.ids');
-        Route::post('wishlist/sync',      [WishlistController::class, 'syncGuest'])->name('api.wishlist.sync');
-        Route::post('wishlist/{item}',    [WishlistController::class, 'toggle'])->name('api.wishlist.toggle');
-        Route::delete('wishlist/{item}',  [WishlistController::class, 'destroy'])->name('api.wishlist.destroy');
-    });
-
-    Route::middleware('auth')->group(function () {
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-//    });
 
-    // routes/api.php — add inside auth:sanctum middleware group (under v1 prefix)
-//    Route::middleware('auth:sanctum')->group(function () {
-        Route::post('cart/sync',       [CartController::class, 'syncGuest'])->name('api.cart.sync');
-        Route::post('cart/{item}',     [CartController::class, 'add'])->name('api.cart.add');
-        Route::put('cart/{item}',      [CartController::class, 'update'])->name('api.cart.update');
-        Route::delete('cart/{item}',   [CartController::class, 'remove'])->name('api.cart.remove');
-    });
-
-    Route::middleware('auth')->group(function () {
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+
+        Route::post('/payment/initiate', [PaymentController::class, 'initiate'])->name('payment.initiate');
+
+        Route::post('/initiate/payment/invoice', [InvoiceController::class, 'initiateInvoice'])->name('initiate.payment.invoice');
+
+        Route::get('/payment/success/{provider}', [PaymentController::class, 'success'])->name('payment.success');
+
+        Route::get('/payment/cancel/{provider}', [PaymentController::class, 'cancel'])->name('payment.cancel');
+
+        Route::get('/payment/invoice/{invoice}', [InvoiceController::class, 'success'])->name('payment.invoice.success');
+
+        Route::get('/pro-credit-bank/order-details', [PaymentController::class, 'proCreditBankCallback'])->name('payment.pcb.order.details');
+
     });
 
-    /*******************************************************************************************************************
+    Route::post('/bc-sales-order/{orderItem}', [PaymentController::class, 'sendOrderToBC'])->name('bc.send-order');
+
+    // Payment webhook/callback (NO auth middleware, NO CSRF)
+    Route::post('/payment/callback', [PaymentController::class, 'callback'])
+        ->name('payment.callback')
+        ->withoutMiddleware(['web']);
+
+    Route::get('/order/download/{filename}', [InvoiceController::class, 'download'])
+        ->where('filename', '.*') // <- important
+        ->name('download.file');
+
+
+/*******************************************************************************************************************
      * FAQ Route
      * *****************************************************************************************************************/
     Route::get('/frequently-asked-questions', function () {
