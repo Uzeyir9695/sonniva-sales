@@ -34,16 +34,21 @@ function setThumbsSwiper(swiper) {
             class="main-gallery w-full rounded-3xl overflow-hidden border border-gray-100 shadow-sm h-[270px] sm:h-[500px]"
         >
             <SwiperSlide v-for="(img, i) in images" :key="i" class="bg-white flex items-center justify-center">
-                <ZoomImg
+<!--                <ZoomImg-->
+<!--                    :src="`${imagePath}/${img}`"-->
+<!--                    :alt="itemName"-->
+<!--                    class="max-w-[500px] mx-auto h-full object-cover"-->
+<!--                    zoom-type="move"-->
+<!--                    trigger="click"-->
+<!--                    :zoom-scale="4"-->
+<!--                    :step="1"-->
+<!--                    :show-zoom-btns="false"-->
+<!--                />-->
+                <img
                     :src="`${imagePath}/${img}`"
                     :alt="itemName"
-                    class="max-w-[500px] mx-auto ring h-full object-cover"
-                    zoom-type="move"
-                    trigger="click"
-                    :zoom-scale="4"
-                    :step="1"
-                    :show-zoom-btns="false"
-                />
+                    class="max-w-[500px] mx-auto h-full object-cover"
+                >
             </SwiperSlide>
         </Swiper>
 
