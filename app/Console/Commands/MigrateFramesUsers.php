@@ -18,9 +18,29 @@ class MigrateFramesUsers extends Command
         $bar = $this->output->createProgressBar($users->count());
 
         foreach ($users as $user) {
-            DB::table('users')->updateOrInsert(
-                ['phone' => $user->phone],
-                [
+            $exists = DB::table('users')->where('phone', $user->phone)->first();
+
+            if ($exists) {
+                // Update everything EXCEPT id
+                DB::table('users')->where('phone', $user->phone)->update([
+                    'name'              => $user->name,
+                    'lastname'          => $user->lastname,
+                    'email'             => $user->email,
+                    'phone_country'     => $user->phone_country,
+                    'password'          => $user->password,
+                    'role'              => $user->role,
+                    'bc_customer_no'    => $user->bc_customer_no,
+                    'tax_id'            => $user->tax_id,
+                    'address'           => $user->address,
+                    'phone_verified_at' => $user->phone_verified_at,
+                    'email_verified_at' => $user->email_verified_at,
+                    'last_login_at'     => $user->last_login_at,
+                    'remember_token'    => $user->remember_token,
+                    'updated_at'        => $user->updated_at,
+                ]);
+            } else {
+                // Insert new user with frames id
+                DB::table('users')->insert([
                     'id'                => $user->id,
                     'name'              => $user->name,
                     'lastname'          => $user->lastname,
@@ -39,8 +59,9 @@ class MigrateFramesUsers extends Command
                     'remember_token'    => $user->remember_token,
                     'created_at'        => $user->created_at,
                     'updated_at'        => $user->updated_at,
-                ]
-            );
+                ]);
+            }
+
             $bar->advance();
         }
 
