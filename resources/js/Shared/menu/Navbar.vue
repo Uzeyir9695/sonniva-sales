@@ -8,6 +8,7 @@ import WishlistNavIcon from '@/Shared/components/WishlistNavIcon.vue';
 import LogoutButton from '@/Shared/components/LogoutButton.vue';
 import CartNavIcon from '@/Shared/components/CartNavIcon.vue';
 import WeglotSwitcher from '@/Shared/components/WeglotSwitcher.vue';
+import UserMenu from '@/Shared/components/UserMenu.vue';
 
 const page = usePage();
 const user = computed(() => page.props.user);
@@ -96,14 +97,9 @@ const openSearch = async () => {
 
                         <CartNavIcon />
 
-                        <Link v-if="!isAuthenticated" :href="route('login')" class="flex items-center justify-center w-12 h-12 rounded-full text-gray-600 hover:bg-gray-100 transition-all">
-                            <i class="pi pi-user text-xl!"></i>
-                        </Link>
-
-                        <LogoutButton />
+                        <UserMenu />
                     </div>
                 </template>
-
             </div>
         </nav>
     </div>
