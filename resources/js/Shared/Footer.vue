@@ -13,7 +13,8 @@ import { Link } from '@inertiajs/vue3';
                 <i class="pi pi-instagram text-lg lg:text-2xl text-[#c80a1d]"></i>
             </div>
 
-            <Link :href="route('faq.index')" class="flex items-center text-sm hover:text-brand-500">
+            <Link :href="route('faq.index')" class="flex items-center text-sm hover:text-brand-500 border-t border-gray-200 pt-1.5">
+                <i class="pi pi-question-circle text-sm mr-2 "></i>
                 ხშირად დასმული კითხვები
             </Link>
         </div>
