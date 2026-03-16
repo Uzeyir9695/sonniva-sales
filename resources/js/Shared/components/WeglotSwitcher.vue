@@ -26,6 +26,8 @@ const fullNameMap = {
     tr: 'Türkçe',
 }
 
+const langOrder = ['ka', 'en', 'ru', 'tr']
+
 onMounted(() => {
     const init = () => {
         if (typeof Weglot === 'undefined') return
@@ -34,7 +36,10 @@ onMounted(() => {
             .map(l => l.language_to)
             .concat(Weglot.options.language_from)
 
-        languages.value = available
+        languages.value = available.sort((a, b) =>
+            langOrder.indexOf(a) - langOrder.indexOf(b)
+        )
+
         currentLang.value = Weglot.getCurrentLang()
 
         Weglot.on('languageChanged', (lang) => {
@@ -84,13 +89,6 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
 <template>
     <div class="weglot-switcher relative">
         <!-- Trigger button -->
-<!--        <button-->
-<!--            @click="toggle"-->
-<!--            class="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 lg:w-12 lg:h-12 rounded-full-->
-<!--           text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"-->
-<!--        >-->
-<!--            <span class="text-2xl leading-none">{{ flagMap[currentLang] ?? '🌐' }}</span>-->
-<!--        </button>-->
         <button
             @click="toggle"
             class="flex items-center justify-center md:w-8 md:h-8 lg:w-12 lg:h-12 gap-1.5 rounded-full
