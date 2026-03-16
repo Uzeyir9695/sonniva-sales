@@ -11,7 +11,7 @@ const isAuthenticated = computed(() => !!page.props.user)
 
 const displayName = computed(() => {
     const name = page.props.user?.name ?? ''
-    return name.slice(0, 5)
+    return name.slice(0, 6)
 })
 
 const menuItems = [

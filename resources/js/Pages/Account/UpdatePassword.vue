@@ -30,7 +30,7 @@ async function changePassword(){
     <title>Settings</title>
   </Head>
     <div class="flex flex-col items-center gap-y-6 rounded-lg bg-slate-200/30 sm:max-w-[500px] px-6 py-10 lg:py-16 mx-auto">
-        <div class="text-lg sm:text-xl font-semibold">Change Password</div>
+        <div class="text-lg sm:text-xl font-semibold">შეცვალე პაროლი</div>
 
         <!-- Form Validation Errors -->
         <div v-if="Object.keys(passwordForm.errors).length"
@@ -43,43 +43,46 @@ async function changePassword(){
 
         <form @submit.prevent="changePassword" class="flex flex-col gap-8 w-full">
             <FloatLabel variant="on">
-                <Password :feedback="false"
-                          inputClass="w-full rounded-md focus:shadow-none"
-                          :invalid="!!passwordForm.errors.current_password"
-                          class="w-full"
-                          v-model="passwordForm.current_password"
-                          inputId="current_password"
+                <Password
+                    v-model="passwordForm.current_password"
+                    :feedback="false"
+                    :invalid="!!passwordForm.errors.current_password"
+                    inputId="current_password"
+                    fluid
                 />
-                <label for="current_password">Current password</label>
+                <label for="current_password">მიმდინარე პაროლი</label>
             </FloatLabel>
 
             <FloatLabel variant="on">
                 <Password
+                    v-model="passwordForm.password"
                     :feedback="false"
-                    inputClass="w-full rounded-md focus:shadow-none"
                     :invalid="!!passwordForm.errors.password"
-                    class="w-full" v-model="passwordForm.password"
                     inputId="password"
+                    fluid
                 >
                 </Password>
-                <label for="password">New password</label>
+                <label for="password">ახალი პაროლი</label>
             </FloatLabel>
 
             <FloatLabel variant="on">
-                <Password :feedback="false"
-                          inputClass="w-full rounded-md focus:shadow-none"
-                          :invalid="!!passwordForm.errors.password_confirmation"
-                          class="w-full" v-model="passwordForm.password_confirmation"
-                          inputId="password_confirmation"
+                <Password
+                    v-model="passwordForm.password_confirmation"
+                  :feedback="false"
+                  :invalid="!!passwordForm.errors.password_confirmation"
+                  inputId="password_confirmation"
+                    fluid
                 />
-                <label for="password_confirmation">Repeat new password</label>
+                <label for="password_confirmation">გაიმეორე ახალი პაროლი</label>
             </FloatLabel>
+
             <Button :disabled="passwordForm.processing"
                     type="submit"
-                    class="shadow-none bg-blue-500 text-white"
-                    :label="passwordForm.processing ? 'Please wait...' : 'Submit'"
+                    class="shadow-none bg-brand-500 text-white"
+                    :label="passwordForm.processing ? 'გთხოვთ დაელოდოთ...' : 'დადასტურება'"
                     text
-                    raised size="medium"
+                    raised
+                    size="small"
                     :icon="passwordForm.processing ? 'pi pi-spin pi-spinner' :''"
             />
         </form>

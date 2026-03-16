@@ -32,7 +32,6 @@ const form = useForm({
 });
 
 async function updateAccount(){
-
     if (selectedUserType.value?.key !== 'individual') {
         delete form.lastname
     }
@@ -97,8 +96,8 @@ onMounted(() => {
     <div class="w-full max-w-6xl mx-auto mt-6">
         <Tabs v-model:value="activeTab">
             <TabList>
-                <Tab value="0">Profile</Tab>
-                <Tab v-if="!editingByAdmin" value="1">Security</Tab>
+                <Tab value="0">პროფილი</Tab>
+                <Tab v-if="!editingByAdmin" value="1">უსაფრთხოება</Tab>
             </TabList>
 
             <TabPanels>
@@ -124,7 +123,7 @@ onMounted(() => {
                                     v-model="form.name"
                                     :invalid="!!form.errors.name"
                                 />
-                                <label for="name">Name</label>
+                                <label for="name">სახელი</label>
                             </FloatLabel>
 
                             <FloatLabel v-if="selectedUserType?.key === 'individual'" variant="on" class="w-full">
@@ -133,7 +132,7 @@ onMounted(() => {
                                     v-model="form.lastname"
                                     :invalid="!!form.errors.lastname"
                                 />
-                                <label for="lastname">Lastname</label>
+                                <label for="lastname">გვარი</label>
                             </FloatLabel>
 
                             <FloatLabel v-if="editableUser.role !== 'admin'" variant="on" class="w-full">
@@ -151,7 +150,7 @@ onMounted(() => {
                                     v-model="form.phone"
                                     :invalid="!!form.errors.phone"
                                 />
-                                <label for="phone">Phone Number</label>
+                                <label for="phone">ტელეფონი</label>
                             </FloatLabel>
 
                             <FloatLabel variant="on">
@@ -160,7 +159,7 @@ onMounted(() => {
                                     v-model="form.email"
                                     :invalid="!!form.errors.email"
                                 />
-                                <label for="email">Email</label>
+                                <label for="email">ელ.ფოსტა</label>
                             </FloatLabel>
 
                             <FloatLabel v-if="editableUser.role !== 'admin'" variant="on" class="w-full">
@@ -169,7 +168,7 @@ onMounted(() => {
                                     v-model="form.address"
                                     :invalid="!!form.errors.address"
                                 />
-                                <label for="address">Address</label>
+                                <label for="address">მისამართი</label>
                             </FloatLabel>
 
                             <FloatLabel v-if="editableUser.role !== 'admin'" variant="on" class="w-full">
@@ -186,20 +185,21 @@ onMounted(() => {
                                         {{ slotProps.value?.value }}
                                     </template>
                                 </Select>
-                                <label for="user_type">User Type</label>
+                                <label for="user_type">მომხმარებელი</label>
                             </FloatLabel>
 
                         </div>
+
                         <div v-if="selectedUserType?.key === 'individual'" class="flex items-center gap-2">
                             <Checkbox v-model="form.is_handyman" binary />
-                            <label for="ingredient1"> I am a handyman </label>
+                            <label for="ingredient1"> ვარ ხელოსანი </label>
                         </div>
 
                         <Button :disabled="form.processing"
                                 type="submit"
-                                class="bg-blue-500 border-none"
-                                :label="form.processing ? 'Please wait...' : 'Save Changes'"
-                                size="medium"
+                                class="bg-brand-500 border-none"
+                                :label="form.processing ? 'გთხოვთ დაელოდოთ...' : 'შენახვა'"
+                                size="small"
                                 :icon="form.processing ? 'pi pi-spin pi-spinner' :'pi pi-save'"
                         />
                     </form>

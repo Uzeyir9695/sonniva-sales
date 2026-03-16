@@ -158,6 +158,26 @@ createInertiaApp({
                     listContainer: {class: 'text-sm'},
                 },
 
+                // ── InputText ──────────────────────────────────────
+                inputtext: {
+                    root: ({ props, state }) => ({
+                        class: [
+                            'w-full px-3 py-2.5',
+                            'border border-slate-300',
+                            'text-sm font-medium text-slate-700',
+                            'placeholder:text-slate-400',
+                            'transition-all duration-200',
+                            'outline-none',
+                            state?.focused || props?.focused
+                                ? 'border-brand-500 ring-3 ring-brand-500/15'
+                                : '',
+                            props?.disabled
+                                ? 'opacity-50 cursor-not-allowed pointer-events-none'
+                                : '',
+                        ]
+                    })
+                },
+
                 panel: {
                     root: { class: 'border-none !m-0' },
                     header: {

@@ -56,7 +56,7 @@ function login() {
                             <i class="pi pi-envelope"></i>
                         </InputGroupAddon>
                         <FloatLabel variant="on">
-                            <InputText id="email_or_phone" v-model="form.login" pt:root:class="rounded-l-none border-slate-300" :class="{ 'p-invalid': form.errors.login }" />
+                            <InputText id="email_or_phone" v-model="form.login" :invalid="!!form.errors.login" />
                             <label for="email_or_phone">ელ.ფოსტა ან ტელეფონი</label>
                         </FloatLabel>
                     </InputGroup>
@@ -67,8 +67,16 @@ function login() {
                             <i class="pi pi-lock"></i>
                         </InputGroupAddon>
                         <FloatLabel variant="on">
-                            <Password toggleMask pt:unmaskIcon:class="-mt -2" :feedback="false" inputClass="w-full rounded-md focus:shadow-none rounded-l-none border-slate-300" :class="{ 'p-invalid': form.errors.password }" class="w-full" v-model="form.password" inputId="password" />
-                            <label for="password" :class="{'text-danger': form.errors.password }">პაროლი</label>
+                            <Password
+                                v-model="form.password"
+                                  toggleMask
+                                  pt:unmaskIcon:class="-mt -2"
+                                  :feedback="false"
+                                  :invalid="!!form.errors.password"
+                                  class="w-full" inputId="password" />
+                            <label for="password" :class="{'text-danger': form.errors.password }">
+                                პაროლი
+                            </label>
                         </FloatLabel>
                     </InputGroup>
 

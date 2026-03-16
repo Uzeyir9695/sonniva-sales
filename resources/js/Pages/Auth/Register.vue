@@ -82,7 +82,6 @@ async function register(){
                         <InputText
                             id="name"
                             v-model="form.name"
-                            pt:root:class="rounded-l-none border-slate-300"
                             :invalid="!!form.errors.name"
                         />
                         <label for="name">
@@ -100,7 +99,6 @@ async function register(){
                         <InputText
                             id="lastname"
                             v-model="form.lastname"
-                            pt:root:class="rounded-l-none border-slate-300"
                             :invalid="!!form.errors.lastname"
                         />
                         <label for="lastname">
@@ -119,7 +117,6 @@ async function register(){
                             v-keyfilter="{ pattern: /[\d+]+$/, validateOnly: true }"
                             id="phone"
                             v-model="form.phone"
-                            pt:root:class="rounded-l-none border-slate-300"
                             :invalid="!!form.errors.phone"
                         />
                         <label for="phone">
@@ -139,7 +136,6 @@ async function register(){
                             id="id-number"
                             v-model="form.tax_id"
                             :maxlength="11"
-                            pt:root:class="rounded-l-none border-slate-300"
                             :invalid="!!form.errors.tax_id"
                         />
                         <label for="id-number">{{ selectedUserType?.key === 'individual' ? 'პირადი ნომერი' : 'საიდენტიფიკაციო ნომერი' }}</label>
@@ -155,7 +151,6 @@ async function register(){
                         <InputText
                             id="email"
                             v-model="form.email"
-                            pt:root:class="rounded-l-none border-slate-300"
                             :invalid="!!form.errors.email"
                         />
                         <label for="email">ელ. ფოსტა</label>
@@ -173,9 +168,7 @@ async function register(){
                             inputId="password"
                             toggleMask
                             :feedback="false"
-                            class="w-full"
                             :invalid="!!form.errors.password"
-                            inputClass="w-full border-left-none border border-gray-300 rounded-r-lg text-gray-800 focus:shadow-none"
                         />
                         <label for="password">
                             პაროლი
@@ -194,9 +187,7 @@ async function register(){
                             inputId="password_confirm"
                             toggleMask
                             :feedback="false"
-                            class="w-full"
                             :invalid="!!form.errors.password_confirmation"
-                            inputClass="w-full border-left-none border border-gray-300 rounded-r-lg text-gray-800 focus:shadow-none"
                         />
                         <label for="password_confirm">
                             გაიმეორე პაროლი
