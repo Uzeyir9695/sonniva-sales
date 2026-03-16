@@ -31,6 +31,17 @@ return [
 
     'connections' => [
 
+        'frames_temp' => [
+            'driver'    => 'mysql',
+            'host'      => env('FRAMES_DB_HOST'),
+            'port'      => env('FRAMES_DB_PORT', '3306'),
+            'database'  => env('FRAMES_DB_DATABASE'),
+            'username'  => env('FRAMES_DB_USERNAME'),
+            'password'  => env('FRAMES_DB_PASSWORD'),
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
+
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
