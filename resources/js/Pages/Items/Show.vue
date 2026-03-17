@@ -17,7 +17,7 @@ const props = defineProps({
     inventory: Object,
 })
 
-const { addToCart, isInCart, getQuantity } = useCart()
+const { addToCart, buyNow, isInCart, getQuantity } = useCart()
 
 const source = ref(props.item?.no);
 const { copy, copied } = useClipboard({ source });
@@ -29,7 +29,7 @@ const images = computed(() => {
 })
 
 /* ---------------- Quantity ---------------- */
-const quantity = ref(1)
+const quantity = ref(getQuantity(props.item?.id) || 1)
 
 const inStock = computed(() => props.item?.inventory > 0)
 const atMax = computed(() => quantity.value >= props.item?.inventory)
@@ -200,7 +200,7 @@ const activeTab = ref('0')
 
                         <div class="flex gap-2 mt-8">
                             <!-- Buy Now -->
-                            <button v-if="inStock" class="w-full rounded-2xl max-sm:text-sm cursor-pointer border border-gray-500 text-gray-900 font-semibold hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all" >
+                            <button v-if="inStock" @click="buyNow(item.id, quantity)" class="w-full rounded-2xl max-sm:text-sm cursor-pointer border border-gray-500 text-gray-900 font-semibold hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all" >
                                 <i class="pi pi-bolt mr-2"></i>
                                 ახლავე შეძენა
                             </button>

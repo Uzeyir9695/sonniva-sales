@@ -16,7 +16,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:visible', 'details-clicked'])
 
-const { addToCart, isInCart } = useCart()
+const { addToCart, buyNow, isInCart } = useCart()
 
 const handleDetailsClick = () => {
     emit('update:visible', false)
@@ -93,6 +93,7 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
 
                         <div class="flex items-center gap-2">
                             <button
+                                @click="buyNow(item.id)"
                                 :disabled="!inStock"
                                 class="flex-1 flex items-center justify-center gap-2 cursor-pointer text-sm font-semibold py-3 rounded-2xl border border-gray-500 text-gray-900 hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all"
                                 :class="inStock

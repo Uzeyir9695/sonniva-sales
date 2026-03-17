@@ -1,5 +1,5 @@
 import { reactive, computed, watch } from 'vue'
-import { usePage } from '@inertiajs/vue3'
+import { usePage, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import { useToast } from 'primevue/usetoast';
 
@@ -107,6 +107,17 @@ export function useCart() {
         }
     }
 
+    // ─── Buy Now ──────────────────────────────────────────────────────────────
+
+    async function buyNow(itemId, quantity = 1) {
+        if (isInCart(itemId)) {
+            await updateQuantity(itemId, quantity)
+        } else {
+            await addToCart(itemId, quantity)
+        }
+        router.visit(route('checkout.index', { item_ids: [itemId] }))
+    }
+
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     function isInCart(itemId) {
@@ -186,5 +197,5 @@ export function useCart() {
         { deep: true }
     )
 
-    return { addToCart, updateQuantity, removeFromCart, isInCart, getQuantity, isLoading, uniqueCount, count }
+    return { addToCart, buyNow, updateQuantity, removeFromCart, isInCart, getQuantity, isLoading, uniqueCount, count }
 }
