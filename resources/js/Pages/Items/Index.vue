@@ -32,7 +32,7 @@ const stockOptions = [
 const stockFilter = ref({ label: 'ყველა', value: '' });
 
 const selected = ref(
-    Object.fromEntries(props.attributes.map(attr => [attr.name, []]))
+    Object.fromEntries((props.attributes ?? []).map(attr => [attr.name, []]))
 );
 
 const buildQuery = (attrVal) => {
@@ -71,7 +71,7 @@ const resetFilters = () => {
 
     // Reset attribute checkboxes
     selected.value = Object.fromEntries(
-        props.attributes.map(attr => [attr.id, []])
+        (props.attributes ?? []).map(attr => [attr.id, []])
     );
 
     // Reset price
