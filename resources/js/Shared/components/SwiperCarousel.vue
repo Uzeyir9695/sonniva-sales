@@ -9,6 +9,7 @@ import QuickViewDialog from '@/Shared/components/QuickViewDialog.vue';
 
 defineProps({
     items: Array,
+    title: String,
     mousewheel: {
         type: Boolean,
         default: true,
@@ -28,7 +29,7 @@ function openQuickView(item) {
 
 <template>
     <div v-if="items?.length" class="mt-10 px-4 mb-6">
-        <h2 class="sm:text-lg font-semibold text-gray-800 mb-4">მსგავსი პროდუქტები</h2>
+        <h2 class="sm:text-lg font-semibold text-gray-800 mb-4">{{ title }}</h2>
 
         <Swiper
             :modules="modules"
