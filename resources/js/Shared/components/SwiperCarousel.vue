@@ -3,7 +3,9 @@ import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation, Pagination, Mousewheel, Keyboard } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
-import { router } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import ItemCard from '@/Shared/components/ItemCard.vue';
+import QuickViewDialog from '@/Shared/components/QuickViewDialog.vue';
 
 defineProps({
     items: Array,
@@ -15,8 +17,12 @@ defineProps({
 
 const modules = [Navigation, Pagination, Mousewheel, Keyboard];
 
-function goToItem(item) {
-    router.get(route('items.show', item.slug));
+const quickViewItem = ref(null);
+const quickViewOpen = ref(false);
+
+function openQuickView(item) {
+    quickViewItem.value = item;
+    quickViewOpen.value = true;
 }
 </script>
 
@@ -38,46 +44,12 @@ function goToItem(item) {
                 1280: { slidesPerView: 5 },
             }"
         >
-            <SwiperSlide v-for="item in items" :key="item.id" :zoom="true">
-                <div
-                    @click="goToItem(item)"
-                    class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-                >
-                    <!-- Image -->
-                    <div class="aspect-square overflow-hidden bg-gray-50">
-                        <img
-                            v-if="item.images?.length"
-                            :src="`/storage/items/${item.images[0]}`"
-                            :alt="item.name"
-                            class="w-full h-full object-cover"
-                        />
-                        <div v-else class="w-full h-full flex items-center justify-center">
-                            <i class="pi pi-image text-3xl text-gray-300"></i>
-                        </div>
-                    </div>
-
-                    <!-- Info -->
-                    <div class="p-3">
-                        <p class="text-xs text-gray-700 line-clamp-2 mb-2 leading-snug">{{ item.name }}</p>
-
-                        <div class="flex flex-col sm:flex-row gap-2 items-center justify-between">
-                            <span class="text-sm font-bold text-brand-500">₾{{ item.unit_price }}</span>
-
-                            <div
-                                class="flex items-center gap-x-1 text-xs px-2.5 py-0.5 rounded-full font-medium tracking-wide"
-                                :class="item.inventory > 0
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : 'bg-red-100 text-red-600'"
-                            >
-                                <div v-if="item.inventory > 0" class="w-2 h-2 rounded-full bg-emerald-700 animate-pulse"></div>
-                                <div v-if="!item.inventory > 0" class="w-2 h-2 rounded-full bg-red-500"></div>
-                                <span>{{ item.inventory > 0 ? 'მარაგშია' : 'მარაგში არაა' }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <SwiperSlide v-for="item in items" :key="item.id">
+                <ItemCard :item="item" @quick-view="openQuickView" />
             </SwiperSlide>
         </Swiper>
+
+        <QuickViewDialog v-model:visible="quickViewOpen" :item="quickViewItem" />
     </div>
 </template>
 
