@@ -148,11 +148,6 @@ use Inertia\Inertia;
         return Inertia::render('policies/CookiePolicy');
     })->name('cookie-policy');
 
-
-    Route::get('/maintenance', function () {
-        return Inertia::render('ArtisanDown');
-    })->name('artisan.down');
-
     /*******************************************************************************************************************
      * Items Routes
      * *****************************************************************************************************************/
