@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+        $middleware->preventRequestsDuringMaintenance(except: ['/maintenance']);
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
@@ -25,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->respond(function (Response $response, Throwable $exception, Request $request) {
-            if (in_array($response->getStatusCode(), [500, 503, 404, 403])) {
+            if (in_array($response->getStatusCode(), [500, 404, 403])) {
                 return Inertia::render('404', ['status' => $response->getStatusCode()])
                     ->toResponse($request)
                     ->setStatusCode($response->getStatusCode());
