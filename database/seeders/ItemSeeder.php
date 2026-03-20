@@ -7,6 +7,7 @@ use App\Models\Item;
 use App\Models\Attribute;
 use App\Services\BusinessCentralService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Spatie\Image\Image;
@@ -17,6 +18,11 @@ class ItemSeeder extends Seeder
 
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        Attribute::truncate();
+        Item::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
         $token = $this->bc->getAccessToken();
 
         // Get only leaf categories (level 2)
