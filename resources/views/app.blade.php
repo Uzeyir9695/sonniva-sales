@@ -16,13 +16,6 @@
         <script src="https://kit.fontawesome.com/2ba6cc2cc6.js" crossorigin="anonymous"></script>
         <script src="https://www.google.com/recaptcha/enterprise.js?render=6LcW6nwsAAAAAAm5AmwLcYU2MkUEtJczfTdo_vXh"></script>
 
-{{--        <script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>--}}
-{{--        <script>--}}
-{{--            Weglot.initialize({--}}
-{{--                api_key: 'wg_569a623c969491c7096dc0032fea46d24'--}}
-{{--            });--}}
-{{--        </script>--}}
-
         <script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>
         <script>
             Weglot.initialize({
