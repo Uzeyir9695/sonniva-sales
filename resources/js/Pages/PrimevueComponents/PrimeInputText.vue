@@ -9,6 +9,6 @@ const modelValue = defineModel()
     <InputText
         v-model="modelValue"
         v-bind="attrs"
-        class="w-full rounded-xl text-sm sm:text-base"
+        class="w-full rounded-xl text-sm py-1.5!"
     />
 </template>

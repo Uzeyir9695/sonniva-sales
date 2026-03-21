@@ -6,6 +6,7 @@ import { useToast } from "primevue/usetoast";
 import {Deferred, router, usePage} from "@inertiajs/vue3";
 import { FilterMatchMode } from '@primevue/core/api';
 import EditUser from "../../Account/Index.vue";
+import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue';
 
 const confirm = useConfirm();
 const toast = useToast();
@@ -156,13 +157,6 @@ const filters = ref({
                                 <div class="text-end">
                                     <Button icon="pi pi-file-export" size="small" label="Export" @click="exportCSV($event)" />
                                 </div>
-
-                                <IconField>
-                                    <InputIcon>
-                                        <i class="pi pi-search" />
-                                    </InputIcon>
-                                    <InputText v-model="filters['global'].value" placeholder="Global Search" size="small" />
-                                </IconField>
                             </div>
                         </div>
                     </template>
@@ -178,7 +172,7 @@ const filters = ref({
                             {{ data.name }} {{ data.lastname?? '' }}
                         </template>
                         <template #filter="{ filterModel, filterCallback }">
-                            <InputText v-model="filterModel.value" type="text" size="small" class="py-1 text-sm w-full" @input="filterCallback()" placeholder="Search by name" />
+                            <PrimeInputText v-model="filterModel.value" type="text" size="small" class="text-sm" fluid @input="filterCallback()" placeholder="Search by name" />
                         </template>
                     </Column>
 
@@ -187,7 +181,7 @@ const filters = ref({
                             {{ data.tax_id }}
                         </template>
                         <template #filter="{ filterModel, filterCallback }">
-                            <InputText v-model="filterModel.value" type="text" size="small" class="py-1 text-sm w-full" @input="filterCallback()" placeholder="Search by ID" />
+                            <PrimeInputText v-model="filterModel.value" type="text" size="small" class="text-sm" fluid @input="filterCallback()" placeholder="Search by ID" />
                         </template>
                     </Column>
 
@@ -196,7 +190,7 @@ const filters = ref({
                             {{ data.phone }}
                         </template>
                         <template #filter="{ filterModel, filterCallback }">
-                            <InputText v-model="filterModel.value" type="text" size="small" class="py-1 text-sm w-full" @input="filterCallback()" placeholder="Search by phone" />
+                            <PrimeInputText v-model="filterModel.value" type="text" size="small" class="text-sm" fluid @input="filterCallback()" placeholder="Search by phone" />
                         </template>
                     </Column>
 
@@ -216,14 +210,7 @@ const filters = ref({
                         </template>
                     </Column>
 
-                    <Column field="created_at" header="Joined" style="width: 20%;">
-                        <template #filter>
-                            <div class="flex gap-1">
-                                <DatePicker v-model="dates" showIcon showButtonBar @clear-click="resetSelectedDate" placeholder="DD/MM/YY" selectionMode="range" hideOnRangeSelection @update:modelValue="filterByDate" size="small" :minDate="new Date(2025, 8, 31)" :maxDate="new Date()" :manualInput="false" />
-                            </div>
-                        </template>
-                        <template #filtericon></template>
-                    </Column>
+                    <Column field="created_at" header="Joined" style="width: 20%;" />
 
                     <Column header="Actions" v-if="isAdmin">
                         <template #body="slotProps">
