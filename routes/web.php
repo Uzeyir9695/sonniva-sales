@@ -83,15 +83,20 @@ use Inertia\Inertia;
 
     Route::middleware('auth')->group(function () {
         /*******************************************************************************************************************
-         * Wishlist Routes
+         * Wishlist Route
          * *****************************************************************************************************************/
-
         Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 
+        /*******************************************************************************************************************
+         * Cart Route
+         * *****************************************************************************************************************/
         Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
         Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 
+        /*******************************************************************************************************************
+         * Payment Route
+         * *****************************************************************************************************************/
         Route::post('/payment/initiate', [PaymentController::class, 'initiate'])->name('payment.initiate');
 
         Route::post('/initiate/payment/invoice', [InvoiceController::class, 'initiateInvoice'])->name('initiate.payment.invoice');

@@ -15,8 +15,8 @@ const displayName = computed(() => {
 })
 
 const menuItems = [
-    { label: 'ჩემი კაბინეტი',  icon: 'pi-user',    route: 'account.index' },
-    //{ label: 'ჩემი შეკვეთები',      icon: 'pi-list',     route: 'account.index' },
+    { label: 'ადმინ პანელი', icon: 'pi-shield', route: 'admin.index' },
+    { label: 'ჩემი კაბინეტი', icon: 'pi-user', route: 'account.index' },
 ]
 
 // Close on outside click
