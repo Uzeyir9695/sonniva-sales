@@ -16,7 +16,7 @@ class AdminUserController extends Controller
         $start = Carbon::parse($request->start_date)->timezone('Asia/Tbilisi')->startOfDay();
         $end   = Carbon::parse($request->end_date)->timezone('Asia/Tbilisi')->endOfDay();
 
-        $users = User::select('id', 'tax_id', 'phone', 'name', 'lastname', 'created_at')
+        $users = User::select('id', 'tax_id', 'phone', 'name', 'lastname', 'is_handyman', 'created_at')
             ->when($request->start_date && $request->end_date, function ($query) use ($start, $end) {
                 $query->whereBetween('created_at', [$start, $end]);
             })
