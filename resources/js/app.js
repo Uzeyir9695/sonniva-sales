@@ -29,6 +29,7 @@ import Tooltip from "primevue/tooltip";
 import ToastService from "primevue/toastservice";
 import FloatLabel from "primevue/floatlabel";
 import Ripple from "primevue/ripple";
+import { formatNumber } from '@/utils/numberFormat.js';
 
 const appName = import.meta.env.VITE_APP_NAME;
 
@@ -118,6 +119,8 @@ createInertiaApp({
         app.use(ZiggyVue);
 
         app.provide('emitter', emitter);
+
+        app.config.globalProperties.$formatNumber = formatNumber;
 
         app.component("Head", Head);
         app.component("Select", Select);
