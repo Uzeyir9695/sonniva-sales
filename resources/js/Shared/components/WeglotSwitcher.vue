@@ -91,7 +91,7 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
         <!-- Trigger button -->
         <button
             @click="toggle"
-            class="flex items-center justify-center md:w-8 md:h-8 lg:w-12 lg:h-12 gap-1.5 rounded-full
+            class="flex items-center justify-center md:w-8 md:h-8 lg:w-10.5 lg:h-10.5 gap-1.5 rounded-full
            text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"
         >
             <span class="text-2xl leading-none">{{ flagMap[currentLang] ?? '🌐' }}</span>
