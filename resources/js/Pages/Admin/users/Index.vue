@@ -210,7 +210,13 @@ const filters = ref({
                         </template>
                     </Column>
 
-                    <Column field="created_at" header="Joined" style="width: 20%;" />
+                    <Column field="is_handyman" header="Handyman" >
+                        <template #body="{ data }">
+                            <span>{{ data.is_handyman ? 'Yes' : 'No' }}</span>
+                        </template>
+                    </Column>
+
+                    <Column field="created_at" header="Joined" />
 
                     <Column header="Actions" v-if="isAdmin">
                         <template #body="slotProps">
