@@ -66,7 +66,8 @@ class AccountController extends Controller
             'address'   => 'nullable|string|max:100',
         ],
         [
-            'lastname.required_if' => __('The lastname field is required when user type is individual.'),
+            'tax_id.required' => __($user->user_type === 'individual' ? 'The ID number is required.' : 'The tax id is required.'),
+            'lastname.required_if' => __('The lastname field is required for the individual users.'),
         ]);
 
         $user->update($validated);

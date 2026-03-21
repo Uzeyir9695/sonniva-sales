@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -54,6 +55,13 @@ class User extends Authenticatable
             'password' => 'hashed',
             'phone' => E164PhoneNumberCast::class.':phone_country',
         ];
+    }
+
+    protected function createdAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn(string $value) => Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d.m.Y'),
+        );
     }
 
     protected function localPhone(): Attribute

@@ -11,7 +11,7 @@ use Inertia\Inertia;
 
 class AdminUserController extends Controller
 {
-    public function index(string $locale, Request $request)
+    public function index(Request $request)
     {
         $start = Carbon::parse($request->start_date)->timezone('Asia/Tbilisi')->startOfDay();
         $end   = Carbon::parse($request->end_date)->timezone('Asia/Tbilisi')->endOfDay();
@@ -20,7 +20,7 @@ class AdminUserController extends Controller
             ->when($request->start_date && $request->end_date, function ($query) use ($start, $end) {
                 $query->whereBetween('created_at', [$start, $end]);
             })
-            ->withCount(['orderItems as paid_items_count' => function ($q) {
+            ->withCount(['orders as paid_orders_count' => function ($q) {
                 $q->where('status', 'paid');
             }])
             ->latest()
@@ -33,12 +33,12 @@ class AdminUserController extends Controller
         ]);
     }
 
-    public function edit(string $locale, User $user)
+    public function edit(User $user)
     {
         return response()->json(['user' => $user], 200);
     }
 
-    public function destroy(string $locale, User $user)
+    public function destroy(User $user)
     {
         $user->delete();
 

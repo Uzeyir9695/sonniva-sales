@@ -47,11 +47,10 @@ async function updateAccount(){
         preserveState: true,
         onSuccess: (page) => {
             emit('closeEditor', 200);
-            //toast.add({ severity: 'success', summary: 'Success', detail: page.props.flash.message, group: 'update-account', life: 12000 });
         },
         onError: (error) => {
-            emit('closeEditor', 422);
-            //toast.add({ severity: 'error', summary: 'Error', detail: error.message, group: 'update-account', life: 12000 });
+            console.log(error)
+            // emit('closeEditor', 422);
         }
     })
 }
@@ -103,7 +102,7 @@ onMounted(() => {
             <TabPanels>
                 <TabPanel value="0">
                     <Message v-if="$page.props.flash.message" class="w-full max-w-[360px] mb-4 mx-auto" icon="pi pi-check-circle" :closable="true" severity="success">
-                        {{$page.props.flash.message }}
+                        {{ $page.props.flash.message }}
                     </Message>
 
                     <!-- Form Validation Errors -->

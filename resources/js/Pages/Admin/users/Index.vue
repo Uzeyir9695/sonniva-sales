@@ -54,6 +54,7 @@ function deleteUser(id) {
         }
     });
 }
+
 async function editUser(id) {
     await axios(route('admin.users.get-user', id))
         .then((res) => {
@@ -199,7 +200,7 @@ const filters = ref({
                         </template>
                     </Column>
 
-                    <Column field="paid_items_count" header="Paid Orders">
+                    <Column field="paid_orders_count" header="Paid Orders">
                         <template #footer>
                             <div class="space-x-1 inline-block mb-6">
                                 <i class="pi pi-calculator text-sm"></i>
@@ -207,7 +208,7 @@ const filters = ref({
                                 <div class="font-semibold text-blue-500">
                                     {{
                                         $formatNumber(
-                                            users.reduce((acc, user) => acc + user.paid_items_count, 0)
+                                            users.reduce((acc, user) => acc + user.paid_orders_count, 0)
                                         )
                                     }}
                                 </div>
