@@ -30,7 +30,11 @@ class OrderFactory extends Factory
 
     public function pending(): static
     {
-        return $this->state(['status' => 'pending']);
+        return $this->state(fn (array $attributes) => [
+            'status'      => 'pending',
+            'seen_at'     => now()->subDays(rand(1, 5)),
+            'invoiced_at' => now()->subDays(rand(1, 3)),
+        ]);
     }
 
     public function approved(): static
