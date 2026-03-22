@@ -35,7 +35,7 @@ class OrderFactory extends Factory
 
     public function approved(): static
     {
-        return $this->state([
+        return $this->state(fn (array $attributes) => [
             'status'      => 'approved',
             'seen_at'     => now()->subDays(rand(1, 5)),
             'approved_at' => now()->subDays(rand(1, 3)),
@@ -45,7 +45,7 @@ class OrderFactory extends Factory
 
     public function ready(): static
     {
-        return $this->state([
+        return $this->state(fn (array $attributes) => [
             'status'      => 'ready',
             'seen_at'     => now()->subDays(rand(3, 7)),
             'approved_at' => now()->subDays(rand(2, 5)),
@@ -56,7 +56,7 @@ class OrderFactory extends Factory
 
     public function cancelled(): static
     {
-        return $this->state([
+        return $this->state(fn (array $attributes) => [
             'status'  => 'cancelled',
             'seen_at' => now()->subDays(rand(1, 5)),
         ]);
