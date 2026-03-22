@@ -28,6 +28,7 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'lastname' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
+            'tax_id' => random_int(10000000000, 99999999999),
             'phone' => '+995555' . random_int(100000, 999999),
             'phone_verified_at' => now(),
             'email_verified_at' => now(),

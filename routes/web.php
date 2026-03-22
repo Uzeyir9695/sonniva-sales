@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
@@ -64,6 +65,11 @@ use Inertia\Inertia;
         Route::name('admin.')->prefix('admin')->middleware(['can:access-admin'])->group(function () {
             //******** Admin Users Controllers ********//
             Route::get('/', [AdminController::class, 'index'])->name('index');
+
+            //******** Admin Orders Controllers ********//
+            Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+            Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+            Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
 
             //******** Admin Users Controllers ********//
             Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');

@@ -1,10 +1,16 @@
 <script setup>
 import {Link} from '@inertiajs/vue3';
 import {ref} from "vue";
+import Navbar from '@/Shared/menu/Navbar.vue';
 
 const sidebarOpen = ref(false);
 
 const menuItems = [
+    {
+        name: 'Orders',
+        route: 'admin.orders.index',
+        icon: 'pi-shopping-cart'
+    },
     {
         name: 'Users',
         route: 'admin.users.index',
@@ -12,15 +18,12 @@ const menuItems = [
     },
 ];
 
-// usePoll(10000, {
-//     only: ['unseenInvoices', 'unseenSales'],
-//     preserveScroll: true,
-//     preserveState: true,
-// })
 </script>
 
 <template>
-    <div class="min-h-[calc(100vh-110px)] flex space-x-2 my-4 mx-2">
+    <Navbar />
+
+    <div class="container mx-auto min-h-[calc(100vh-110px)] flex space-x-2 my-4">
 
         <!-- Mobile Overlay -->
         <div
