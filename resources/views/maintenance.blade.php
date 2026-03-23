@@ -34,8 +34,15 @@
         </h1>
 
         <!-- Subtitle -->
+        <p class="text-gray-500 leading-relaxed mb-8">
+            ბოდიშს გიხდით შეფერხებისთვის
+        </p>
+        <!-- Subtitle -->
         <p class="text-gray-500 text-sm leading-relaxed mb-8">
-            მალე დავბრუნდებით<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>
+            მალე დავბრუნდებით
+            <span class="dot-1">.</span>
+            <span class="dot-2">.</span>
+            <span class="dot-3">.</span>
         </p>
 
         <!-- Divider -->
