@@ -242,7 +242,7 @@ function confirmStatusChange(order, newStatus) {
                                     v-tooltip.top="'Mark Ready'"
                                 />
                                 <Button
-                                    v-if="!['cancelled', 'ready'].includes(data.status)"
+                                    v-if="data.status === 'pending'"
                                     icon="pi pi-times"
                                     size="small"
                                     variant="text"
