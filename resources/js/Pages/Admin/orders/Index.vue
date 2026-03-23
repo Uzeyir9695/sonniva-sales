@@ -99,12 +99,13 @@ function confirmStatusChange(order, newStatus) {
         <!-- Status Tabs -->
         <Tabs :value="status" @update:value="switchTab">
             <TabList>
-                <Tab class="flex items-center" v-for="tab in tabs" :key="tab.value" :value="tab.value">
+                <Tab class="flex items-center text-sm" v-for="tab in tabs" :key="tab.value" :value="tab.value">
                     <i :class="['pi text-sm', tab.icon]"></i>
                     <span>{{ tab.label }}</span>
                     <Badge
                         v-if="tab.badge && counts?.[tab.value]"
                         :value="counts[tab.value]"
+                        size="small"
                         :severity="tab.value === 'pending' ? 'warn' : 'info'"
                     />
                 </Tab>
