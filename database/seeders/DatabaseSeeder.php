@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -19,15 +20,12 @@ class DatabaseSeeder extends Seeder
 
         $statuses = ['pending', 'approved', 'ready', 'cancelled'];
 
+        $users = User::all();
+
         foreach ($statuses as $status) {
-            Order::factory(10)->$status()->create()->each(function (Order $order) use ($status) {
+            Order::factory(10)->$status()->recycle($users)->create()->each(function (Order $order) use ($status) {
                 // Attach 1–3 order items
-                $itemCount = rand(1, 3);
-                for ($i = 0; $i < $itemCount; $i++) {
-                    $order->items()->create(
-                        \App\Models\OrderItem::factory()->make(['order_id' => $order->id])->toArray()
-                    );
-                }
+                OrderItem::factory()->count(rand(1, 3))->create(['order_id' => $order->id]);
 
                 // Recalculate subtotal and total from actual items
                 $subtotal = $order->items()->sum('subtotal');

@@ -11,7 +11,7 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id'          => User::inRandomOrder()->value('id'),
+            'user_id'          => User::factory(),
             'invoice_no'       => 'INV-' . strtoupper(Str::random(8)),
             'status'           => 'pending',
             'delivery_type'    => fake()->randomElement(['office', 'tbilisi', 'regions']),
