@@ -16,11 +16,11 @@ const confirm = useConfirm();
 
 const props = defineProps({
     orders: Object,
-    counts: Object,
+    unseenCounts: Object,
     status: String,
 });
 
-usePoll(10000, { only: ['counts'], preserveScroll: true, preserveState: true });
+usePoll(10000, { only: ['unseenCounts'], preserveScroll: true, preserveState: true });
 
 const tabs = [
     { label: 'All',       value: 'all',       badge: false, icon: 'pi-list' },
@@ -103,8 +103,8 @@ function confirmStatusChange(order, newStatus) {
                     <i :class="['pi text-sm', tab.icon]"></i>
                     <span>{{ tab.label }}</span>
                     <Badge
-                        v-if="tab.badge && counts?.[tab.value]"
-                        :value="counts[tab.value]"
+                        v-if="tab.badge && unseenCounts?.[tab.value]"
+                        :value="unseenCounts[tab.value]"
                         size="small"
                         :severity="tab.value === 'pending' ? 'warn' : 'info'"
                     />

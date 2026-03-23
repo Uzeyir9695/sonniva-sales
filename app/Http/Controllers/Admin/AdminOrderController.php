@@ -42,14 +42,20 @@ class AdminOrderController extends Controller
                 ] : null,
             ]);
 
-        $counts = Order::selectRaw('status, count(*) as count')
+        $unseenCounts = Order::selectRaw('status, count(*) as count')
+            ->whereNull('seen_at')
+            ->whereIn('status', ['pending', 'approved'])
             ->groupBy('status')
             ->pluck('count', 'status');
 
+        if (in_array($status, ['pending', 'approved'])) {
+            Order::where('status', $status)->whereNull('seen_at')->update(['seen_at' => now()]);
+        }
+
         return Inertia::render('Admin/orders/Index', [
-            'orders' => Inertia::defer(fn() => $orders),
-            'counts' => $counts,
-            'status' => $status,
+            'orders'       => Inertia::defer(fn() => $orders),
+            'unseenCounts' => $unseenCounts,
+            'status'       => $status,
         ]);
     }
 
