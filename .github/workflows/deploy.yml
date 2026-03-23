@@ -11,7 +11,29 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+      - name: Set up Node & build assets
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install npm dependencies & build
+        run: |
+          npm ci
+          npm run build
 
       - name: Set up SSH
         run: |
@@ -20,7 +42,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
 
-      - name: SSH into server and pull latest changes
+      - name: SSH into server and deploy
         run: |
           ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} "
           cd ${{ secrets.PROJECT_PATH }} &&
@@ -29,10 +51,15 @@ jobs:
           php artisan migrate --force &&
           php artisan optimize:clear &&
           php artisan optimize &&
-          # Start Horizon
-          php artisan horizon:terminate &&
-          echo "✅ Horizon started"
-          # Verify status after a short pause
+          php artisan horizon:terminate
+          "
+
+      - name: Copy built assets to server
+        run: rsync -az --delete public/build/ ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:${{ secrets.PROJECT_PATH }}/public/build/
+      - name: Verify Horizon Status
+        run: |
+          ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} "
+          cd ${{ secrets.TEST_PROJECT_PATH }} &&
           sleep 5 &&
           php artisan horizon:status
           "
