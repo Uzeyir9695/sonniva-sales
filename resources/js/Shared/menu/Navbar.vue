@@ -91,7 +91,6 @@ const openSearch = async () => {
                     </a>
 
                     <div class="hidden lg:flex items-center gap-1 shrink-0">
-
                         <div>&#091;linguise&#093;</div>
 
                         <WishlistNavIcon></WishlistNavIcon>
