@@ -43,9 +43,11 @@ class CategorySeeder extends Seeder
             }
 
             $data = $response->json();
+
             $all  = $all->merge(
                 collect($data['value'] ?? [])->map(fn($item) => $this->normalize($item))
             );
+
             $url  = $data['@odata.nextLink'] ?? null;
 
         } while ($url);
