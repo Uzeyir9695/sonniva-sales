@@ -14,16 +14,16 @@ if (!defined('LINGUISE_SCRIPT_TRANSLATION')) die();
 
 class Configuration {
     /** Mandatory configuration **/
-    public static $token = 'REPLACE_BY_YOUR_TOKEN'; // Replace the token by the one found in your Linguise dashboard
+    public static $token = 'NsP2ChCmnVV3Jcjh6mCa1w5ZW05EJHrQ'; // Replace the token by the one found in your Linguise dashboard
 
     /** Basic configuration **/
     /*
      * Update the CMS value according to your CMS
      * Available CMS are: laravel, prestashop, magento
      */
-    public static $cms = 'auto';
+    public static $cms = 'laravel';
 
-    public $cache_enabled = false;
+    public $cache_enabled = true;
     public $cache_max_size = 200; // In megabyte
     /**
      * Search translation, enable so that Linguise can automatically translate search queries
@@ -135,7 +135,7 @@ class Configuration {
         if ($configuration->get('cms') === 'opencart' && $configuration->get('search_translations')) {
             $request = Request::getInstance();
             $response = Response::getInstance();
-    
+
             $content = $response->getContent();
 
             [$base_dir, $language_dir] = OpenCart::getOpenCartReplacement();
@@ -181,7 +181,7 @@ class Configuration {
             $content = PrestaShop::preprocessIgnoreInlineSortOptions($content);
             /**
              * Prevent material icons as inline tag.
-             * If marked as Inline tag the form href would not translated by core since has child with translate="no" 
+             * If marked as Inline tag the form href would not translated by core since has child with translate="no"
              */
             $content = PrestaShop::preprocessIgnoreInlineMaterialIcons($content);
             $response->setContent($content);
@@ -270,7 +270,7 @@ class Configuration {
                 }
             }
         }
-        
+
         return $json_data;
     }
 
@@ -299,7 +299,7 @@ class Configuration {
             }
 
             [$base_dir, $language_dir] = OpenCart::getOpenCartReplacement();
-    
+
             // make a regex matcher from $base_dir, escape it
             $matcher = '/^' . $base_dir . '/i';
 
@@ -359,7 +359,7 @@ class Configuration {
 
         if ($configuration->get('cms') === 'opencart') {
             $response = Response::getInstance();
-    
+
             $content = $response->getContent();
             $language = $request->getLanguage();
 
@@ -367,7 +367,7 @@ class Configuration {
             if ($json_content !== null) {
                 [$base_dir, $language_dir] = OpenCart::getOpenCartReplacement();
                 $repl_json = self::replaceRedirectUrls($json_content, $language, '/' . $base_dir . '/i', $language_dir);
-    
+
                 $response->setContent(json_encode($repl_json));
             }
         }
@@ -444,7 +444,7 @@ class Configuration {
                 if (!empty($s_search) && !empty($result)) {
                     // Assume we have a search request, translate
                     $translated = \Linguise\Script\Core\Translation::getInstance()->translateJson(['s' => $s_search], $request->getBaseUrl(), $request->getLanguage());
-    
+
                     if (!empty($translated->s)) {
                         // This will replace the s field
                         $boundaryOrFields->addPostFields('s', $translated->s);
