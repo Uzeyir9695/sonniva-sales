@@ -67,6 +67,59 @@ const filters = ref({
 // Detail dialog
 const detailDialog = ref(null);
 
+// Ellipsis menu
+const rowMenus = ref({});
+
+function getMenuItems(order) {
+    return [
+        {
+            label:   'Send PDF',
+            icon:    'pi pi-file-pdf',
+            command: () => openSendPdfDialog(order),
+        },
+        {
+            label:   'Delete',
+            icon:    'pi pi-trash',
+            command: () => confirmDelete(order),
+        },
+    ];
+}
+
+// Delete confirm
+function confirmDelete(order) {
+    confirm.require({
+        message: `Delete order ${order.invoice_no ?? order.id.slice(0, 8)}? This cannot be undone.`,
+        header:  'Delete Order',
+        icon:    'pi pi-exclamation-triangle',
+        rejectProps: { label: 'No',  severity: 'secondary', outlined: true },
+        acceptProps: { label: 'Yes, Delete', severity: 'danger' },
+        accept: () => {
+            router.delete(route('admin.orders.destroy', order.id), {
+                preserveScroll: true,
+                onSuccess: () => toast.add({ severity: 'success', summary: 'Deleted', detail: 'Order deleted.', life: 3000 }),
+                onError:   () => toast.add({ severity: 'error',   summary: 'Error',   detail: 'Failed to delete order.', life: 3000 }),
+            });
+        },
+    });
+}
+
+// Send PDF dialog
+const sendPdfVisible = ref(false);
+const sendToEmail    = ref(true);
+const sendToBC      = ref(true);
+
+function openSendPdfDialog(order) {
+    sendToEmail.value    = true;
+    sendToBC.value      = true;
+    sendPdfVisible.value = true;
+}
+
+function submitSendPdf() {
+    sendPdfVisible.value = false;
+    // TODO: wire up actual send action
+    toast.add({ severity: 'info', summary: 'PDF Sent', detail: 'PDF has been sent.', life: 3000 });
+}
+
 // Inline status change (from table row buttons)
 function confirmStatusChange(order, newStatus) {
     const labels     = { approved: 'Approve', ready: 'Mark Ready', cancelled: 'Cancel' };
@@ -92,6 +145,24 @@ function confirmStatusChange(order, newStatus) {
 <template>
     <Toast position="bottom-right" />
     <ConfirmDialog />
+
+    <!-- Send PDF Dialog -->
+    <Dialog v-model:visible="sendPdfVisible" header="Send PDF" modal :style="{ width: '22rem' }">
+        <div class="flex flex-col gap-3 py-2">
+            <div class="flex items-center gap-2">
+                <Checkbox v-model="sendToEmail" inputId="sendToEmail" binary />
+                <label for="sendToEmail">Send to company email</label>
+            </div>
+            <div class="flex items-center gap-2">
+                <Checkbox v-model="sendToBC" inputId="sendToBC" binary />
+                <label for="sendToBC">Send to Business Central</label>
+            </div>
+        </div>
+        <template #footer>
+            <Button label="Cancel" size="small" severity="secondary" variant="text" @click="sendPdfVisible = false" />
+            <Button label="Send" size="small" icon="pi pi-send" @click="submitSendPdf" />
+        </template>
+    </Dialog>
 
     <OrderDetailDialog ref="detailDialog" />
 
@@ -208,7 +279,7 @@ function confirmStatusChange(order, newStatus) {
 
                     <Column header="Actions">
                         <template #body="{ data }">
-                            <div class="flex gap-1">
+                            <div class="flex items-center gap-1">
                                 <Button
                                     icon="pi pi-eye"
                                     size="small"
@@ -251,6 +322,20 @@ function confirmStatusChange(order, newStatus) {
                                     severity="danger"
                                     @click="confirmStatusChange(data, 'cancelled')"
                                     v-tooltip.top="'Cancel'"
+                                />
+                                <Button
+                                    icon="pi pi-ellipsis-v"
+                                    size="small"
+                                    variant="text"
+                                    rounded
+                                    severity="secondary"
+                                    aria-haspopup="true"
+                                    @click="(e) => rowMenus[data.id].toggle(e)"
+                                />
+                                <Menu
+                                    :ref="(el) => { if (el) rowMenus[data.id] = el }"
+                                    :model="getMenuItems(data)"
+                                    popup
                                 />
                             </div>
                         </template>
