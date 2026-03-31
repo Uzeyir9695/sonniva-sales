@@ -90,8 +90,8 @@ const openSearch = async () => {
                         <span class="text-sm font-medium whitespace-nowrap">+995 591 04-73-72</span>
                     </a>
 
-                    <div class="weglot-localizer hidden lg:flex items-center gap-1 shrink-0">
-                        <WeglotSwitcher />
+                    <div class="hidden lg:flex items-center gap-1 shrink-0">
+                        <div>[linguise]</div>
 
                         <WishlistNavIcon></WishlistNavIcon>
 
