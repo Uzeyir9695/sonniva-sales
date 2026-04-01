@@ -25,7 +25,7 @@ const sidebarRef = ref(null)
         </Teleport>
 
         <!-- Left Category List -->
-        <div class="w-72 bg-white p-2 rounded-xl shadow-sm shrink-0 z-40" ref="sidebarRef"
+        <div class="large-device-menu w-72 bg-white p-2 rounded-xl shadow-sm shrink-0 z-40" ref="sidebarRef"
              :class="activeCategory ? 'rounded-r-none' : ''"
         >
             <div
@@ -34,7 +34,7 @@ const sidebarRef = ref(null)
                 style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
                 v-ripple
                 @mouseenter="activeCategory = category"
-                class="large-device-menu flex items-center justify-between rounded-xl px-5 py-3.5 cursor-pointer transition-colors"
+                class="flex items-center justify-between rounded-xl px-5 py-3.5 cursor-pointer transition-colors"
                 :class="activeCategory?.name === category.name ? 'bg-gray-50' : 'hover:bg-gray-300'"
             >
                 <div class="flex items-center gap-3">
