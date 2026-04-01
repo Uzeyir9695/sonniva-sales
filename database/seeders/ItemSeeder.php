@@ -39,10 +39,10 @@ class ItemSeeder extends Seeder
 
             foreach ($items as $item) {
                 // Skip if already exists
-                if (Item::where('no', $item['no'])->exists()) {
-                    $this->command->info("  → Skipping {$item['no']} (already seeded)");
-                    continue;
-                }
+//                if (Item::where('no', $item['no'])->exists()) {
+//                    $this->command->info("  → Skipping {$item['no']} (already seeded)");
+//                    continue;
+//                }
 
                 $baseUrl = "https://api.businesscentral.dynamics.com/v2.0/Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed('{$item['no']}')";
 
@@ -65,20 +65,21 @@ class ItemSeeder extends Seeder
                     }
                 }
 
-                $created = Item::create([
-                    'id'                 => $item['id'],
-                    'no'                 => $item['no'],
-                    'category_code'      => $item['itemCategoryCode'],
-                    'name'              => $item['description'] ?? null,
-                    'description'        => $item['itemReview'] ?? null,
-                    'slug'               => $this->makeUniqueSlug($item['description'], $item['no']),
-                    'inventory'          => $item['inventory'] ?? 0,
-                    'base_uom_desc'      => $item['baseUOMDesc'] ?? null,
-                    'unit_price'         => $item['unitPrice'] ?? 0,
-                    'min_qty_unit_price' => $item['minQtyUnitPrice'] ?? 0,
-                    'prices'             => $detailed['itemUnitPrices'] ?? [],
-                    'images'             => $images,
-                ]);
+                $created = Item::updateOrCreate(
+                    ['no' => $item['no']],
+                    [
+                        'category_code'      => $item['itemCategoryCode'],
+                        'name'               => $item['description'] ?? null,
+                        'description'        => $item['itemReview'] ?? null,
+                        'slug'               => $this->makeUniqueSlug($item['description'], $item['no']),
+                        'inventory'          => $item['inventory'] ?? 0,
+                        'base_uom_desc'      => $item['baseUOMDesc'] ?? null,
+                        'unit_price'         => $item['unitPrice'] ?? 0,
+                        'min_qty_unit_price' => $item['minQtyUnitPrice'] ?? 0,
+                        'prices'             => $detailed['itemUnitPrices'] ?? [],
+                        'images'             => $images,
+                    ]
+                );
 
                 $attrs = $item['itemAttributeValues'] ?? [];
 
