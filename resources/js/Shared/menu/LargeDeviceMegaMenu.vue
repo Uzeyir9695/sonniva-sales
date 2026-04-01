@@ -34,7 +34,7 @@ const sidebarRef = ref(null)
                 style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
                 v-ripple
                 @mouseenter="activeCategory = category"
-                class="flex items-center justify-between rounded-xl px-5 py-3.5 cursor-pointer transition-colors"
+                class="large-device-menu flex items-center justify-between rounded-xl px-5 py-3.5 cursor-pointer transition-colors"
                 :class="activeCategory?.name === category.name ? 'bg-gray-50' : 'hover:bg-gray-300'"
             >
                 <div class="flex items-center gap-3">
@@ -54,7 +54,7 @@ const sidebarRef = ref(null)
         <!-- Mega Menu Panel -->
         <div
             v-if="activeCategory && activeCategory.subs?.length"
-            class="absolute left-72 top-0 h-full z-40 bg-white rounded-r-xl border border-gray-200 shadow-2xl min-w-[680px] p-8 overflow-y-auto"
+            class="mega-menu-panel absolute left-72 top-0 h-full z-40 bg-white rounded-r-xl border border-gray-200 shadow-2xl min-w-[680px] p-8 overflow-y-auto"
             @mouseleave="activeCategory = null"
         >
             <!-- Header -->

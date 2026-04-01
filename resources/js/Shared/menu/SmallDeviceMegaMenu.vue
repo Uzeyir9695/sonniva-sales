@@ -134,7 +134,7 @@ defineExpose({ openDrawer })
                 </div>
 
                 <!-- Items -->
-                <div class="flex-1 overflow-y-auto">
+                <div class="small-device-menu flex-1 overflow-y-auto">
                     <Transition name="fade">
                         <div v-if="fadeVisible" class="p-2">
 
