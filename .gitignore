@@ -2,7 +2,11 @@
 /node_modules
 /public/hot
 /public/storage
-/public/build
+#Linguise files
+public/linguise/.databases/
+public/linguise/78a0563400e8d02fd212d3d396aa3e84/
+public/linguise/debug.php
+public/linguise/ui-config.php
 /storage/*.key
 /storage/pail
 /vendor
