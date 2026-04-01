@@ -24,6 +24,7 @@ class ItemSeeder extends Seeder
 //        DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         $token = $this->bc->getAccessToken();
+        $tokenFetchedAt = now();
 
         // Get only leaf categories (level 2)
         $categories = Category::select('code')->whereIn('level', [2, 3])->get();
@@ -33,16 +34,24 @@ class ItemSeeder extends Seeder
         foreach ($categories as $category) {
             $this->command->info("Fetching items for category: {$category->code}");
 
-            $items = $this->fetchItems($token, $category->code);
+            $items = $this->fetchItems($token, $tokenFetchedAt, $category->code);
 
             $this->command->info("  → {$items->count()} items found.");
 
             foreach ($items as $item) {
+
+                // Refresh token if older than 55 minutes
+                if (now()->diffInMinutes($tokenFetchedAt) >= 55) {
+                    $this->command->info('Token expiring, refreshing...');
+                    $token = $this->bc->getAccessToken(forceRefresh: true);
+                    $tokenFetchedAt = now();
+                }
+
                 // Skip if already exists
-//                if (Item::where('no', $item['no'])->exists()) {
-//                    $this->command->info("  → Skipping {$item['no']} (already seeded)");
+                if (Item::where('no', $item['no'])->exists()) {
+                    $this->command->info("  → Skipping {$item['no']} (already seeded)");
 //                    continue;
-//                }
+                }
 
                 $baseUrl = "https://api.businesscentral.dynamics.com/v2.0/Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed('{$item['no']}')";
 
@@ -97,13 +106,18 @@ class ItemSeeder extends Seeder
         $this->command->info('Items seeded successfully.');
     }
 
-    private function fetchItems(string $token, string $categoryCode): \Illuminate\Support\Collection
+    private function fetchItems(string &$token, \Carbon\Carbon &$tokenFetchedAt, string $categoryCode): \Illuminate\Support\Collection
     {
         $all  = collect();
         $base = config('bc.api_base_url');
         $url  = $base . "Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items?\$expand=itemAttributeValues&\$filter=itemCategoryCode eq '{$categoryCode}'";
 
         do {
+            if (now()->diffInMinutes($tokenFetchedAt) >= 55) {
+                $token = $this->bc->getAccessToken();
+                $tokenFetchedAt = now();
+            }
+
             $response = Http::withToken($token)
                 ->timeout(180)
                 ->retry(3, 2000)

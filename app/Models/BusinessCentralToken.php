@@ -19,6 +19,6 @@ class BusinessCentralToken extends Model
 
     public function isExpiringSoon(int $minutes = 3): bool
     {
-        return $this->expires_at->subMinutes($minutes)->isPast();
+        return $this->expires_at->copy()->subMinutes($minutes)->isPast();
     }
 }

@@ -25,13 +25,14 @@ class BusinessCentralService
         $this->baseUrl      = config('bc.api_base_url');
     }
 
-    public function getAccessToken(): string
+    public function getAccessToken(bool $forceRefresh = false): string
     {
-        $token = BusinessCentralToken::latest()->first();
+        if (!$forceRefresh) {
+            $token = BusinessCentralToken::latest()->first();
 
-        if ($token && !$token->isExpired() && !$token->isExpiringSoon()) {
-            // Token is valid and not close to expiring
-            return $token->access_token;
+            if ($token && !$token->isExpired() && !$token->isExpiringSoon()) {
+                return $token->access_token;
+            }
         }
 
         $response = Http::asForm()->post($this->tokenUrl, [
