@@ -55,7 +55,7 @@ const categoryIcons = {
             >
                 <div class="flex items-center gap-3">
 <!--                    <img v-if="category.image" :src="`${category.storage_path}/${category.image}`" :alt="category.name" class="w-12 h-12 object-cover rounded-lg" />-->
-<!--                    <i :class="[categoryIcons[category.code] ?? 'pi pi-tag', 'text-base', activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-400']"></i>-->
+                    <i :class="[categoryIcons[category.code] ?? 'pi pi-tag', 'text-base', activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-400']"></i>
                     <Link
                         :href="route('items.index', category.slug)"
                         class="text-sm font-medium"
@@ -77,7 +77,7 @@ const categoryIcons = {
             <!-- Header -->
             <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
                 <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-<!--                    <img v-if="activeCategory.image" :src="`${activeCategory.storage_path}/${activeCategory.image}`" :alt="activeCategory.name" class="w-20 h-14 object-cover rounded-lg" />-->
+                    <img v-if="activeCategory.image" :src="`${activeCategory.storage_path}/${activeCategory.image}`" :alt="activeCategory.name" class="w-20 h-14 object-cover rounded-lg" />
                     {{ activeCategory.name }}
                 </h2>
                 <Link
