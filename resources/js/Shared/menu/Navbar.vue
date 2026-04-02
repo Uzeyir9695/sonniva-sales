@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, onMounted } from 'vue'
 import {Link, usePage} from '@inertiajs/vue3';
 import LargeDeviceMegaMenu from '@/Shared/menu/LargeDeviceMegaMenu.vue';
 import SmallDeviceMegaMenu from '@/Shared/menu/SmallDeviceMegaMenu.vue';
@@ -18,6 +18,16 @@ const categories = page.props.categories ?? []
 const searchOpen = ref(false)
 const searchInput = ref(null)
 const mobileMenuRef = ref(null)
+
+const linguiseMountPoint = ref(null)
+
+onMounted(() => {
+    const slot = document.getElementById('linguise-slot')
+    if (slot && linguiseMountPoint.value) {
+        slot.style.display = ''
+        linguiseMountPoint.value.appendChild(slot)
+    }
+})
 
 const openSearch = async () => {
     searchOpen.value = true
@@ -91,7 +101,7 @@ const openSearch = async () => {
                     </a>
 
                     <div class="hidden lg:flex items-center gap-1 shrink-0">
-                        <div>&#091;linguise&#093;</div>
+                        <div ref="linguiseMountPoint"></div>
 
                         <WishlistNavIcon></WishlistNavIcon>
 

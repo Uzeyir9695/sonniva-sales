@@ -32,6 +32,8 @@
 
     </head>
     <body class="font-sans antialiased bg-gray-50">
+        <!-- Linguise: must be static HTML, not rendered by Inertia/Vue -->
+        <div id="linguise-slot" style="display:none">[linguise]</div>
         @inertia
     </body>
 </html>
