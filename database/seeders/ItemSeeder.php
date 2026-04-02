@@ -31,6 +31,13 @@ class ItemSeeder extends Seeder
 
         $this->command->info("Found {$categories->count()} leaf categories.");
 
+         /*** For testing: start from a specific category ***/
+
+//        $startFromCategory = '2201-01';
+//        $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
+//
+//        $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
+
         foreach ($categories as $category) {
             $this->command->info("Fetching items for category: {$category->code}");
 
@@ -50,7 +57,7 @@ class ItemSeeder extends Seeder
                 // Skip if already exists
                 if (Item::where('no', $item['no'])->exists()) {
                     $this->command->info("  → Skipping {$item['no']} (already seeded)");
-//                    continue;
+                    continue;
                 }
 
                 $baseUrl = "https://api.businesscentral.dynamics.com/v2.0/Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed('{$item['no']}')";
