@@ -59,9 +59,11 @@ class HandleInertiaRequests extends Middleware
                 }])
                 ->get()
                 ->map(fn($cat) => [
+                    'code' => $cat->code,
                     'name' => $cat->name,
                     'slug' => $cat->slug,
-                    'icon' => $cat->image ?? '📦',
+                    'storage_path' => $cat->storage_path,
+                    'image' => $cat->image,
                     'subs' => $cat->children->map(fn($sub) => [
                         'name'  => $sub->name,
                         'slug' => $sub->slug,
