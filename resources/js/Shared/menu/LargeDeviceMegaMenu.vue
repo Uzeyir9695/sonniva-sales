@@ -10,6 +10,22 @@ const activeCategory = ref(null)
 
 const sidebarRef = ref(null)
 
+const categoryIcons = {
+    '1100': 'pi pi-wrench',
+    '1200': 'pi pi-objects-column',
+    '1300': 'pi pi-table',
+    '1400': 'pi pi-box',
+    '1500': 'pi pi-th-large',
+    '1600': 'pi pi-sign-in',
+    '1700': 'pi pi-sun',
+    '1800': 'pi pi-align-justify',
+    '1900': 'pi pi-wave-pulse',
+    '2000': 'pi pi-bolt',
+    '2100': 'pi pi-cog',
+    '2200': 'pi pi-filter',
+    '2300': 'pi pi-lock',
+}
+
 </script>
 
 <template>
@@ -38,7 +54,8 @@ const sidebarRef = ref(null)
                 :class="activeCategory?.name === category.name ? 'bg-gray-50' : 'hover:bg-gray-300'"
             >
                 <div class="flex items-center gap-3">
-                    <span class="text-lg">{{ category.icon }}</span>
+<!--                    <img v-if="category.image" :src="`${category.storage_path}/${category.image}`" :alt="category.name" class="w-12 h-12 object-cover rounded-lg" />-->
+<!--                    <i :class="[categoryIcons[category.code] ?? 'pi pi-tag', 'text-base', activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-400']"></i>-->
                     <Link
                         :href="route('items.index', category.slug)"
                         class="text-sm font-medium"
@@ -60,7 +77,8 @@ const sidebarRef = ref(null)
             <!-- Header -->
             <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
                 <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                    <span>{{ activeCategory.icon }}</span> {{ activeCategory.name }}
+<!--                    <img v-if="activeCategory.image" :src="`${activeCategory.storage_path}/${activeCategory.image}`" :alt="activeCategory.name" class="w-20 h-14 object-cover rounded-lg" />-->
+                    {{ activeCategory.name }}
                 </h2>
                 <Link
                     :href="route('items.index', activeCategory.slug)"
