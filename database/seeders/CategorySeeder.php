@@ -102,6 +102,7 @@ class CategorySeeder extends Seeder
     private function makeSlug(string $text): string
     {
         $text = trim($text);
+        $text = preg_replace('/[\/]+/u', '-', $text);
         $text = preg_replace('/[-]+/u', ' ', $text);
         $text = preg_replace('/\s+/u', '-', $text);
         return mb_strtolower($text);
