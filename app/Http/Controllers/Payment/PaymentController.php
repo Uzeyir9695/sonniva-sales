@@ -70,6 +70,8 @@ class PaymentController extends Controller
             $invoiceNumber = 'S' . random_int(100000, 999999);
         } while (Order::where('invoice_no', $invoiceNumber)->exists());
 
+        session()->put('invoice_no', $invoiceNumber);
+
         // Create order and snapshot order items
         $order = DB::transaction(function () use ($request, $calc, $invoiceNumber) {
             $order = Order::create([
@@ -230,8 +232,8 @@ class PaymentController extends Controller
 
     public function proCreditBankCallback()
     {
-        $orderId  = session()->get('pcb_order_id');
-        $password = session()->get('pcb_password');
+        $orderId  = session()->pull('pcb_order_id');
+        $password = session()->pull('pcb_password');
 
         if (!$orderId || !$password) {
             Log::channel('payment')->error('PCB callback missing session data');
@@ -283,9 +285,10 @@ class PaymentController extends Controller
             return;
         }
 
-        $shouldSendBC = false;
+        $shouldProcess = false;
+        $lockedPayment = null;
 
-        DB::transaction(function () use (&$shouldSendBC, $payment, $order) {
+        DB::transaction(function () use (&$shouldProcess, &$lockedPayment, $payment, $order) {
             $lockedPayment = Payment::lockForUpdate()->find($payment->id);
 
             if ($lockedPayment->processed_at) {
@@ -297,16 +300,15 @@ class PaymentController extends Controller
                 'approved_at' => now(),
             ]);
 
-            $this->sendOrderToEmail($lockedPayment, $order);
-
             $lockedPayment->update(['processed_at' => now()]);
 
-            $shouldSendBC = true;
+            $shouldProcess = true;
         });
 
-//        if ($shouldSendBC) {
+        if ($shouldProcess) {
+            $this->sendOrderToEmail($lockedPayment, $order);
             SendOrderToBCJob::dispatch($order);
-//        }
+        }
     }
 
     public function sendOrderToEmail($payment, $order)
@@ -316,21 +318,17 @@ class PaymentController extends Controller
         }
 
         SendOrderEmailJob::dispatch($order->id, $payment->id, $order->invoice_no, $order->user);
-
     }
 
     /**
      * Handle successful payment redirect
      */
-    public function success()
+    public function success(): \Inertia\Response
     {
-        $order = Order::where('user_id', auth()->id())
-            ->where('status', 'paid')
-            ->latest()
-            ->first();
+        $invoiceNumber = session()->pull('invoice_no');
 
         return Inertia::render('Payment/Success', [
-            'invoiceNumber' => $order?->invoice_no,
+            'invoiceNumber' => $invoiceNumber,
         ]);
     }
 

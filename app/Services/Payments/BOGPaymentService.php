@@ -129,8 +129,6 @@ class BOGPaymentService
                 throw new Exception('Invalid response structure from BOG API');
             }
 
-            session()->put('order_id', $data['id']);
-
             return [
                 'success'      => true,
                 'order_id'     => $data['id'],
@@ -195,7 +193,7 @@ class BOGPaymentService
     public function validateCallback(array $callbackData): array
     {
         try {
-            $orderId = $callbackData['body']['order_id'] ?? session()->get('order_id');
+            $orderId = $callbackData['body']['order_id'] ?? null;
 
             if (!$orderId) {
                 return [
