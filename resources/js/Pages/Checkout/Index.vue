@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, reactive } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
+import { useToast } from 'primevue/usetoast'
 import { useCart } from '@/composables/useCart'
 import PlacesAutocomplete from '@/Shared/components/PlacesAutocomplete.vue'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue';
@@ -10,6 +11,7 @@ const props = defineProps({
 })
 
 const page = usePage()
+const toast = useToast()
 const { getQuantity, uniqueCount } = useCart()
 
 // ─── Tiered price helper ───────────────────────────────────────────────────
@@ -78,30 +80,31 @@ const form = reactive({
     agreement: false,
 })
 
-const error = ref(null)
 const loading = ref(false)
 
 const formatted = (val) => Number(val).toFixed(2)
 
+function showError(detail) {
+    toast.add({ severity: 'error', summary: 'შეცდომა', detail, life: 5000 })
+}
+
 // ─── Validation & submit ──────────────────────────────────────────────────
 
 function initiatePayment() {
-    error.value = null
-
     if (!selectedDelivery.value) {
-        error.value = 'გთხოვთ აირჩიოთ მიწოდების ტიპი'
+        showError('გთხოვთ აირჩიოთ მიწოდების ტიპი')
         return
     }
     if (selectedDelivery.value.key !== 'office' && !form.address) {
-        error.value = 'გთხოვთ შეიყვანოთ მიწოდების მისამართი'
+        showError('გთხოვთ შეიყვანოთ მიწოდების მისამართი')
         return
     }
     if (!selectedProvider.value) {
-        error.value = 'გთხოვთ აირჩიოთ გადახდის მეთოდი'
+        showError('გთხოვთ აირჩიოთ გადახდის მეთოდი')
         return
     }
     if (!form.agreement) {
-        error.value = 'გთხოვთ დაეთანხმოთ წესებსა და პირობებს'
+        showError('გთხოვთ დაეთანხმოთ წესებსა და პირობებს')
         return
     }
 
@@ -120,7 +123,7 @@ function initiatePayment() {
         router.post(route('initiate.payment.invoice'), data, {
             onSuccess: () => { loading.value = false },
             onError: (err) => {
-                error.value = err?.message || 'დაფიქსირდა შეცდომა'
+                showError(err?.message || 'დაფიქსირდა შეცდომა')
                 loading.value = false
             },
         })
@@ -130,12 +133,12 @@ function initiatePayment() {
                 if (res.data.redirect_url) {
                     window.location.href = res.data.redirect_url
                 } else {
-                    error.value = 'ბანკიდან პასუხი ვერ მივიღეთ'
+                    showError('ბანკიდან პასუხი ვერ მივიღეთ')
                     loading.value = false
                 }
             })
             .catch(err => {
-                error.value = err.response?.data?.error || 'დაფიქსირდა შეცდომა'
+                showError(err.response?.data?.error || 'დაფიქსირდა შეცდომა')
                 loading.value = false
             })
     }
@@ -325,11 +328,6 @@ function initiatePayment() {
                             <a :href="route('terms-of-service')" target="_blank" class="text-brand-500 hover:underline">წესებსა და პირობებს</a>
                         </label>
                     </div>
-
-                    <!-- Error -->
-                    <Message v-if="error" severity="error" icon="pi pi-times-circle">
-                        {{ error }}
-                    </Message>
 
                 </div>
 

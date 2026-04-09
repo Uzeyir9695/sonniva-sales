@@ -143,7 +143,6 @@ function confirmStatusChange(order, newStatus) {
 </script>
 
 <template>
-    <Toast position="bottom-right" />
     <ConfirmDialog />
 
     <!-- Send PDF Dialog -->

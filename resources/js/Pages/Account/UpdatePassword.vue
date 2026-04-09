@@ -1,8 +1,5 @@
 <script setup>
 import { useForm, usePage, Head } from '@inertiajs/vue3';
-import {useToast} from "primevue/usetoast";
-
-const toast = useToast();
 const page = usePage();
 
 const passwordForm = useForm({
@@ -25,7 +22,6 @@ async function changePassword(){
 </script>
 
 <template>
-    <Toast position="bottom-right" group="update-account" />
   <Head>
     <title>Settings</title>
   </Head>

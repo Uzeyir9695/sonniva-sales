@@ -49,8 +49,8 @@ function deleteUser(id) {
         },
         accept: () => {
             router.delete(route('admin.users.delete', id), {
-                onSuccess: (res) => toast.add({ severity: 'success', summary: 'Confirmed', detail: res.props.flash.message, group: 'admin-user', life: 3000 }),
-                onError: () => toast.add({ severity: 'danger', summary: 'Error', detail: 'Something went wrong, please try again.', group: 'admin-user', life: 3000 })
+                onSuccess: (res) => toast.add({ severity: 'success', summary: 'Confirmed', detail: res.props.flash.message, life: 3000 }),
+                onError: () => toast.add({ severity: 'danger', summary: 'Error', detail: 'Something went wrong, please try again.', life: 3000 })
             })
 
         },
@@ -73,10 +73,10 @@ async function editUser(id) {
 function userProfileUpdated(status) {
     visible.value = false;
     if(status === 200) {
-        toast.add({ severity: 'success', summary: 'Confirmed', detail: 'User profile updated successfully', group: 'admin-user', life: 3000 })
+        toast.add({ severity: 'success', summary: 'Confirmed', detail: 'User profile updated successfully', life: 3000 })
     }
     if(status === 422) {
-        toast.add({ severity: 'danger', summary: 'Error', detail: 'Something went wrong', group: 'admin-user', life: 3000 })
+        toast.add({ severity: 'danger', summary: 'Error', detail: 'Something went wrong', life: 3000 })
     }
 }
 
@@ -112,7 +112,6 @@ const filters = ref({
 </script>
 
 <template>
-    <Toast position="bottom-right" group="admin-user"/>
     <ConfirmDialog></ConfirmDialog>
 
     <Dialog v-model:visible="visible" modal header="Edit user" class="w-[90%] sm:w-[60%]" pt:mask:class="backdrop-blur-sm">

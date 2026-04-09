@@ -63,14 +63,10 @@
             </div>
         </form>
     </div>
-    <Toast position="bottom-right" group="reset-password" />
 </template>
 
 <script setup>
 import {Head, useForm} from '@inertiajs/vue3';
-import {useToast} from "primevue/usetoast";
-
-const toast = useToast();
 const props = defineProps(['errors']);
 
 const form = useForm({

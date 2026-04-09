@@ -1,8 +1,5 @@
 <script setup>
 import { ref } from 'vue';
-import { useToast } from 'primevue/usetoast';
-
-const toast = useToast();
 
 const whatsappGroupLink = import.meta.env.VITE_COMPANY_WHATSAPP_LINK;
 const companyPhone = import.meta.env.VITE_COMPANY_PHONE;
@@ -47,6 +44,5 @@ const items = ref([
                 <Button  severity="success" size="medium" variant="outlined" pt:icon:class="text-white" :class="item.bg" v-tooltip="item.label" rounded :icon="item.icon" :aria-label="item.label" @click="() => { item.command(); }" />
             </template>
         </SpeedDial>
-        <Toast />
     </div>
 </template>

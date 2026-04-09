@@ -1,10 +1,8 @@
 <script setup>
 import { useForm, usePage, Head } from '@inertiajs/vue3';
 import {computed, onMounted, ref} from "vue";
-import {useToast} from "primevue/usetoast";
 import UpdatePassword from "./UpdatePassword.vue";
 
-const toast = useToast();
 const page = usePage();
 const isAdmin = computed(() => page.props.isAdmin);
 const props = defineProps(['user', 'editingByAdmin']);
@@ -88,7 +86,6 @@ onMounted(() => {
 </script>
 
 <template>
-    <Toast position="bottom-right" group="update-account" />
   <Head>
     <title>Settings</title>
   </Head>

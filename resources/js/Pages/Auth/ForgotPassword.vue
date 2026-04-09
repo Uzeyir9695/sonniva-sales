@@ -19,7 +19,7 @@ async function  forgotPassword(){
         },
         onError: (error) => {
             console.log(error);
-            toast.add({ severity: 'error', summary: 'Error', detail:error.email?? 'Something went wrong, try again.', group: 'reset-password', life: 12000 });
+            toast.add({ severity: 'error', summary: 'Error', detail:error.email?? 'Something went wrong, try again.', life: 12000 });
         }
     })
 }
@@ -48,7 +48,6 @@ async function  forgotPassword(){
             </div>
         </form>
     </div>
-    <Toast position="bottom-right" group="reset-password" />
 </template>
 
 <style scoped>

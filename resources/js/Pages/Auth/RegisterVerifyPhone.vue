@@ -15,7 +15,7 @@ async function  verifyPhone(){
         },
         onError: (error) => {
             console.log(error)
-            toast.add({ severity: 'error', summary: 'Error', detail: error.message, group: 'register', life: 12000 });
+            toast.add({ severity: 'error', summary: 'Error', detail: error.message, life: 12000 });
         }
     })
 }
@@ -23,10 +23,10 @@ async function  verifyPhone(){
 async function resendCode(){
     form.post(route('register.resend-code'), {
         onSuccess: (res) => {
-            toast.add({ severity: 'success', summary: 'Success', detail: 'Verification code sent successfully.', group: 'register', life: 12000 });
+            toast.add({ severity: 'success', summary: 'Success', detail: 'Verification code sent successfully.', life: 12000 });
         },
         onError: (error) => {
-            toast.add({ severity: 'error', summary: 'Error', detail: error.message, group: 'register', life: 12000 });
+            toast.add({ severity: 'error', summary: 'Error', detail: error.message, life: 12000 });
         }
     })
 }
@@ -58,7 +58,6 @@ async function resendCode(){
             </div>
         </form>
     </div>
-    <Toast position="bottom-right" group="register" />
 </template>
 
 <style scoped>
