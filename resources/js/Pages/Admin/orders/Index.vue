@@ -24,8 +24,8 @@ usePoll(10000, { only: ['unseenCounts'], preserveScroll: true, preserveState: tr
 
 const tabs = [
     { label: 'All',       value: 'all',       badge: false, icon: 'pi-list' },
-    { label: 'Pending',   value: 'pending',   badge: true,  icon: 'pi-clock' },
-    { label: 'Approved',  value: 'approved',  badge: true,  icon: 'pi-check-circle' },
+    { label: 'Invoiced',  value: 'pending',   badge: true,  icon: 'pi-clock' },
+    { label: 'Paid',      value: 'paid',      badge: true,  icon: 'pi-check-circle' },
     { label: 'Ready',     value: 'ready',     badge: false, icon: 'pi-box' },
     { label: 'Cancelled', value: 'cancelled', badge: false, icon: 'pi-times-circle' },
 ];
@@ -40,10 +40,11 @@ function switchTab(value) {
 
 
 const statusSeverity = {
-    pending:   'warn',
-    approved:  'info',
-    ready:     'success',
-    cancelled: 'danger',
+    awaiting_payment: 'secondary',
+    pending:          'warn',
+    paid:             'info',
+    ready:            'success',
+    cancelled:        'danger',
 };
 
 const deliveryLabel = {
@@ -122,8 +123,8 @@ function submitSendPdf() {
 
 // Inline status change (from table row buttons)
 function confirmStatusChange(order, newStatus) {
-    const labels     = { approved: 'Approve', ready: 'Mark Ready', cancelled: 'Cancel' };
-    const severities = { approved: 'info',    ready: 'success',    cancelled: 'danger' };
+    const labels     = { paid: 'Mark Paid', ready: 'Mark Ready', cancelled: 'Cancel' };
+    const severities = { paid: 'info',      ready: 'success',    cancelled: 'danger' };
 
     confirm.require({
         message: `Change order ${order.invoice_no ?? order.id.slice(0, 8)} status to "${newStatus}"?`,
@@ -176,7 +177,7 @@ function confirmStatusChange(order, newStatus) {
                         v-if="tab.badge && unseenCounts?.[tab.value]"
                         :value="unseenCounts[tab.value]"
                         size="small"
-                        :severity="tab.value === 'pending' ? 'warn' : 'info'"
+                        :severity="tab.value === 'pending' ? 'warn' : 'success'"
                     />
                 </Tab>
             </TabList>
@@ -297,11 +298,11 @@ function confirmStatusChange(order, newStatus) {
                                     raised
                                     rounded
                                     severity="info"
-                                    @click="confirmStatusChange(data, 'approved')"
-                                    v-tooltip.top="'Approve'"
+                                    @click="confirmStatusChange(data, 'paid')"
+                                    v-tooltip.top="'Mark Paid'"
                                 />
                                 <Button
-                                    v-if="data.status === 'approved'"
+                                    v-if="data.status === 'paid'"
                                     icon="pi pi-box"
                                     size="small"
                                     variant="text"
@@ -335,6 +336,7 @@ function confirmStatusChange(order, newStatus) {
                                     :ref="(el) => { if (el) rowMenus[data.id] = el }"
                                     :model="getMenuItems(data)"
                                     popup
+                                    class="text-sm"
                                 />
                             </div>
                         </template>

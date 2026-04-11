@@ -29,8 +29,8 @@ async function open(id) {
 defineExpose({ open });
 
 function confirmStatusChange(newStatus) {
-    const labels     = { approved: 'Approve', ready: 'Mark Ready', cancelled: 'Cancel' };
-    const severities = { approved: 'info',    ready: 'success',    cancelled: 'danger' };
+    const labels     = { paid: 'Mark Paid', ready: 'Mark Ready', cancelled: 'Cancel' };
+    const severities = { paid: 'info',      ready: 'success',    cancelled: 'danger' };
 
     confirm.require({
         message: `Change order ${order.value.invoice_no ?? order.value.id.slice(0, 8)} status to "${newStatus}"?`,
@@ -56,10 +56,11 @@ function updateStatus(newStatus) {
 }
 
 const statusSeverity = {
-    pending:   'warn',
-    approved:  'info',
-    ready:     'success',
-    cancelled: 'danger',
+    awaiting_payment: 'secondary',
+    pending:          'warn',
+    paid:             'info',
+    ready:            'success',
+    cancelled:        'danger',
 };
 
 const deliveryLabel = {
@@ -207,14 +208,14 @@ const providerLabel = {
             <div class="flex gap-2 flex-wrap pt-1">
                 <Button
                     v-if="order.status === 'pending'"
-                    label="Approve"
+                    label="Mark Paid"
                     icon="pi pi-check"
                     severity="info"
                     size="small"
-                    @click="confirmStatusChange('approved')"
+                    @click="confirmStatusChange('paid')"
                 />
                 <Button
-                    v-if="order.status === 'approved'"
+                    v-if="order.status === 'paid'"
                     label="Mark Ready"
                     icon="pi pi-box"
                     severity="success"
