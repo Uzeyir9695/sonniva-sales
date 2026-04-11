@@ -64,6 +64,7 @@ const freeDeliveryNotice = computed(() =>
 // ─── Payment providers ────────────────────────────────────────────────────
 
 const providers = [
+    { name: 'PCB ბანკი', icon: '/payments/pcb.jpeg', code: 'pcb' },
     { name: 'BOG ბანკი',     icon: '/payments/bog.png',     code: 'bog' },
     { name: 'TBC ბანკი',     icon: '/payments/tbc.png',     code: 'tbc' },
     { name: 'ინვოისით გადახდა', icon: '/payments/invoice-icon.png', code: 'invoice' },
