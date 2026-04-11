@@ -23,11 +23,17 @@ use Inertia\Inertia;
 class PaymentController extends Controller
 {
     protected $bcService;
+
     protected $pdfService;
+
     protected $tbcService;
+
     protected $bogService;
+
     protected $pcbService;
+
     protected $smsService;
+
     protected $calculatorService;
 
     public function __construct(
@@ -67,33 +73,39 @@ class PaymentController extends Controller
 
         // Generate unique invoice number
         do {
-            $invoiceNumber = 'S' . random_int(100000, 999999);
+            $invoiceNumber = 'S'.random_int(100000, 999999);
         } while (Order::where('invoice_no', $invoiceNumber)->exists());
 
         session()->put('invoice_no', $invoiceNumber);
 
+        // Clean up stale awaiting_payment orders for this user before creating a new one
+        Order::where('user_id', auth()->id())
+            ->where('status', 'awaiting_payment')
+            ->whereDoesntHave('payment', fn ($q) => $q->where('status', 'completed'))
+            ->delete();
+
         // Create order and snapshot order items
         $order = DB::transaction(function () use ($request, $calc, $invoiceNumber) {
             $order = Order::create([
-                'user_id'          => auth()->id(),
-                'invoice_no'       => $invoiceNumber,
-                'status'           => 'pending',
-                'delivery_type'    => $request->delivery_type,
-                'delivery_cost'    => $calc['delivery_cost'],
-                'address'          => $request->address,
+                'user_id' => auth()->id(),
+                'invoice_no' => $invoiceNumber,
+                'status' => 'awaiting_payment',
+                'delivery_type' => $request->delivery_type,
+                'delivery_cost' => $calc['delivery_cost'],
+                'address' => $request->address,
                 'apartment_number' => $request->apartment_number,
-                'comment'          => $request->comment,
-                'subtotal'         => $calc['subtotal'],
-                'total'            => $calc['total'],
+                'comment' => $request->comment,
+                'subtotal' => $calc['subtotal'],
+                'total' => $calc['total'],
             ]);
 
             foreach ($calc['items'] as $item) {
                 OrderItem::create([
-                    'order_id'   => $order->id,
-                    'item_id'    => $item['item_id'],
-                    'quantity'   => $item['quantity'],
+                    'order_id' => $order->id,
+                    'item_id' => $item['item_id'],
+                    'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
-                    'subtotal'   => $item['subtotal'],
+                    'subtotal' => $item['subtotal'],
                 ]);
             }
 
@@ -125,16 +137,16 @@ class PaymentController extends Controller
                 return response()->json(['error' => 'Invalid provider'], 400);
             }
 
-            if (!$result['success']) {
+            if (! $result['success']) {
                 Log::channel('payment')->error('Payment initiation failed', [
                     'provider' => $provider,
-                    'error'    => $result['error'] ?? 'Payment initiation failed',
+                    'error' => $result['error'] ?? 'Payment initiation failed',
                 ]);
 
                 return response()->json(['error' => $result['error'] ?? 'Failed to initiate payment'], 400);
             }
 
-            $payment = DB::transaction(function () use ($request, $provider, $order, $result, $invoiceNumber, $calc) {
+            $payment = DB::transaction(function () use ($provider, $order, $result, $invoiceNumber, $calc) {
                 $responseData = ['initial_response' => $result['raw_response']];
 
                 if ($provider === 'tbc') {
@@ -146,37 +158,36 @@ class PaymentController extends Controller
                 }
 
                 return Payment::create([
-                    'user_id'        => auth()->id(),
-                    'order_id'       => $order->id,
-                    'invoice_no'     => $invoiceNumber,
-                    'provider'       => $provider,
+                    'user_id' => auth()->id(),
+                    'order_id' => $order->id,
+                    'invoice_no' => $invoiceNumber,
+                    'provider' => $provider,
                     'transaction_id' => $transactionId,
-                    'amount'         => $calc['total'],
-                    'status'         => 'pending',
-                    'response_data'  => $responseData,
+                    'amount' => $calc['total'],
+                    'status' => 'pending',
+                    'response_data' => $responseData,
                 ]);
             });
 
             Log::channel('payment')->info('Payment initiated successfully', [
                 'payment_id' => $payment->id,
-                'order_id'   => $order->id,
+                'order_id' => $order->id,
             ]);
 
             return response()->json([
                 'redirect_url' => $result['redirect_url'],
-                'payment_id'   => $payment->id,
+                'payment_id' => $payment->id,
             ]);
         } catch (\Exception $e) {
             Log::channel('payment')->error('Payment initiation exception', [
                 'provider' => $provider,
-                'error'    => $e->getMessage(),
-                'trace'    => $e->getTraceAsString(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json(['error' => 'Payment initiation failed'], 500);
         }
     }
-
 
     /**
      * Handle payment webhook/callback from bank
@@ -200,15 +211,16 @@ class PaymentController extends Controller
                 return response()->json(['error' => 'Invalid provider'], 400);
             }
 
-            if (!$validationResult['valid']) {
+            if (! $validationResult['valid']) {
                 Log::channel('payment')->warning('Invalid callback', $validationResult);
+
                 return response()->json(['error' => 'Invalid callback'], 400);
             }
 
             $service = $provider === 'tbc' ? $this->tbcService : $this->bogService;
             $payment = $service->findAndUpdatePayment($paymentId);
 
-            if (!$payment) {
+            if (! $payment) {
                 return response()->json(['error' => 'Payment not found'], 404);
             }
 
@@ -222,8 +234,8 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             Log::channel('payment')->error('Payment callback error', [
                 'provider' => $provider,
-                'error'    => $e->getMessage(),
-                'trace'    => $e->getTraceAsString(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json(['error' => 'Callback processing error'], 500);
@@ -232,11 +244,12 @@ class PaymentController extends Controller
 
     public function proCreditBankCallback()
     {
-        $orderId  = session()->pull('pcb_order_id');
+        $orderId = session()->pull('pcb_order_id');
         $password = session()->pull('pcb_password');
 
-        if (!$orderId || !$password) {
+        if (! $orderId || ! $password) {
             Log::channel('payment')->error('PCB callback missing session data');
+
             return response()->json(['error' => 'Missing session data'], 400);
         }
 
@@ -246,7 +259,7 @@ class PaymentController extends Controller
             ->where('provider', 'pcb')
             ->first();
 
-        if (!$payment) {
+        if (! $payment) {
             Log::channel('payment')->error('PCB Payment not found for order ID', [
                 'order_id' => $orderId,
             ]);
@@ -278,10 +291,11 @@ class PaymentController extends Controller
             ->with(['items.item', 'user'])
             ->first();
 
-        if (!$order) {
+        if (! $order) {
             Log::channel('payment')->error('Order not found for payment', [
                 'invoice_no' => $payment->invoice_no,
             ]);
+
             return;
         }
 
@@ -296,7 +310,7 @@ class PaymentController extends Controller
             }
 
             $order->update([
-                'status'      => 'paid',
+                'status' => 'paid',
                 'approved_at' => now(),
             ]);
 
@@ -313,7 +327,7 @@ class PaymentController extends Controller
 
     public function sendOrderToEmail($payment, $order)
     {
-        if (!$order->user) {
+        if (! $order->user) {
             return;
         }
 
@@ -343,12 +357,10 @@ class PaymentController extends Controller
         ]);
     }
 
-
     public function sendOrderToBC(Order $orderItem)
     {
-//        dispatch(function () use ($orderItem) {
-            $this->bcService->addSalesOrderLines($orderItem, 'S012345',0);
-//        });
+        //        dispatch(function () use ($orderItem) {
+        $this->bcService->addSalesOrderLines($orderItem, 'S012345', 0);
+        //        });
     }
-
 }
