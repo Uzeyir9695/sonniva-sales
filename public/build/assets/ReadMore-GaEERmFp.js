@@ -1,0 +1,1 @@
+import{_ as e,c,o}from"./app-BtH_fUD7.js";/* empty css            */const r={},t={class:"min-h-screen bg-white"};function s(n,a){return o(),c("div",t," Read More Page ")}const d=e(r,[["render",s]]);export{d as default};
