@@ -76,10 +76,10 @@ const categoryIcons = {
         >
             <!-- Header -->
             <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
-                <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <Link :href="route('items.index', activeCategory.slug)" class="text-lg font-bold text-gray-900 flex items-center gap-2">
                     <img v-if="activeCategory.image" :src="`${activeCategory.storage_path}/${activeCategory.image}`" :alt="activeCategory.name" class="w-20 h-14 object-cover rounded-lg" />
                     {{ activeCategory.name }}
-                </h2>
+                </Link>
                 <Link
                     :href="route('items.index', activeCategory.slug)"
                     class="text-brand-500 text-sm font-semibold hover:text-brand-600 flex items-center gap-1"
