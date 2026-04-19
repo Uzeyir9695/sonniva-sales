@@ -112,6 +112,10 @@ class AdminOrderController extends Controller
             },
         ]);
 
+        if ($request->status === 'paid') {
+            $order->payment()->whereNot('status', 'completed')->update(['status' => 'completed']);
+        }
+
         return redirect()->back()->with('message', 'Order status updated.');
     }
 }
