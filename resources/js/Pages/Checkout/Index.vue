@@ -113,6 +113,7 @@ function initiatePayment() {
 
     const data = {
         delivery_type:    selectedDelivery.value.key,
+        delivery_cost:    deliveryCost.value,
         address:          form.address,
         apartment_number: form.apartment_number,
         comment:          form.comment,
