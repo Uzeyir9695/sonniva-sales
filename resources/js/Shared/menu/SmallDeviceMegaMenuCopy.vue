@@ -111,7 +111,7 @@ defineExpose({ openDrawer })
             <div
                 v-if="drawerOpen"
                 ref="drawerRef"
-                class="fixed top-20 left-0 z-50 min-h-[calc(100vh-80px)] w-full bg-white shadow-2xl flex flex-col"
+                class="fixed top-20 left-0 z-50 min-h-[calc(100vh-80px)] w-80 bg-white shadow-2xl flex flex-col"
             >
                 <div class="bg-gray-50 shado w-xs flex items-center justify-between px-4 py-4 border-y border-gray-100 sm:hidden">
                     <WeglotSwitcher />
@@ -149,59 +149,32 @@ defineExpose({ openDrawer })
                                 ყველას ნახვა
                             </Link>
 
-                            <!-- Level 0: main categories — full width, no grid, no images -->
-                            <template v-if="stack.length === 0">
-                                <div
-                                    v-for="item in currentItems"
-                                    :key="item.name"
+                            <template v-for="item in currentItems" :key="item.name">
+                                <!-- Has children: acts as button to go deeper, no route navigation -->
+                                <button
+                                    v-if="hasChildren(item)"
+                                    style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
+                                    v-ripple
                                     @click="navigateTo(item)"
-                                    class="w-full px-5 py-3.5 rounded-xl hover:bg-gray-50 cursor-pointer"
+                                    class="w-full flex items-center justify-between cursor-pointer px-5 py-3.5 rounded-xl hover:bg-gray-50 hover:text-brand-400 transition-colors text-left"
                                 >
-                                    <button
-                                        style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
-                                        v-ripple
-                                        class="w-full flex items-center justify-between"
-                                    >
-                                        <span class="text-sm font-medium text-gray-800">{{ item.name }}</span>
-                                        <i class="pi pi-chevron-right text-xs text-gray-400"></i>
-                                    </button>
-                                </div>
+                                    <span class="text-sm font-medium text-inherit">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : item.items?.length < 1 ? '(0)' : '' }}</span>
+                                    <i class="pi pi-chevron-right text-xs text-inherit"></i>
+                                </button>
+
+                                <!-- No children: actual link to category page -->
+                                <Link
+                                    v-else
+                                    :href="getItemRoute(item)"
+                                    style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
+                                    v-ripple
+                                    @click="closeDrawer"
+                                    class="w-full flex items-center justify-between cursor-pointer px-5 py-3.5 rounded-xl hover:bg-gray-50 hover:text-brand-400 transition-colors text-left"
+                                >
+                                    <span class="text-sm font-medium text-inherit">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : '(0)' }}</span>
+                                </Link>
                             </template>
 
-                            <!-- Level 1+: subs/items — 2-col grid with images -->
-                            <div v-else class="grid grid-cols-2 gap-3">
-                                <template v-for="item in currentItems" :key="item.name">
-                                    <div v-if="hasChildren(item)"
-                                         @click="navigateTo(item)"
-                                         class="w-full px-3 py-3 space-y-1 rounded-xl hover:bg-gray-50 cursor-pointer"
-                                    >
-                                        <img v-if="item.image" :src="`${item.storage_path}/${item.image}`" :alt="item.name" class="w-32 h-20 object-cover rounded-lg mb-2" />
-                                        <button
-                                            style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
-                                            v-ripple
-                                            class="w-full flex items-center justify-between"
-                                        >
-                                            <span class="text-sm font-medium text-inherit">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : item.items?.length < 1 ? '(0)' : '' }}</span>
-                                            <i class="pi pi-chevron-right text-xs text-inherit"></i>
-                                        </button>
-                                    </div>
-
-                                    <div v-else
-                                         @click="closeDrawer"
-                                         class="w-full px-3 py-3 space-y-1 rounded-xl hover:bg-gray-50"
-                                    >
-                                        <img v-if="item.image" :src="`${item.storage_path}/${item.image}`" :alt="item.name" class="w-32 h-20 object-cover rounded-lg mb-2 mx-auto" />
-                                        <Link
-                                            :href="getItemRoute(item)"
-                                            style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
-                                            v-ripple
-                                            class="w-full flex items-center justify-center"
-                                        >
-                                            <span class="text-sm font-medium text-inherit">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : '(0)' }}</span>
-                                        </Link>
-                                    </div>
-                                </template>
-                            </div>
                         </div>
                     </Transition>
                 </div>

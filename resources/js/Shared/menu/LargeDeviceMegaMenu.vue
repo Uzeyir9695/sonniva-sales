@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import MegaMenuRightPanel from '@/Shared/components/MegaMenuRightPanel.vue';
 
 const page = usePage()
@@ -25,7 +25,6 @@ const categoryIcons = {
     '2200': 'pi pi-filter',
     '2300': 'pi pi-lock',
 }
-
 </script>
 
 <template>
@@ -44,34 +43,34 @@ const categoryIcons = {
         <div class="large-device-menu w-72 bg-white p-2 rounded-xl shadow-sm shrink-0 z-40" ref="sidebarRef"
              :class="activeCategory ? 'rounded-r-none' : ''"
         >
-            <div
+            <Link
                 v-for="category in categories"
                 :key="category.name"
                 style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
                 v-ripple
                 @mouseenter="activeCategory = category"
+                :href="route('items.index', category.slug)"
                 class="flex items-center justify-between rounded-xl px-5 py-3.5 cursor-pointer transition-colors"
                 :class="activeCategory?.name === category.name ? 'bg-gray-50' : 'hover:bg-gray-300'"
             >
-                <div class="flex items-center gap-3">
+                <p class="flex items-center gap-3">
 <!--                    <img v-if="category.image" :src="`${category.storage_path}/${category.image}`" :alt="category.name" class="w-12 h-12 object-cover rounded-lg" />-->
                     <i :class="[categoryIcons[category.code] ?? 'pi pi-tag', 'text-base', activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-400']"></i>
-                    <Link
-                        :href="route('items.index', category.slug)"
+                    <span
                         class="text-sm font-medium"
                         :class="[category.name === 'Sale' ? 'text-brand-500' : activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-700']"
                     >
                         {{ category.name }}
-                    </Link>
-                </div>
+                    </span>
+                </p>
                 <i class="pi pi-chevron-right text-xs" :class="activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-400'"></i>
-            </div>
+            </Link>
         </div>
 
         <!-- Mega Menu Panel -->
         <div
             v-if="activeCategory && activeCategory.subs?.length"
-            class="mega-menu-panel absolute left-72 top-0 h-full z-40 bg-white rounded-r-xl border border-gray-200 shadow-2xl min-w-[680px] p-8 overflow-y-auto"
+            class="mega-menu-panel absolute left-72 top-0 h-full z-40 bg-white rounded-r-xl border border-gray-200 shadow-2xl min-w-[680px] xl:min-w-[990px] p-8 overflow-y-auto"
             @mouseleave="activeCategory = null"
         >
             <!-- Header -->
@@ -89,12 +88,13 @@ const categoryIcons = {
             </div>
 
             <!-- Sub categories grid -->
-            <div class="grid grid-cols-2 gap-x-12 gap-y-6">
+            <div class="grid grid-cols-2 xl:grid-cols-3 gap-x-12 gap-y-6">
                 <div v-for="sub in activeCategory.subs" :key="sub.name">
                     <Link
                         :href="route('items.index', [activeCategory.slug, sub.slug])"
                         class="text-sm font-semibold text-gray-900 hover:text-brand-400 mb- 2 pb- 1.5 borde r-b border-gray-100 inline-block"
                     >
+                        <img v-if="sub.image" :src="`${sub.storage_path}/${sub.image}`" :alt="sub.name" class="w-32 h-20 mb-2 object-cover rounded-lg" />
                         {{ sub.name }} {{ sub.items_count ? `(${sub.items_count})` : sub.items.length < 1 ? '(0)' : '' }}
                     </Link>
                     <ul class="space-y-1.5 mt-2">
