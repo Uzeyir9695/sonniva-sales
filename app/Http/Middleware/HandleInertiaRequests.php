@@ -67,6 +67,8 @@ class HandleInertiaRequests extends Middleware
                     'subs' => $cat->children->map(fn($sub) => [
                         'name'  => $sub->name,
                         'slug' => $sub->slug,
+                        'storage_path' => $sub->storage_path,
+                        'image' => $sub->image,
                         'items_count' => $sub->children->isEmpty()
                             ? $sub->items_count  // 2nd level — no children, count items
                             : null,
