@@ -16,10 +16,14 @@ const drawerButtonRef = ref(null)
 
 onClickOutside(drawerRef, () => closeDrawer(), { ignore: [drawerButtonRef] })
 
-const openDrawer = () => drawerOpen.value = !drawerOpen.value
+const openDrawer = () => {
+    drawerOpen.value = !drawerOpen.value
+    document.body.classList.toggle('overflow-hidden', drawerOpen.value)
+}
 
 const closeDrawer = () => {
     drawerOpen.value = false
+    document.body.classList.remove('overflow-hidden')
     setTimeout(() => resetStack(), 300)
 }
 
@@ -70,8 +74,6 @@ const getViewAllRoute = () => {
     }
     return '#'
 }
-
-// Does current item have children to navigate into?
 const hasChildren = (item) => {
     if (stack.value.length === 0) return item.subs?.length > 0
     if (stack.value.length === 1) return item.items?.length > 0
@@ -111,9 +113,9 @@ defineExpose({ openDrawer })
             <div
                 v-if="drawerOpen"
                 ref="drawerRef"
-                class="fixed top-20 left-0 z-50 min-h-[calc(100vh-80px)] w-full bg-white shadow-2xl flex flex-col"
+                class="fixed top-20 left-0 z-50 h-[calc(100vh-80px)] w-full sm:w-80 bg-white shadow-2xl flex flex-col"
             >
-                <div class="bg-gray-50 shado w-xs flex items-center justify-between px-4 py-4 border-y border-gray-100 sm:hidden">
+                <div class="bg-gray-50 shado w-full sm:w-xs flex items-center justify-between px-4 py-4 border-y border-gray-100 sm:hidden">
                     <WeglotSwitcher />
 
                     <LogoutButton />
@@ -155,53 +157,68 @@ defineExpose({ openDrawer })
                                     v-for="item in currentItems"
                                     :key="item.name"
                                     @click="navigateTo(item)"
-                                    class="w-full px-5 py-3.5 rounded-xl hover:bg-gray-50 cursor-pointer"
+                                    class="w-full px-5 py-3.5 cursor-pointer rounded-xl text-gray-800 hover:bg-gray-50 hover:text-brand-400 transition-colors"
                                 >
                                     <button
                                         style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
                                         v-ripple
-                                        class="w-full flex items-center justify-between"
+                                        class="w-full flex items-center justify-between cursor-pointer text-left"
                                     >
-                                        <span class="text-sm font-medium text-gray-800">{{ item.name }}</span>
-                                        <i class="pi pi-chevron-right text-xs text-gray-400"></i>
+                                        <span class="text-sm font-medium text-inherit">{{ item.name }}</span>
+                                        <i class="pi pi-chevron-right text-xs text-inherit"></i>
                                     </button>
                                 </div>
                             </template>
 
-                            <!-- Level 1+: subs/items — 2-col grid with images -->
-                            <div v-else class="grid grid-cols-2 gap-3">
+                            <!-- Level 1 (subs): 2-col grid with images -->
+                            <div v-else-if="stack.length === 1" class="grid grid-cols-2 gap-3">
                                 <template v-for="item in currentItems" :key="item.name">
-                                    <div v-if="hasChildren(item)"
-                                         @click="navigateTo(item)"
-                                         class="w-full px-3 py-3 space-y-1 rounded-xl hover:bg-gray-50 cursor-pointer"
+                                    <!-- Has children: navigate deeper -->
+                                    <div
+                                        v-if="hasChildren(item)"
+                                        @click="navigateTo(item)"
+                                        class="w-full px-3 py-3 space-y-1 cursor-pointer rounded-xl text-gray-800 hover:bg-gray-50 hover:text-brand-400 transition-colors"
                                     >
-                                        <img v-if="item.image" :src="`${item.storage_path}/${item.image}`" :alt="item.name" class="w-32 h-20 object-cover rounded-lg mb-2" />
+                                        <img v-if="item.image" :src="`${item.storage_path}/${item.image}`" :alt="item.name" class="w-full h-20 object-cover rounded-lg mb-2" />
                                         <button
                                             style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
                                             v-ripple
-                                            class="w-full flex items-center justify-between"
+                                            class="w-full flex items-center justify-between cursor-pointer text-left"
                                         >
                                             <span class="text-sm font-medium text-inherit">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : item.items?.length < 1 ? '(0)' : '' }}</span>
                                             <i class="pi pi-chevron-right text-xs text-inherit"></i>
                                         </button>
                                     </div>
 
-                                    <div v-else
-                                         @click="closeDrawer"
-                                         class="w-full px-3 py-3 space-y-1 rounded-xl hover:bg-gray-50"
+                                    <!-- No children: direct link -->
+                                    <Link
+                                        v-else
+                                        :href="getItemRoute(item)"
+                                        style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
+                                        v-ripple
+                                        @click="closeDrawer"
+                                        class="w-full px-3 py-3 space-y-1 rounded-xl text-gray-800 hover:bg-gray-50 hover:text-brand-400 transition-colors block"
                                     >
-                                        <img v-if="item.image" :src="`${item.storage_path}/${item.image}`" :alt="item.name" class="w-32 h-20 object-cover rounded-lg mb-2 mx-auto" />
-                                        <Link
-                                            :href="getItemRoute(item)"
-                                            style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
-                                            v-ripple
-                                            class="w-full flex items-center justify-center"
-                                        >
-                                            <span class="text-sm font-medium text-inherit">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : '(0)' }}</span>
-                                        </Link>
-                                    </div>
+                                        <img v-if="item.image" :src="`${item.storage_path}/${item.image}`" :alt="item.name" class="w-full h-20 object-cover rounded-lg mb-2" />
+                                        <span class="text-sm font-medium">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : '(0)' }}</span>
+                                    </Link>
                                 </template>
                             </div>
+
+                            <!-- Level 2 (leaf items): full width, one per line, no images -->
+                            <template v-else>
+                                <Link
+                                    v-for="item in currentItems"
+                                    :key="item.name"
+                                    :href="getItemRoute(item)"
+                                    style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
+                                    v-ripple
+                                    @click="closeDrawer"
+                                    class="w-full flex items-center justify-between px-5 py-3.5 rounded-xl cursor-pointer text-gray-800 hover:bg-gray-50 hover:text-brand-400 transition-colors"
+                                >
+                                    <span class="text-sm font-medium text-inherit">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : '(0)' }}</span>
+                                </Link>
+                            </template>
                         </div>
                     </Transition>
                 </div>
