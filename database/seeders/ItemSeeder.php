@@ -2,14 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Item;
-use App\Models\Attribute;
 use App\Services\BusinessCentralService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use Spatie\Image\Image;
 
 class ItemSeeder extends Seeder
@@ -18,10 +17,10 @@ class ItemSeeder extends Seeder
 
     public function run(): void
     {
-//        DB::statement('SET FOREIGN_KEY_CHECKS=0');
-//        Attribute::truncate();
-//        Item::truncate();
-//        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        //        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        //        Attribute::truncate();
+        //        Item::truncate();
+        //        DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         $token = $this->bc->getAccessToken();
         $tokenFetchedAt = now();
@@ -31,12 +30,12 @@ class ItemSeeder extends Seeder
 
         $this->command->info("Found {$categories->count()} leaf categories.");
 
-         /*** For testing: start from a specific category ***/
+        /*** For testing: start from a specific category ***/
 
-//        $startFromCategory = '2201-01';
-//        $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
-//
-//        $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
+        //        $startFromCategory = '2201-01';
+        //        $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
+        //
+        //        $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
 
         foreach ($categories as $category) {
             $this->command->info("Fetching items for category: {$category->code}");
@@ -57,6 +56,7 @@ class ItemSeeder extends Seeder
                 // Skip if already exists
                 if (Item::where('no', $item['no'])->exists()) {
                     $this->command->info("  → Skipping {$item['no']} (already seeded)");
+
                     continue;
                 }
 
@@ -76,7 +76,7 @@ class ItemSeeder extends Seeder
                 foreach (['image1', 'image2', 'image3', 'image4', 'image5'] as $imageKey) {
                     $base64 = $detailed[$imageKey] ?? '';
                     $fileName = $this->storeImage($base64);
-                    if ($fileName && !in_array($fileName, $images)) {
+                    if ($fileName && ! in_array($fileName, $images)) {
                         $images[] = $fileName;
                     }
                 }
@@ -84,16 +84,16 @@ class ItemSeeder extends Seeder
                 $created = Item::updateOrCreate(
                     ['no' => $item['no']],
                     [
-                        'category_code'      => $item['itemCategoryCode'],
-                        'name'               => $item['description'] ?? null,
-                        'description'        => $item['itemReview'] ?? null,
-                        'slug'               => $this->makeUniqueSlug($item['description'], $item['no']),
-                        'inventory'          => $item['inventory'] ?? 0,
-                        'base_uom_desc'      => $item['baseUOMDesc'] ?? null,
-                        'unit_price'         => $item['unitPrice'] ?? 0,
+                        'category_code' => $item['itemCategoryCode'],
+                        'name' => $item['description'] ?? null,
+                        'description' => $item['itemReview'] ?? null,
+                        'slug' => $this->makeUniqueSlug($item['description'], $item['no']),
+                        'inventory' => $item['inventory'] ?? 0,
+                        'base_uom_desc' => $item['baseUOMDesc'] ?? null,
+                        'unit_price' => $item['unitPrice'] ?? 0,
                         'min_qty_unit_price' => $item['minQtyUnitPrice'] ?? 0,
-                        'prices'             => $detailed['itemUnitPrices'] ?? [],
-                        'images'             => $images,
+                        'prices' => $detailed['itemUnitPrices'] ?? [],
+                        'images' => $images,
                     ]
                 );
 
@@ -101,10 +101,10 @@ class ItemSeeder extends Seeder
 
                 foreach ($attrs as $attr) {
                     Attribute::create([
-                        'item_id'         => $created->id,
+                        'item_id' => $created->id,
                         'bc_attribute_id' => $attr['itemAttributeId'],
-                        'name'            => $attr['attributeName'],
-                        'value'           => $attr['attributeValue'],
+                        'name' => $attr['attributeName'],
+                        'value' => $attr['attributeValue'],
                     ]);
                 }
             }
@@ -115,9 +115,9 @@ class ItemSeeder extends Seeder
 
     private function fetchItems(string &$token, \Carbon\Carbon &$tokenFetchedAt, string $categoryCode): \Illuminate\Support\Collection
     {
-        $all  = collect();
+        $all = collect();
         $base = config('bc.api_base_url');
-        $url  = $base . "Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items?\$expand=itemAttributeValues&\$filter=itemCategoryCode eq '{$categoryCode}'";
+        $url = $base."Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items?\$expand=itemAttributeValues&\$filter=itemCategoryCode eq '{$categoryCode}'";
 
         do {
             if (now()->diffInMinutes($tokenFetchedAt) >= 55) {
@@ -131,12 +131,12 @@ class ItemSeeder extends Seeder
                 ->get($url);
 
             if ($response->failed()) {
-                throw new \RuntimeException("BC API error for {$categoryCode}: " . $response->body());
+                throw new \RuntimeException("BC API error for {$categoryCode}: ".$response->body());
             }
 
             $data = $response->json();
-            $all  = $all->merge($data['value'] ?? []);
-            $url  = $data['@odata.nextLink'] ?? null;
+            $all = $all->merge($data['value'] ?? []);
+            $url = $data['@odata.nextLink'] ?? null;
 
         } while ($url);
 
@@ -146,9 +146,10 @@ class ItemSeeder extends Seeder
     private function makeSlug(string $text): string
     {
         $text = trim($text, " \t\n\r\0\x0B,.*");
-        $text = preg_replace('/[\/=]+/u', '-', $text);
+        $text = preg_replace('/[\/=%,.]+/u', '-', $text);
         $text = preg_replace('/[-\s]+/u', '-', $text);
         $text = trim($text, '-');
+
         return mb_strtolower($text);
     }
 
@@ -156,11 +157,11 @@ class ItemSeeder extends Seeder
     {
         $base = $this->makeSlug($text);
 
-        if (!Item::where('slug', $base)->exists()) {
+        if (! Item::where('slug', $base)->exists()) {
             return $base;
         }
 
-        return $base . '-' . mb_strtolower($no);
+        return $base.'-'.mb_strtolower($no);
     }
 
     private function storeImage(string $base64): ?string
@@ -172,10 +173,10 @@ class ItemSeeder extends Seeder
         $imageData = base64_decode($base64);
         $hash = md5($imageData);
 
-        $fileName = $hash . '.jpg';
+        $fileName = $hash.'.jpg';
         $path = "items/$fileName";
 
-        if (!\Storage::disk('public')->exists($path)) {
+        if (! \Storage::disk('public')->exists($path)) {
             \Storage::disk('public')->put($path, $imageData);
 
             $fullPath = storage_path("app/public/{$path}");
