@@ -37,7 +37,7 @@ class CategorySeeder extends Seeder
         $url = 'https://api.businesscentral.dynamics.com/v2.0/Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemCategories';
 
         do {
-            $response = Http::withToken($token)->get($url);
+            $response = Http::withToken($token)->timeout(60)->get($url);
 
             if ($response->failed()) {
                 throw new \RuntimeException('BC API error: ' . $response->body());
