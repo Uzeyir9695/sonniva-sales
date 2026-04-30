@@ -18,6 +18,7 @@ const selectedCountryCode = ref('GE');
 const form = useForm({
     user_type: null,
     is_handyman: false,
+    is_entrepreneur: false,
     name: null,
     lastname: null,
     phone_country: selectedCountryCode.value,
@@ -195,9 +196,16 @@ async function register(){
                     </FloatLabel>
                 </InputGroup>
 
-                <div v-if="selectedUserType?.key === 'individual'" class="flex items-center gap-2">
-                    <Checkbox v-model="form.is_handyman" binary />
-                    <label for="ingredient1"> ვარ ხელოსანი </label>
+                <div v-if="selectedUserType?.key === 'individual'" class="space-y-2">
+                    <div class="flex items-center gap-2">
+                        <Checkbox v-model="form.is_handyman" binary />
+                        <label for="ingredient1"> ვარ ხელოსანი </label>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <Checkbox v-model="form.is_entrepreneur" binary />
+                        <label for="ingredient1"> ვარ მცირე მეწარმე </label>
+                    </div>
                 </div>
 
                 <!-- Submit Button -->
@@ -221,9 +229,6 @@ async function register(){
                                 შესვლა
                             </Link>
                         </div>
-                    </div>
-
-                    <div>
                     </div>
                 </div>
             </form>

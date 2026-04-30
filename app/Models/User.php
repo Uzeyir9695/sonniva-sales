@@ -52,6 +52,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'is_handyman' => 'boolean',
+            'is_entrepreneur' => 'boolean',
             'password' => 'hashed',
             'phone' => E164PhoneNumberCast::class.':phone_country',
         ];

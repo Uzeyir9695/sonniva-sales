@@ -22,6 +22,7 @@ const form = useForm({
   email: null,
   lastname: null,
   is_handyman: false,
+  is_entrepreneur: false,
   tax_id: null,
   phone_country: selectedCountryCode.value,
   phone: null,
@@ -78,6 +79,7 @@ onMounted(() => {
     form.email = user.email;
     form.lastname = user.lastname;
     form.is_handyman = user.is_handyman;
+    form.is_entrepreneur = user.is_entrepreneur;
     form.tax_id = user.tax_id;
     form.phone = user.phone;
     form.address = user.address;
@@ -183,12 +185,18 @@ onMounted(() => {
                                 </Select>
                                 <label for="user_type">მომხმარებელი</label>
                             </FloatLabel>
-
                         </div>
 
-                        <div v-if="selectedUserType?.key === 'individual'" class="flex items-center gap-2">
-                            <Checkbox v-model="form.is_handyman" binary />
-                            <label for="ingredient1"> ვარ ხელოსანი </label>
+                        <div v-if="selectedUserType?.key === 'individual'" class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <Checkbox v-model="form.is_handyman" binary />
+                                <label for="ingredient1"> ვარ ხელოსანი </label>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <Checkbox v-model="form.is_entrepreneur" binary />
+                                <label for="ingredient1"> ვარ მცირე მეწარმე </label>
+                            </div>
                         </div>
 
                         <Button :disabled="form.processing"

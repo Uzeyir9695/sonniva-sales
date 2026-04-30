@@ -58,6 +58,7 @@ class AccountController extends Controller
             'user_type' => 'required_if:user_type,individual,legal_entity|string',
             'name'      => 'required|string|max:30',
             'is_handyman' => 'nullable|boolean',
+            'is_entrepreneur' => 'nullable|boolean',
             'lastname'  => 'required_if:user_type,individual|max:30',
             'phone_country'  => 'required|string',
             'phone'     => 'required|string|min:9|max:13|unique:users,phone,' . $user->id,
