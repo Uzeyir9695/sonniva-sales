@@ -151,10 +151,18 @@ function removeChip(chip) {
     <div class="min-h-[calc(100vh-80px)] bg-[#f7f6f 3]">
 
         <!-- ================= BREADCRUMBS ================= -->
-        <Breadcrumbs :breadcrumbs="breadcrumbs"/>
+        <div class="bg-white flex items-center justify-between sticky top-20 z-20 sm:mt-4 sm:rounded-xl shadow-xs">
+            <Breadcrumbs :breadcrumbs="breadcrumbs"/>
+            <button
+                @click="sidebarOpen = !sidebarOpen"
+                class="cursor-pointer lg:hidden z-20 flex items-center gap-2 font-medium text-gray-700 border-l border-gray-200 sm:rounded-r-xl self-stretch px-3 hover:bg-gray-100 transition-colors"
+            >
+                <i class="pi pi-sliders-h text-md"></i>
+            </button>
+        </div>
 
         <!-- Mobile Filter Toggle Bar -->
-        <div class="lg:hidden sticky top-28 z-20 bg-white border-b border-gray-100 px-2 py-1 flex items-center gap-2 shadow-sm"
+        <div v-if="activeChips?.length > 0" class="sm:hidden sticky top-28 z-20 bg-white border-b border-gray-100 px-2 py-1 flex items-center gap-2 shadow-sm"
              :class="activeChips?.length > 0 ? ' justify-between' : 'justify-end'"
         >
             <ActiveFilterChips
@@ -163,12 +171,7 @@ function removeChip(chip) {
                 @reset="resetFilters"
                 class="sm:hidden"
             />
-            <button
-                @click="sidebarOpen = !sidebarOpen"
-                class="flex items-center gap-2 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 px-3 py-2.5 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-                <i class="pi pi-sliders-h text-xs"></i>
-            </button>
+
         </div>
 
         <!-- Mobile Sidebar Overlay -->
@@ -182,12 +185,15 @@ function removeChip(chip) {
 
         <div class="max-w-screen-2xl max-sm:mx-3 py-6 flex gap-6 relative">
             <!-- SIDEBAR -->
-            <div class="shrink-0 w-72 max-sm:pt-3 lg:block lg:sticky top-20 lg:top-32 fixed left-0 h-full space-y-5
+            <div class="max-lg:bg-white -50 shrink-0 w-72 max-lg:pt-3 lg:block lg:sticky top-20 lg:top-32 fixed left-0 h-full space-y-5
                      max-h-[calc(100vh-80px)] lg:max-h-[690px]
                      overflow-x-hidden overflow-y-auto transition-all duration-300 z-40 lg:z-auto
                     "
                  :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
             >
+                <button @click="sidebarOpen = false" class="flex items-center cursor-pointer ml-auto mr-2 text-gray-400 hover:text-gray-700 lg:hidden">
+                    <i class="pi pi-times"></i>
+                </button>
 
                 <!-- Related Categories -->
                 <div v-if="relatedCategories?.length" class="bg-white max-sm:mx-2 border rounded-xl shadow-xs border-gray-100 px-5 py-3">
@@ -228,9 +234,7 @@ function removeChip(chip) {
                     </Panel>
                 </div>
 
-                <aside
-                    class="bg-white min-w-[288px] border lg:rounded-2xl border-gray-100 shadow-xs"
-                >
+                <aside class="bg-white min-w-[288px] border max-lg:border-b-0 lg:rounded-2xl border-gray-100">
                     <div class="px-5 py-6">
                         <!-- Filter Reset -->
                         <div class="items-center mt-2 justify-between mb-5 flex">
@@ -247,9 +251,6 @@ function removeChip(chip) {
                                     გასუფთავება
                                 </button>
                             </div>
-                            <button @click="sidebarOpen = false" class="text-gray-400 hover:text-gray-700 sm:hidden">
-                                <i class="pi pi-times"></i>
-                            </button>
                         </div>
 
                         <!-- Price Range -->

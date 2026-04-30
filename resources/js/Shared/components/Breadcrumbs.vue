@@ -7,7 +7,7 @@ defineProps([
 </script>
 
 <template>
-    <div class="bg-white text-sm text-gray-500 sticky top-20 flex items-center text-nowrap overflow-x-auto sm:rounded-xl sm:mt-4 max-sm:px-3 px-5 py-3 shadow-xs no-scrollbar scroll-smooth z-20">
+    <div class="text-sm text-gray-500 sticky top-20 flex items-center text-nowrap overflow-x-auto px-3 sm:px-4 py-3 no-scrollbar scroll-smooth z-20">
         <template v-for="(crumb, i) in breadcrumbs" :key="i">
             <template v-if="i < breadcrumbs.length - 1">
                 <Link

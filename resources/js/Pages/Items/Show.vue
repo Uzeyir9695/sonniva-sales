@@ -45,7 +45,7 @@ const activeTab = ref('0')
     <div class="min-h-screen bg-[#f8f7 f4]">
 
         <!-- ================= BREADCRUMBS ================= -->
-        <Breadcrumbs :breadcrumbs="breadcrumbs"/>
+        <Breadcrumbs :breadcrumbs="breadcrumbs" class="bg-white rounded-xl mt-3" />
 
         <div class="mx-auto py-5 sm:pb-10 max-sm:mx-3">
             <!-- ================= TOP SECTION ================= -->
