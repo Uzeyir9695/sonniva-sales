@@ -7,7 +7,7 @@ const props = defineProps({
     cartItems: { type: Array, required: true },
 })
 
-const { removeFromCart, updateQuantity, isLoading, getQuantity, uniqueCount } = useCart()
+const { removeFromCart, updateQuantity, isLoading, getQuantity } = useCart()
 
 // Filter out items removed client-side
 const items = computed(() =>
@@ -107,7 +107,7 @@ function goToCheckout() {
             <div class="mb-8">
                 <h1 class="text-2xl font-bold text-gray-900">კალათა</h1>
                 <p class="text-gray-500 text-sm mt-1">
-                    {{ uniqueCount }} პროდუქტი
+                    {{ items.length }} პროდუქტი
                 </p>
             </div>
 
@@ -283,7 +283,7 @@ function goToCheckout() {
 
                         <div class="space-y-3 text-sm">
                             <div class="flex justify-between text-gray-500">
-                                <span>{{ uniqueCount }} პროდუქტი</span>
+                                <span>{{ selectedItems.length }} პროდუქტი</span>
                                 <span class="font-medium text-gray-700">{{ formatted(subtotal) }} ₾</span>
                             </div>
 

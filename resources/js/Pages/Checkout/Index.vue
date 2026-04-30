@@ -12,7 +12,7 @@ const props = defineProps({
 
 const page = usePage()
 const toast = useToast()
-const { getQuantity, uniqueCount } = useCart()
+const { getQuantity } = useCart()
 
 // ─── Tiered price helper ───────────────────────────────────────────────────
 
@@ -161,7 +161,7 @@ function initiatePayment() {
                     კალათაში დაბრუნება
                 </Link>
                 <h1 class="text-2xl font-bold text-gray-900">შეკვეთის გაფორმება</h1>
-                <p class="text-gray-500 text-sm mt-1">{{ uniqueCount }} პროდუქტი</p>
+                <p class="text-gray-500 text-sm mt-1">{{ items.length }} პროდუქტი</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -369,7 +369,7 @@ function initiatePayment() {
                         <!-- Totals -->
                         <div class="space-y-2.5 text-sm mb-5">
                             <div class="flex justify-between text-gray-500">
-                                <span>{{ uniqueCount }} პროდუქტი</span>
+                                <span>{{ items.length }} პროდუქტი</span>
                                 <span class="font-medium text-gray-700">{{ formatted(subtotal) }} ₾</span>
                             </div>
                             <div class="flex justify-between text-gray-500">
