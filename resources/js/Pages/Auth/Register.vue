@@ -198,13 +198,13 @@ async function register(){
 
                 <div v-if="selectedUserType?.key === 'individual'" class="space-y-2">
                     <div class="flex items-center gap-2">
-                        <Checkbox v-model="form.is_handyman" binary />
-                        <label for="ingredient1"> ვარ ხელოსანი </label>
+                        <Checkbox v-model="form.is_handyman" inputId="handyman" binary />
+                        <label for="handyman" class="cursor-pointer"> ვარ ხელოსანი </label>
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <Checkbox v-model="form.is_entrepreneur" binary />
-                        <label for="ingredient1"> ვარ მცირე მეწარმე </label>
+                        <Checkbox v-model="form.is_entrepreneur" inputId="entrepreneur" binary />
+                        <label for="entrepreneur" class="cursor-pointer"> ვარ მცირე მეწარმე </label>
                     </div>
                 </div>
 
