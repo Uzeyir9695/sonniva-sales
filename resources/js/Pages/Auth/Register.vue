@@ -168,6 +168,8 @@ async function register(){
                             v-model="form.password"
                             inputId="password"
                             toggleMask
+                            pt:maskIcon:class="z-10"
+                            pt:unmaskIcon:class="z-10"
                             :feedback="false"
                             :invalid="!!form.errors.password"
                         />
@@ -187,6 +189,8 @@ async function register(){
                             v-model="form.password_confirmation"
                             inputId="password_confirm"
                             toggleMask
+                            pt:maskIcon:class="z-10"
+                            pt:unmaskIcon:class="z-10"
                             :feedback="false"
                             :invalid="!!form.errors.password_confirmation"
                         />

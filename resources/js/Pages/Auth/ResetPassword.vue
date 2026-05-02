@@ -37,6 +37,8 @@
                 <Password
                     :feedback="false"
                     toggleMask
+                    pt:maskIcon:class="z-10"
+                    pt:unmaskIcon:class="z-10"
                     inputClass="w-full rounded-md focus:shadow-none"
                     :invalid="form.errors.password"
                     class="w-full"
@@ -47,7 +49,17 @@
             </FloatLabel>
 
             <FloatLabel variant="on">
-                <Password toggleMask :feedback="false" inputClass="w-full rounded-md focus:shadow-none" :invalid="form.errors.password_confirmation" class="w-full" v-model="form.password_confirmation" inputId="password_confirmation" />
+                <Password
+                    toggleMask
+                    pt:maskIcon:class="z-10"
+                    pt:unmaskIcon:class="z-10"
+                    :feedback="false"
+                    inputClass="w-full rounded-md focus:shadow-none"
+                    :invalid="form.errors.password_confirmation"
+                    class="w-full"
+                    v-model="form.password_confirmation"
+                    inputId="password_confirmation"
+                />
                 <label for="password_confirmation">გაიმეორე ახალი პაროლი</label>
             </FloatLabel>
 

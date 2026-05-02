@@ -1,10 +1,8 @@
 <script setup>
-import { ref } from 'vue';
-import {Link, useForm, router, Head} from '@inertiajs/vue3';
+import {Link, useForm, Head} from '@inertiajs/vue3';
 import { Divider } from 'primevue';
 
 const props = defineProps(['errors']);
-const remember = ref(false);
 
 const form = useForm({
     login: null,   // <-- single field for email or mobile
@@ -69,11 +67,13 @@ function login() {
                         <FloatLabel variant="on">
                             <Password
                                 v-model="form.password"
-                                  toggleMask
-                                  pt:unmaskIcon:class="-mt -2"
-                                  :feedback="false"
-                                  :invalid="!!form.errors.password"
-                                  class="w-full" inputId="password" />
+                                toggleMask
+                                pt:maskIcon:class="z-10"
+                                pt:unmaskIcon:class="z-10"
+                               :feedback="false"
+                               :invalid="!!form.errors.password"
+                                class="w-full" inputId="password"
+                            />
                             <label for="password" :class="{'text-danger': form.errors.password }">
                                 პაროლი
                             </label>
