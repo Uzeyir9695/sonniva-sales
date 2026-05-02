@@ -41,6 +41,9 @@ async function changePassword(){
             <FloatLabel variant="on">
                 <Password
                     v-model="passwordForm.current_password"
+                    toggleMask
+                    pt:maskIcon:class="z-10"
+                    pt:unmaskIcon:class="z-10"
                     :feedback="false"
                     :invalid="!!passwordForm.errors.current_password"
                     inputId="current_password"
@@ -52,6 +55,9 @@ async function changePassword(){
             <FloatLabel variant="on">
                 <Password
                     v-model="passwordForm.password"
+                    toggleMask
+                    pt:maskIcon:class="z-10"
+                    pt:unmaskIcon:class="z-10"
                     :feedback="false"
                     :invalid="!!passwordForm.errors.password"
                     inputId="password"
@@ -64,9 +70,12 @@ async function changePassword(){
             <FloatLabel variant="on">
                 <Password
                     v-model="passwordForm.password_confirmation"
-                  :feedback="false"
-                  :invalid="!!passwordForm.errors.password_confirmation"
-                  inputId="password_confirmation"
+                    toggleMask
+                    pt:maskIcon:class="z-10"
+                    pt:unmaskIcon:class="z-10"
+                    :feedback="false"
+                    :invalid="!!passwordForm.errors.password_confirmation"
+                    inputId="password_confirmation"
                     fluid
                 />
                 <label for="password_confirmation">გაიმეორე ახალი პაროლი</label>
