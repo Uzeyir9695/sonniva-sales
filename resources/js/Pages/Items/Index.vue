@@ -1,5 +1,5 @@
 <script setup>
-import { Deferred, Link, router } from '@inertiajs/vue3';
+import { Deferred, Head, Link, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import GridSkeletonLoader from '@/Shared/skeletonLoaders/GridSkeletonLoader.vue';
 import debounce from 'lodash/debounce';
@@ -145,7 +145,15 @@ function removeChip(chip) {
 </script>
 
 <template>
-    <Head :title="decodeURIComponent(Object.values(route().params).filter(Boolean)[0] || 'Home')" />
+    <Head :title="breadcrumbs?.at(-1)?.label">
+        <meta name="description" :content="`${breadcrumbs?.at(-1)?.label} - იხილეთ Sonniva-ს სრული კატალოგი`" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Sonniva" />
+        <meta property="og:title" :content="breadcrumbs?.at(-1)?.label" />
+        <meta property="og:description" :content="`${breadcrumbs?.at(-1)?.label} - იხილეთ Sonniva-ს სრული კატალოგი`" />
+        <meta property="og:url" :content="$page.props.ziggy.location" />
+        <meta property="og:image" :content="`${$page.props.ziggy.url}/logo/logo.png`" />
+    </Head>
 
 
     <div class="min-h-[calc(100vh-80px)] bg-[#f7f6f 3]">

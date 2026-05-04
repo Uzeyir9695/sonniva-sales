@@ -26,6 +26,26 @@
 {{--        </script>--}}
 
         <script async src="https://static.linguise.com/script-js/switcher.bundle.js?d=pk_2ULbqKvkPcCPvJK9MW7qD9FpmOGFTbIX"></script>
+
+        <link rel="canonical" href="{{ request()->url() }}" />
+
+        @php
+            $orgJsonLd = json_encode([
+                '@context' => 'https://schema.org',
+                '@type'    => 'Organization',
+                'name'     => config('app.name'),
+                'url'      => url('/'),
+                'logo'     => url('/logo/logo.png'),
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        @endphp
+        <script type="application/ld+json">{!! $orgJsonLd !!}</script>
+
+        @isset($json_ld)
+            <script type="application/ld+json">{!! json_encode($json_ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
+        @endisset
+        @isset($breadcrumb_json_ld)
+            <script type="application/ld+json">{!! json_encode($breadcrumb_json_ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
+        @endisset
         @routes
         @vite('resources/js/app.js')
         @inertiaHead

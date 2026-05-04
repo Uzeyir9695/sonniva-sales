@@ -7,7 +7,7 @@ use App\Models\Category;
 use App\Models\Item;
 use App\Services\BusinessCentralService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 use Inertia\Inertia;
 
 class ItemController extends Controller
@@ -37,28 +37,28 @@ class ItemController extends Controller
         }
 
         // Get distinct attributes for filter sidebar
-        $allAttributes = Attribute::whereHas('item', fn($q) => $q->whereIn('category_code', $codes))
+        $allAttributes = Attribute::whereHas('item', fn ($q) => $q->whereIn('category_code', $codes))
             ->select('bc_attribute_id', 'name', 'value')
             ->distinct()
             ->get();
 
         $attributes = $allAttributes
             ->groupBy('bc_attribute_id')
-            ->map(fn($group) => [
-                'id'     => $group->first()->bc_attribute_id,
-                'name'   => $group->first()->name,
+            ->map(fn ($group) => [
+                'id' => $group->first()->bc_attribute_id,
+                'name' => $group->first()->name,
                 'values' => $group->pluck('value')->filter()->unique()->values(),
             ])
             ->values()
-            ->filter(fn($attr) => $attr['values']->count() >= 2)
+            ->filter(fn ($attr) => $attr['values']->count() >= 2)
             ->values();
 
         $filters = json_decode($request->input('filters'), true) ?? [];
 
         $items = Item::whereIn('category_code', $codes)
-            ->when(!empty($filters), function ($query) use ($filters) {
+            ->when(! empty($filters), function ($query) use ($filters) {
                 foreach ($filters as $attributeId => $values) {
-                    if (!empty($values)) {
+                    if (! empty($values)) {
                         $query->whereHas('attributes', function ($q) use ($attributeId, $values) {
                             $q->where('bc_attribute_id', $attributeId)
                                 ->whereIn('value', $values);
@@ -66,15 +66,15 @@ class ItemController extends Controller
                     }
                 }
             })
-            ->when($request->price_min, fn($q) => $q->where('unit_price', '>=', $request->price_min))
-            ->when($request->price_max, fn($q) => $q->where('unit_price', '<=', $request->price_max))
-            ->when($request->stock === 'in', fn($q) => $q->where('inventory', '>', 0))
-            ->when($request->stock === 'out', fn($q) => $q->where('inventory', '<=', 0))
+            ->when($request->price_min, fn ($q) => $q->where('unit_price', '>=', $request->price_min))
+            ->when($request->price_max, fn ($q) => $q->where('unit_price', '<=', $request->price_max))
+            ->when($request->stock === 'in', fn ($q) => $q->where('inventory', '>', 0))
+            ->when($request->stock === 'out', fn ($q) => $q->where('inventory', '<=', 0))
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
             ->paginate(24);
 
         // Build related categories for sidebar navigation
-        $relatedCategories = match($category->level) {
+        $relatedCategories = match ($category->level) {
             1 => Category::where('parent_id', $category->code)
                 ->orderBy('sort_order')
                 ->get(['name', 'slug', 'code']),
@@ -104,9 +104,11 @@ class ItemController extends Controller
 
         $breadcrumbs = $this->buildCategoryBreadcrumbs($category);
 
+        View::share('breadcrumb_json_ld', $this->buildBreadcrumbJsonLd($breadcrumbs));
+
         return Inertia::render('Items/Index', [
             'attributes' => $attributes,
-            'items' => Inertia::defer(fn() => $items),
+            'items' => Inertia::defer(fn () => $items),
             'breadcrumbs' => $breadcrumbs,
             'relatedCategories' => $relatedCategories,
             'relatedCategoriesParent' => $relatedCategoriesParent,
@@ -121,16 +123,19 @@ class ItemController extends Controller
             ->limit(10)
             ->get(['id', 'name', 'slug', 'unit_price', 'images', 'inventory']);
 
-//        $inventory = $bcService->calcInventory($item->no);
+        //        $inventory = $bcService->calcInventory($item->no);
 
         $breadcrumbs = $this->buildBreadcrumbs($item);
+
+        View::share('json_ld', $this->buildJsonLd($item));
+        View::share('breadcrumb_json_ld', $this->buildBreadcrumbJsonLd($breadcrumbs, $item));
 
         return Inertia::render('Items/Show', [
             'item' => $item,
             'attributes' => $item->attributes,
             'similarItems' => $similarItems,
             'breadcrumbs' => $breadcrumbs,
-//            'inventory' => $inventory,
+            //            'inventory' => $inventory,
         ]);
     }
 
@@ -160,10 +165,93 @@ class ItemController extends Controller
             $current = $current->parent;
         }
 
-        return collect($chain)->map(fn($cat) => [
+        return collect($chain)->map(fn ($cat) => [
             'label' => $cat->name,
             'slug' => $cat->slug,
         ])->toArray();
+    }
+
+    private function buildBreadcrumbJsonLd(array $breadcrumbs, ?Item $item = null): array
+    {
+        $elements = [[
+            '@type' => 'ListItem',
+            'position' => 1,
+            'name' => 'მთავარი',
+            'item' => url('/'),
+        ]];
+
+        $position = 2;
+        $paramNames = ['grandparentSlug', 'parentSlug', 'childSlug'];
+        $routeParams = [];
+
+        foreach (array_values(array_filter($breadcrumbs, fn ($c) => ! empty($c['slug']))) as $index => $crumb) {
+            $routeParams[$paramNames[min($index, 2)]] = $crumb['slug'];
+
+            $elements[] = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'name' => $crumb['label'],
+                'item' => route('items.index', $routeParams),
+            ];
+        }
+
+        $lastCrumb = end($breadcrumbs);
+        if ($lastCrumb && empty($lastCrumb['slug'])) {
+            $el = [
+                '@type' => 'ListItem',
+                'position' => $position,
+                'name' => $lastCrumb['label'],
+            ];
+            if ($item) {
+                $el['item'] = route('items.show', ['item' => $item->slug]);
+            }
+            $elements[] = $el;
+        }
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => $elements,
+        ];
+    }
+
+    private function buildJsonLd(Item $item): array
+    {
+        $images = collect($item->images ?? [])
+            ->map(fn (string $filename) => url("/storage/items/{$filename}"))
+            ->values()
+            ->toArray();
+
+        $jsonLd = [
+            '@context' => 'https://schema.org/',
+            '@type' => 'Product',
+            'name' => $item->name,
+            'sku' => $item->no,
+            'brand' => [
+                '@type' => 'Brand',
+                'name' => config('app.name'),
+            ],
+            'offers' => [
+                '@type' => 'Offer',
+                'url' => route('items.show', ['item' => $item->slug]),
+                'priceCurrency' => 'GEL',
+                'price' => number_format((float) $item->unit_price, 2, '.', ''),
+                'availability' => $item->inventory > 0
+                    ? 'https://schema.org/InStock'
+                    : 'https://schema.org/OutOfStock',
+                'itemCondition' => 'https://schema.org/NewCondition',
+            ],
+        ];
+
+        if ($item->description) {
+            $jsonLd['description'] = $item->description;
+        }
+
+        if (! empty($images)) {
+            $jsonLd['image'] = $images;
+        }
+
+        return $jsonLd;
     }
 
     public function search(Request $request)

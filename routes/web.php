@@ -9,20 +9,22 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\ItemController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\Payment\InvoiceController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Middleware\NoIndexMiddleware;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-    Route::get('/', [HomeController::class, 'index'])->name('home');
-    Route::get('/read-more', [HomeController::class, 'readMore'])->name('read.more');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/read-more', [HomeController::class, 'readMore'])->name('read.more');
 
-    /*******************************************************************************************************************
-     * Auth Routes
-     * *****************************************************************************************************************/
+/*******************************************************************************************************************
+ * Auth Routes
+ * *****************************************************************************************************************/
+Route::middleware([NoIndexMiddleware::class])->group(function () {
     Route::get('register', [RegisterController::class, 'showRegisterForm'])->name('register.show')->middleware('guest');
     Route::post('register/submit-form', [RegisterController::class, 'register'])->name('register')->middleware('guest');
     Route::get('register/verify-phone', [RegisterController::class, 'showRegisterVerifyPhone'])->name('register.verify-phone.show');
@@ -56,120 +58,119 @@ use Inertia\Inertia;
 
     Route::post('forgot-password/reset', [ForgotPasswordController::class, 'resetPassword'])
         ->name('forgot-password.reset');
+});
 
+Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
+    /*******************************************************************************************************************
+     * Admin Routes
+     * *****************************************************************************************************************/
+    Route::name('admin.')->prefix('admin')->middleware(['can:access-admin'])->group(function () {
+        // ******** Admin Users Controllers ********//
+        Route::get('/', [AdminController::class, 'index'])->name('index');
 
-    Route::middleware(['auth'])->group( function () {
-        /*******************************************************************************************************************
-         * Admin Routes
-         * *****************************************************************************************************************/
-        Route::name('admin.')->prefix('admin')->middleware(['can:access-admin'])->group(function () {
-            //******** Admin Users Controllers ********//
-            Route::get('/', [AdminController::class, 'index'])->name('index');
+        // ******** Admin Orders Controllers ********//
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+        Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
 
-            //******** Admin Orders Controllers ********//
-            Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
-            Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
-            Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
-
-            //******** Admin Users Controllers ********//
-            Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
-            Route::get('/user/{user}', [AdminUserController::class, 'edit'])->name('users.get-user');
-            Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.delete');
-        });
-
-        /*******************************************************************************************************************
-         * Settings (Profile / Account) Routes
-         * *****************************************************************************************************************/
-        Route::name('account.')->prefix('account')->group(function () {
-            Route::get('/', [AccountController::class, 'index'])->name('index');
-            Route::put('/update/{user}', [AccountController::class, 'update'])->name('update');
-            Route::put('/change-password', [AccountController::class, 'changePassword'])->name('change-password');
-        });
+        // ******** Admin Users Controllers ********//
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/user/{user}', [AdminUserController::class, 'edit'])->name('users.get-user');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.delete');
     });
 
-    Route::middleware('auth')->group(function () {
-        /*******************************************************************************************************************
-         * Wishlist Route
-         * *****************************************************************************************************************/
-        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
-
-        /*******************************************************************************************************************
-         * Cart Route
-         * *****************************************************************************************************************/
-        Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-
-        Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-
-        /*******************************************************************************************************************
-         * Payment Route
-         * *****************************************************************************************************************/
-        Route::post('/payment/initiate', [PaymentController::class, 'initiate'])->name('payment.initiate');
-
-        Route::post('/initiate/payment/invoice', [InvoiceController::class, 'initiateInvoice'])->name('initiate.payment.invoice');
-
-        Route::get('/payment/success/{provider}', [PaymentController::class, 'success'])->name('payment.success');
-
-        Route::get('/payment/cancel/{provider}', [PaymentController::class, 'cancel'])->name('payment.cancel');
-
-        Route::get('/payment/invoice/{invoice}', [InvoiceController::class, 'success'])->name('payment.invoice.success');
-
-        Route::get('/pro-credit-bank/order-details', [PaymentController::class, 'proCreditBankCallback'])->name('payment.pcb.order.details');
-
+    /*******************************************************************************************************************
+     * Settings (Profile / Account) Routes
+     * *****************************************************************************************************************/
+    Route::name('account.')->prefix('account')->group(function () {
+        Route::get('/', [AccountController::class, 'index'])->name('index');
+        Route::put('/update/{user}', [AccountController::class, 'update'])->name('update');
+        Route::put('/change-password', [AccountController::class, 'changePassword'])->name('change-password');
     });
+});
 
-    Route::post('/bc-sales-order/{orderItem}', [PaymentController::class, 'sendOrderToBC'])->name('bc.send-order');
+Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
+    /*******************************************************************************************************************
+     * Wishlist Route
+     * *****************************************************************************************************************/
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 
-    // Payment webhook/callback (NO auth middleware, NO CSRF)
-    Route::post('/payment/callback', [PaymentController::class, 'callback'])
-        ->name('payment.callback')
-        ->withoutMiddleware(['web']);
+    /*******************************************************************************************************************
+     * Cart Route
+     * *****************************************************************************************************************/
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
-    Route::get('/order/download/{filename}', [InvoiceController::class, 'download'])
-        ->where('filename', '.*') // <- important
-        ->name('download.file');
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 
+    /*******************************************************************************************************************
+     * Payment Route
+     * *****************************************************************************************************************/
+    Route::post('/payment/initiate', [PaymentController::class, 'initiate'])->name('payment.initiate');
+
+    Route::post('/initiate/payment/invoice', [InvoiceController::class, 'initiateInvoice'])->name('initiate.payment.invoice');
+
+    Route::get('/payment/success/{provider}', [PaymentController::class, 'success'])->name('payment.success');
+
+    Route::get('/payment/cancel/{provider}', [PaymentController::class, 'cancel'])->name('payment.cancel');
+
+    Route::get('/payment/invoice/{invoice}', [InvoiceController::class, 'success'])->name('payment.invoice.success');
+
+    Route::get('/pro-credit-bank/order-details', [PaymentController::class, 'proCreditBankCallback'])->name('payment.pcb.order.details');
+
+});
+
+Route::post('/bc-sales-order/{orderItem}', [PaymentController::class, 'sendOrderToBC'])->name('bc.send-order');
+
+// Payment webhook/callback (NO auth middleware, NO CSRF)
+Route::post('/payment/callback', [PaymentController::class, 'callback'])
+    ->name('payment.callback')
+    ->withoutMiddleware(['web']);
+
+Route::get('/order/download/{filename}', [InvoiceController::class, 'download'])
+    ->where('filename', '.*') // <- important
+    ->name('download.file');
 
 /*******************************************************************************************************************
      * FAQ Route
      * *****************************************************************************************************************/
-    Route::get('/frequently-asked-questions', function () {
-        return Inertia::render('faq/Index');
-    })->name('faq.index');
+Route::get('/frequently-asked-questions', function () {
+    return Inertia::render('faq/Index');
+})->name('faq.index');
 
-    /*******************************************************************************************************************
-     * Policies Routes
-     * *****************************************************************************************************************/
-    Route::get('/about-us', function () {
-        return Inertia::render('about-us/Index');
-    })->name('about-us');
+/*******************************************************************************************************************
+ * Policies Routes
+ * *****************************************************************************************************************/
+Route::get('/about-us', function () {
+    return Inertia::render('about-us/Index');
+})->name('about-us');
 
-    Route::get('/terms-of-service', function () {
-        return Inertia::render('policies/TermsOfService');
-    })->name('terms-of-service');
+Route::get('/terms-of-service', function () {
+    return Inertia::render('policies/TermsOfService');
+})->name('terms-of-service');
 
-    Route::get('/keep-conditions', function () {
-        return Inertia::render('policies/KeepConditions');
-    })->name('keep-conditions');
+Route::get('/keep-conditions', function () {
+    return Inertia::render('policies/KeepConditions');
+})->name('keep-conditions');
 
-    Route::get('/privacy-policy', function () {
-        return Inertia::render('policies/PrivacyPolicy');
-    })->name('privacy-policy');
+Route::get('/privacy-policy', function () {
+    return Inertia::render('policies/PrivacyPolicy');
+})->name('privacy-policy');
 
-    Route::get('/cookie-policy', function () {
-        return Inertia::render('policies/CookiePolicy');
-    })->name('cookie-policy');
+Route::get('/cookie-policy', function () {
+    return Inertia::render('policies/CookiePolicy');
+})->name('cookie-policy');
 
-    /*******************************************************************************************************************
-     * Items Routes
-     * *****************************************************************************************************************/
-    Route::get('/item/{item:slug}', [ItemController::class, 'show'])->name('items.show');
+/*******************************************************************************************************************
+ * Items Routes
+ * *****************************************************************************************************************/
+Route::get('/item/{item:slug}', [ItemController::class, 'show'])->name('items.show');
 
-    Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])
-        ->name('items.index');
+Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])
+    ->name('items.index');
 
 /***********************************************************************************************************************
  * Fallback Route
  * *********************************************************************************************************************/
-    Route::fallback(function() {
-        return Inertia::render('404');
-    });
+Route::fallback(function () {
+    return Inertia::render('404');
+});

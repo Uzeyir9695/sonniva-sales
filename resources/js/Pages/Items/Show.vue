@@ -1,6 +1,6 @@
 <script setup>
-import { Link } from '@inertiajs/vue3'
-import { ref, computed } from 'vue'
+import { Head, Link, usePage } from '@inertiajs/vue3'
+import { ref, computed, onMounted } from 'vue'
 import { useClipboard } from '@vueuse/core';
 import SimilarItems from '@/Pages/Items/SimilarItems.vue';
 import ItemGallery from '@/Pages/Items/ItemGallery.vue';
@@ -37,10 +37,29 @@ const overLimit = computed(() => quantity.value > props.item?.inventory)
 
 /* ---------------- Tabs ---------------- */
 const activeTab = ref('0')
+
+const metaDescription = computed(() => {
+    const desc = props.item?.description
+    if (desc) return desc.length > 155 ? desc.slice(0, 152) + '...' : desc
+    return props.item?.name ?? ''
+})
+
+const ogImage = computed(() => {
+    if (!images.value.length) return null
+    return usePage().props.ziggy.url + props.item.storage_path + '/' + images.value[0]
+})
 </script>
 
 <template>
-    <Head :title="item?.slug" />
+    <Head :title="item?.name">
+        <meta name="description" :content="metaDescription" />
+        <meta property="og:type" content="product" />
+        <meta property="og:site_name" content="Sonniva" />
+        <meta property="og:title" :content="item?.name" />
+        <meta property="og:description" :content="metaDescription" />
+        <meta property="og:url" :content="$page.props.ziggy.location" />
+        <meta v-if="ogImage" property="og:image" :content="ogImage" />
+    </Head>
 
     <div class="min-h-screen bg-[#f8f7 f4]">
 
