@@ -16,6 +16,16 @@
         <script src="https://kit.fontawesome.com/2ba6cc2cc6.js" crossorigin="anonymous"></script>
         <script src="https://www.google.com/recaptcha/enterprise.js?render=6LcW6nwsAAAAAAm5AmwLcYU2MkUEtJczfTdo_vXh"></script>
 
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XC9KBFK3KK"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-XC9KBFK3KK');
+        </script>
+
 {{--        <script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>--}}
 {{--        <script>--}}
 {{--            Weglot.initialize({--}}
@@ -38,14 +48,17 @@
                 'logo'     => url('/logo/logo.png'),
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         @endphp
+
         <script type="application/ld+json">{!! $orgJsonLd !!}</script>
 
         @isset($json_ld)
             <script type="application/ld+json">{!! json_encode($json_ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
         @endisset
+
         @isset($breadcrumb_json_ld)
             <script type="application/ld+json">{!! json_encode($breadcrumb_json_ld, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
         @endisset
+
         @routes
         @vite('resources/js/app.js')
         @inertiaHead
