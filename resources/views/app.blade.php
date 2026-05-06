@@ -23,7 +23,11 @@
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
 
-            gtag('config', 'G-XC9KBFK3KK');
+            @if(app()->environment('production'))
+                gtag('config', 'G-XC9KBFK3KK');
+            @else
+                gtag('config', 'G-XC9KBFK3KK', { debug_mode: true });
+            @endif
         </script>
 
 {{--        <script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>--}}
