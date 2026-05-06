@@ -198,6 +198,7 @@ async function register(){
                     </FloatLabel>
                 </InputGroup>
 
+                <p>თუ გაქვთ მცირე მეწარმის სტატუსი, ან ხართ ხელოსანი, სპეციალური შეთავაზებების მისაღებად დაგვიკავშირდით</p>
                 <!-- Submit Button -->
                 <div>
                     <Button
