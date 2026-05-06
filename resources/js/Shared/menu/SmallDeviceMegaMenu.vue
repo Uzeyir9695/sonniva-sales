@@ -177,7 +177,7 @@ defineExpose({ openDrawer })
                                     <div
                                         v-if="hasChildren(item)"
                                         @click="navigateTo(item)"
-                                        class="w-full px-3 py-3 space-y-1 cursor-pointer rounded-xl text-gray-800 hover:bg-gray-50 hover:text-brand-400 transition-colors"
+                                        class="w-full px-3 py-3 space-y-1 cursor-pointer rounded-xl text-gray-800 shadow-sm hover:bg-gray-50 hover:text-brand-400 transition-colors"
                                     >
                                         <img v-if="item.image" :src="`${item.storage_path}/${item.image}`" :alt="item.name" class="w-28 h-20 object-cover rounded-lg mx-auto mb-2" />
                                         <button
@@ -197,7 +197,7 @@ defineExpose({ openDrawer })
                                         style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
                                         v-ripple
                                         @click="closeDrawer"
-                                        class="w-full px-3 py-3 space-y-1 rounded-xl text-gray-800 hover:bg-gray-50 hover:text-brand-400 transition-colors block"
+                                        class="w-full px-3 py-3 space-y-1 rounded-xl text-gray-800 shadow-sm hover:bg-gray-50 hover:text-brand-400 transition-colors block"
                                     >
                                         <img v-if="item.image" :src="`${item.storage_path}/${item.image}`" :alt="item.name" class="w-28 h-20 object-cover rounded-lg mx-auto mb-2" />
                                         <span class="text-sm font-medium">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : '(0)' }}</span>
