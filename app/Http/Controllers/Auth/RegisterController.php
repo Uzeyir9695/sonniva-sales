@@ -47,8 +47,6 @@ class RegisterController extends Controller
         $validated = $request->validate([
             'user_type' => 'required|string|max:20',
             'tax_id' => 'required|string|min:9|max:50',
-            'is_handyman' => 'required',
-            'is_entrepreneur' => 'required',
             'name' => 'required|string|max:30',
             'lastname'  => 'required_if:user_type,individual|max:30',
             'phone_country'  => 'required|string',
@@ -81,8 +79,6 @@ class RegisterController extends Controller
             'register_data' => [
                 'user_type' => $validated['user_type'],
                 'tax_id' => $validated['tax_id'],
-                'is_handyman' => $validated['is_handyman'],
-                'is_entrepreneur' => $validated['is_entrepreneur'],
                 'name' => $validated['name'],
                 'lastname' => $validated['lastname'] ?? null,
                 'phone_country' => $validated['phone_country'],
