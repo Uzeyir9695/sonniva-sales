@@ -65,7 +65,7 @@ function selectSuggestion(item) {
 <template>
     <div class="w-full">
         <FloatLabel variant="on">
-            <PrimeInputText id="city" class="p-2.5" v-model="query" @input="onInput" />
+            <PrimeInputText id="city" class="py-2.5!" v-model="query" @input="onInput" />
             <label for="city">მისამართი <span class="text-red-500">*</span></label>
         </FloatLabel>
         <ul v-if="suggestions.length" class="border rounded-md bg-white mt-2 shadow-md">

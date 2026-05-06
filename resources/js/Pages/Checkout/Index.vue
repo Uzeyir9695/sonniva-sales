@@ -238,7 +238,7 @@ function initiatePayment() {
                             <PrimeInputText
                                 v-model="form.apartment_number"
                                 placeholder="ბინის / ოფისის ნომერი (არასავალდებულო)"
-                                class="p-2.5"
+                                class="py-2.5!"
                             />
                         </div>
                     </div>
