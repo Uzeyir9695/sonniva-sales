@@ -46,6 +46,7 @@ const categoryIcons = {
             <Link
                 v-for="category in categories"
                 :key="category.name"
+                :id="category.code"
                 style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
                 v-ripple
                 @mouseenter="activeCategory = category"
@@ -54,8 +55,8 @@ const categoryIcons = {
                 :class="activeCategory?.name === category.name ? 'bg-gray-50' : 'hover:bg-gray-300'"
             >
                 <p class="flex items-center gap-3">
-<!--                    <img v-if="category.image" :src="`${category.storage_path}/${category.image}`" :alt="category.name" class="w-12 h-12 object-cover rounded-lg" />-->
-                    <i :class="[categoryIcons[category.code] ?? 'pi pi-tag', 'text-base', activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-400']"></i>
+                    <img :src="`categories-icons/${category.code}.png`" :alt="category.name" class="w-12 h-12 object-cover rounded-lg" />
+<!--                    <i :class="[categoryIcons[category.code] ?? 'pi pi-tag', 'text-base', activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-400']"></i>-->
                     <span
                         class="text-sm font-medium"
                         :class="[category.name === 'Sale' ? 'text-brand-500' : activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-700']"
