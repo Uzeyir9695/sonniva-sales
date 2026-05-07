@@ -30,7 +30,7 @@ class PCBService
             [
                 'order' => [
                     'typeRid' => 1,
-                    'amount'  => $totalAmount,
+                    'amount'  => 0.01,
                     'currency'=> 'GEL',
                     'language' => strtolower($language),
                     'hppRedirectUrl' => $hppRedirectUrl,
