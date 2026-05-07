@@ -40,7 +40,7 @@ const categoryIcons = {
         </Teleport>
 
         <!-- Left Category List -->
-        <div class="large-device-menu w-72 bg-white p-2 rounded-xl shadow-sm shrink-0 z-40" ref="sidebarRef"
+        <div class="large-device-menu w-80 bg-white p-2 rounded-xl shadow-sm shrink-0 z-40" ref="sidebarRef"
              :class="activeCategory ? 'rounded-r-none' : ''"
         >
             <Link
@@ -51,7 +51,7 @@ const categoryIcons = {
                 v-ripple
                 @mouseenter="activeCategory = category"
                 :href="route('items.index', category.slug)"
-                class="flex items-center justify-between rounded-xl px-5 py-3.5 cursor-pointer transition-colors"
+                class="flex items-center justify-between rounded-xl px-5 py-2 cursor-pointer transition-colors"
                 :class="activeCategory?.name === category.name ? 'bg-gray-50' : 'hover:bg-gray-300'"
             >
                 <p class="flex items-center gap-3">
@@ -71,7 +71,7 @@ const categoryIcons = {
         <!-- Mega Menu Panel -->
         <div
             v-if="activeCategory && activeCategory.subs?.length"
-            class="mega-menu-panel absolute left-72 top-0 h-full z-40 bg-white rounded-r-xl border border-gray-200 shadow-2xl min-w-[680px] xl:min-w-[990px] p-8 overflow-y-auto"
+            class="mega-menu-panel absolute left-80 top-0 h-full z-40 bg-white rounded-r-xl border border-gray-200 shadow-2xl min-w-[680px] xl:min-w-[990px] p-8 overflow-y-auto"
             @mouseleave="activeCategory = null"
         >
             <!-- Header -->
