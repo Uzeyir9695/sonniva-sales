@@ -113,7 +113,7 @@ defineExpose({ openDrawer })
             <div
                 v-if="drawerOpen"
                 ref="drawerRef"
-                class="fixed top-20 left-0 z-50 h-[calc(100vh-80px)] w-full sm:w-80 bg-white shadow-2xl flex flex-col"
+                class="fixed top-20 left-0 z-50 h-[calc(100dvh-80px)] w-full sm:w-80 bg-white shadow-2xl flex flex-col"
             >
                 <div class="bg-gray-50 shado w-full sm:w-xs flex items-center justify-between px-4 py-4 border-y border-gray-100 sm:hidden">
                     <WeglotSwitcher />
