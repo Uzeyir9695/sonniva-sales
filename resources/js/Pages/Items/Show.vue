@@ -314,7 +314,7 @@ const ogImage = computed(() => {
                                         <div
                                             v-for="attr in attributes"
                                             :key="attr.id"
-                                            class="flex justify-between bg-gray-50 px-5 py-3 rounded-xl text-sm"
+                                            class="flex justify-between bg-gray-50 px-5 py-3 gap-x-6 rounded-xl text-sm"
                                         >
                                             <span class="text-gray-500">{{ attr.name }}</span>
                                             <span class="font-medium text-gray-900">{{ attr.value }}</span>
