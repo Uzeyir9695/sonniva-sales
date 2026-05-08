@@ -8,6 +8,10 @@
 }
 
 @layer components {
+    .grecaptcha-badge {
+        visibility: hidden;
+    }
+
     .p-skeleton {
         @apply bg-slate-200;
     }
