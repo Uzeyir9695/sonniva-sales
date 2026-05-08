@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->text('description')->nullable();
             $table->string('slug')->unique();
-            $table->integer('inventory')->default(0);
-            $table->decimal('unit_price', 10, 2)->default(0);
+            $table->integer('inventory')->default(0)->index();
+            $table->decimal('unit_price', 10, 2)->default(0)->index();
             $table->json('prices')->nullable();
             $table->string('base_uom_desc')->nullable();
             $table->decimal('min_qty_unit_price', 10, 2)->default(0);
