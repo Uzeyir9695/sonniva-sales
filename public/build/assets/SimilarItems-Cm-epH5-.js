@@ -1,0 +1,1 @@
+import{_ as r}from"./SwiperCarousel-CyqZuqM5.js";import{h as m,o as e}from"./app-CPhIpcQJ.js";import"./navigation-C8GDFR9x.js";import"./ItemCard-3mwIZrEz.js";import"./index-DqkCPqmD.js";/* empty css            */const l={__name:"SimilarItems",props:{items:Array},setup(t){return(i,o)=>(e(),m(r,{items:t.items,title:"მსგავსი პროდუქტები"},null,8,["items"]))}};export{l as default};
