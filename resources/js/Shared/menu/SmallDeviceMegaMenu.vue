@@ -157,14 +157,17 @@ defineExpose({ openDrawer })
                                     v-for="item in currentItems"
                                     :key="item.name"
                                     @click="navigateTo(item)"
-                                    class="w-full px-5 py-3.5 cursor-pointer rounded-xl text-gray-800 hover:bg-gray-50 hover:text-brand-400 transition-colors"
+                                    class="w-full px-5 py-2 cursor-pointer rounded-xl text-gray-800 hover:bg-gray-50 hover:text-brand-400 transition-colors"
                                 >
                                     <button
                                         style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
                                         v-ripple
                                         class="w-full flex items-center justify-between cursor-pointer text-left"
                                     >
-                                        <span class="text-sm font-medium text-inherit">{{ item.name }}</span>
+                                        <div class="flex items-center gap-x-3">
+                                            <img :src="`/categories-icons/${item.code}.png?v=1`" :alt="item.name" class="w-10 h-10 object-cover rounded-lg" />
+                                            <span class="text-sm font-medium text-inherit">{{ item.name }}</span>
+                                        </div>
                                         <i class="pi pi-chevron-right text-xs text-inherit"></i>
                                     </button>
                                 </div>
@@ -177,16 +180,16 @@ defineExpose({ openDrawer })
                                     <div
                                         v-if="hasChildren(item)"
                                         @click="navigateTo(item)"
-                                        class="w-full px-2.5 py-2.5 space-y-1 cursor-pointer rounded-xl text-gray-800 shadow-sm hover:bg-gray-50 hover:text-brand-400 transition-colors"
+                                        class="flex flex-col items-center text-center w-full px-2.5 py-2.5 space-y-1 cursor-pointer rounded-xl text-gray-800 shadow-sm hover:bg-gray-50 hover:text-brand-400 transition-colors"
                                     >
-                                        <img v-if="item.image" :src="`${item.storage_path}/${item.image}`" :alt="item.name" class="w-full h-20 object-cover rounded-lg mx -auto mb-2" />
+                                        <img v-if="item.image" :src="`${item.storage_path}/${item.image}`" :alt="item.name" class="w-32 h-20 object-cover rounded-lg mx-auto mb-2" />
                                         <button
                                             style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
                                             v-ripple
-                                            class="w-full flex items-center justify-between cursor-pointer"
+                                            class="w-full flex items-center justify-center cursor-pointer gap-1"
                                         >
-                                            <span class="text-start text-sm font-medium text-inherit">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : item.items?.length < 1 ? '(0)' : '' }}</span>
-                                            <i class="pi pi-chevron-right text-xs ml-auto text-amber-400"></i>
+                                            <span class="text-sm font-medium text-inherit">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : item.items?.length < 1 ? '(0)' : '' }}</span>
+                                            <i class="pi pi-chevron-right text-xs text-amber-400"></i>
                                         </button>
                                     </div>
 
@@ -197,9 +200,9 @@ defineExpose({ openDrawer })
                                         style="--p-ripple-background: rgba(251, 191, 36, 0.3)"
                                         v-ripple
                                         @click="closeDrawer"
-                                        class="w-full px-3 py-3 space-y-1 rounded-xl text-gray-800 shadow-sm hover:bg-gray-50 hover:text-brand-400 transition-colors block"
+                                        class="flex flex-col items-center justify-center text-center w-full px-3 py-3 space-y-1 rounded-xl text-gray-800 shadow-sm hover:bg-gray-50 hover:text-brand-400 transition-colors"
                                     >
-                                        <img v-if="item.image" :src="`${item.storage_path}/${item.image}`" :alt="item.name" class="w-full h-20 object-cover rounded-lg mx-auto mb-2" />
+                                        <img v-if="item.image" :src="`${item.storage_path}/${item.image}`" :alt="item.name" class="w-32 h-20 object-cover rounded-lg mx-auto mb-2" />
                                         <span class="text-sm font-medium">{{ item.name }} {{ item.items_count ? `(${item.items_count})` : '(0)' }}</span>
                                     </Link>
                                 </template>
