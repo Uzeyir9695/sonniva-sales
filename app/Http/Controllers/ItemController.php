@@ -71,6 +71,7 @@ class ItemController extends Controller
             ->when($request->stock === 'in', fn ($q) => $q->where('inventory', '>', 0))
             ->when($request->stock === 'out', fn ($q) => $q->where('inventory', '<=', 0))
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
+            ->orderByRaw('CASE WHEN inventory > 0 THEN 0 ELSE 1 END')
             ->paginate(24);
 
         // Build related categories for sidebar navigation

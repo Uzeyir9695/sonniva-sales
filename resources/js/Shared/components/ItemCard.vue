@@ -19,7 +19,7 @@ const emit = defineEmits(['quick-view'])
         <ItemImageSwitcher :item="item">
             <div class="absolute top-2.5 left-2.5">
                 <span
-                    v-if="!item.inventory || item.inventory === 0"
+                    v-if="!item.inventory || item.inventory < 1"
                     class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-600"
                 >მარაგში არაა</span>
                 <span
