@@ -55,6 +55,13 @@ function openQuickView(item) {
 </template>
 
 <style>
+.swiper-wrapper {
+    align-items: stretch;
+}
+.swiper-slide {
+    height: auto;
+}
+
 .swiper-button-next,
 .swiper-button-prev {
     color: #f59e0b;

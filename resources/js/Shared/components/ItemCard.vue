@@ -16,7 +16,7 @@ const viewItemDetails = (item) => {
 </script>
 
 <template>
-    <div @click="viewItemDetails(item)" class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 flex flex-col cursor-pointer">
+    <div @click="viewItemDetails(item)" class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 flex flex-col cursor-pointer h-full">
         <ItemImageSwitcher :item="item">
             <div class="absolute top-2.5 left-2.5">
                 <span
