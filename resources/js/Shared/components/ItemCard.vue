@@ -12,7 +12,6 @@ const emit = defineEmits(['quick-view'])
 
 const viewItemDetails = (item) => {
     router.get(route('items.show', item.slug))
-    //window.open(route('items.show', item.slug), '_blank')
 }
 </script>
 
