@@ -9,17 +9,19 @@ defineProps({
 })
 
 const emit = defineEmits(['quick-view'])
+
+const viewItemDetails = (item) => {
+    router.get(route('items.show', item.slug))
+    //window.open(route('items.show', item.slug), '_blank')
+}
 </script>
 
 <template>
-    <div
-        @click.stop="router.get(route('items.show', item.slug))"
-        class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 flex flex-col cursor-pointer"
-    >
+    <div @click="viewItemDetails(item)" class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 flex flex-col cursor-pointer">
         <ItemImageSwitcher :item="item">
             <div class="absolute top-2.5 left-2.5">
                 <span
-                    v-if="!item.inventory || item.inventory < 1"
+                    v-if="item.inventory < 1"
                     class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-600"
                 >მარაგში არაა</span>
                 <span
@@ -43,13 +45,9 @@ const emit = defineEmits(['quick-view'])
         </ItemImageSwitcher>
 
         <div class="p-3 sm:p-4 flex flex-col flex-1">
-            <Link
-                :href="route('items.show', item.slug)"
-                @click.stop
-                class="text-sm font-medium text-gray-900 leading-snug mb-1 line-clamp-2"
-            >
+            <span class="text-sm font-medium text-gray-900 leading-snug mb-1 line-clamp-2">
                 {{ item.name }}
-            </Link>
+            </span>
 
             <div class="mt-auto pt-3 flex text-nowrap items-center justify-between gap-2">
                 <span class="text-base font-semibold text-gray-900">
