@@ -29,7 +29,11 @@ const stockOptions = [
 const params = route().params;
 
 const parsedFilters = (() => {
-    try { return params.filters ? JSON.parse(params.filters) : {}; } catch { return {}; }
+    try {
+        return params.filters ? JSON.parse(params.filters) : {};
+    } catch {
+        return {};
+    }
 })();
 
 const priceMin = ref(params.price_min ? Number(params.price_min) : null);
