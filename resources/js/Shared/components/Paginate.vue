@@ -27,7 +27,11 @@ const { data } = defineProps({
 const onPageChange = (event) => {
     const newPage = event.page + 1; // PrimeVue uses 0-based index, Laravel uses 1-based
     const perPage = event.rows;
-    router.get(window.location.pathname, { page: newPage, per_page: perPage }, { preserveState: true });
+    router.get(
+        route(route().current(), { ...route().params, page: newPage, per_page: perPage }),
+        {},
+        { preserveState: true }
+    );
 };
 </script>
 
