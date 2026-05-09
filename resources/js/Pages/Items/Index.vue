@@ -39,8 +39,9 @@ const buildQuery = (attrVal) => {
     const filters = Object.fromEntries(
         Object.entries(attrVal).filter(([, values]) => values.length > 0)
     );
+    const { page, per_page, ...restParams } = route().params;
     return {
-        ...route().params,
+        ...restParams,
         filters: Object.keys(filters).length ? JSON.stringify(filters) : undefined,
         price_min: priceMin.value || undefined,
         price_max: priceMax.value || undefined,
@@ -361,11 +362,10 @@ function removeChip(chip) {
                     class="max-sm:hidden"
                 />
 
-                <GridSkeletonLoader v-if="loading" />
-
-                <Deferred v-else data="items">
-                    <template #default>
-                        <ItemsGrid :items="items" />
+                <Deferred data="items">
+                    <template #default="{ reloading }">
+                        <GridSkeletonLoader v-if="loading || reloading" />
+                        <ItemsGrid v-else :items="items" />
                     </template>
                     <template #fallback>
                         <GridSkeletonLoader />
