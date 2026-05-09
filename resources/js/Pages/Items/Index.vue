@@ -20,19 +20,25 @@ const loading = ref(false);
 const attrSearch = ref({})
 const sidebarOpen = ref(false);
 
-const priceMin = ref(null);
-const priceMax = ref(null);
-
 const stockOptions = [
     { label: 'ყველა', value: '' },
     { label: 'მარაგშია', value: 'in' },
     { label: 'მარაგში არაა', value: 'out' },
 ];
 
-const stockFilter = ref({ label: 'ყველა', value: '' });
+const params = route().params;
+
+const parsedFilters = (() => {
+    try { return params.filters ? JSON.parse(params.filters) : {}; } catch { return {}; }
+})();
+
+const priceMin = ref(params.price_min ? Number(params.price_min) : null);
+const priceMax = ref(params.price_max ? Number(params.price_max) : null);
+
+const stockFilter = ref(stockOptions.find(o => o.value === (params.stock ?? '')) ?? stockOptions[0]);
 
 const selected = ref(
-    Object.fromEntries((props.attributes ?? []).map(attr => [attr.name, []]))
+    Object.fromEntries((props.attributes ?? []).map(attr => [attr.id, parsedFilters[attr.id] ?? []]))
 );
 
 const buildQuery = (attrVal) => {
