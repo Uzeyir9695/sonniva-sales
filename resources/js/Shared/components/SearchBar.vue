@@ -17,6 +17,7 @@ const { addToCart } = useCart()
 
 const query       = ref('');
 const results     = ref([]);
+const visibleCount = ref(20);
 const loading     = ref(false);
 const showDropdown = ref(false);
 const inputRef    = ref(null);
@@ -39,7 +40,8 @@ watch(query, (val) => {
         try {
             const res = await axios.get('/api/v1/search', { params: { q: val } });
             results.value = res.data;
-            showDropdown.value = res.data.length > 0;
+            visibleCount.value = 20;
+            showDropdown.value = true;
         } catch {
             results.value = [];
         } finally {
@@ -58,7 +60,7 @@ function goToItem(item) {
 function goToSearch() {
     if (!query.value.trim()) return;
     showDropdown.value = false;
-    router.get(route('items.index', { q: query.value }));
+    router.get(route('search.index', { q: query.value }));
 }
 
 function imageUrl(img) {
@@ -129,17 +131,33 @@ defineExpose({ inputRef });
         <!-- Dropdown -->
         <div
             v-if="showDropdown"
-            class="absolute left-0 right-0 top-full bg-white border-2 border-t-0 border-brand-400 rounded-b-xl shadow-xl z-50 sm:max-h-[700px] max-h-[500px] overflow-y-auto"
+            class="absolute left-0 right-0 top-full bg-white border-2 border-t-0 border-brand-400 rounded-b-xl shadow-xl z-50 sm:max-h-[700px] max-h-[560px] overflow-y-auto"
         >
-            <div
-                class="flex items-center justify-center gap-2 sticky top-0 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors text-xs font-medium text-gray-500"
-            >
-                <i class="pi pi-search text-xs"></i>
-                სულ მოიძებნა {{ results.length }} შედეგი
+            <div v-if="results.length > 0" class="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 py-2.5 bg-gray-50 border-b border-gray-100">
+                <div class="flex items-center justify-center gap-2 sticky top-0 text-xs font-medium text-gray-500">
+                    <i class="pi pi-search text-xs"></i>
+                    სულ მოიძებნა {{ results.length }} პროდუქტი
+                </div>
+                <button @click="goToSearch"
+                     class="flex items-center justify-center rounded-lg gap-x-2 sticky top-0 px-4 py-1.5 sm:py-2.5 sm:bg-gray-50 bg-slate-100 hover:bg-gray-100 cursor-pointer transition-colors text-xs font-medium text-gray-500"
+                >
+                    <i class="pi pi-eye text-xs"></i>
+                    <span>ყველას ნახვა</span>
+                </button>
             </div>
-            <ul>
+
+            <div
+                v-if="results.length === 0"
+                class="flex flex-col items-center justify-center gap-2 py-10 text-gray-400"
+            >
+                <i class="pi pi-search text-2xl"></i>
+                <p class="text-sm font-medium">პროდუქტი დასახელებით "{{ query }}" — არ მოიძებნა</p>
+                <p class="text-xs">სცადეთ სხვა საძიებო სიტყვა</p>
+            </div>
+
+            <ul v-else>
                 <li
-                    v-for="item in results"
+                    v-for="item in results.slice(0, visibleCount)"
                     :key="item.id"
                     @click="goToItem(item)"
                     class="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 hover:bg-gray-50 cursor-pointer transition-colors border-b border-gray-100 last:border-0 group"
@@ -206,6 +224,14 @@ defineExpose({ inputRef });
                     </div>
                 </li>
             </ul>
+
+            <button
+                v-if="visibleCount < results.length"
+                @click.stop="visibleCount += 20"
+                class="cursor-pointer w-full py-3 text-xs font-medium text-brand-500 hover:bg-brand-50 transition-colors"
+            >
+                მაჩვენე უფრო მეტი
+            </button>
         </div>
     </div>
     <!-- QUICK VIEW DIALOG -->

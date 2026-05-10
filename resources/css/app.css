@@ -12,6 +12,9 @@
         visibility: hidden;
     }
 
+    button {
+        cursor: pointer;
+    }
     .p-skeleton {
         @apply bg-slate-200;
     }

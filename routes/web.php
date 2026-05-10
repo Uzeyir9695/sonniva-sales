@@ -13,6 +13,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\Payment\InvoiceController;
 use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Middleware\NoIndexMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -164,6 +165,8 @@ Route::get('/cookie-policy', function () {
  * Items Routes
  * *****************************************************************************************************************/
 Route::get('/item/{item:slug}', [ItemController::class, 'show'])->name('items.show');
+
+Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 
 Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])
     ->name('items.index');

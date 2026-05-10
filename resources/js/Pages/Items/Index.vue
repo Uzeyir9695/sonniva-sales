@@ -174,7 +174,7 @@ function removeChip(chip) {
             <Breadcrumbs :breadcrumbs="breadcrumbs"/>
             <button
                 @click="sidebarOpen = !sidebarOpen"
-                class="cursor-pointer lg:hidden z-20 flex items-center gap-2 font-medium text-gray-700 border-l border-gray-200 sm:rounded-r-xl self-stretch px-3 hover:bg-gray-100 transition-colors"
+                class="lg:hidden z-20 flex items-center gap-2 font-medium text-gray-700 border-l border-gray-200 sm:rounded-r-xl self-stretch px-3 hover:bg-gray-100 transition-colors"
             >
                 <i class="pi pi-sliders-h text-md"></i>
             </button>
@@ -210,7 +210,7 @@ function removeChip(chip) {
                     "
                  :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
             >
-                <button @click="sidebarOpen = false" class="flex items-center cursor-pointer ml-auto mr-2 text-gray-400 hover:text-gray-700 lg:hidden">
+                <button @click="sidebarOpen = false" class="flex items-center ml-auto mr-2 text-gray-400 hover:text-gray-700 lg:hidden">
                     <i class="pi pi-times"></i>
                 </button>
 
@@ -265,7 +265,7 @@ function removeChip(chip) {
                                 <i class="text-sm pi pi-refresh text-gray-500"></i>
                                 <button
                                     @click="resetFilters"
-                                    class="text-xs text-gray-400 cursor-pointer hover:text-gray-900 transition-colors"
+                                    class="text-xs text-gray-400 hover:text-gray-900 transition-colors"
                                 >
                                     გასუფთავება
                                 </button>
@@ -278,6 +278,7 @@ function removeChip(chip) {
                             <div class="flex items-center gap-2">
                                 <InputNumber
                                     v-model="priceMin"
+                                    @input="(e) => priceMin = e.value"
                                     placeholder="მინ."
                                     :min="0"
                                     :useGrouping="false"
@@ -291,6 +292,7 @@ function removeChip(chip) {
                                 <span class="text-gray-300 shrink-0">—</span>
                                 <InputNumber
                                     v-model="priceMax"
+                                    @input="(e) => priceMax = e.value"
                                     placeholder="მაქს."
                                     :min="0"
                                     :useGrouping="false"

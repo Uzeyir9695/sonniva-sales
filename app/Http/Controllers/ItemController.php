@@ -266,7 +266,6 @@ class ItemController extends Controller
 
         $items = Item::where('name', 'like', "%{$q}%")
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
-            ->limit(100)
             ->get(['id', 'no', 'name', 'slug', 'unit_price', 'images', 'inventory']);
 
         return response()->json($items);
