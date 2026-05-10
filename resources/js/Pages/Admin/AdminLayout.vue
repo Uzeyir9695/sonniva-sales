@@ -16,6 +16,11 @@ const menuItems = [
         route: 'admin.users.index',
         icon: 'pi-users'
     },
+    {
+        name: 'Stock Requests',
+        route: 'admin.stock-notifications.index',
+        icon: 'pi-bell'
+    },
 ];
 
 </script>

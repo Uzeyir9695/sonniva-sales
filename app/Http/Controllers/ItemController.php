@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Item;
+use App\Models\StockNotification;
 use App\Services\BusinessCentralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -132,12 +133,19 @@ class ItemController extends Controller
         View::share('json_ld', $this->buildJsonLd($item));
         View::share('breadcrumb_json_ld', $this->buildBreadcrumbJsonLd($breadcrumbs, $item));
 
+        $isSubscribedToNotification = auth()->check()
+            ? StockNotification::where('user_id', auth()->id())
+                ->where('item_id', $item->id)
+                ->whereNull('notified_at')
+                ->exists()
+            : false;
+
         return Inertia::render('Items/Show', [
             'item' => $item,
             'attributes' => $item->attributes,
             'similarItems' => $similarItems,
             'breadcrumbs' => $breadcrumbs,
-            //            'inventory' => $inventory,
+            'isSubscribedToNotification' => $isSubscribedToNotification,
         ]);
     }
 

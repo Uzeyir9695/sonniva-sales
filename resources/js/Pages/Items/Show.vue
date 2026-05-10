@@ -1,10 +1,11 @@
 <script setup>
-import { Head, Link, usePage } from '@inertiajs/vue3'
+import { Head, usePage } from '@inertiajs/vue3'
 import { ref, computed, onMounted } from 'vue'
 import { useClipboard } from '@vueuse/core';
 import SimilarItems from '@/Pages/Items/SimilarItems.vue';
 import ItemGallery from '@/Pages/Items/ItemGallery.vue';
 import WishlistButton from '@/Shared/components/WishlistButton.vue';
+import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue';
 import { useCart } from '@/composables/useCart.js';
 import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
@@ -15,6 +16,7 @@ const props = defineProps({
     attributes: Array,
     breadcrumbs: Array,
     inventory: Object,
+    isSubscribedToNotification: Boolean,
 })
 
 const { addToCart, buyNow, isInCart, getQuantity } = useCart()
@@ -91,16 +93,23 @@ const ogImage = computed(() => {
                             <span>{{ inStock ? 'მარაგშია' : 'მარაგში არაა' }}</span>
                         </div>
 
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-3">
+                            <!-- Wishlist -->
+                            <WishlistButton
+                                :item-id="item.id"
+                                size="sm"
+                                variant="pill"
+                                class="border border-gray-100 rounded-lg! shrink-0"
+                            />
                             <span v-if="copied" class="text-emerald-500 text-xs">დაკოპირებულია</span>
 
                             <div
                                 @click="copy(item.no)"
                                 v-tooltip.bottom="'დააკოპირე პროდუქტის კოდი'"
-                                class="flex items-center justify-center w-8 h-8 border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-150 cursor-pointer"
+                                class="flex items-center justify-center w-7 h-7 border border-gray-200 rounded-lg shadow-md hover:bg-gray-50 hover:border-gray-300 transition-all duration-150 cursor-pointer"
                             >
                                 <i v-if="copied" class="pi pi-check text-emerald-500 text-xs"></i>
-                                <i v-else class="pi pi-copy text-gray-400 text-xs"></i>
+                                <i v-else class="pi pi-copy text-gray-400 text-sm"></i>
                             </div>
                         </div>
                     </div>
@@ -138,27 +147,27 @@ const ogImage = computed(() => {
 <!--                        </div>-->
 <!--                    </div>-->
 
-                    <template v-for="price in item.prices" :key="price.id">
-                        <div class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 mb-2 hover:border-brand-200 hover:bg-brand-50/30 transition-all duration-150">
-                            <div class="flex-1">
-                                <p class="text-sm font-semibold text-gray-800 mb-1">
-                                    {{ price.priceGroup }}
-                                </p>
-                                <div class="flex items-center gap-1.5">
-                                    <i class="pi pi-box text-gray-400 text-xs"></i>
-                                    <p class="text-xs text-gray-400">
-                                        მინ. რაოდენობა: <span class="text-gray-600 font-medium">{{ price.custMinQuantity }}</span>
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="text-right ml-4">
-                                <p class="text-xs text-gray-400 mb-0.5">ცალის ფასი</p>
-                                <p class="text-brand-500 font-bold text-xl">
-                                    {{ price.price }}<span class="text-sm ml-0.5">₾</span>
-                                </p>
-                            </div>
-                        </div>
-                    </template>
+<!--                    <template v-for="price in item.prices" :key="price.id">-->
+<!--                        <div class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 mb-2 hover:border-brand-200 hover:bg-brand-50/30 transition-all duration-150">-->
+<!--                            <div class="flex-1">-->
+<!--                                <p class="text-sm font-semibold text-gray-800 mb-1">-->
+<!--                                    {{ price.priceGroup }}-->
+<!--                                </p>-->
+<!--                                <div class="flex items-center gap-1.5">-->
+<!--                                    <i class="pi pi-box text-gray-400 text-xs"></i>-->
+<!--                                    <p class="text-xs text-gray-400">-->
+<!--                                        მინ. რაოდენობა: <span class="text-gray-600 font-medium">{{ price.custMinQuantity }}</span>-->
+<!--                                    </p>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                            <div class="text-right ml-4">-->
+<!--                                <p class="text-xs text-gray-400 mb-0.5">ცალის ფასი</p>-->
+<!--                                <p class="text-brand-500 font-bold text-xl">-->
+<!--                                    {{ price.price }}<span class="text-sm ml-0.5">₾</span>-->
+<!--                                </p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </template>-->
 
                     <!-- Divider -->
                     <div class="h-px bg-gray-200 mb-8"></div>
@@ -213,7 +222,7 @@ const ogImage = computed(() => {
                                 კალათაში დამატება
 
                                 <!-- Badge -->
-                                <CartCountBadge class="sm:!min-w-5 sm:!h-5 !min-w-4 !h-4" :item="item" />
+                                <CartCountBadge class="sm:min-w-5! sm:h-5! min-w-4! h-4!" :item="item" />
                             </button>
                         </div>
 
@@ -223,15 +232,15 @@ const ogImage = computed(() => {
                                 <i class="pi pi-bolt mr-2"></i>
                                 ახლავე შეძენა
                             </button>
-
-                            <!-- Wishlist -->
-                            <WishlistButton
-                                :item-id="item.id"
-                                size="lg"
-                                variant="pill"
-                                class="shrink-0"
-                            />
                         </div>
+
+                        <!-- Notify when back in stock -->
+                        <StockNotifyButton
+                            v-if="!inStock"
+                            :item="item"
+                            :is-subscribed="isSubscribedToNotification"
+                            class="mt-3"
+                        />
                     </div>
 
                     <!-- Delivery & Payment Info -->

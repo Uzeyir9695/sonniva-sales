@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminStockNotificationController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\Payment\InvoiceController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\StockNotificationController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Middleware\NoIndexMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -73,6 +75,9 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
+
+        // ******** Admin Stock Notifications ********//
+        Route::get('/stock-notifications', [AdminStockNotificationController::class, 'index'])->name('stock-notifications.index');
 
         // ******** Admin Users Controllers ********//
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
@@ -165,6 +170,11 @@ Route::get('/cookie-policy', function () {
  * Items Routes
  * *****************************************************************************************************************/
 Route::get('/item/{item:slug}', [ItemController::class, 'show'])->name('items.show');
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/items/{item:slug}/notify', [StockNotificationController::class, 'subscribe'])->name('stock-notifications.subscribe');
+    Route::delete('/items/{item:slug}/notify', [StockNotificationController::class, 'unsubscribe'])->name('stock-notifications.unsubscribe');
+});
 
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 
