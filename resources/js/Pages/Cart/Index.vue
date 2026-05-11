@@ -204,10 +204,9 @@ function goToCheckout() {
                                 </Link>
                                 <span
                                     v-if="cartItem.item.inventory <= 0"
-                                    class="inline-flex items-center gap-1 mt-1 text-xs font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded-full w-fit"
+                                    class="inline-flex items-center gap-1 mt-1 text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded-full w-fit"
                                 >
-                                    <i class="pi pi-times-circle text-xs"></i>
-                                    მარაგი ამოწურულია
+                                    მარაგში არაა
                                 </span>
 
                                 <div class="flex items-center gap-2 mt-1">
