@@ -178,12 +178,12 @@ const ogImage = computed(() => {
                         <div class="flex items-center gap-3">
                             <!-- Quantity -->
                             <div class="flex flex-col justify-center gap-y-1">
-                                <div class="flex items-center border border-gray-200 rounded-2xl overflow-hidden w-fit shadow-sm bg-white">
+                                <div class="flex items-center border max-sm:px-2 border-gray-100 rounded-2xl overflow-hidden w-fit shadow-sm bg-white">
 
                                     <button
                                         @click="quantity > 1 ? quantity-- : null"
                                         :class="quantity > 1 ? 'cursor-pointer' : 'cursor-not-allowed'"
-                                        class="w-8 lg:w-12 h-12 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition"
+                                        class="w-8 lg:w-12 sm:h-11 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition"
                                     >
                                         <i class="pi pi-minus text-xs"></i>
                                     </button>
@@ -191,13 +191,13 @@ const ogImage = computed(() => {
                                     <InputText
                                         v-model="quantity"
                                         inputmode="numeric"
-                                        class="w-16 h-12 text-center font-semibold rounded-xl shadow-none border-none"
+                                        class="w-16 sm:h-11 text-center font-semibold rounded-xl shadow-none border-none"
                                     />
 
                                     <button
                                         @click="!atMax ? quantity++ : null"
                                         :class="[
-                                            'w-8 lg:w-12 h-12 flex items-center justify-center transition',
+                                            'w-8 lg:w-12 sm:h-11 flex items-center justify-center transition',
                                             atMax
                                             ? 'text-gray-300 cursor-not-allowed'
                                             : 'text-gray-500 cursor-pointer hover:bg-gray-50'
@@ -215,7 +215,7 @@ const ogImage = computed(() => {
                             <!-- Add to Cart -->
                             <button
                                 @click="addToCart(item.id, quantity)"
-                                class="relative w-full max-sm:px-2 max-sm:text-sm py-3 rounded-2xl cursor-pointer bg-brand-500 text-white font-semibold
+                                class="relative w-full max-sm:px-2 max-sm:text-sm py-2.5 rounded-2xl cursor-pointer bg-brand-500 text-white font-semibold
                                 hover:bg-brand-400 active:scale-[0.98] transition-all shadow-md"
                             >
                                 <i :class="['lg:mr-2', isInCart(item.id) ? 'pi pi-shopping-cart' : 'pi pi-cart-plus']"></i>
@@ -226,9 +226,9 @@ const ogImage = computed(() => {
                             </button>
                         </div>
 
-                        <div class="flex gap-2 mt-8">
+                        <div class="mt-8">
                             <!-- Buy Now -->
-                            <button v-if="inStock" @click="buyNow(item.id, quantity)" class="w-full rounded-2xl max-sm:text-sm cursor-pointer border border-gray-500 text-gray-900 font-semibold hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all" >
+                            <button v-if="inStock" @click="buyNow(item.id, quantity)" class="w-full py-2.5 rounded-2xl max-sm:text-sm cursor-pointer border border-gray-500 text-gray-900 font-semibold hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all" >
                                 <i class="pi pi-bolt mr-2"></i>
                                 ახლავე შეძენა
                             </button>
