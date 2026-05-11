@@ -60,6 +60,8 @@ const buildQuery = (attrVal) => {
 };
 
 const applyFilters = debounce((val) => {
+    sidebarOpen.value = false;
+
     router.get(route(route().current(), buildQuery(val)), {}, {
         preserveState: true,
         replace: true,
