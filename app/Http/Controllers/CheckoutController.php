@@ -13,8 +13,9 @@ class CheckoutController extends Controller
 
         $cartItems = $request->user()
             ->carts()
+            ->whereHas('item', fn ($q) => $q->where('inventory', '>', 0))
             ->with('item')
-            ->when(count($itemIds), fn($q) => $q->whereIn('item_id', $itemIds))
+            ->when(count($itemIds), fn ($q) => $q->whereIn('item_id', $itemIds))
             ->latest()
             ->get();
 

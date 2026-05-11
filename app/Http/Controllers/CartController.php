@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
+use App\Models\StockNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,12 +15,24 @@ class CartController extends Controller
     {
         $cartItems = $request->user()
             ->carts()
+            ->whereHas('item')
             ->with('item')
             ->latest()
             ->get();
 
+        $outOfStockItemIds = $cartItems
+            ->filter(fn ($c) => $c->item->inventory <= 0)
+            ->pluck('item_id');
+
+        $subscribedItemIds = $outOfStockItemIds->isNotEmpty()
+            ? StockNotification::where('user_id', $request->user()->id)
+                ->whereIn('item_id', $outOfStockItemIds)
+                ->pluck('item_id')
+            : collect();
+
         return Inertia::render('Cart/Index', [
             'cartItems' => $cartItems,
+            'subscribedItemIds' => $subscribedItemIds,
         ]);
     }
 
@@ -40,7 +53,7 @@ class CartController extends Controller
         $cart->increment('quantity', $quantity);
 
         return response()->json([
-            'item_id'  => $item->id,
+            'item_id' => $item->id,
             'quantity' => $cart->fresh()->quantity,
         ]);
     }
@@ -54,9 +67,9 @@ class CartController extends Controller
 
         $cart = $request->user()->carts()->where('item_id', $item->id)->first();
 
-        if (!$cart) {
+        if (! $cart) {
             $cart = $request->user()->carts()->create([
-                'item_id'  => $item->id,
+                'item_id' => $item->id,
                 'quantity' => $request->quantity,
             ]);
         } else {
@@ -64,7 +77,7 @@ class CartController extends Controller
         }
 
         return response()->json([
-            'item_id'  => $item->id,
+            'item_id' => $item->id,
             'quantity' => $cart->quantity,
         ]);
     }
@@ -92,7 +105,7 @@ class CartController extends Controller
         $cartItems = $request->user()->carts()->get(['item_id', 'quantity']);
 
         return response()->json([
-            'items' => $cartItems->mapWithKeys(fn($c) => [$c->item_id => $c->quantity]),
+            'items' => $cartItems->mapWithKeys(fn ($c) => [$c->item_id => $c->quantity]),
         ]);
     }
 }

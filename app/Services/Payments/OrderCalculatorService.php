@@ -8,7 +8,7 @@ use App\Models\Item;
 class OrderCalculatorService
 {
     const DELIVERY_COSTS = [
-        'office'  => 0,
+        'office' => 0,
         'tbilisi' => 70,
         'regions' => 200,
     ];
@@ -30,40 +30,48 @@ class OrderCalculatorService
             throw new \InvalidArgumentException('One or more items not found in your cart.');
         }
 
-        $subtotal  = 0;
+        // Reject if any item is out of stock
+        $outOfStock = $cartRows->filter(fn ($row) => $row->item->inventory <= 0);
+        if ($outOfStock->isNotEmpty()) {
+            throw new \InvalidArgumentException('One or more items are out of stock.');
+        }
+
+        $subtotal = 0;
         $itemsData = [];
 
         foreach ($cartRows as $cartRow) {
-            $qty       = $cartRow->quantity;
+            $qty = $cartRow->quantity;
             $unitPrice = $this->tierPrice($cartRow->item, $qty);
-            $rowTotal  = $unitPrice * $qty;
+            $rowTotal = $unitPrice * $qty;
             $subtotal += $rowTotal;
 
             $itemsData[] = [
-                'item_id'    => $cartRow->item_id,
-                'quantity'   => $qty,
+                'item_id' => $cartRow->item_id,
+                'quantity' => $qty,
                 'unit_price' => $unitPrice,
-                'subtotal'   => $rowTotal,
+                'subtotal' => $rowTotal,
             ];
         }
 
         $deliveryCost = $this->deliveryCost($deliveryType, $subtotal);
 
         return [
-            'subtotal'      => $subtotal,
+            'subtotal' => $subtotal,
             'delivery_cost' => $deliveryCost,
-            'total'         => $subtotal + $deliveryCost,
-            'items'         => $itemsData,
+            'total' => $subtotal + $deliveryCost,
+            'items' => $itemsData,
         ];
     }
 
     private function tierPrice(Item $item, int $qty): float
     {
-        if (empty($item->prices)) return $item->unit_price;
+        if (empty($item->prices)) {
+            return $item->unit_price;
+        }
 
         $tier = collect($item->prices)
             ->sortByDesc('custMinQuantity')
-            ->first(fn($p) => $qty >= $p['custMinQuantity']);
+            ->first(fn ($p) => $qty >= $p['custMinQuantity']);
 
         return $tier['price'] ?? $item->unit_price;
     }
@@ -76,5 +84,4 @@ class OrderCalculatorService
 
         return self::DELIVERY_COSTS[$deliveryType] ?? 0;
     }
-
 }

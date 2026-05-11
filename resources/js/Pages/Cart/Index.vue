@@ -2,9 +2,11 @@
 import { computed, ref } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import { useCart } from '@/composables/useCart'
+import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue'
 
 const props = defineProps({
     cartItems: { type: Array, required: true },
+    subscribedItemIds: { type: Array, default: () => [] },
 })
 
 const { removeFromCart, updateQuantity, isLoading, getQuantity } = useCart()
@@ -25,6 +27,7 @@ async function handleRemove(itemId) {
 const formatted = (val) => Number(val).toFixed(2)
 
 function calculateTierPrice(item, qty) {
+    if (!item) return 0
     if (!item.prices?.length) return item.unit_price
     const tier = [...item.prices]
         .sort((a, b) => b.custMinQuantity - a.custMinQuantity)
@@ -38,25 +41,26 @@ const selectedIds = ref([])
 
 // Select all by default once items load
 const allIds = computed(() => items.value.map(c => c.item_id))
+const inStockIds = computed(() => items.value.filter(c => c.item.inventory > 0).map(c => c.item_id))
 
-// Init selectedIds when items first available
-if (allIds.value.length) {
-    selectedIds.value = [...allIds.value]
+// Init selectedIds with only in-stock items
+if (inStockIds.value.length) {
+    selectedIds.value = [...inStockIds.value]
 }
 
 const allSelected = computed(() =>
-    items.value.length > 0 && selectedIds.value.length === items.value.length
+    inStockIds.value.length > 0 && selectedIds.value.length === inStockIds.value.length
 )
 
 const someSelected = computed(() =>
-    selectedIds.value.length > 0 && selectedIds.value.length < items.value.length
+    selectedIds.value.length > 0 && selectedIds.value.length < inStockIds.value.length
 )
 
 function toggleAll() {
     if (allSelected.value) {
         selectedIds.value = []
     } else {
-        selectedIds.value = [...allIds.value]
+        selectedIds.value = [...inStockIds.value]
     }
 }
 
@@ -161,16 +165,20 @@ function goToCheckout() {
                             v-for="cartItem in items"
                             :key="cartItem.item_id"
                             class="bg-white rounded-2xl border shadow-sm p-4 flex items-center gap-4 transition-all duration-150"
-                            :class="selectedIds.includes(cartItem.item_id)
-                                ? 'border-brand-200 bg-brand-50/20'
-                                : 'border-gray-100'"
+                            :class="cartItem.item.inventory <= 0
+                                ? 'border-gray-100 opacity-60'
+                                : selectedIds.includes(cartItem.item_id)
+                                    ? 'border-brand-200 bg-brand-50/20'
+                                    : 'border-gray-100'"
                         >
                             <!-- Checkbox -->
                             <Checkbox
                                 :modelValue="selectedIds.includes(cartItem.item_id)"
                                 binary
-                                @change="toggleItem(cartItem.item_id)"
-                                class="cursor-pointer shrink-0"
+                                :disabled="cartItem.item.inventory <= 0"
+                                @change="cartItem.item.inventory > 0 && toggleItem(cartItem.item_id)"
+                                class="shrink-0"
+                                :class="cartItem.item.inventory > 0 ? 'cursor-pointer' : 'cursor-not-allowed'"
                             />
 
                             <!-- Image -->
@@ -194,6 +202,13 @@ function goToCheckout() {
                                 >
                                     {{ cartItem.item.name }}
                                 </Link>
+                                <span
+                                    v-if="cartItem.item.inventory <= 0"
+                                    class="inline-flex items-center gap-1 mt-1 text-xs font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded-full w-fit"
+                                >
+                                    <i class="pi pi-times-circle text-xs"></i>
+                                    მარაგი ამოწურულია
+                                </span>
 
                                 <div class="flex items-center gap-2 mt-1">
                                     <span
@@ -207,8 +222,8 @@ function goToCheckout() {
                                     </p>
                                 </div>
 
-                                <!-- Quantity stepper -->
-                                <div class="flex items-center gap-3 mt-3 flex-wrap">
+                                <!-- Quantity stepper (in-stock only) -->
+                                <div v-if="cartItem.item.inventory > 0" class="flex items-center gap-3 mt-3 flex-wrap">
                                     <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm w-fit">
                                         <button
                                             @click="updateQuantity(cartItem.item_id, getQuantity(cartItem.item_id) - 1)"
@@ -250,6 +265,14 @@ function goToCheckout() {
                                         <i class="pi pi-tag text-xs mr-1"></i>
                                         დანაზოგი: {{ formatted((cartItem.item.unit_price - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id))) * getQuantity(cartItem.item_id)) }} ₾
                                     </span>
+                                </div>
+
+                                <!-- Stock notify (out-of-stock only) -->
+                                <div v-else class="mt-3">
+                                    <StockNotifyButton
+                                        :item="cartItem.item"
+                                        :isSubscribed="subscribedItemIds.includes(cartItem.item_id)"
+                                    />
                                 </div>
                             </div>
 

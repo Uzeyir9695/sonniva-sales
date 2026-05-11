@@ -19,6 +19,10 @@ function onMouseEnter() {
     if (!isOutOfStock) showStepper.value = true
 }
 
+function handleClick() {
+    if (isOutOfStock) addToCart(props.item.id, 1)
+}
+
 function onMouseLeave() {
     showStepper.value = false
     quantity.value = 1
@@ -30,10 +34,10 @@ function onMouseLeave() {
 
         <!-- Default button -->
         <button
-            :disabled="isOutOfStock"
+            @click.stop="handleClick"
             :class="isOutOfStock
-        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-        : 'bg-brand-500 text-white hover:bg-brand-400 active:scale-95 cursor-pointer'"
+                ? 'border border-dashed border-brand-400 text-brand-500 hover:bg-brand-50 active:scale-95 cursor-pointer'
+                : 'bg-brand-500 text-white hover:bg-brand-400 active:scale-95 cursor-pointer'"
             class="relative flex items-center text-xs font-semibold p-2 rounded-xl transition-all duration-150"
         >
             <i :class="isInCart(item.id) ? 'pi pi-shopping-cart' : 'pi pi-cart-plus'"></i>
