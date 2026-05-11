@@ -68,6 +68,7 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
                             {{ inStock ? 'მარაგშია' : 'მარაგში არაა' }}
                         </span>
 
+                        <WishlistButton :item-id="item?.id" size="md" />
                     </div>
 
                     <h2 class="sm:text-xl font-semibold text-gray-900 mt-2 mb-2 leading-snug pr-6" style="font-family: 'Playfair Display', serif;">
@@ -91,11 +92,11 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
                             {{ item.unit_price ? `${item.unit_price} ₾` : '—' }}
                         </div>
 
-                        <div class="flex items-center gap-2">
+                        <div class="flex flex-col sm:flex-row items-center gap-2">
                             <button
                                 @click="buyNow(item.id)"
                                 :disabled="!inStock"
-                                class="flex-1 flex items-center justify-center gap-2 cursor-pointer text-sm font-semibold py-3 rounded-2xl border border-gray-500 text-gray-900 hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all"
+                                class="flex-1 flex items-center justify-center gap-2 px-4 cursor-pointer text-sm font-semibold py-3 rounded-2xl border border-gray-500 text-gray-900 hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all"
                                 :class="inStock
                                 ? 'bg- brand-500 text- white hover:bg-brand-400'
                                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
@@ -103,13 +104,13 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
                                 <i class="pi pi-bolt"></i>
                                 შეუკვეთე ახლავე
                             </button>
+
                             <button
                                 @click="addToCart(item.id)"
-                                :disabled="!inStock"
-                                class="relative flex-1 flex items-center justify-center gap-2 cursor-pointer text-sm font-semibold py-3 rounded-2xl transition-all duration-150"
+                                class="relative flex-1 flex items-center justify-center gap-2 px-4 cursor-pointer text-sm font-semibold py-3 rounded-2xl transition-all duration-150 active:scale-[0.98]"
                                 :class="inStock
-                                ? 'bg-brand-500 text-white hover:bg-brand-400'
-                                : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
+                                    ? 'bg-brand-500 text-white hover:bg-brand-400'
+                                    : 'border border-dashed border-brand-400 text-brand-500 hover:bg-brand-50'"
                             >
                                 <i :class="isInCart(item.id) ? 'pi pi-shopping-cart' : 'pi pi-cart-plus'"></i>
 
@@ -117,8 +118,6 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
 
                                 <CartCountBadge :item="item" />
                             </button>
-
-                            <WishlistButton :item-id="item?.id" size="md" />
                         </div>
 
                         <Link
