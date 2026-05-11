@@ -35,15 +35,6 @@ const filters = ref({
             dataKey="id"
             class="text-sm"
         >
-            <template #header>
-                <div class="flex justify-end">
-                    <IconField>
-                        <InputIcon class="pi pi-search" />
-                        <InputText v-model="filters['global'].value" placeholder="ძებნა..." class="text-sm" />
-                    </IconField>
-                </div>
-            </template>
-
             <template #empty>
                 <div class="flex flex-col items-center justify-center py-12 text-gray-400">
                     <i class="pi pi-bell text-3xl mb-3"></i>
@@ -51,15 +42,15 @@ const filters = ref({
                 </div>
             </template>
 
-            <Column field="item.no" header="კოდი" sortable class="font-mono text-xs" />
+            <Column field="item.no" header="კოდი" />
 
-            <Column field="item.name" header="პროდუქტი" sortable>
+            <Column field="item.name" header="პროდუქტი">
                 <template #body="{ data }">
                     <span class="text-gray-800">{{ data.item?.name }}</span>
                 </template>
             </Column>
 
-            <Column header="მომხმარებელი" sortable sortField="user.name">
+            <Column header="მომხმარებელი" sortField="user.name">
                 <template #body="{ data }">
                     <span class="font-medium text-gray-800">{{ data.user?.name }} {{ data.user?.lastname }}</span>
                 </template>
@@ -73,13 +64,13 @@ const filters = ref({
                 </template>
             </Column>
 
-            <Column field="created_at" header="თარიღი" sortable>
+            <Column field="created_at" header="თარიღი">
                 <template #body="{ data }">
                     <span class="text-gray-500 text-xs">{{ new Date(data.created_at).toLocaleDateString('ka-GE') }}</span>
                 </template>
             </Column>
 
-            <Column field="notified_at" header="სტატუსი" sortable>
+            <Column field="notified_at" header="სტატუსი">
                 <template #body="{ data }">
                     <span
                         class="text-xs font-semibold px-2.5 py-1 rounded-full"
