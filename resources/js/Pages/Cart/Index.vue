@@ -202,12 +202,16 @@ function goToCheckout() {
                                 >
                                     {{ cartItem.item.name }}
                                 </Link>
-                                <span
-                                    v-if="cartItem.item.inventory <= 0"
-                                    class="inline-flex items-center gap-1 mt-1 text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded-full w-fit"
-                                >
+
+                                <div class="flex items-center gap-1 mt-1 text-red-600 bg-red-100 px-2 py-0.5 rounded-full w-fit">
+                                    <div v-if="cartItem.item.inventory <= 0" class="w-2 h-2 rounded-full bg-red-500"></div>
+                                    <span
+                                        v-if="cartItem.item.inventory <= 0"
+                                        class="inline-flex items-center gap-1 text-xs font-medium"
+                                    >
                                     მარაგში არაა
                                 </span>
+                                </div>
 
                                 <div class="flex items-center gap-2 mt-1">
                                     <span
