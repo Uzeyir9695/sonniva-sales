@@ -29,15 +29,15 @@ const viewItemDetails = (item) => {
                 >მარაგშია</span>
             </div>
 
-            <div class="absolute top-2.5 right-2.5 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0">
+            <div class="absolute top-2.5 right-2.5 flex flex-col gap-1.5 sm:opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0">
 
                 <!--  Wishlist -->
                 <WishlistButton :item-id="item.id" />
 
                 <!--  Compare items -->
-                <button class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-gray-500 hover:text-indigo-500 hover:shadow-lg transition-all duration-150">
-                    <i class="pi pi-arrows-h text-xs"></i>
-                </button>
+<!--                <button class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-gray-500 hover:text-indigo-500 hover:shadow-lg transition-all duration-150">-->
+<!--                    <i class="pi pi-arrows-h text-xs"></i>-->
+<!--                </button>-->
 
                 <!--  Quick view -->
                 <button
