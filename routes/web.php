@@ -78,6 +78,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
 
         // ******** Admin Stock Notifications ********//
         Route::get('/stock-notifications', [AdminStockNotificationController::class, 'index'])->name('stock-notifications.index');
+        Route::delete('/stock-notifications/{stockNotification}', [AdminStockNotificationController::class, 'destroy'])->name('stock-notifications.destroy');
 
         // ******** Admin Users Controllers ********//
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
