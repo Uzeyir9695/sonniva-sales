@@ -14,10 +14,10 @@ const displayName = computed(() => {
     return name.slice(0, 6)
 })
 
-const menuItems = [
-    { label: 'ადმინ პანელი', icon: 'pi-shield', route: 'admin.index' },
+const menuItems = computed(() => [
+    ...(page.props.user?.role === 'admin' ? [{ label: 'ადმინ პანელი', icon: 'pi-shield', route: 'admin.index' }] : []),
     { label: 'ჩემი კაბინეტი', icon: 'pi-user', route: 'account.index' },
-]
+])
 
 // Close on outside click
 function handleClickOutside(e) {

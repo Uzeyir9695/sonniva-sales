@@ -187,15 +187,15 @@ onMounted(() => {
                             </FloatLabel>
                         </div>
 
-                        <div v-if="selectedUserType?.key === 'individual'" class="space-y-2">
+                        <div v-if="selectedUserType?.key === 'individual' && editingByAdmin" class="space-y-2">
                             <div class="flex items-center gap-2">
                                 <Checkbox v-model="form.is_handyman" binary />
-                                <label for="ingredient1"> ვარ ხელოსანი </label>
+                                <label for="ingredient1"> არის ხელოსანი </label>
                             </div>
 
                             <div class="flex items-center gap-2">
                                 <Checkbox v-model="form.is_entrepreneur" binary />
-                                <label for="ingredient1"> ვარ მცირე მეწარმე </label>
+                                <label for="ingredient1"> არის მცირე მეწარმე </label>
                             </div>
                         </div>
 
