@@ -6,6 +6,7 @@ import SimilarItems from '@/Pages/Items/SimilarItems.vue';
 import ItemGallery from '@/Pages/Items/ItemGallery.vue';
 import WishlistButton from '@/Shared/components/WishlistButton.vue';
 import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue';
+import WhatsappOrderDialog from '@/Shared/components/WhatsappOrderDialog.vue';
 import { useCart } from '@/composables/useCart.js';
 import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
@@ -17,7 +18,10 @@ const props = defineProps({
     breadcrumbs: Array,
     inventory: Object,
     isSubscribedToNotification: Boolean,
+    isOrderOnly: Boolean,
 })
+
+const showWhatsappDialog = ref(false)
 
 const { addToCart, buyNow, isInCart, getQuantity } = useCart()
 
@@ -226,21 +230,30 @@ const ogImage = computed(() => {
                             </button>
                         </div>
 
-                        <div class="mt-8">
+                        <div class="mt-8 space-y-3">
                             <!-- Buy Now -->
                             <button v-if="inStock" @click="buyNow(item.id, quantity)" class="w-full py-2.5 rounded-2xl max-sm:text-sm cursor-pointer border border-gray-500 text-gray-900 font-semibold hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all" >
                                 <i class="pi pi-bolt mr-2"></i>
                                 ახლავე შეძენა
                             </button>
-                        </div>
 
-                        <!-- Notify when back in stock -->
-                        <StockNotifyButton
-                            v-if="!inStock"
-                            :item="item"
-                            :is-subscribed="isSubscribedToNotification"
-                            class="mt-3"
-                        />
+                            <!-- Order via WhatsApp -->
+                            <button
+                                v-if="!inStock"
+                                @click="showWhatsappDialog = true"
+                                class="w-full py-2.5 rounded-2xl max-sm:text-sm flex items-center justify-center gap-2 cursor-pointer bg-green-500 text-white font-semibold hover:bg-green-600 active:scale-[0.98] transition-all"
+                            >
+                                <i class="pi pi-file-edit"></i>
+                                შეკვეთით
+                            </button>
+
+                            <!-- Notify when back in stock -->
+                            <StockNotifyButton
+                                v-if="!inStock && !isOrderOnly"
+                                :item="item"
+                                :is-subscribed="isSubscribedToNotification"
+                            />
+                        </div>
                     </div>
 
                     <!-- Delivery & Payment Info -->
@@ -355,4 +368,6 @@ const ogImage = computed(() => {
 
         <SimilarItems :items="similarItems" />
     </div>
+
+    <WhatsappOrderDialog v-model:visible="showWhatsappDialog" />
 </template>

@@ -145,7 +145,13 @@ createInertiaApp({
                     }
                 }
             },
+            ptOptions: { mergeSections: true, mergeProps: true },
             pt: {
+                button: {
+                    root: { class: 'text-sm py-1.5 px-3' },
+                    icon: { class: 'text-sm' },
+                },
+
                 selectbutton: {
                     pcToggleButton: {
                         root: {class: 'bg-transparent border-none max-h-12 text-sm'},

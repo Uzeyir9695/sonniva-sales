@@ -14,6 +14,7 @@ const props = defineProps({
     relatedCategories: Array,
     relatedCategoriesParent: Object,
     currentCategorySlug: String,
+    isOrderOnly: Boolean,
 })
 
 const loading = ref(false);
@@ -379,7 +380,7 @@ function removeChip(chip) {
                 <Deferred data="items">
                     <template #default="{ reloading }">
                         <GridSkeletonLoader v-if="loading || reloading" />
-                        <ItemsGrid v-else :items="items" />
+                        <ItemsGrid v-else :items="items" :is-order-only="isOrderOnly" />
                     </template>
                     <template #fallback>
                         <GridSkeletonLoader />

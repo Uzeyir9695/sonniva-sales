@@ -115,6 +115,7 @@ class ItemController extends Controller
             'relatedCategories' => $relatedCategories,
             'relatedCategoriesParent' => $relatedCategoriesParent,
             'currentCategorySlug' => $category->slug,
+            'isOrderOnly' => $this->isOrderOnlyCategory($category),
         ]);
     }
 
@@ -140,12 +141,15 @@ class ItemController extends Controller
                 ->exists()
             : false;
 
+        $itemCategory = Category::where('code', $item->category_code)->first();
+
         return Inertia::render('Items/Show', [
             'item' => $item,
             'attributes' => $item->attributes,
             'similarItems' => $similarItems,
             'breadcrumbs' => $breadcrumbs,
             'isSubscribedToNotification' => $isSubscribedToNotification,
+            'isOrderOnly' => $itemCategory ? $this->isOrderOnlyCategory($itemCategory) : false,
         ]);
     }
 
@@ -262,6 +266,18 @@ class ItemController extends Controller
         }
 
         return $jsonLd;
+    }
+
+    private function isOrderOnlyCategory(Category $category): bool
+    {
+        $orderOnlyCodes = ['1400', '1500', '1600', '1700'];
+
+        return match ($category->level) {
+            1 => in_array($category->code, $orderOnlyCodes),
+            2 => in_array($category->parent_id, $orderOnlyCodes),
+            3 => in_array(optional($category->parent)->parent_id, $orderOnlyCodes),
+            default => false,
+        };
     }
 
     public function search(Request $request)

@@ -1,14 +1,21 @@
 <script setup>
-import { Link, router } from '@inertiajs/vue3'
+import { ref } from 'vue'
+import { router } from '@inertiajs/vue3'
 import WishlistButton from '@/Shared/components/WishlistButton.vue'
 import ItemImageSwitcher from '@/Shared/components/ItemImageSwitcher.vue'
 import AddToCartButton from '@/Shared/components/AddToCartButton.vue'
+import WhatsappOrderDialog from '@/Shared/components/WhatsappOrderDialog.vue'
+import StockNotifyDialog from '@/Shared/components/StockNotifyDialog.vue'
 
 defineProps({
     item: { type: Object, required: true },
+    isOrderOnly: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['quick-view'])
+
+const showWhatsappDialog = ref(false)
+const showNotifyDialog = ref(false)
 
 const viewItemDetails = (item) => {
     router.get(route('items.show', item.slug))
@@ -34,17 +41,30 @@ const viewItemDetails = (item) => {
                 <!--  Wishlist -->
                 <WishlistButton :item-id="item.id" />
 
-                <!--  Compare items -->
-<!--                <button class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-gray-500 hover:text-indigo-500 hover:shadow-lg transition-all duration-150">-->
-<!--                    <i class="pi pi-arrows-h text-xs"></i>-->
-<!--                </button>-->
-
                 <!--  Quick view -->
                 <button
                     @click.stop="emit('quick-view', item)"
                     class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-gray-500 hover:text-gray-900 hover:shadow-lg transition-all duration-150"
                 >
                     <i class="pi pi-eye text-xs"></i>
+                </button>
+
+                <!--  Order via WhatsApp -->
+                <button
+                    v-if="item.inventory < 1"
+                    @click.stop="showWhatsappDialog = true"
+                    class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-green-600 hover:text-green-700 hover:shadow-lg transition-all duration-150"
+                >
+                    <i class="pi pi-file-edit text-xs"></i>
+                </button>
+
+                <!--  Notify when back in stock -->
+                <button
+                    v-if="item.inventory < 1 && !isOrderOnly"
+                    @click.stop="showNotifyDialog = true"
+                    class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-blue-500 hover:text-blue-600 hover:shadow-lg transition-all duration-150"
+                >
+                    <i class="pi pi-bell text-xs"></i>
                 </button>
             </div>
         </ItemImageSwitcher>
@@ -63,4 +83,7 @@ const viewItemDetails = (item) => {
             </div>
         </div>
     </div>
+
+    <WhatsappOrderDialog v-model:visible="showWhatsappDialog" @click.stop />
+    <StockNotifyDialog v-model:visible="showNotifyDialog" :item="item" @click.stop />
 </template>

@@ -6,6 +6,7 @@ import { ref } from 'vue';
 
 defineProps({
     items: { type: Object, required: true },
+    isOrderOnly: { type: Boolean, default: false },
 })
 
 defineEmits(['quick-view'])
@@ -27,6 +28,7 @@ function openQuickView(item) {
                 v-for="(item, index) in items.data"
                 :key="index"
                 :item="item"
+                :is-order-only="isOrderOnly"
                 @quick-view="openQuickView"
             />
         </div>

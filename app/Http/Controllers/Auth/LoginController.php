@@ -19,13 +19,20 @@ class LoginController extends Controller
 
     public function showLoginForm()
     {
+        if (! session()->has('url.intended')) {
+            $previous = url()->previous();
+            if ($previous && $previous !== route('login')) {
+                session()->put('url.intended', $previous);
+            }
+        }
+
         return Inertia::render('Auth/Login');
     }
 
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'login'    => 'required|string',
+            'login' => 'required|string',
             'password' => 'required|string|min:6',
         ]);
 
@@ -36,7 +43,7 @@ class LoginController extends Controller
             $request->boolean('remember'),
         );
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return back()->withErrors(['message' => $result['message']]);
         }
 
@@ -48,7 +55,7 @@ class LoginController extends Controller
             return redirect()->route('admin.index');
         }
 
-        return redirect()->intended('/home');
+        return redirect()->intended(route('home'));
     }
 
     /*

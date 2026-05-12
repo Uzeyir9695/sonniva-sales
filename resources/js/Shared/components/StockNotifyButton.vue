@@ -1,19 +1,21 @@
 <script setup>
-import { router, usePage } from '@inertiajs/vue3';
-import { Link } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { router } from '@inertiajs/vue3';
+import StockNotifyDialog from '@/Shared/components/StockNotifyDialog.vue';
 
-const props = defineProps({
+defineProps({
     item: { type: Object, required: true },
     isSubscribed: { type: Boolean, default: false },
 });
+
+const showDialog = ref(false);
 </script>
 
 <template>
     <div>
-    <template v-if="$page.props?.user">
         <button
             v-if="!isSubscribed"
-            @click="router.post(route('stock-notifications.subscribe', item.slug))"
+            @click="showDialog = true"
             class="w-full py-3 rounded-2xl border border-dashed border-brand-400 text-brand-500 text-sm font-medium hover:bg-brand-50 transition-colors cursor-pointer flex items-center justify-center gap-2"
         >
             <i class="pi pi-bell"></i>
@@ -36,14 +38,7 @@ const props = defineProps({
                 მარაგი როგორც კი შეივსება, მიიღებთ შეტყობინებას SMS-ის სახით.
             </p>
         </div>
-    </template>
-    <Link
-        v-else
-        :href="route('login')"
-        class="w-full py-3 rounded-2xl border border-dashed border-gray-300 text-gray-400 text-sm flex items-center justify-center gap-2 hover:border-brand-400 hover:text-brand-500 transition-colors"
-    >
-        <i class="pi pi-bell"></i>
-        შემატყობინეთ როცა შეივსება
-    </Link>
+
+        <StockNotifyDialog v-model:visible="showDialog" :item="item" />
     </div>
 </template>
