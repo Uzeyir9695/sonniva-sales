@@ -17,6 +17,11 @@ const menuItems = [
         icon: 'pi-users'
     },
     {
+        name: 'Payments',
+        route: 'admin.payments.index',
+        icon: 'pi-credit-card'
+    },
+    {
         name: 'Stock Requests',
         route: 'admin.stock-notifications.index',
         icon: 'pi-bell'

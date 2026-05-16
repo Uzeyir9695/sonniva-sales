@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminStockNotificationController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -75,6 +76,9 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
+
+        // ******** Admin Payments ********//
+        Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
 
         // ******** Admin Stock Notifications ********//
         Route::get('/stock-notifications', [AdminStockNotificationController::class, 'index'])->name('stock-notifications.index');
