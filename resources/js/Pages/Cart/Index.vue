@@ -11,6 +11,10 @@ const props = defineProps({
 
 const { removeFromCart, updateQuantity, isLoading, getQuantity } = useCart()
 
+const overLimit = (cartItem) => getQuantity(cartItem.item_id) > cartItem.item.inventory
+
+const anyOverLimit = computed(() => selectedItems.value.some(c => overLimit(c)))
+
 // Filter out items removed client-side
 const items = computed(() =>
     props.cartItems.filter(c => !removedIds.value.includes(c.item_id))
@@ -227,7 +231,7 @@ function goToCheckout() {
 
                                 <!-- Quantity stepper (in-stock only) -->
                                 <div v-if="cartItem.item.inventory > 0" class="flex items-center gap-3 mt-3 flex-wrap">
-                                    <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm w-fit">
+                                    <div :class="overLimit(cartItem) ? 'border-red-500' : ''" class="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm w-fit">
                                         <button
                                             @click="updateQuantity(cartItem.item_id, getQuantity(cartItem.item_id) - 1)"
                                             :disabled="getQuantity(cartItem.item_id) <= 1 || isLoading(cartItem.item_id)"
@@ -247,7 +251,7 @@ function goToCheckout() {
 
                                         <button
                                             @click="updateQuantity(cartItem.item_id, getQuantity(cartItem.item_id) + 1)"
-                                            :disabled="isLoading(cartItem.item_id)"
+                                            :disabled="isLoading(cartItem.item_id) || getQuantity(cartItem.item_id) >= cartItem.item.inventory"
                                             class="w-8 h-8 flex items-center justify-center cursor-pointer text-gray-500
                                                    hover:bg-gray-50 transition disabled:text-gray-300 disabled:cursor-not-allowed"
                                         >
@@ -268,7 +272,12 @@ function goToCheckout() {
                                         <i class="pi pi-tag text-xs mr-1"></i>
                                         დანაზოგი: {{ formatted((cartItem.item.unit_price - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id))) * getQuantity(cartItem.item_id)) }} ₾
                                     </span>
+
+                                    <p v-if="overLimit(cartItem)" class="text-xs text-red-600">
+                                        შეკვეთის მაქსიმალური რაოდენობაა {{ cartItem.item.inventory }}
+                                    </p>
                                 </div>
+
 
                                 <!-- Stock notify (out-of-stock only) -->
                                 <div v-else class="mt-3">
@@ -335,10 +344,10 @@ function goToCheckout() {
 
                         <button
                             @click="goToCheckout"
-                            :disabled="selectedIds.length === 0"
+                            :disabled="selectedIds.length === 0 || anyOverLimit"
                             class="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all shadow-md cursor-pointer
                                    active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-                            :class="selectedIds.length > 0
+                            :class="selectedIds.length > 0 && !anyOverLimit
                                 ? 'bg-brand-500 hover:bg-brand-400 text-white'
                                 : 'bg-gray-100 text-gray-400'"
                         >

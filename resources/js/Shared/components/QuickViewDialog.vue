@@ -94,6 +94,7 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
 
                         <div class="flex flex-col sm:flex-row items-center gap-2">
                             <button
+                                v-if="inStock"
                                 @click="buyNow(item.id)"
                                 :disabled="!inStock"
                                 class="flex-1 flex items-center justify-center gap-2 px-4 cursor-pointer text-sm font-semibold py-3 rounded-2xl border border-gray-500 text-gray-900 hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all"
@@ -107,7 +108,8 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
 
                             <button
                                 @click="addToCart(item.id)"
-                                class="relative flex-1 flex items-center justify-center gap-2 px-4 cursor-pointer text-sm font-semibold py-3 rounded-2xl transition-all duration-150 active:scale-[0.98]"
+                                :disabled="!inStock && isInCart(item.id)"
+                                class="relative flex-1 flex items-center justify-center gap-2 px-4 cursor-pointer text-sm font-semibold py-3 rounded-2xl transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                                 :class="inStock
                                     ? 'bg-brand-500 text-white hover:bg-brand-400'
                                     : 'border border-dashed border-brand-400 text-brand-500 hover:bg-brand-50'"

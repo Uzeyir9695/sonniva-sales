@@ -10,6 +10,7 @@ import WhatsappOrderDialog from '@/Shared/components/WhatsappOrderDialog.vue';
 import { useCart } from '@/composables/useCart.js';
 import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
+import InputNumber from 'primevue/inputnumber';
 
 const props = defineProps({
     item: Object,
@@ -39,7 +40,7 @@ const quantity = ref(getQuantity(props.item?.id) || 1)
 
 const inStock = computed(() => props.item?.inventory > 0)
 const atMax = computed(() => quantity.value >= props.item?.inventory)
-const overLimit = computed(() => quantity.value > props.item?.inventory)
+const overLimit = computed(() => props.item?.inventory > 0 && quantity.value > props.item?.inventory)
 
 /* ---------------- Tabs ---------------- */
 const activeTab = ref('0')
@@ -181,8 +182,8 @@ const ogImage = computed(() => {
 
                         <div class="flex items-center gap-3">
                             <!-- Quantity -->
-                            <div class="flex flex-col justify-center gap-y-1">
-                                <div class="flex items-center border max-sm:px-2 border-gray-100 rounded-2xl overflow-hidden w-fit shadow-sm bg-white">
+                            <div v-if="inStock" class="flex flex-col justify-center gap-y-1">
+                                <div :class="overLimit ? 'border-red-500' : ''" class="flex items-center border max-sm:px-2 border-gray-100 rounded-2xl overflow-hidden w-fit shadow-sm bg-white">
 
                                     <button
                                         @click="quantity > 1 ? quantity-- : null"
@@ -192,10 +193,11 @@ const ogImage = computed(() => {
                                         <i class="pi pi-minus text-xs"></i>
                                     </button>
 
-                                    <InputText
+                                    <InputNumber
                                         v-model="quantity"
-                                        inputmode="numeric"
-                                        class="w-16 sm:h-11 text-center font-semibold rounded-xl shadow-none border-none"
+                                        :min="1"
+                                        @input="e => { if (e.value !== null) quantity = e.value }"
+                                        :input-style="{ width: '4rem', textAlign: 'center', padding: '0', boxShadow: 'none', border: 'none', fontWeight: '600' }"
                                     />
 
                                     <button
@@ -211,16 +213,17 @@ const ogImage = computed(() => {
                                     </button>
                                 </div>
 
-<!--                                <p v-if="overLimit" class="text-xs text-red-600">-->
-<!--                                    მაქსიმუმ {{ item.inventory }} ერთეული-->
-<!--                                </p>-->
+                                <p v-if="overLimit" class="text-xs text-red-600">
+                                    შეკვეთის მაქსიმალური რაოდენობაა {{ item.inventory }}
+                                </p>
                             </div>
 
                             <!-- Add to Cart -->
                             <button
+                                :disabled="overLimit || (!inStock && isInCart(item.id))"
                                 @click="addToCart(item.id, quantity)"
                                 class="relative w-full max-sm:px-2 max-sm:text-sm py-2.5 rounded-2xl cursor-pointer bg-brand-500 text-white font-semibold
-                                hover:bg-brand-400 active:scale-[0.98] transition-all shadow-md"
+                                hover:bg-brand-400 disabled:cursor-not-allowed active:scale-[0.98] transition-all shadow-md"
                             >
                                 <i :class="['lg:mr-2', isInCart(item.id) ? 'pi pi-shopping-cart' : 'pi pi-cart-plus']"></i>
                                 კალათაში დამატება
@@ -228,6 +231,7 @@ const ogImage = computed(() => {
                                 <!-- Badge -->
                                 <CartCountBadge class="sm:min-w-5! sm:h-5! min-w-4! h-4!" :item="item" />
                             </button>
+
                         </div>
 
                         <div class="mt-8 space-y-3">

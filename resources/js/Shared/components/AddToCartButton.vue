@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import InputNumber from 'primevue/inputnumber'
 import { useCart } from '@/composables/useCart.js';
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
@@ -12,6 +12,7 @@ const { addToCart, isInCart, getQuantity } = useCart()
 
 const quantity = ref(1)
 const showStepper = ref(false)
+const overLimit = computed(() => props.item.inventory > 0 && quantity.value > props.item.inventory)
 
 const isOutOfStock = !props.item.inventory || props.item.inventory === 0
 
@@ -35,8 +36,9 @@ function onMouseLeave() {
         <!-- Default button -->
         <button
             @click.stop="handleClick"
+            :disabled="isOutOfStock && isInCart(item.id)"
             :class="isOutOfStock
-                ? 'border border-dashed border-brand-400 text-brand-500 hover:bg-brand-50 active:scale-95 cursor-pointer'
+                ? 'border border-dashed border-brand-400 text-brand-500 hover:bg-brand-50 active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'
                 : 'bg-brand-500 text-white hover:bg-brand-400 active:scale-95 cursor-pointer'"
             class="relative flex items-center text-xs font-semibold p-2 rounded-xl transition-all duration-150"
         >
@@ -49,37 +51,47 @@ function onMouseLeave() {
         <!-- Stepper -->
         <div
             v-if="showStepper"
-            class="absolute top-1/2 -translate-y-1/2 right-0
-                   flex items-center gap-1 bg-white rounded-xl shadow-lg pl-2 py-1.5 border-gray-100"
-        >
-            <InputNumber
-                v-model="quantity"
-                show-buttons
-                button-layout="horizontal"
-                :min="1"
-                :input-style="{ width: '2rem', textAlign: 'center', padding: '0', boxShadow: 'none', fontSize: '0.875rem', fontWeight: '600' }"
-                class="cart-stepper"
-                @click.stop
-            >
-                <template #incrementbuttonicon>
-                    <i class="pi pi-plus text-xs" />
-                </template>
-                <template #decrementbuttonicon>
-                    <i class="pi pi-minus text-xs" />
-                </template>
-            </InputNumber>
+            class="absolute top-1/2 -translate-y-1/2 right-0 flex flex-col items-end gap-1"
 
-            <button
-                @click.stop="addToCart(item.id, quantity)"
-                class="flex items-center justify-center rounded-xl p-2
-                       bg-brand-500 cursor-pointer hover:bg-brand-400 active:scale-95
-                       text-white transition-all duration-150"
-            >
-                <i class="pi pi-cart-plus"></i>
-            </button>
+            :class="overLimit ? 'border border-red-500 rounded-lg' : ''"
+        >
+            <div class="flex items-center gap-1 bg-white rounded-xl shadow-lg pl-2 py-1.5 border-gray-100">
+                <InputNumber
+                    v-model="quantity"
+                    show-buttons
+                    button-layout="horizontal"
+                    :min="1"
+                    @input="e => { if (e.value !== null) quantity = e.value }"
+                    :input-style="{ width: '2rem', textAlign: 'center', padding: '0', boxShadow: 'none', fontSize: '0.875rem', fontWeight: '600' }"
+                    class="cart-stepper"
+                    @click.stop
+                >
+                    <template #incrementbuttonicon>
+                        <i class="pi pi-plus text-xs" />
+                    </template>
+                    <template #decrementbuttonicon>
+                        <i class="pi pi-minus text-xs" />
+                    </template>
+                </InputNumber>
+
+                <button
+                    @click.stop="addToCart(item.id, quantity)"
+                    :disabled="overLimit"
+                    v-tooltip="overLimit ? 'შეკვეთის მაქსიმალური რაოდენობაა '+item.inventory : ''"
+                    class="flex items-center justify-center rounded-xl p-2
+                           bg-brand-500 cursor-pointer hover:bg-brand-400 active:scale-95
+                           text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <i class="pi pi-cart-plus"></i>
+                </button>
+            </div>
         </div>
 
     </div>
+
+<!--    <p v-if="overLimit" class="text-xs text-red-600 bg-white px-2 py-0.5 rounded-lg shadow">-->
+<!--        მაქსიმუმ {{ item.inventory }} ერთეული-->
+<!--    </p>-->
 </template>
 
 <style scoped>
