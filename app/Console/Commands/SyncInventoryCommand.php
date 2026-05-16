@@ -103,7 +103,11 @@ class SyncInventoryCommand extends Command
             ->values();
 
         foreach ($items as $item) {
-            DB::table('items')->where('no', $item['no'])->update(['inventory' => (int) $item['inventory']]);
+            DB::table('items')
+                ->where('no', $item['no'])
+                ->update([
+                    'inventory' => (int) $item['inventory']
+                ]);
         }
 
         // Find which of the waited items just got restocked
