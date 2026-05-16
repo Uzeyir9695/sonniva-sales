@@ -29,8 +29,8 @@ function deleteNotification(id) {
     <div class="p-6">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-xl font-bold text-gray-900">მარაგის შეტყობინებები</h1>
-                <p class="text-sm text-gray-500 mt-0.5">მომხმარებლები, რომლებიც ელოდებიან პროდუქტის შევსებას</p>
+                <h1 class="text-xl font-bold text-gray-900">Stock Notifications</h1>
+                <p class="text-sm text-gray-500 mt-0.5">Users waiting for products to be restocked</p>
             </div>
         </div>
 
@@ -44,7 +44,7 @@ function deleteNotification(id) {
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200'"
             >
                 <i class="pi pi-clock text-xs"></i>
-                მოლოდინში
+                Pending
                 <span class="text-xs font-bold px-1.5 py-0.5 rounded-full"
                     :class="tab === 'pending' ? 'bg-amber-200 text-amber-800' : 'bg-gray-200 text-gray-600'"
                 >
@@ -60,7 +60,7 @@ function deleteNotification(id) {
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200'"
             >
                 <i class="pi pi-check-circle text-xs"></i>
-                გაგზავნილი
+                Sent
                 <span class="text-xs font-bold px-1.5 py-0.5 rounded-full"
                     :class="tab === 'sent' ? 'bg-emerald-200 text-emerald-800' : 'bg-gray-200 text-gray-600'"
                 >
@@ -81,25 +81,25 @@ function deleteNotification(id) {
             <template #empty>
                 <div class="flex flex-col items-center justify-center py-12 text-gray-400">
                     <i class="pi pi-bell text-3xl mb-3"></i>
-                    <p class="text-sm">შეტყობინება არ მოიძებნა</p>
+                    <p class="text-sm">No notifications found</p>
                 </div>
             </template>
 
-            <Column field="item.no" header="კოდი" />
+            <Column field="item.no" header="Item No" />
 
-            <Column field="item.name" header="პროდუქტი">
+            <Column field="item.name" header="Product">
                 <template #body="{ data }">
                     <span class="text-gray-800">{{ data.item?.name }}</span>
                 </template>
             </Column>
 
-            <Column header="მომხმარებელი">
+            <Column header="Customer">
                 <template #body="{ data }">
                     <span class="font-medium text-gray-800">{{ data.user?.name }} {{ data.user?.lastname }}</span>
                 </template>
             </Column>
 
-            <Column field="user.phone" header="ტელეფონი">
+            <Column field="user.phone" header="Phone">
                 <template #body="{ data }">
                     <a :href="`tel:${data.user?.phone}`" class="text-brand-500 hover:underline">
                         {{ data.user?.phone }}
@@ -107,13 +107,13 @@ function deleteNotification(id) {
                 </template>
             </Column>
 
-            <Column field="created_at" header="თარიღი">
+            <Column field="created_at" header="Date">
                 <template #body="{ data }">
                     <span class="text-gray-500 text-xs">{{ new Date(data.created_at).toLocaleDateString('ka-GE') }}</span>
                 </template>
             </Column>
 
-            <Column v-if="tab === 'sent'" field="notified_at" header="გაგზავნის თარიღი">
+            <Column v-if="tab === 'sent'" field="notified_at" header="Notified At">
                 <template #body="{ data }">
                     <span class="text-gray-500 text-xs">{{ new Date(data.notified_at).toLocaleDateString('ka-GE') }}</span>
                 </template>
