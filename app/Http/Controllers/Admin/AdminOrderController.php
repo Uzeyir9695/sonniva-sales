@@ -11,7 +11,7 @@ class AdminOrderController extends Controller
 {
     public function index(Request $request)
     {
-        $status = $request->get('status', 'all');
+        $status = $request->input('status', 'all');
 
         $orders = Order::with([
             'user:id,name,lastname,phone,tax_id',
