@@ -13,7 +13,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
-const { addToCart } = useCart()
+const { addToCart, isInCart, getQuantity } = useCart()
 
 const query       = ref('');
 const results     = ref([]);
@@ -205,7 +205,8 @@ defineExpose({ inputRef });
                                 </button>
                                 <button
                                     @click.stop="addToCart(item.id)"
-                                    class="relative w-5 sm:w-7 h-5 sm:h-7 rounded-lg cursor-pointer flex items-center justify-center text-gray-400 hover:text-brand-500 hover:bg-brand-50 transition-colors"
+                                    :disabled="(item.inventory > 0 && getQuantity(item.id) >= item.inventory) || (item.inventory <= 0 && isInCart(item.id))"
+                                    class="relative w-5 sm:w-7 h-5 sm:h-7 rounded-lg cursor-pointer flex items-center justify-center text-gray-400 hover:text-brand-500 hover:bg-brand-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:hover:bg-transparent"
                                     v-tooltip.top="'დაამატე კალათაში'"
                                 >
                                     <i class="pi pi-cart-plus"></i>
