@@ -16,19 +16,16 @@
         <script src="https://kit.fontawesome.com/2ba6cc2cc6.js" crossorigin="anonymous"></script>
         <script src="https://www.google.com/recaptcha/enterprise.js?render=6LcW6nwsAAAAAAm5AmwLcYU2MkUEtJczfTdo_vXh"></script>
 
+        @if(app()->environment('production'))
         <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XC9KBFK3KK"></script>
+            <script async src="https://www.googletagmanager.com/gtag/js?id=G-MX80ZYCMNF"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-
-            @if(app()->environment('production'))
-                gtag('config', 'G-XC9KBFK3KK');
-            @else
-                gtag('config', 'G-XC9KBFK3KK', { debug_mode: true });
-            @endif
+            gtag('config', 'G-MX80ZYCMNF');
         </script>
+        @endif
 
 {{--        <script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>--}}
 {{--        <script>--}}
