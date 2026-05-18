@@ -101,7 +101,7 @@ class AdminAnalyticsController extends Controller
             period: $period,
             metrics: ['itemsViewed'],
             dimensions: ['itemName', 'itemId'],
-            maxResults: 10,
+            maxResults: 50,
             orderBy: [OrderBy::metric('itemsViewed', true)],
         )->map(fn ($row) => [
             'name' => $row['itemName'] ?? '—',
