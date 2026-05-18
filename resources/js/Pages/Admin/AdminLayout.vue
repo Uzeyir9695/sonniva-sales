@@ -26,6 +26,11 @@ const menuItems = [
         route: 'admin.stock-notifications.index',
         icon: 'pi-bell'
     },
+    {
+        name: 'Analytics',
+        route: 'admin.analytics.index',
+        icon: 'pi-chart-line'
+    },
 ];
 
 </script>

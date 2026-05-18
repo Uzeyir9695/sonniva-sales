@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\AdminAnalyticsController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminPaymentController;
@@ -83,6 +84,9 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         // ******** Admin Stock Notifications ********//
         Route::get('/stock-notifications', [AdminStockNotificationController::class, 'index'])->name('stock-notifications.index');
         Route::delete('/stock-notifications/{stockNotification}', [AdminStockNotificationController::class, 'destroy'])->name('stock-notifications.destroy');
+
+        // ******** Admin Analytics ********//
+        Route::get('/analytics', [AdminAnalyticsController::class, 'index'])->name('analytics.index');
 
         // ******** Admin Users Controllers ********//
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');

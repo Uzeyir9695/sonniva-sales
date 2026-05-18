@@ -1,6 +1,7 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3'
 import { ref, computed, onMounted } from 'vue'
+import { useGtag } from '@/composables/useGtag.js'
 import { useClipboard } from '@vueuse/core';
 import SimilarItems from '@/Pages/Items/SimilarItems.vue';
 import ItemGallery from '@/Pages/Items/ItemGallery.vue';
@@ -25,6 +26,15 @@ const props = defineProps({
 const showWhatsappDialog = ref(false)
 
 const { addToCart, buyNow, isInCart, getQuantity } = useCart()
+const { track } = useGtag()
+
+onMounted(() => {
+    track('view_item', {
+        currency: 'GEL',
+        value: props.item?.unit_price ?? 0,
+        items: [{ item_id: String(props.item?.id), item_name: props.item?.name, price: props.item?.unit_price }],
+    })
+})
 
 const source = ref(props.item?.no);
 const { copy, copied } = useClipboard({ source });

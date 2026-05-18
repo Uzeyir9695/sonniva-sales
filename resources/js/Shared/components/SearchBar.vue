@@ -4,6 +4,7 @@ import { router } from '@inertiajs/vue3';
 import axios from 'axios';
 import QuickViewDialog from '@/Shared/components/QuickViewDialog.vue';
 import { useCart } from '@/composables/useCart.js';
+import { useGtag } from '@/composables/useGtag.js'
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 
 const props = defineProps({
@@ -14,6 +15,7 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 
 const { addToCart, isInCart, getQuantity } = useCart()
+const { track } = useGtag()
 
 const query       = ref('');
 const results     = ref([]);
@@ -59,6 +61,7 @@ function goToItem(item) {
 
 function goToSearch() {
     if (!query.value.trim()) return;
+    track('search', { search_term: query.value.trim() })
     showDropdown.value = false;
     router.get(route('search.index', { q: query.value }));
 }
