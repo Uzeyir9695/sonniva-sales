@@ -22,6 +22,80 @@ const props = defineProps({
 
 usePoll(10000, { only: ['unseenCounts'], preserveScroll: true, preserveState: true });
 
+const invoicedAtDates  = ref(null);
+const approvedAtDates  = ref(null);
+const readyAtDates     = ref(null);
+
+const fmt = (d) => d.toLocaleDateString('en-CA');
+
+function filterByInvoicedAt() {
+    const start = invoicedAtDates.value?.[0];
+    const end   = invoicedAtDates.value?.[1];
+    if (start && end) {
+        router.get(route('admin.orders.index'), { status: props.status, start_date: fmt(start), end_date: fmt(end) }, { preserveState: true, preserveScroll: true });
+    }
+}
+
+function resetInvoicedAt() {
+    invoicedAtDates.value = null;
+    router.get(route('admin.orders.index'), { status: props.status }, { preserveState: true, preserveScroll: true });
+}
+
+function filterByApprovedAt() {
+    const start = approvedAtDates.value?.[0];
+    const end   = approvedAtDates.value?.[1];
+    if (start && end) {
+        router.get(route('admin.orders.index'), { status: props.status, start_date: fmt(start), end_date: fmt(end) }, { preserveState: true, preserveScroll: true });
+    }
+}
+
+function resetApprovedAt() {
+    approvedAtDates.value = null;
+    router.get(route('admin.orders.index'), { status: props.status }, { preserveState: true, preserveScroll: true });
+}
+
+function filterByReadyAt() {
+    const start = readyAtDates.value?.[0];
+    const end   = readyAtDates.value?.[1];
+    if (start && end) {
+        router.get(route('admin.orders.index'), {
+            status:        props.status,
+            ready_start:   fmt(start),
+            ready_end:     fmt(end),
+            ...(approvedAtDates.value?.[0] && approvedAtDates.value?.[1] ? { approved_start: fmt(approvedAtDates.value[0]), approved_end: fmt(approvedAtDates.value[1]) } : {}),
+        }, { preserveState: true, preserveScroll: true });
+    }
+}
+
+function resetReadyAt() {
+    readyAtDates.value = null;
+    router.get(route('admin.orders.index'), {
+        status: props.status,
+        ...(approvedAtDates.value?.[0] && approvedAtDates.value?.[1] ? { approved_start: fmt(approvedAtDates.value[0]), approved_end: fmt(approvedAtDates.value[1]) } : {}),
+    }, { preserveState: true, preserveScroll: true });
+}
+
+function filterByApprovedAtReady() {
+    const start = approvedAtDates.value?.[0];
+    const end   = approvedAtDates.value?.[1];
+    if (start && end) {
+        router.get(route('admin.orders.index'), {
+            status:         props.status,
+            approved_start: fmt(start),
+            approved_end:   fmt(end),
+            ...(readyAtDates.value?.[0] && readyAtDates.value?.[1] ? { ready_start: fmt(readyAtDates.value[0]), ready_end: fmt(readyAtDates.value[1]) } : {}),
+        }, { preserveState: true, preserveScroll: true });
+    }
+}
+
+function resetApprovedAtReady() {
+    approvedAtDates.value = null;
+    router.get(route('admin.orders.index'), {
+        status: props.status,
+        ...(readyAtDates.value?.[0] && readyAtDates.value?.[1] ? { ready_start: fmt(readyAtDates.value[0]), ready_end: fmt(readyAtDates.value[1]) } : {}),
+    }, { preserveState: true, preserveScroll: true });
+}
+
 const tabs = [
     { label: 'All',       value: 'all',       badge: false, icon: 'pi-list' },
     { label: 'Invoiced',  value: 'pending',   badge: true,  icon: 'pi-clock' },
@@ -31,6 +105,9 @@ const tabs = [
 ];
 
 function switchTab(value) {
+    invoicedAtDates.value  = null;
+    approvedAtDates.value  = null;
+    readyAtDates.value     = null;
     router.get(route('admin.orders.index'), { status: value }, {
         only: ['orders', 'status'],
         preserveState: true,
@@ -189,9 +266,8 @@ function confirmStatusChange(order, newStatus) {
                 <TableSkeleton />
             </template>
 
-            <div v-if="orders?.data?.length > 0">
-                <DataTable
-                    :value="orders.data"
+            <DataTable
+                    :value="orders?.data ?? []"
                     dataKey="id"
                     :rows="10"
                     paginator
@@ -275,7 +351,87 @@ function confirmStatusChange(order, newStatus) {
                         </template>
                     </Column>
 
-                    <Column field="created_at" header="Date" />
+                    <Column v-if="status === 'all' || status === 'cancelled'" field="created_at" header="Date" />
+
+                    <Column v-if="status === 'pending'" header="Invoiced At" style="min-width: 14rem">
+                        <template #body="{ data }">{{ data.invoiced_at ?? '—' }}</template>
+                        <template #filter>
+                            <DatePicker
+                                v-model="invoicedAtDates"
+                                showIcon showButtonBar
+                                @clear-click="resetInvoicedAt"
+                                @update:modelValue="filterByInvoicedAt"
+                                placeholder="DD/MM/YY"
+                                selectionMode="range"
+                                hideOnRangeSelection
+                                size="small"
+                                :maxDate="new Date()"
+                                :manualInput="false"
+                                inputClass="py-0.5 text-xs"
+                            />
+                        </template>
+                        <template #filtericon />
+                    </Column>
+
+                    <Column v-if="status === 'paid'" header="Approved At" style="min-width: 14rem">
+                        <template #body="{ data }">{{ data.approved_at ?? '—' }}</template>
+                        <template #filter>
+                            <DatePicker
+                                v-model="approvedAtDates"
+                                showIcon showButtonBar
+                                @clear-click="resetApprovedAt"
+                                @update:modelValue="filterByApprovedAt"
+                                placeholder="DD/MM/YY"
+                                selectionMode="range"
+                                hideOnRangeSelection
+                                size="small"
+                                :maxDate="new Date()"
+                                :manualInput="false"
+                                inputClass="py-0.5 text-xs"
+                            />
+                        </template>
+                        <template #filtericon />
+                    </Column>
+
+                    <Column v-if="status === 'ready'" header="Approved At" style="min-width: 14rem">
+                        <template #body="{ data }">{{ data.approved_at ?? '—' }}</template>
+                        <template #filter>
+                            <DatePicker
+                                v-model="approvedAtDates"
+                                showIcon showButtonBar
+                                @clear-click="resetApprovedAtReady"
+                                @update:modelValue="filterByApprovedAtReady"
+                                placeholder="DD/MM/YY"
+                                selectionMode="range"
+                                hideOnRangeSelection
+                                size="small"
+                                :maxDate="new Date()"
+                                :manualInput="false"
+                                inputClass="py-0.5 text-xs"
+                            />
+                        </template>
+                        <template #filtericon />
+                    </Column>
+
+                    <Column v-if="status === 'ready'" header="Ready At" style="min-width: 14rem">
+                        <template #body="{ data }">{{ data.ready_at ?? '—' }}</template>
+                        <template #filter>
+                            <DatePicker
+                                v-model="readyAtDates"
+                                showIcon showButtonBar
+                                @clear-click="resetReadyAt"
+                                @update:modelValue="filterByReadyAt"
+                                placeholder="DD/MM/YY"
+                                selectionMode="range"
+                                hideOnRangeSelection
+                                size="small"
+                                :maxDate="new Date()"
+                                :manualInput="false"
+                                inputClass="py-0.5 text-xs"
+                            />
+                        </template>
+                        <template #filtericon />
+                    </Column>
 
                     <Column header="Actions">
                         <template #body="{ data }">
@@ -341,13 +497,13 @@ function confirmStatusChange(order, newStatus) {
                             </div>
                         </template>
                     </Column>
+                    <template #empty>
+                        <div class="flex flex-col items-center justify-center h-40">
+                            <i class="pi pi-inbox text-5xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-500">No orders found.</p>
+                        </div>
+                    </template>
                 </DataTable>
-            </div>
-
-            <div v-else class="flex flex-col items-center justify-center h-64 mt-4">
-                <i class="pi pi-inbox text-6xl text-gray-300 mb-4"></i>
-                <h3 class="text-xl text-gray-500">No orders found.</h3>
-            </div>
         </Deferred>
     </div>
 </template>

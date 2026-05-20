@@ -19,6 +19,14 @@ class AdminOrderController extends Controller
         ])
             ->whereNot('status', 'awaiting_payment')
             ->when($status !== 'all', fn ($q) => $q->where('status', $status))
+            ->when($status === 'pending' && $request->filled('start_date'), fn ($q) => $q->whereDate('invoiced_at', '>=', $request->start_date))
+            ->when($status === 'pending' && $request->filled('end_date'), fn ($q) => $q->whereDate('invoiced_at', '<=', $request->end_date))
+            ->when($status === 'paid' && $request->filled('start_date'), fn ($q) => $q->whereDate('approved_at', '>=', $request->start_date))
+            ->when($status === 'paid' && $request->filled('end_date'), fn ($q) => $q->whereDate('approved_at', '<=', $request->end_date))
+            ->when($status === 'ready' && $request->filled('approved_start'), fn ($q) => $q->whereDate('approved_at', '>=', $request->approved_start))
+            ->when($status === 'ready' && $request->filled('approved_end'), fn ($q) => $q->whereDate('approved_at', '<=', $request->approved_end))
+            ->when($status === 'ready' && $request->filled('ready_start'), fn ($q) => $q->whereDate('ready_at', '>=', $request->ready_start))
+            ->when($status === 'ready' && $request->filled('ready_end'), fn ($q) => $q->whereDate('ready_at', '<=', $request->ready_end))
             ->latest()
             ->paginate(20)
             ->through(fn ($order) => [
@@ -29,6 +37,9 @@ class AdminOrderController extends Controller
                 'subtotal' => $order->subtotal,
                 'total' => $order->total,
                 'created_at' => $order->created_at,
+                'invoiced_at' => $order->invoiced_at,
+                'approved_at' => $order->approved_at,
+                'ready_at' => $order->ready_at,
                 'user' => $order->user ? [
                     'name' => trim($order->user->name.' '.$order->user->lastname),
                     'phone' => $order->user->phone,
