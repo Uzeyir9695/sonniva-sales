@@ -20,7 +20,15 @@ class AdminStockNotificationController extends Controller
             ->when($tab === 'sent', fn ($q) => $q->whereNotNull('notified_at'))
             ->latest()
             ->paginate(50)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(fn ($n) => [
+                'id' => $n->id,
+                'notified_at' => $n->notified_at,
+                'called_at' => $n->called_at,
+                'created_at' => $n->created_at,
+                'user' => $n->user,
+                'item' => $n->item,
+            ]);
 
         return Inertia::render('Admin/StockNotifications/Index', [
             'notifications' => $notifications,
@@ -30,6 +38,15 @@ class AdminStockNotificationController extends Controller
             ],
             'tab' => $tab,
         ]);
+    }
+
+    public function toggleCalled(StockNotification $stockNotification): \Illuminate\Http\RedirectResponse
+    {
+        $stockNotification->update([
+            'called_at' => $stockNotification->called_at ? null : now(),
+        ]);
+
+        return back();
     }
 
     public function destroy(StockNotification $stockNotification): \Illuminate\Http\RedirectResponse

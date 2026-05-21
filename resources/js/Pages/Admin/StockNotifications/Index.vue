@@ -2,6 +2,7 @@
 import AdminLayout from '../AdminLayout.vue';
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { useToast } from 'primevue/usetoast';
 import { FilterMatchMode } from '@primevue/core/api';
 
 defineOptions({ layout: AdminLayout });
@@ -12,12 +13,25 @@ const props = defineProps({
     tab: String,
 });
 
+const toast = useToast();
+
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
 function switchTab(t) {
     router.get(route('admin.stock-notifications.index'), { tab: t }, { preserveState: true, replace: true });
+}
+
+function toggleCalled(notification) {
+    router.patch(route('admin.stock-notifications.toggle-called', notification.id), {}, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+            const wasCalled = !!notification.called_at;
+            toast.add({ severity: 'success', summary: wasCalled ? 'Unmarked' : 'Marked as called', life: 2000 });
+        },
+    });
 }
 
 function deleteNotification(id) {
@@ -73,6 +87,7 @@ function deleteNotification(id) {
             :value="notifications.data"
             v-model:filters="filters"
             :globalFilterFields="['user.name', 'user.lastname', 'user.phone', 'item.no', 'item.name']"
+            :rowClass="(data) => data.called_at ? 'bg-emerald-50 dark:bg-emerald-950/20' : null"
             paginator
             :rows="50"
             dataKey="id"
@@ -116,6 +131,21 @@ function deleteNotification(id) {
             <Column v-if="tab === 'sent'" field="notified_at" header="Notified At">
                 <template #body="{ data }">
                     <span class="text-gray-500 text-xs">{{ new Date(data.notified_at).toLocaleDateString('ka-GE') }}</span>
+                </template>
+            </Column>
+
+            <Column v-if="tab === 'sent'" header="Called" style="width: 6rem">
+                <template #body="{ data }">
+                    <div class="flex items-center gap-2">
+                        <Checkbox
+                            :modelValue="!!data.called_at"
+                            binary
+                            @change="toggleCalled(data)"
+                        />
+                        <span v-if="data.called_at" class="text-xs text-gray-400">
+                            {{ data.called_at }}
+                        </span>
+                    </div>
                 </template>
             </Column>
 

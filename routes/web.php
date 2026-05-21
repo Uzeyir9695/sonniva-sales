@@ -83,6 +83,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
 
         // ******** Admin Stock Notifications ********//
         Route::get('/stock-notifications', [AdminStockNotificationController::class, 'index'])->name('stock-notifications.index');
+        Route::patch('/stock-notifications/{stockNotification}/toggle-called', [AdminStockNotificationController::class, 'toggleCalled'])->name('stock-notifications.toggle-called');
         Route::delete('/stock-notifications/{stockNotification}', [AdminStockNotificationController::class, 'destroy'])->name('stock-notifications.destroy');
 
         // ******** Admin Analytics ********//
