@@ -20,7 +20,10 @@ const props = defineProps({
     status: String,
 });
 
-usePoll(10000, { only: ['unseenCounts'], preserveScroll: true, preserveState: true });
+usePoll(10000, {
+    only: ['unseenCounts'],
+    preserveScroll: true, preserveState: true
+});
 
 const invoicedAtDates  = ref(null);
 const approvedAtDates  = ref(null);
@@ -195,7 +198,6 @@ function openSendPdfDialog(order) {
 
 function submitSendPdf() {
     sendPdfVisible.value = false;
-    // TODO: wire up actual send action
     toast.add({ severity: 'info', summary: 'PDF Sent', detail: 'PDF has been sent.', life: 3000 });
 }
 

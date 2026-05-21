@@ -3,11 +3,11 @@
 namespace App\Http\Middleware;
 
 use App\Models\Category;
-use Illuminate\Foundation\Inspiring;
+use App\Models\Order;
+use App\Models\StockNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Inertia\Inertia;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
@@ -43,29 +43,29 @@ class HandleInertiaRequests extends Middleware
     {
         $isAdmin = auth()?->user()?->role === 'admin';
 
-        //Cache::forget('nav_categories');
+        // Cache::forget('nav_categories');
 
-        $categories = fn() => Cache::rememberForever('nav_categories', function () {
+        $categories = fn () => Cache::rememberForever('nav_categories', function () {
             return Category::whereNull('parent_id')
-                ->whereIn('code', ['1100','1200','1300','1400','1500','1600','1700','1800','1900','2000','2100','2200','2300'])
+                ->whereIn('code', ['1100', '1200', '1300', '1400', '1500', '1600', '1700', '1800', '1900', '2000', '2100', '2200', '2300'])
                 ->orderBy('sort_order')
                 ->with(['children' => function ($query) {
                     $query->orderBy('sort_order')
                         ->withCount('items') // for 2-level branches where this IS last level
                         ->with(['children' => function ($query) {
-                        $query->orderBy('sort_order')
-                            ->withCount('items');
-                    }]);
+                            $query->orderBy('sort_order')
+                                ->withCount('items');
+                        }]);
                 }])
                 ->get()
-                ->map(fn($cat) => [
+                ->map(fn ($cat) => [
                     'code' => $cat->code,
                     'name' => $cat->name,
                     'slug' => $cat->slug,
                     'storage_path' => $cat->storage_path,
                     'image' => $cat->image,
-                    'subs' => $cat->children->map(fn($sub) => [
-                        'name'  => $sub->name,
+                    'subs' => $cat->children->map(fn ($sub) => [
+                        'name' => $sub->name,
                         'slug' => $sub->slug,
                         'storage_path' => $sub->storage_path,
                         'image' => $sub->image,
@@ -73,7 +73,7 @@ class HandleInertiaRequests extends Middleware
                             ? $sub->items_count  // 2nd level — no children, count items
                             : null,
 
-                        'items' => $sub->children->map(fn($item) => [
+                        'items' => $sub->children->map(fn ($item) => [
                             'name' => $item->name,
                             'slug' => $item->slug,
                             'items_count' => $item->items_count, // 3rd level count of items
@@ -85,7 +85,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'ziggy' => function () use ($request) {
-                return array_merge((new Ziggy())->toArray(), [
+                return array_merge((new Ziggy)->toArray(), [
                     'location' => $request->url(),
                 ]);
             },
@@ -109,9 +109,17 @@ class HandleInertiaRequests extends Middleware
             'cart' => [
                 'items' => $request->user()
                     ? $request->user()->carts()->get(['item_id', 'quantity'])
-                        ->mapWithKeys(fn($c) => [$c->item_id => $c->quantity])
+                        ->mapWithKeys(fn ($c) => [$c->item_id => $c->quantity])
                     : [],
             ],
+
+            'unseenStockCount' => $isAdmin
+                ? fn () => StockNotification::whereNull('seen_at')->count()
+                : null,
+
+            'unseenOrdersCount' => $isAdmin
+                ? fn () => Order::whereNull('seen_at')->whereIn('status', ['pending', 'paid'])->count()
+                : null,
 
             'flash' => [
                 'message' => fn () => $request->session()->get('message'),

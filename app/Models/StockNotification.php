@@ -18,6 +18,7 @@ class StockNotification extends Model
     {
         return [
             'notified_at' => 'datetime',
+            'seen_at' => 'datetime',
         ];
     }
 

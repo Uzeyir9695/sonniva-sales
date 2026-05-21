@@ -1,37 +1,48 @@
 <script setup>
-import {Link} from '@inertiajs/vue3';
-import {ref} from "vue";
+import { Link, usePage, usePoll } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
 import Navbar from '@/Shared/menu/Navbar.vue';
 
 const sidebarOpen = ref(false);
+const page = usePage();
 
-const menuItems = [
+usePoll(15000, {
+    only: ['unseenOrdersCount', 'unseenStockCount'],
+    preserveScroll: true, preserveState: true
+});
+
+const unseenOrdersCount  = computed(() => page.props.unseenOrdersCount);
+const unseenStockCount   = computed(() => page.props.unseenStockCount);
+
+const menuItems = computed(() => [
     {
         name: 'Orders',
         route: 'admin.orders.index',
-        icon: 'pi-shopping-cart'
+        icon: 'pi-shopping-cart',
+        badge: unseenOrdersCount.value || null,
     },
     {
         name: 'Users',
         route: 'admin.users.index',
-        icon: 'pi-users'
+        icon: 'pi-users',
     },
     {
         name: 'Payments',
         route: 'admin.payments.index',
-        icon: 'pi-credit-card'
+        icon: 'pi-credit-card',
     },
     {
         name: 'Stock Requests',
         route: 'admin.stock-notifications.index',
-        icon: 'pi-bell'
+        icon: 'pi-bell',
+        badge: unseenStockCount.value || null,
     },
     {
         name: 'Analytics',
         route: 'admin.analytics.index',
-        icon: 'pi-chart-line'
+        icon: 'pi-chart-line',
     },
-];
+]);
 
 </script>
 
@@ -83,6 +94,12 @@ const menuItems = [
                                     <i :class="['pi text-lg', item.icon, route().current(item.route) ? 'text-green-600' : 'text-gray-500']"></i>
                                     <span>{{ item.name }}</span>
                                 </div>
+                                <span
+                                    v-if="item.badge"
+                                    class="text-xs font-bold px-1.5 py-0.5 rounded-full bg-red-500 text-white"
+                                >
+                                    {{ item.badge }}
+                                </span>
                             </div>
                         </Link>
                     </li>

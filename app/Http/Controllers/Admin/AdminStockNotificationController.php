@@ -30,6 +30,8 @@ class AdminStockNotificationController extends Controller
                 'item' => $n->item,
             ]);
 
+        StockNotification::whereNull('seen_at')->update(['seen_at' => now()]);
+
         return Inertia::render('Admin/StockNotifications/Index', [
             'notifications' => $notifications,
             'counts' => [

@@ -1,7 +1,7 @@
 <script setup>
 import AdminLayout from '../AdminLayout.vue';
 import { ref } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router, usePoll } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
 import { FilterMatchMode } from '@primevue/core/api';
 
@@ -14,6 +14,11 @@ const props = defineProps({
 });
 
 const toast = useToast();
+
+usePoll(10000, {
+    only: ['counts'],
+        preserveScroll: true, preserveState: true
+});
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
