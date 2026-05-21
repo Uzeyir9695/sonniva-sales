@@ -156,7 +156,7 @@ const providerLabel = {
                     </div>
                     <div>
                         <p class="text-xs text-gray-400 mb-0.5">Status</p>
-                        <Tag :value="order.payment.status" :severity="order.payment.status === 'completed' ? 'success' : 'warn'" />
+                        <Tag :value="order.payment.status" class="capitalize text-xs" :severity="order.payment.status === 'completed' ? 'success' : 'warn'" />
                     </div>
                     <div v-if="order.payment.transaction_id">
                         <p class="text-xs text-gray-400 mb-0.5">Transaction ID</p>

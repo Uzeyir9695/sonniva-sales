@@ -240,7 +240,7 @@ function confirmStatusChange(order, newStatus) {
         </div>
         <template #footer>
             <Button label="Cancel" size="small" severity="secondary" variant="text" @click="sendPdfVisible = false" />
-            <Button label="Send" size="small" icon="pi pi-send" @click="submitSendPdf" />
+            <Button label="Send" size="small" class="bg-brand-500 border-none" icon="pi pi-send" @click="submitSendPdf" />
         </template>
     </Dialog>
 
