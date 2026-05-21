@@ -92,7 +92,7 @@ function deleteNotification(id) {
             :value="notifications.data"
             v-model:filters="filters"
             :globalFilterFields="['user.name', 'user.lastname', 'user.phone', 'item.no', 'item.name']"
-            :rowClass="(data) => data.called_at ? 'bg-emerald-50 dark:bg-emerald-950/20' : null"
+            :rowClass="(data) => data.called_at ? 'bg-amber-50' : null"
             paginator
             :rows="50"
             dataKey="id"
@@ -133,13 +133,13 @@ function deleteNotification(id) {
                 </template>
             </Column>
 
-            <Column v-if="tab === 'sent'" field="notified_at" header="Notified At">
+            <Column v-if="tab === 'sent'" field="notified_at" header="Notified At" style="min-width: 10rem">
                 <template #body="{ data }">
                     <span class="text-gray-500 text-xs">{{ new Date(data.notified_at).toLocaleDateString('ka-GE') }}</span>
                 </template>
             </Column>
 
-            <Column v-if="tab === 'sent'" header="Called" style="width: 6rem">
+            <Column v-if="tab === 'sent'" header="Called" style="width: 10rem">
                 <template #body="{ data }">
                     <div class="flex items-center gap-2">
                         <Checkbox
