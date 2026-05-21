@@ -138,8 +138,9 @@ const providerLabel = {
 };
 
 const filters = ref({
-    invoice_no:   { value: null, matchMode: FilterMatchMode.EQUALS },
+    invoice_no:    { value: null, matchMode: FilterMatchMode.EQUALS },
     'user.tax_id': { value: null, matchMode: FilterMatchMode.EQUALS },
+    'user.name':   { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
 // Detail dialog
@@ -311,12 +312,15 @@ function confirmStatusChange(order, newStatus) {
                         </template>
                     </Column>
 
-                    <Column header="Customer">
+                    <Column field="user.name" header="Customer" style="min-width: 10rem;">
                         <template #body="{ data }">
                             <div>
                                 <p class="font-medium">{{ data.user?.name ?? '—' }}</p>
                                 <p class="text-xs text-gray-400">{{ data.user?.phone }}</p>
                             </div>
+                        </template>
+                        <template #filter="{ filterModel, filterCallback }">
+                            <PrimeInputText v-model="filterModel.value" size="small" class="text-xs w-36" @input="filterCallback()" placeholder="Search customer" />
                         </template>
                     </Column>
 
