@@ -1,6 +1,6 @@
 <script setup>
 import { Link, usePage, usePoll } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import Navbar from '@/Shared/menu/Navbar.vue';
 
 const sidebarOpen = ref(false);
@@ -11,8 +11,18 @@ usePoll(15000, {
     preserveScroll: true, preserveState: true
 });
 
-const unseenOrdersCount  = computed(() => page.props.unseenOrdersCount);
-const unseenStockCount   = computed(() => page.props.unseenStockCount);
+const unseenOrdersCount = computed(() => page.props.unseenOrdersCount);
+const unseenStockCount  = computed(() => page.props.unseenStockCount);
+
+function playNotificationSound() {
+    new Audio('/sounds/notification-sound.wav').play().catch(() => {});
+}
+
+watch([unseenOrdersCount, unseenStockCount], ([newOrders, newStock], [oldOrders, oldStock]) => {
+    if ((newOrders ?? 0) > (oldOrders ?? 0) || (newStock ?? 0) > (oldStock ?? 0)) {
+        playNotificationSound();
+    }
+});
 
 const menuItems = computed(() => [
     {
@@ -96,7 +106,7 @@ const menuItems = computed(() => [
                                 </div>
                                 <span
                                     v-if="item.badge"
-                                    class="text-xs font-bold px-1.5 py-0.5 rounded-full bg-red-500 text-white"
+                                    class="min-w-5 h-5 flex items-center justify-center text-xs font-bold rounded-full bg-red-500 text-white px-1"
                                 >
                                     {{ item.badge }}
                                 </span>
