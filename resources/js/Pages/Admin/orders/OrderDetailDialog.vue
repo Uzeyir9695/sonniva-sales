@@ -195,7 +195,7 @@ const providerLabel = {
                 </DataTable>
 
                 <!-- Totals row -->
-                <div class="flex justify-end gap-6 px-4 py-3 border-t border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-end gap-6 px-4 py-3 border-t border-gray-200 bg-gray-50">
                     <span class="text-gray-500">Subtotal: <span class="font-medium text-gray-700">{{ order.subtotal }} ₾</span></span>
                     <span class="text-gray-800 font-bold">
                         Total:
