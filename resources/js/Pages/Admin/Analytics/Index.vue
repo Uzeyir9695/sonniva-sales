@@ -13,6 +13,7 @@ const props = defineProps({
     userTypes:       { type: Array, default: () => [] },
     topSearchTerms:  { type: Array, default: () => [] },
     topViewedItems:  { type: Array, default: () => [] },
+    topSoldItems:    { type: Array, default: () => [] },
 })
 
 const periods = [
@@ -250,6 +251,52 @@ const fmt = (n) => Number(n ?? 0).toLocaleString()
 
                 </div>
             </Deferred>
+
+        <!-- Top sold items — always shown, no GA4 dependency -->
+        <Deferred :data="['topSoldItems']">
+            <template #fallback>
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 animate-pulse">
+                    <div class="h-4 bg-gray-200 rounded w-32 mb-4"></div>
+                    <div v-for="i in 8" :key="i" class="flex items-center gap-3 px-3 py-2.5">
+                        <div class="h-3 bg-gray-200 rounded w-4 shrink-0"></div>
+                        <div class="flex-1 space-y-1.5">
+                            <div class="h-3 bg-gray-200 rounded w-2/3"></div>
+                            <div class="h-2.5 bg-gray-100 rounded w-1/3"></div>
+                        </div>
+                        <div class="h-3 bg-gray-200 rounded w-12 shrink-0"></div>
+                        <div class="h-3 bg-gray-200 rounded w-16 shrink-0"></div>
+                    </div>
+                </div>
+            </template>
+
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <h2 class="text-sm font-bold text-gray-700 mb-4">Top Sold Items</h2>
+
+                <div v-if="!topSoldItems?.length" class="text-sm text-gray-400 py-6 text-center">No sales data yet</div>
+
+                <div v-else>
+                    <div class="grid grid-cols-[1.5rem_1fr_6rem_7rem] text-xs font-semibold text-gray-400 uppercase tracking-wide px-3 mb-2">
+                        <span>#</span>
+                        <span>Item</span>
+                        <span class="text-right">Units Sold</span>
+                        <span class="text-right">Revenue</span>
+                    </div>
+                    <div
+                        v-for="(row, i) in topSoldItems"
+                        :key="i"
+                        class="grid grid-cols-[1.5rem_1fr_6rem_7rem] items-center px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+                    >
+                        <span class="text-xs font-bold text-gray-300">{{ i + 1 }}</span>
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-gray-800 truncate">{{ row.name }}</p>
+                            <p class="text-xs text-gray-400">{{ row.no }}</p>
+                        </div>
+                        <p class="text-sm font-semibold text-gray-800 text-right">{{ fmt(row.total_sold) }}</p>
+                        <p class="text-sm font-semibold text-gray-800 text-right">{{ fmt(row.total_revenue) }} ₾</p>
+                    </div>
+                </div>
+            </div>
+        </Deferred>
 
         </template>
     </div>

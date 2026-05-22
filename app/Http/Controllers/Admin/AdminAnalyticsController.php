@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrderItem;
 use Google\Analytics\Data\V1beta\Filter;
 use Google\Analytics\Data\V1beta\Filter\StringFilter;
 use Google\Analytics\Data\V1beta\FilterExpression;
@@ -28,6 +29,7 @@ class AdminAnalyticsController extends Controller
             'userTypes' => $configured ? Inertia::defer(fn () => $this->fetchUserTypes(Period::days($days))) : [],
             'topSearchTerms' => $configured ? Inertia::defer(fn () => $this->fetchTopSearchTerms(Period::days($days))) : [],
             'topViewedItems' => $configured ? Inertia::defer(fn () => $this->fetchTopViewedItems(Period::days($days))) : [],
+            'topSoldItems' => Inertia::defer(fn () => $this->fetchTopSoldItems()),
         ]);
     }
 
@@ -108,6 +110,26 @@ class AdminAnalyticsController extends Controller
             'id' => $row['itemId'] ?? '—',
             'views' => $row['itemsViewed'],
         ])->values()->toArray();
+    }
+
+    private function fetchTopSoldItems(): array
+    {
+        return OrderItem::query()
+            ->join('items', 'items.id', '=', 'order_items.item_id')
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->whereIn('orders.status', ['paid', 'ready'])
+            ->selectRaw('items.no, items.name, SUM(order_items.quantity) as total_sold, SUM(order_items.subtotal) as total_revenue')
+            ->groupBy('order_items.item_id', 'items.no', 'items.name')
+            ->orderByDesc('total_sold')
+            ->limit(20)
+            ->get()
+            ->map(fn ($row) => [
+                'no' => $row->no,
+                'name' => $row->name,
+                'total_sold' => (int) $row->total_sold,
+                'total_revenue' => (float) $row->total_revenue,
+            ])
+            ->toArray();
     }
 
     private function isConfigured(): bool
