@@ -11,14 +11,14 @@ class AdminOrderController extends Controller
 {
     public function index(Request $request)
     {
-        $status = $request->input('status', 'all');
+        $status = $request->input('status', 'pending');
 
         $orders = Order::with([
             'user:id,name,lastname,phone,tax_id',
             'payment:id,order_id,provider,status,amount,invoice_no,transaction_id',
         ])
             ->whereNot('status', 'awaiting_payment')
-            ->when($status !== 'all', fn ($q) => $q->where('status', $status))
+            ->where('status', $status)
             ->when($status === 'pending' && $request->filled('start_date'), fn ($q) => $q->whereDate('invoiced_at', '>=', $request->start_date))
             ->when($status === 'pending' && $request->filled('end_date'), fn ($q) => $q->whereDate('invoiced_at', '<=', $request->end_date))
             ->when($status === 'paid' && $request->filled('start_date'), fn ($q) => $q->whereDate('approved_at', '>=', $request->start_date))

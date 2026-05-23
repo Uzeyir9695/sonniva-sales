@@ -100,7 +100,6 @@ function resetApprovedAtReady() {
 }
 
 const tabs = [
-    { label: 'All',       value: 'all',       badge: false, icon: 'pi-list' },
     { label: 'Invoiced',  value: 'pending',   badge: true,  icon: 'pi-clock' },
     { label: 'Paid',      value: 'paid',      badge: true,  icon: 'pi-check-circle' },
     { label: 'Ready',     value: 'ready',     badge: false, icon: 'pi-box' },
@@ -285,7 +284,7 @@ function confirmStatusChange(order, newStatus) {
                             <i class="pi pi-shopping-cart text-gray-500"></i>
                             <span class="font-semibold text-gray-700">
                                 {{ orders.data.length }} order{{ orders.data.length !== 1 ? 's' : '' }}
-                                <span v-if="status !== 'all'" class="capitalize text-gray-400">({{ status }})</span>
+                                <span class="capitalize text-gray-400">({{ status }})</span>
                             </span>
                         </div>
                     </template>
@@ -357,7 +356,7 @@ function confirmStatusChange(order, newStatus) {
                         </template>
                     </Column>
 
-                    <Column v-if="status === 'all' || status === 'cancelled'" field="created_at" header="Date" />
+                    <Column v-if="status === 'cancelled'" field="created_at" header="Date" />
 
                     <Column v-if="status === 'pending'" header="Invoiced At" style="min-width: 14rem">
                         <template #body="{ data }">{{ data.invoiced_at ?? '—' }}</template>
