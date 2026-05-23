@@ -48,11 +48,11 @@ const goToLogin = () => {
         <template #header>
             <div class="flex items-center gap-2">
                 <i class="pi pi-bell text-blue-500"></i>
-                <span class="font-semibold text-gray-800">შეტყობინება მარაგზე</span>
+                <span class="font-semibold text-gray-800">გამოიწერეთ შეტყობინება</span>
             </div>
         </template>
         <p class="text-sm text-gray-600 leading-relaxed">
-            გსურთ მიიღოთ SMS შეტყობინება, როცა პროდუქტი მარაგში გამოჩნდება?
+            გსურთ მიიღოთ SMS შეტყობინება მარაგის შევსებისთანავე?
         </p>
         <template #footer>
             <div class="flex justify-end gap-2">

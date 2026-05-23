@@ -17,8 +17,8 @@ const confirm = () => {
     <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" modal :style="{ width: '22rem' }">
         <template #header>
             <div class="flex items-center gap-2">
-                <i class="pi pi-whatsapp text-green-600"></i>
-                <span class="font-semibold text-gray-800">შეკვეთა WhatsApp-ით</span>
+                <i class="pi pi-file-edit text-green-600"></i>
+                <span class="font-semibold text-gray-800">მოითხოვე შეკვეთა</span>
             </div>
         </template>
         <p class="text-sm text-gray-600 leading-relaxed">

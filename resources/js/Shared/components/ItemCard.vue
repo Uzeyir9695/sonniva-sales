@@ -53,7 +53,8 @@ const viewItemDetails = (item) => {
                 <button
                     v-if="item.inventory < 1"
                     @click.stop="showWhatsappDialog = true"
-                    class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-green-600 hover:text-green-700 hover:shadow-lg transition-all duration-150"
+                    v-tooltip.left="'მოითხოვე შეკვეთა'"
+                    class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-brand-600 hover:text-brand-700 hover:shadow-lg transition-all duration-150"
                 >
                     <i class="pi pi-file-edit text-xs"></i>
                 </button>
@@ -62,6 +63,7 @@ const viewItemDetails = (item) => {
                 <button
                     v-if="item.inventory < 1 && !isOrderOnly"
                     @click.stop="showNotifyDialog = true"
+                    v-tooltip.left="'მიიღეთ შეტყობინება მარაგის შევსებისთანავე'"
                     class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-blue-500 hover:text-blue-600 hover:shadow-lg transition-all duration-150"
                 >
                     <i class="pi pi-bell text-xs"></i>
