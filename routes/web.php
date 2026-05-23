@@ -18,6 +18,7 @@ use App\Http\Controllers\Payment\InvoiceController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StockNotificationController;
+use App\Http\Controllers\UserOrderController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Middleware\NoIndexMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -102,6 +103,11 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::get('/', [AccountController::class, 'index'])->name('index');
         Route::put('/update/{user}', [AccountController::class, 'update'])->name('update');
         Route::put('/change-password', [AccountController::class, 'changePassword'])->name('change-password');
+    });
+
+    Route::name('user-orders.')->prefix('user-orders')->group(function () {
+        Route::get('/', [UserOrderController::class, 'index'])->name('index');
+        Route::get('/{order}', [UserOrderController::class, 'show'])->name('show');
     });
 });
 
