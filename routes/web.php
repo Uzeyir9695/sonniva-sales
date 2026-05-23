@@ -195,5 +195,5 @@ Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::cla
  * Fallback Route
  * *********************************************************************************************************************/
 Route::fallback(function () {
-    return Inertia::render('404');
+    return Inertia::render('Error', ['status' => 404]);
 });
