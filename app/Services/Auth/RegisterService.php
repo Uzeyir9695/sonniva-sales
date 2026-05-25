@@ -12,6 +12,7 @@ use Propaganistas\LaravelPhone\PhoneNumber;
 class RegisterService
 {
     protected BusinessCentralService $bcService;
+
     protected SmsService $smsService;
 
     public function __construct(BusinessCentralService $bcService, SmsService $smsService)
@@ -72,14 +73,14 @@ class RegisterService
         if ($result['success']) {
             return [
                 'success' => true,
-                'otp'     => $otp,
+                'otp' => $otp,
                 'message' => __('Verification code sent. Please check you phone!'),
             ];
         }
 
         return [
             'success' => false,
-            'otp'     => null,
+            'otp' => null,
             'message' => $result['message'],
         ];
     }
@@ -99,9 +100,9 @@ class RegisterService
         OtpVerification::updateOrCreate(
             ['phone' => $phone->formatE164()],
             [
-                'otp'               => $otp,
+                'otp' => $otp,
                 'registration_data' => $registrationData, // cast to json in model
-                'expires_at'        => now()->addMinutes(15),
+                'expires_at' => now()->addMinutes(15),
             ]
         );
     }
@@ -120,27 +121,28 @@ class RegisterService
     {
         $record = OtpVerification::where('phone', $phoneE164)->latest()->first();
 
-        if (!$record) {
+        if (! $record) {
             return [
-                'valid'             => false,
-                'message'           => __('Session expired. Please try again.'),
+                'valid' => false,
+                'message' => __('Session expired. Please try again.'),
                 'registration_data' => null,
             ];
         }
 
         if (now()->greaterThan($record->expires_at)) {
             $record->delete();
+
             return [
-                'valid'             => false,
-                'message'           => __('Verification code expired. Please try again.'),
+                'valid' => false,
+                'message' => __('Verification code expired. Please try again.'),
                 'registration_data' => null,
             ];
         }
 
         if ($record->otp !== $submittedOtp) {
             return [
-                'valid'             => false,
-                'message'           => __('Invalid verification code.'),
+                'valid' => false,
+                'message' => __('Invalid verification code.'),
                 'registration_data' => null,
             ];
         }
@@ -149,8 +151,8 @@ class RegisterService
         $record->delete(); // OTP used — clean it up
 
         return [
-            'valid'             => true,
-            'message'           => 'OTP verified',
+            'valid' => true,
+            'message' => 'OTP verified',
             'registration_data' => $registrationData,
         ];
     }
@@ -167,23 +169,23 @@ class RegisterService
      */
     public function verifyOtpFromSession(string $sessionOtp, ?string $sessionExpiresAt, string $submittedOtp): array
     {
-        if (!$sessionOtp || !$sessionExpiresAt) {
+        if (! $sessionOtp || ! $sessionExpiresAt) {
             return [
-                'valid'   => false,
+                'valid' => false,
                 'message' => __('Session expired. Please try again.'),
             ];
         }
 
         if (now()->greaterThan($sessionExpiresAt)) {
             return [
-                'valid'   => false,
+                'valid' => false,
                 'message' => __('Verification code expired. Please try again.'),
             ];
         }
 
         if ($sessionOtp !== $submittedOtp) {
             return [
-                'valid'   => false,
+                'valid' => false,
                 'message' => __('Invalid verification code.'),
             ];
         }
@@ -205,15 +207,14 @@ class RegisterService
     public function createUser(array $data, PhoneNumber $phone, bool $passwordAlreadyHashed = false): User
     {
         return User::create([
-            'user_type'         => $data['user_type'],
-            'tax_id'            => $data['tax_id'],
-            'is_handyman'       => $data['is_handyman'],
-            'name'              => $data['name'],
-            'lastname'          => $data['lastname'] ?? null,
-            'phone_country'     => $data['phone_country'],
-            'phone'             => $phone->formatE164(),
-            'email'             => $data['email'] ?? null,
-            'password'          => $passwordAlreadyHashed ? $data['password'] : Hash::make($data['password']),
+            'user_type' => $data['user_type'],
+            'tax_id' => $data['tax_id'],
+            'name' => $data['name'],
+            'lastname' => $data['lastname'] ?? null,
+            'phone_country' => $data['phone_country'],
+            'phone' => $phone->formatE164(),
+            'email' => $data['email'] ?? null,
+            'password' => $passwordAlreadyHashed ? $data['password'] : Hash::make($data['password']),
             'phone_verified_at' => now(),
         ]);
     }
@@ -230,14 +231,15 @@ class RegisterService
      */
     public function syncWithBusinessCentral(User $user): void
     {
-        $endpoint = "Customers?\$filter=VAT_Registration_No eq '" . $user->tax_id . "'";
+        $endpoint = "Customers?\$filter=VAT_Registration_No eq '".$user->tax_id."'";
 
         $bcCustomer = $this->bcService->getCustomer($endpoint);
 
-        if (!empty($bcCustomer['value'])) {
+        if (! empty($bcCustomer['value'])) {
             // Customer already exists in BC — just link them
             $user->bc_customer_no = $bcCustomer['value'][0]['No'];
             $user->save();
+
             return;
         }
 
@@ -252,14 +254,14 @@ class RegisterService
     private function addCustomerToBC(User $user): void
     {
         $payload = [
-            'Name'               => trim($user->name . ' ' . $user->lastname),
-            'Search_Name'        => trim($user->name . ' ' . $user->lastname),
-            'Address'            => $user->address,
-            'Address_2'          => '',
-            'Salesperson_Code'   => '6002',
-            'Phone_No'           => $user->phone,
-            'E_Mail'             => $user->email ?? 'Email not provided',
-            'VAT_Registration_No'=> $user->tax_id,
+            'Name' => trim($user->name.' '.$user->lastname),
+            'Search_Name' => trim($user->name.' '.$user->lastname),
+            'Address' => $user->address,
+            'Address_2' => '',
+            'Salesperson_Code' => '6002',
+            'Phone_No' => $user->phone,
+            'E_Mail' => $user->email ?? 'Email not provided',
+            'VAT_Registration_No' => $user->tax_id,
         ];
 
         $result = $this->bcService->addCustomer($payload);
