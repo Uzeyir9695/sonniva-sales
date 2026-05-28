@@ -22,10 +22,24 @@ class StockNotification extends Model
         ];
     }
 
+    protected function createdAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null,
+        );
+    }
+
+    protected function notifiedAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?string $value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null,
+        );
+    }
+
     protected function calledAt(): Attribute
     {
         return Attribute::make(
-            get: fn (?string $value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d.m.Y') : null,
+            get: fn (?string $value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null,
         );
     }
 

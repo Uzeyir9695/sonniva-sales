@@ -113,7 +113,7 @@ const exportCSV = () => dt.value.exportCSV();
 
                 <Column field="invoice_no" header="Invoice No" filterField="invoice_no" style="min-width: 10rem">
                     <template #body="{ data }">
-                        <span class="font-mono text-xs">{{ data.invoice_no ?? '—' }}</span>
+                        <span class="font-mono ">{{ data.invoice_no ?? '—' }}</span>
                     </template>
                     <template #filter="{ filterModel, filterCallback }">
                         <PrimeInputText v-model="filterModel.value" @input="filterCallback()" placeholder="Search INV" />
@@ -124,7 +124,7 @@ const exportCSV = () => dt.value.exportCSV();
                     <template #body="{ data }">
                         <div>
                             <div>{{ data.user_name ?? '—' }}</div>
-                            <div class="text-xs text-gray-400">{{ data.user_email }}</div>
+                            <div class=" text-gray-400">{{ data.user_email }}</div>
                         </div>
                     </template>
                     <template #filter="{ filterModel, filterCallback }">
@@ -134,7 +134,7 @@ const exportCSV = () => dt.value.exportCSV();
 
                 <Column field="provider" header="Provider" filterField="provider" style="min-width: 9rem">
                     <template #body="{ data }">
-                        <span class="font-mono text-xs font-semibold uppercase">{{ providerLabel[data.provider] ?? data.provider }}</span>
+                        <span class="font-mono  font-semibold uppercase">{{ providerLabel[data.provider] ?? data.provider }}</span>
                     </template>
                     <template #filter="{ filterModel, filterCallback }">
                         <Select v-model="filterModel.value" :options="providers" placeholder="All" showClear size="small" class="w-full" @change="filterCallback()">
@@ -165,7 +165,7 @@ const exportCSV = () => dt.value.exportCSV();
 
                 <Column field="transaction_id" header="Transaction ID" style="min-width: 13rem">
                     <template #body="{ data }">
-                        <span class="font-mono text-xs text-gray-500 break-all">{{ data.transaction_id ?? '—' }}</span>
+                        <span class="font-mono text-gray-500 break-all">{{ data.transaction_id ?? '—' }}</span>
                     </template>
                 </Column>
 
@@ -178,13 +178,13 @@ const exportCSV = () => dt.value.exportCSV();
 
                 <Column field="processed_at" header="Processed" style="min-width: 12rem">
                     <template #body="{ data }">
-                        <span class="text-xs text-gray-500">{{ data.processed_at ?? '—' }}</span>
+                        <span class="text-gray-500">{{ data.processed_at ?? '—' }}</span>
                     </template>
                 </Column>
 
                 <Column field="created_at" header="Date" style="min-width: 12rem">
                     <template #body="{ data }">
-                        <span class="text-xs text-gray-500">{{ data.created_at }}</span>
+                        <span class="text-gray-500">{{ data.created_at }}</span>
                     </template>
                 </Column>
             </DataTable>

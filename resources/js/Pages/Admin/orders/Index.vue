@@ -356,7 +356,7 @@ function confirmStatusChange(order, newStatus) {
                         </template>
                     </Column>
 
-                    <Column v-if="status === 'cancelled'" field="created_at" header="Date" />
+                    <Column v-if="status === 'cancelled'" field="created_at" header="Date" style="min-width: 7rem" />
 
                     <Column v-if="status === 'pending'" header="Invoiced At" style="min-width: 14rem">
                         <template #body="{ data }">{{ data.invoiced_at ?? '—' }}</template>

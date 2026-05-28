@@ -127,15 +127,15 @@ function deleteNotification(id) {
                 </template>
             </Column>
 
-            <Column field="created_at" header="Date">
+            <Column field="created_at" header="Date" style="min-width: 7rem">
                 <template #body="{ data }">
-                    <span class="text-gray-500 text-xs">{{ new Date(data.created_at).toLocaleDateString('ka-GE') }}</span>
+                    <span class="text-gray-500">{{ data.created_at }}</span>
                 </template>
             </Column>
 
             <Column v-if="tab === 'sent'" field="notified_at" header="Notified At" style="min-width: 10rem">
                 <template #body="{ data }">
-                    <span class="text-gray-500 text-xs">{{ new Date(data.notified_at).toLocaleDateString('ka-GE') }}</span>
+                    <span class="text-gray-500">{{ data.notified_at }}</span>
                 </template>
             </Column>
 
@@ -147,7 +147,7 @@ function deleteNotification(id) {
                             binary
                             @change="toggleCalled(data)"
                         />
-                        <span v-if="data.called_at" class="text-xs text-gray-400">
+                        <span v-if="data.called_at" class="text-gray-400">
                             {{ data.called_at }}
                         </span>
                     </div>

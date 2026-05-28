@@ -61,7 +61,7 @@ class User extends Authenticatable
     protected function createdAt(): Attribute
     {
         return Attribute::make(
-            get: fn(string $value) => Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d.m.Y'),
+            get: fn(string $value) => Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y'),
         );
     }
 

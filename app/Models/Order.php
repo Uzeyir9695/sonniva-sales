@@ -20,26 +20,26 @@ class Order extends Model
     protected function createdAt(): Attribute
     {
         return Attribute::make(
-            get: fn(string $value) => Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d.m.Y')
+            get: fn(string $value) => Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y')
         );
     }
     protected function approvedAt(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d.m.Y') : null
+            get: fn($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null
         );
     }
     protected function invoicedAt(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d.m.Y') : null
+            get: fn($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null
         );
     }
 
     protected function readyAt(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d.m.Y') : null
+            get: fn($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null
         );
     }
 
