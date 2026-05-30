@@ -3,6 +3,7 @@ import AdminLayout from '../AdminLayout.vue';
 import { ref } from 'vue';
 import { router, usePoll } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
 import { FilterMatchMode } from '@primevue/core/api';
 
 defineOptions({ layout: AdminLayout });
@@ -14,6 +15,7 @@ const props = defineProps({
 });
 
 const toast = useToast();
+const confirm = useConfirm();
 
 usePoll(10000, {
     only: ['counts'],
@@ -40,11 +42,19 @@ function toggleCalled(notification) {
 }
 
 function deleteNotification(id) {
-    router.delete(route('admin.stock-notifications.destroy', id), {}, { preserveScroll: true });
+    confirm.require({
+        message: 'Are you sure you want to delete this notification?',
+        header: 'Delete Confirmation',
+        icon: 'pi pi-trash',
+        rejectProps: { label: 'Cancel', severity: 'secondary', outlined: true },
+        acceptProps: { label: 'Delete', severity: 'danger' },
+        accept: () => router.delete(route('admin.stock-notifications.destroy', id), {}, { preserveScroll: true }),
+    });
 }
 </script>
 
 <template>
+    <ConfirmDialog />
     <div class="p-6">
         <div class="flex items-center justify-between mb-6">
             <div>
