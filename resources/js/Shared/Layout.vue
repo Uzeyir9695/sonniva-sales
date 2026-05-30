@@ -13,7 +13,7 @@ const isAuthenticated = computed(() => page.props.isLoggedIn);
     <div class="body-content flex flex-col min-h-screen">
         <Navbar />
 
-        <main class="flex-1 w-full md:max-w-9/12 2xl:max-10/12 mx-auto space-y-4 mb-4">
+        <main class="flex-1 w-full lg:max-w-11/12 2xl:max-w-9/12 mx-auto space-y-4 mb-4">
             <slot />
         </main>
 

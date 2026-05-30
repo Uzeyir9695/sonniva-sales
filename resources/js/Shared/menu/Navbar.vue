@@ -39,7 +39,7 @@ const openSearch = async () => {
 <template>
     <div class="flex-col sticky top-0 z-50">
         <nav class="bg-white shadow-sm">
-            <div class="w-full md:w-9/12 2xl:10/12 mx-auto max-sm:pl-4 h-20 px-3 flex items-center gap-4">
+            <div class="w-full lg:max-w-11/12 2xl:max-w-9/12 mx-auto max-sm:pl-4 h-20 px-3 flex items-center gap-4">
 
                 <!-- ── SMALL DEVICE: search open state ── -->
                 <template v-if="searchOpen">
