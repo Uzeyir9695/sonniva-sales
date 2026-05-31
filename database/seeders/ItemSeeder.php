@@ -17,10 +17,12 @@ class ItemSeeder extends Seeder
 
     public function run(): void
     {
-//                DB::statement('SET FOREIGN_KEY_CHECKS=0');
-//                Attribute::truncate();
-//                Item::truncate();
-//                DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        Attribute::truncate();
+        Item::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
+        $startedAt = now();
 
         $token = $this->bc->getAccessToken();
         $tokenFetchedAt = now();
@@ -32,10 +34,10 @@ class ItemSeeder extends Seeder
 
         /*** For testing: start from a specific category ***/
 
-        //        $startFromCategory = '2201-01';
-        //        $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
-        //
-        //        $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
+//                $startFromCategory = '1904-02';
+//                $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
+//
+//                $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
 
         foreach ($categories as $category) {
             $this->command->info("Fetching items for category: {$category->code}");
@@ -110,7 +112,8 @@ class ItemSeeder extends Seeder
             }
         }
 
-        $this->command->info('Items seeded successfully.');
+        $elapsed = $startedAt->diffInSeconds(now());
+        $this->command->info("Items seeded successfully. Time taken: {$elapsed}s (" . gmdate('H:i:s', $elapsed) . ")");
     }
 
     private function fetchItems(string &$token, \Carbon\Carbon &$tokenFetchedAt, string $categoryCode): \Illuminate\Support\Collection
