@@ -218,7 +218,7 @@ const filters = ref({
                     </template>
                 </Column>
 
-                <Column field="created_at" header="Joined" />
+                <Column field="created_at" header="Joined" style="min-width: 7rem" />
 
                 <Column header="Actions" v-if="isAdmin">
                     <template #body="slotProps">
