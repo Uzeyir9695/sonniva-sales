@@ -51,7 +51,8 @@ class InvoiceController extends Controller
             $order = Order::create([
                 'user_id' => auth()->id(),
                 'invoice_no' => $invoiceNo,
-                'status' => 'awaiting_payment',
+                'status' => 'pending',
+                'invoiced_at' => now(),
                 'delivery_type' => $request->delivery_type,
                 'delivery_cost' => $calc['delivery_cost'],
                 'address' => $request->address,
@@ -81,7 +82,7 @@ class InvoiceController extends Controller
             ]);
         });
 
-         $this->generatePDF($order->load('items'), $invoiceNo, $payment);
+        $this->generatePDF($order->load('items'), $invoiceNo, $payment);
 
         return to_route('payment.invoice.success', ['invoice' => $invoiceNo]);
     }
