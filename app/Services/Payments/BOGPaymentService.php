@@ -263,6 +263,7 @@ class BOGPaymentService
                 $payment->update([
                     'status' => $status,
                     'transaction_id' => $paymentDetails['payment_detail']['transaction_id'] ?? $payment->transaction_id,
+                    'payment_method' => $paymentDetails['payment_detail']['payer_identifier'] ?? $payment->payment_method,
                     'response_data' => $paymentDetails,
                 ]);
 

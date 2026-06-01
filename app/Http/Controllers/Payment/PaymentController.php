@@ -272,6 +272,7 @@ class PaymentController extends Controller
 
         $payment->update([
             'status' => $status,
+            'payment_method' => $orderDetails['order']['srcToken']['displayName'] ?? $payment->payment_method,
             'response_data' => $orderDetails,
         ]);
 

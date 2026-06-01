@@ -207,6 +207,7 @@ class TBCPaymentService
             $payment->update([
                 'status' => $status,
                 'transaction_id' => $transactionId,
+                'payment_method' => $statusResult['data']['masked_card'] ?? $payment->payment_method,
                 'response_data' => array_merge(
                     $payment->response_data ?? [],
                     $statusResult['data']
