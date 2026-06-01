@@ -6,6 +6,7 @@ import debounce from 'lodash/debounce';
 import ActiveFilterChips from '@/Pages/Items/ActiveFilterChips.vue';
 import ItemsGrid from '@/Shared/components/ItemsGrid.vue';
 import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';
+import SubcategoryStrip from '@/Pages/Items/SubcategoryStrip.vue';
 
 const props = defineProps({
     items: Object,
@@ -117,7 +118,7 @@ const activeChips = computed(() => {
     // Stock
     if (stockFilter.value?.value) {
         chips.push({
-            id: 'stock',                  // unique id
+            id: 'stock', // unique id
             type: 'stock',
             value: stockFilter.value.value,
             label: stockFilter.value.label
@@ -173,7 +174,7 @@ function removeChip(chip) {
     <div class="min-h-[calc(100vh-80px)] bg-[#f7f6f 3]">
 
         <!-- ================= BREADCRUMBS ================= -->
-        <div class="bg-white flex items-center justify-between sticky top-20 z-20 sm:mt-4 sm:rounded-xl shadow-xs">
+        <div class="bg-white flex items-center justify-between sticky top-20 z-20 sm:mt-4 sm:roun ded-t-xl shadow-xs">
             <Breadcrumbs :breadcrumbs="breadcrumbs"/>
             <button
                 @click="sidebarOpen = !sidebarOpen"
@@ -204,6 +205,12 @@ function removeChip(chip) {
                 @click="sidebarOpen = false"
             />
         </Transition>
+
+        <!-- Subcategory strip — shown only on level-1 category pages (relatedCategories have images) -->
+        <SubcategoryStrip
+            v-if="relatedCategories?.length && relatedCategories[0]?.image"
+            :categories="relatedCategories"
+        />
 
         <div class="max-w-screen-2xl max-sm:mx-3 py-6 flex gap-6 relative">
             <!-- SIDEBAR -->

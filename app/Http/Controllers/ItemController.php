@@ -79,7 +79,7 @@ class ItemController extends Controller
         $relatedCategories = match ($category->level) {
             1 => Category::where('parent_id', $category->code)
                 ->orderBy('sort_order')
-                ->get(['name', 'slug', 'code']),
+                ->get(['name', 'slug', 'code', 'image']),
 
             2 => $category->children->isEmpty()
                 // no children → show siblings
