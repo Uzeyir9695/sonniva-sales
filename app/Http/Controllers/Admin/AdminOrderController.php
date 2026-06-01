@@ -3,13 +3,22 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendOrderEmailJob;
+use App\Jobs\SendOrderToBCJob;
+use App\Mail\ReadyOrderEmail;
 use App\Models\Order;
+use App\Services\SmsService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class AdminOrderController extends Controller
 {
-    public function index(Request $request)
+    public function __construct(protected SmsService $smsService) {}
+
+    public function index(Request $request): Response
     {
         $status = $request->input('status', 'pending');
 
@@ -108,25 +117,82 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    public function updateStatus(Request $request, Order $order)
+    public function approve(Order $order): RedirectResponse
     {
-        $request->validate([
-            'status' => 'required|in:paid,ready,cancelled',
-        ]);
+        $order->load(['user', 'payment']);
 
         $order->update([
-            'status' => $request->status,
-            ...match ($request->status) {
-                'paid' => ['approved_at' => now()],
-                'ready' => ['ready_at' => now()],
-                default => [],
-            },
+            'status' => 'paid',
+            'approved_at' => now(),
         ]);
 
-        if ($request->status === 'paid') {
-            $order->payment()->whereNot('status', 'completed')->update(['status' => 'completed']);
+        $order->payment()->whereNot('status', 'completed')->update(['status' => 'completed']);
+
+        if ($order->payment) {
+            SendOrderEmailJob::dispatch($order->id, $order->payment->id, $order->invoice_no, $order->user);
         }
 
-        return redirect()->back()->with('message', 'Order status updated.');
+        SendOrderToBCJob::dispatch($order);
+
+        return redirect()->back()->with('message', 'Order approved.');
+    }
+
+    public function markAsReady(Request $request, Order $order): RedirectResponse
+    {
+        $order->update([
+            'status' => 'ready',
+            'ready_at' => now(),
+        ]);
+
+        if ($request->boolean('inform_user', true)) {
+            $order->load('user');
+            $invoice = $order->invoice_no;
+
+            $message = match ($order->delivery_type) {
+                'office' => "თქვენი შეკვეთა ინვოისის ნომრით (#{$invoice}) მზად არის. შეგიძლიათ გაიტანოთ ადგილიდან.",
+                'tbilisi', 'regions' => "თქვენი შეკვეთა ინვოისის ნომრით (#{$invoice}) მზად არის. შეკვეთა გამოგზავნილია მისამართზე.",
+                default => "თქვენი შეკვეთა ინვოისის ნომრით (#{$invoice}) მზად არის.",
+            };
+
+            $this->smsService->send($order->user->phone, $message, true);
+            Mail::to($order->user->email)->queue(new ReadyOrderEmail($message));
+        }
+
+        return redirect()->back()->with('message', 'Order marked as ready.');
+    }
+
+    public function cancel(Order $order): RedirectResponse
+    {
+        $order->load('user');
+        $order->update(['status' => 'cancelled']);
+
+        $invoice = $order->invoice_no;
+        $message = "სამწუხაროდ, თქვენი შეკვეთა ინვოისი ნომრით #{$invoice} უარყოფილია. დამატებითი ინფორმაციისთვის დაგვიკავშირდით.";
+
+        $this->smsService->send($order->user->phone, $message, true);
+
+        return redirect()->back()->with('message', 'Order cancelled.');
+    }
+
+    public function sendPdf(Request $request, Order $order): RedirectResponse
+    {
+        $order->load('payment');
+
+        if ($request->boolean('send_to_email', true) && $order->payment) {
+            SendOrderEmailJob::dispatch($order->id, $order->payment->id, $order->invoice_no);
+        }
+
+        if ($request->boolean('send_to_bc', true)) {
+            SendOrderToBCJob::dispatch($order);
+        }
+
+        return redirect()->back()->with('message', 'PDF sent.');
+    }
+
+    public function destroy(Order $order): RedirectResponse
+    {
+        $order->delete();
+
+        return redirect()->back()->with('message', 'Order deleted.');
     }
 }

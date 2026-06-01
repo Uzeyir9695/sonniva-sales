@@ -152,18 +152,31 @@ const detailDialog = ref(null);
 const rowMenus = ref({});
 
 function getMenuItems(order) {
-    return [
-        {
+    const items = [];
+
+    if (order.status === 'paid' || order.status === 'ready') {
+        items.push({
             label:   'Send PDF',
             icon:    'pi pi-file-pdf',
             command: () => openSendPdfDialog(order),
-        },
-        {
-            label:   'Delete',
-            icon:    'pi pi-trash',
-            command: () => confirmDelete(order),
-        },
-    ];
+        });
+    }
+
+    if (order.status === 'paid') {
+        items.push({
+            label:   'Mark Ready (no notify)',
+            icon:    'pi pi-box',
+            command: () => confirmMarkReady(order, false),
+        });
+    }
+
+    items.push({
+        label:   'Delete',
+        icon:    'pi pi-trash',
+        command: () => confirmDelete(order),
+    });
+
+    return items;
 }
 
 // Delete confirm
@@ -185,37 +198,66 @@ function confirmDelete(order) {
 }
 
 // Send PDF dialog
-const sendPdfVisible = ref(false);
-const sendToEmail    = ref(true);
-const sendToBC      = ref(true);
+const sendPdfVisible    = ref(false);
+const sendToEmail       = ref(true);
+const sendToBC          = ref(true);
+const selectedPdfOrder  = ref(null);
 
 function openSendPdfDialog(order) {
-    sendToEmail.value    = true;
-    sendToBC.value      = true;
-    sendPdfVisible.value = true;
+    selectedPdfOrder.value = order;
+    sendToEmail.value      = true;
+    sendToBC.value         = true;
+    sendPdfVisible.value   = true;
 }
 
 function submitSendPdf() {
     sendPdfVisible.value = false;
-    toast.add({ severity: 'info', summary: 'PDF Sent', detail: 'PDF has been sent.', life: 3000 });
+    router.post(route('admin.orders.send-pdf', selectedPdfOrder.value.id), {
+        send_to_email: sendToEmail.value,
+        send_to_bc:    sendToBC.value,
+    }, {
+        preserveScroll: true,
+        onSuccess: () => toast.add({ severity: 'success', summary: 'Sent', detail: 'PDF sent successfully.', life: 3000 }),
+        onError:   () => toast.add({ severity: 'error',   summary: 'Error', detail: 'Failed to send PDF.', life: 3000 }),
+    });
 }
 
 // Inline status change (from table row buttons)
 function confirmStatusChange(order, newStatus) {
-    const labels     = { paid: 'Mark Paid', ready: 'Mark Ready', cancelled: 'Cancel' };
-    const severities = { paid: 'info',      ready: 'success',    cancelled: 'danger' };
+    const config = {
+        paid:      { label: 'Approve',     severity: 'info',    route: 'admin.orders.approve', params: {} },
+        ready:     { label: 'Mark Ready',  severity: 'success', route: 'admin.orders.ready',   params: { inform_user: true } },
+        cancelled: { label: 'Cancel',      severity: 'danger',  route: 'admin.orders.cancel',  params: {} },
+    }[newStatus];
 
     confirm.require({
         message: `Change order ${order.invoice_no ?? order.id.slice(0, 8)} status to "${newStatus}"?`,
         header: 'Confirm Status Change',
         icon: 'pi pi-exclamation-triangle',
         rejectProps: { label: 'No', severity: 'secondary', outlined: true },
-        acceptProps: { label: labels[newStatus], severity: severities[newStatus] },
+        acceptProps: { label: config.label, severity: config.severity },
         accept: () => {
-            router.put(route('admin.orders.update-status', order.id), { status: newStatus }, {
+            router.put(route(config.route, order.id), config.params, {
                 preserveScroll: true,
                 onSuccess: () => toast.add({ severity: 'success', summary: 'Updated', detail: 'Order status changed.', life: 3000 }),
-                onError:   () => toast.add({ severity: 'error',   summary: 'Error',   detail: 'Failed to update status.',  life: 3000 }),
+                onError:   () => toast.add({ severity: 'error',   summary: 'Error',   detail: 'Failed to update status.', life: 3000 }),
+            });
+        },
+    });
+}
+
+function confirmMarkReady(order, informUser) {
+    confirm.require({
+        message: `Mark order ${order.invoice_no ?? order.id.slice(0, 8)} as ready${informUser ? ' and notify customer' : ' (no notification)'}?`,
+        header: 'Confirm',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: { label: 'No', severity: 'secondary', outlined: true },
+        acceptProps: { label: 'Mark Ready', severity: 'success' },
+        accept: () => {
+            router.put(route('admin.orders.ready', order.id), { inform_user: informUser }, {
+                preserveScroll: true,
+                onSuccess: () => toast.add({ severity: 'success', summary: 'Updated', detail: 'Order marked as ready.', life: 3000 }),
+                onError:   () => toast.add({ severity: 'error',   summary: 'Error',   detail: 'Failed to update status.', life: 3000 }),
             });
         },
     });
@@ -470,7 +512,7 @@ function confirmStatusChange(order, newStatus) {
                                     raised
                                     rounded
                                     severity="success"
-                                    @click="confirmStatusChange(data, 'ready')"
+                                    @click="confirmMarkReady(data, true)"
                                     v-tooltip.top="'Mark Ready'"
                                 />
                                 <Button

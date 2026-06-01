@@ -77,7 +77,11 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         // ******** Admin Orders Controllers ********//
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
-        Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::put('/orders/{order}/approve', [AdminOrderController::class, 'approve'])->name('orders.approve');
+        Route::put('/orders/{order}/ready', [AdminOrderController::class, 'markAsReady'])->name('orders.ready');
+        Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('orders.cancel');
+        Route::post('/orders/{order}/send-pdf', [AdminOrderController::class, 'sendPdf'])->name('orders.send-pdf');
+        Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
 
         // ******** Admin Payments ********//
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
