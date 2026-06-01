@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
 use App\Mail\PaymentInvoiceMail;
+use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
@@ -81,6 +82,10 @@ class InvoiceController extends Controller
                 'status' => 'pending',
             ]);
         });
+
+        Cart::where('user_id', auth()->id())
+            ->whereIn('item_id', $request->item_ids)
+            ->delete();
 
         $this->generatePDF($order->load('items'), $invoiceNo, $payment);
 

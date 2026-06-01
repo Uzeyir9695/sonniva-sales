@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Payment;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendOrderEmailJob;
 use App\Jobs\SendOrderToBCJob;
+use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
@@ -320,6 +321,10 @@ class PaymentController extends Controller
         });
 
         if ($shouldProcess) {
+            Cart::where('user_id', $order->user_id)
+                ->whereIn('item_id', $order->items->pluck('item_id'))
+                ->delete();
+
             $this->sendOrderToEmail($lockedPayment, $order);
             SendOrderToBCJob::dispatch($order);
         }
