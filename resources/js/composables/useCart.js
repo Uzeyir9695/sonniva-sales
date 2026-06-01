@@ -132,6 +132,15 @@ export function useCart() {
         return !!state.loading[String(itemId)]
     }
 
+    function syncFromServer() {
+        if (!isLoggedIn.value) return
+        const serverItems = Object.fromEntries(
+            Object.entries(page.props.cart?.items ?? {}).map(([k, v]) => [String(k), v])
+        )
+        Object.keys(state.items).forEach(k => delete state.items[k])
+        Object.assign(state.items, serverItems)
+    }
+
     const uniqueCount = computed(() =>
         Object.keys(state.items).filter(id => state.items[id] > 0).length
     )
@@ -197,5 +206,5 @@ export function useCart() {
         { deep: true }
     )
 
-    return { addToCart, buyNow, updateQuantity, removeFromCart, isInCart, getQuantity, isLoading, uniqueCount, count }
+    return { addToCart, buyNow, updateQuantity, removeFromCart, isInCart, getQuantity, isLoading, uniqueCount, count, syncFromServer }
 }

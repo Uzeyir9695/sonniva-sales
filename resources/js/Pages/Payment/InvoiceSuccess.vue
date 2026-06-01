@@ -37,11 +37,14 @@
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { onMounted } from 'vue'
+import { Link } from '@inertiajs/vue3'
+import { useCart } from '@/composables/useCart'
+
 defineProps({
-    invoiceNumber: {
-        type: String,
-        required: true,
-    },
-});
+    invoiceNumber: { type: String, required: true },
+})
+
+const { syncFromServer } = useCart()
+onMounted(() => syncFromServer())
 </script>
