@@ -52,10 +52,10 @@ class LoginController extends Controller
         $user = $result['user'];
 
         if ($user->role === 'admin' || $user->role === 'manager') {
-            return redirect()->route('admin.index');
+            return to_route('admin.index');
         }
 
-        return redirect()->intended(route('home'));
+        return redirect()->intended('home');
     }
 
     /*
