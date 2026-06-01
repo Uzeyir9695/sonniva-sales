@@ -6,7 +6,7 @@ import Navbar from '@/Shared/menu/Navbar.vue';
 const sidebarOpen = ref(false);
 const page = usePage();
 
-usePoll(15000, {
+usePoll(10000, {
     only: ['unseenOrdersCount', 'unseenStockCount'],
     preserveScroll: true, preserveState: true
 });
