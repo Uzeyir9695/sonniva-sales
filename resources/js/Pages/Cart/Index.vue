@@ -283,7 +283,7 @@ function goToCheckout() {
                                     </span>
 
                                     <p v-if="overLimit(cartItem)" class="text-xs text-red-600">
-                                        შეკვეთის მაქსიმალური რაოდენობაა {{ cartItem.item.inventory }}
+                                        ხელმისაწვდომი რაოდენობაა {{ cartItem.item.inventory }}
                                     </p>
                                 </div>
 
