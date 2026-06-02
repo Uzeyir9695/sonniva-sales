@@ -14,7 +14,7 @@ defineProps({
                     v-for="cat in categories"
                     :key="cat.slug"
                     :href="route('items.index', [cat.slug])"
-                    class="group flex flex-col items-center gap-2.5 p-2.5 sm:p-3 rounded-2xl transition-all duration-200 hover:bg-gray-50"
+                    class="group flex flex-col items-center gap-2.5 p-1 sm:p-2 rounded-2xl transition-all duration-200 hover:bg-gray-50"
                 >
                     <!-- Image box -->
                     <div class="w-full aspect-square rounded-xl overflow-hidden bg-gray-50 ring-1 ring-gray-100
