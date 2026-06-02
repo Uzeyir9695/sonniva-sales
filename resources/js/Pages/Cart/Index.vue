@@ -1,15 +1,24 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import { useCart } from '@/composables/useCart'
 import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue'
+import InputNumber from 'primevue/inputnumber'
 
 const props = defineProps({
     cartItems: { type: Array, required: true },
     subscribedItemIds: { type: Array, default: () => [] },
 })
 
-const { removeFromCart, updateQuantity, isLoading, getQuantity } = useCart()
+const { removeFromCart, updateQuantity, isLoading, getQuantity, count } = useCart()
+
+// Race condition guard: if the server returned empty cart but client state has items,
+// it means the addToCart POST hadn't hit the DB yet when we navigated here — reload.
+onMounted(() => {
+    if (props.cartItems.length === 0 && count.value > 0) {
+        router.reload({ only: ['cartItems'] })
+    }
+})
 
 const overLimit = (cartItem) => getQuantity(cartItem.item_id) > cartItem.item.inventory
 
@@ -207,14 +216,14 @@ function goToCheckout() {
                                     {{ cartItem.item.name }}
                                 </Link>
 
-                                <div class="flex items-center gap-1 mt-1 text-red-600 bg-red-100 px-2 py-0.5 rounded-full w-fit">
-                                    <div v-if="cartItem.item.inventory <= 0" class="w-2 h-2 rounded-full bg-red-500"></div>
+                                <div v-if="cartItem.item.inventory <= 0" class="flex items-center gap-1 mt-1 text-red-600 bg-red-100 px-2 py-0.5 rounded-full w-fit">
+                                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
                                     <span
                                         v-if="cartItem.item.inventory <= 0"
                                         class="inline-flex items-center gap-1 text-xs font-medium"
                                     >
-                                    მარაგში არაა
-                                </span>
+                                        მარაგში არაა
+                                    </span>
                                 </div>
 
                                 <div class="flex items-center gap-2 mt-1">
@@ -241,12 +250,12 @@ function goToCheckout() {
                                             <i class="pi pi-minus text-xs"></i>
                                         </button>
 
-                                        <input
-                                            type="text"
-                                            :value="getQuantity(cartItem.item_id)"
-                                            @input="updateQuantity(cartItem.item_id, $event.target.value)"
-                                            min="1"
-                                            class="w-10 h-8 text-center text-sm font-semibold border-none outline-none bg-transparent"
+                                        <InputNumber
+                                            :model-value="getQuantity(cartItem.item_id)"
+                                            :min="1"
+                                            :use-grouping="false"
+                                            @input="e => { if (e.value !== null) updateQuantity(cartItem.item_id, e.value) }"
+                                            :input-style="{ width: '2.5rem', textAlign: 'center', padding: '0', boxShadow: 'none', border: 'none', fontWeight: '600', fontSize: '0.875rem' }"
                                         />
 
                                         <button

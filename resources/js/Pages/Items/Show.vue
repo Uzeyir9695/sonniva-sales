@@ -130,9 +130,13 @@ const ogImage = computed(() => {
                     </div>
 
                     <!-- Title -->
-                    <h1 class="sm:text-xl font-semibold text-gray-900 leading-snug mb-5">
+                    <h1 class="sm:text-xl font-semibold text-gray-900 leading-snug mb-2">
                         {{ item.name }}
                     </h1>
+                    <!-- Item NO -->
+<!--                    <h1 class="sm:text-xs font-semibold text-gray-900 leading-snug mb-5">-->
+<!--                        {{ item.no }}-->
+<!--                    </h1>-->
 
                     <!-- Price -->
                     <div class="flex items-center gap-3 mb-8">
@@ -206,6 +210,7 @@ const ogImage = computed(() => {
                                     <InputNumber
                                         v-model="quantity"
                                         :min="1"
+                                        :use-grouping="false"
                                         @input="e => { if (e.value !== null) quantity = e.value }"
                                         :input-style="{ width: '4rem', textAlign: 'center', padding: '0', boxShadow: 'none', border: 'none', fontWeight: '600' }"
                                     />
@@ -222,10 +227,6 @@ const ogImage = computed(() => {
                                         <i class="pi pi-plus text-xs"></i>
                                     </button>
                                 </div>
-
-                                <p v-if="overLimit" class="text-xs text-red-600">
-                                    შეკვეთის მაქსიმალური რაოდენობაა {{ item.inventory }}
-                                </p>
                             </div>
 
                             <!-- Add to Cart -->
@@ -241,8 +242,11 @@ const ogImage = computed(() => {
                                 <!-- Badge -->
                                 <CartCountBadge class="sm:min-w-5! sm:h-5! min-w-4! h-4!" :item="item" />
                             </button>
-
                         </div>
+
+                        <p v-if="overLimit" class="text-xs text-red-600">
+                            ხელმისაწვდომი რაოდენობაა {{ item.inventory }}
+                        </p>
 
                         <div class="mt-8 space-y-3">
                             <!-- Buy Now -->

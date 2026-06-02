@@ -40,7 +40,7 @@ class CartController extends Controller
     public function add(Request $request, Item $item): JsonResponse
     {
         $request->validate([
-            'quantity' => ['integer', 'min:1', 'max:999'],
+            'quantity' => ['integer', 'min:1'],
         ]);
 
         $quantity = $request->input('quantity', 1);
@@ -62,7 +62,7 @@ class CartController extends Controller
     public function update(Request $request, Item $item): JsonResponse
     {
         $request->validate([
-            'quantity' => ['required', 'integer', 'min:1', 'max:999'],
+            'quantity' => ['required', 'integer', 'min:1'],
         ]);
 
         $cart = $request->user()->carts()->where('item_id', $item->id)->first();
