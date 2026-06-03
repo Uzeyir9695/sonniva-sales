@@ -25,8 +25,18 @@ function setThumbsSwiper(swiper) {
 <template>
     <div class="flex flex-col gap-3">
 
+        <!-- No image placeholder -->
+        <div
+            v-if="!images.length"
+            class="w-full rounded-3xl border border-gray-100 shadow-sm h-[270px] sm:h-[500px] bg-gray-50 flex flex-col items-center justify-center gap-3 text-gray-300"
+        >
+            <i class="pi pi-image text-6xl"></i>
+            <span class="text-sm">სურათი არ არის</span>
+        </div>
+
         <!-- Main Swiper -->
         <Swiper
+            v-else
             :modules="modules"
             :thumbs="{ swiper: thumbsSwiper }"
             :navigation="true"
