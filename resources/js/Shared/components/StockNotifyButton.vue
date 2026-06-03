@@ -16,9 +16,9 @@ const showDialog = ref(false);
         <button
             v-if="!isSubscribed"
             @click="showDialog = true"
-            class="w-full py-3 rounded-2xl border border-dashed border-brand-400 text-brand-500 text-sm font-medium hover:bg-brand-50 transition-colors cursor-pointer flex items-center justify-center gap-2"
+            class="w-full py-1.5 sm:py-2 rounded-2xl border-2 border-dashed border-slate-400 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors cursor-pointer flex items-center justify-center gap-2"
         >
-            <i class="pi pi-bell"></i>
+            <i class="pi pi-bell font-bold"></i>
             შემატყობინეთ როცა შეივსება
         </button>
         <div v-else class="rounded-2xl bg-brand-100 border border-brand-300 px-4 py-3">

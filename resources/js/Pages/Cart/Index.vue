@@ -178,13 +178,14 @@ function goToCheckout() {
                         <div
                             v-for="cartItem in items"
                             :key="cartItem.item_id"
-                            class="bg-white rounded-2xl border shadow-sm p-4 flex items-center gap-4 transition-all duration-150"
+                            class="bg-white rounded-2xl border shadow-sm p-4 transition-all duration-150"
                             :class="cartItem.item.inventory <= 0
                                 ? 'border-gray-100 opacity-60'
                                 : selectedIds.includes(cartItem.item_id)
                                     ? 'border-brand-200 bg-brand-50/20'
                                     : 'border-gray-100'"
                         >
+                        <div class="flex items-center gap-4">
                             <!-- Checkbox -->
                             <Checkbox
                                 :modelValue="selectedIds.includes(cartItem.item_id)"
@@ -288,26 +289,27 @@ function goToCheckout() {
                                     </p>
                                 </div>
 
-
                             </div>
 
-                            <!-- Stock notify (out-of-stock only) -->
-                            <div v-if="cartItem.item.inventory < 1" class="mt-3">
-                                <StockNotifyButton
-                                    :item="cartItem.item"
-                                    :isSubscribed="subscribedItemIds.includes(cartItem.item_id)"
-                                />
-                            </div>
                             <!-- Remove -->
                             <button
                                 @click="handleRemove(cartItem.item_id)"
                                 :disabled="isLoading(cartItem.item_id)"
-                                class="shrink-0 w-8 h-8 flex items-center justify-center cursor-pointer rounded-xl
+                                class="shrink-0 self-start w-8 h-8 flex items-center justify-center cursor-pointer rounded-xl
                                        text-gray-300 hover:text-red-400 hover:bg-red-50
                                        transition-all duration-150 disabled:opacity-50"
                             >
                                 <i class="pi pi-trash text-sm"></i>
                             </button>
+                        </div>
+
+                        <!-- Stock notify — full width below the main row -->
+                        <div v-if="cartItem.item.inventory < 1" class="mt-3 w-full max-w-80 max-md:mx-auto ml-auto">
+                            <StockNotifyButton
+                                :item="cartItem.item"
+                                :isSubscribed="subscribedItemIds.includes(cartItem.item_id)"
+                            />
+                        </div>
                         </div>
                     </TransitionGroup>
 
