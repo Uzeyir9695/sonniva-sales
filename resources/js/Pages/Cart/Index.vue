@@ -10,12 +10,13 @@ const props = defineProps({
     subscribedItemIds: { type: Array, default: () => [] },
 })
 
-const { removeFromCart, updateQuantity, isLoading, getQuantity, count } = useCart()
+const { removeFromCart, updateQuantity, isLoading, getQuantity, count, syncFromServer } = useCart()
 
-// Race condition guard: if the server returned empty cart but client state has items,
-// it means the addToCart POST hadn't hit the DB yet when we navigated here — reload.
+// If server says cart is empty but local state still has items (e.g. after payment),
+// sync local state immediately so the badge clears, then reload to confirm.
 onMounted(() => {
     if (props.cartItems.length === 0 && count.value > 0) {
+        syncFromServer()
         router.reload({ only: ['cartItems'] })
     }
 })
@@ -288,15 +289,15 @@ function goToCheckout() {
                                 </div>
 
 
-                                <!-- Stock notify (out-of-stock only) -->
-                                <div v-else class="mt-3">
-                                    <StockNotifyButton
-                                        :item="cartItem.item"
-                                        :isSubscribed="subscribedItemIds.includes(cartItem.item_id)"
-                                    />
-                                </div>
                             </div>
 
+                            <!-- Stock notify (out-of-stock only) -->
+                            <div v-if="cartItem.item.inventory < 1" class="mt-3">
+                                <StockNotifyButton
+                                    :item="cartItem.item"
+                                    :isSubscribed="subscribedItemIds.includes(cartItem.item_id)"
+                                />
+                            </div>
                             <!-- Remove -->
                             <button
                                 @click="handleRemove(cartItem.item_id)"
