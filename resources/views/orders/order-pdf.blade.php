@@ -94,8 +94,8 @@
                     <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">კოდი</th>
                     <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">დასახელება</th>
                     <th class="text-center px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">რაოდ.</th>
-                    <th class="text-right px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">ერთ. ფასი</th>
-                    <th class="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">ჯამი</th>
+                    <th class="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap w-32">ერთ. ფასი</th>
+                    <th class="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap w-32">ჯამი</th>
                 </tr>
             </thead>
             <tbody>
@@ -109,8 +109,8 @@
                                 <span class="text-xs text-gray-400">{{ $orderItem->item->base_uom_desc }}</span>
                             @endif
                         </td>
-                        <td class="px-4 py-4 text-right text-gray-600">{{ number_format($orderItem->unit_price, 2) }} ₾</td>
-                        <td class="px-6 py-4 text-right font-bold text-gray-900">{{ number_format($orderItem->subtotal, 2) }} ₾</td>
+                        <td class="px-6 py-4 text-right text-gray-600 whitespace-nowrap">{{ number_format($orderItem->unit_price, 2) }} ₾</td>
+                        <td class="px-6 py-4 text-right font-bold text-gray-900 whitespace-nowrap">{{ number_format($orderItem->subtotal, 2) }} ₾</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -124,6 +124,12 @@
                 <span>შუალედური ჯამი</span>
                 <span>{{ number_format($order->subtotal, 2) }} ₾</span>
             </div>
+            @if($order->wholesale_discount > 0)
+                <div class="flex justify-between w-72 text-emerald-600">
+                    <span>საბითუმო ფასდაკლება</span>
+                    <span>-{{ number_format($order->wholesale_discount, 2) }} ₾</span>
+                </div>
+            @endif
             <div class="flex justify-between w-72 text-gray-500">
                 <span>მიწოდება</span>
                 <span>{{ $order->delivery_cost > 0 ? number_format($order->delivery_cost, 2) . ' ₾' : 'უფასო' }}</span>
