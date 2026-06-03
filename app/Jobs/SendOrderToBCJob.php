@@ -16,7 +16,9 @@ class SendOrderToBCJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 300;
+
     public $tries = 3;
+
     public $backoff = 60;
 
     public function __construct(
@@ -28,11 +30,7 @@ class SendOrderToBCJob implements ShouldQueue
         $order = Order::with(['items.item', 'user'])->findOrFail($this->order->id);
 
         Cache::lock('bc-order-processing', 300)->block(310, function () use ($bcService, $order) {
-            foreach ($order->items as $key => $orderItem) {
-                $bcService->addSalesOrders($orderItem, $key);
-                usleep(500000);
-            }
-
+            $bcService->addSalesOrders($order, $order->items);
             $bcService->addShipToAddress($order);
         });
     }

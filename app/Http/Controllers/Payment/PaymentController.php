@@ -97,6 +97,7 @@ class PaymentController extends Controller
                 'apartment_number' => $request->apartment_number,
                 'comment' => $request->comment,
                 'subtotal' => $calc['subtotal'],
+                'wholesale_discount' => $calc['wholesale_discount'],
                 'total' => $calc['total'],
             ]);
 
@@ -363,10 +364,8 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function sendOrderToBC(Order $orderItem)
+    public function sendOrderToBC(Order $order)
     {
-        //        dispatch(function () use ($orderItem) {
-        $this->bcService->addSalesOrderLines($orderItem, 'S012345', 0);
-        //        });
+        $this->bcService->addSalesOrders($order, $order->items);
     }
 }

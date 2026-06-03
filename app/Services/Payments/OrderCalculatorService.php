@@ -37,6 +37,7 @@ class OrderCalculatorService
         }
 
         $subtotal = 0;
+        $wholesaleDiscount = 0;
         $itemsData = [];
 
         foreach ($cartRows as $cartRow) {
@@ -44,6 +45,7 @@ class OrderCalculatorService
             $unitPrice = $this->tierPrice($cartRow->item, $qty);
             $rowTotal = $unitPrice * $qty;
             $subtotal += $rowTotal;
+            $wholesaleDiscount += ($cartRow->item->unit_price - $unitPrice) * $qty;
 
             $itemsData[] = [
                 'item_id' => $cartRow->item_id,
@@ -57,6 +59,7 @@ class OrderCalculatorService
 
         return [
             'subtotal' => $subtotal,
+            'wholesale_discount' => $wholesaleDiscount,
             'delivery_cost' => $deliveryCost,
             'total' => $subtotal + $deliveryCost,
             'items' => $itemsData,

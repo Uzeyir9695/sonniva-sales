@@ -60,6 +60,7 @@ class InvoiceController extends Controller
                 'apartment_number' => $request->apartment_number,
                 'comment' => $request->comment,
                 'subtotal' => $calc['subtotal'],
+                'wholesale_discount' => $calc['wholesale_discount'],
                 'total' => $calc['total'],
             ]);
 
@@ -100,7 +101,7 @@ class InvoiceController extends Controller
 
         $viewVars = [
             'payment' => $payment,
-            'orderItems' => $orderItems,
+            'order' => $orderItems,
             'invoiceNumber' => $invoiceNumber,
             'user' => $user,
             'tbcIBAN' => config('payments.tbc.iban'),
