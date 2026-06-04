@@ -17,10 +17,10 @@ class ItemSeeder extends Seeder
 
     public function run(): void
     {
-//        DB::statement('SET FOREIGN_KEY_CHECKS=0');
-//        Attribute::truncate();
-//        Item::truncate();
-//        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        //        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        //        Attribute::truncate();
+        //        Item::truncate();
+        //        DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         $startedAt = now();
 
@@ -34,10 +34,10 @@ class ItemSeeder extends Seeder
 
         /*** For testing: start from a specific category ***/
 
-//                $startFromCategory = '1802-06';
-//                $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
-//
-//                $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
+        //                $startFromCategory = '1802-06';
+        //                $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
+        //
+        //                $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
 
         foreach ($categories as $category) {
             $this->command->info("Fetching items for category: {$category->code}");
@@ -68,7 +68,8 @@ class ItemSeeder extends Seeder
                     ->timeout(180)
                     ->retry(3, 2000)
                     ->get($baseUrl, [
-                        '$expand' => 'itemUnitPrices',
+                        '$select' => 'image1,image2,image3,image4,image5',
+                        '$expand' => 'itemUnitPrices($select=price,custMinQuantity,priceGroup)',
                     ]);
 
                 $detailed = $response->json();
@@ -113,14 +114,14 @@ class ItemSeeder extends Seeder
         }
 
         $elapsed = $startedAt->diffInSeconds(now());
-        $this->command->info("Items seeded successfully. Time taken: {$elapsed}s (" . gmdate('H:i:s', $elapsed) . ")");
+        $this->command->info("Items seeded successfully. Time taken: {$elapsed}s (".gmdate('H:i:s', $elapsed).')');
     }
 
     private function fetchItems(string &$token, \Carbon\Carbon &$tokenFetchedAt, string $categoryCode): \Illuminate\Support\Collection
     {
         $all = collect();
         $base = config('bc.api_base_url');
-        $url = $base."Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items?\$expand=itemAttributeValues&\$filter=itemCategoryCode eq '{$categoryCode}'";
+        $url = $base."Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items?\$select=no,itemCategoryCode,description,itemReview,inventory,baseUOMDesc,unitPrice,minQtyUnitPrice&\$expand=itemAttributeValues&\$filter=itemCategoryCode eq '{$categoryCode}'";
 
         do {
             if (now()->diffInMinutes($tokenFetchedAt) >= 55) {
