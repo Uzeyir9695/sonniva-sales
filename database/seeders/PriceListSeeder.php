@@ -15,6 +15,8 @@ class PriceListSeeder extends Seeder
 
     public function run(): void
     {
+        $this->stripPricesForPricedItems();
+
         $token = $this->bc->getAccessToken();
         $tokenFetchedAt = now();
 
@@ -43,6 +45,26 @@ class PriceListSeeder extends Seeder
         }
 
         $this->command->info('Price list seeding complete.');
+    }
+
+    private function stripPricesForPricedItems(): void
+    {
+        $updated = 0;
+
+        Item::where('unit_price', '>', 0)
+            ->whereNotNull('prices')
+            ->each(function (Item $item) use (&$updated): void {
+                $stripped = collect($item->prices)->map(fn ($entry) => [
+                    'price' => $entry['price'],
+                    'priceGroup' => $entry['priceGroup'],
+                    'custMinQuantity' => $entry['custMinQuantity'],
+                ])->values()->all();
+
+                $item->update(['prices' => $stripped]);
+                $updated++;
+            });
+
+        $this->command->info("Stripped prices for {$updated} priced items.");
     }
 
     private function fetchPrices(string $token, string $assetNo): \Illuminate\Support\Collection
