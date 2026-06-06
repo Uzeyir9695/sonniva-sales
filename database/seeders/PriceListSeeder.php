@@ -99,6 +99,6 @@ class PriceListSeeder extends Seeder
 
         } while ($url);
 
-        return $all;
+        return $all->sortBy('price')->values();
     }
 }
