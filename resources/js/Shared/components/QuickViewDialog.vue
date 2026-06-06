@@ -5,6 +5,7 @@ import ItemImageSwitcher from './ItemImageSwitcher.vue';
 import WishlistButton from '@/Shared/components/WishlistButton.vue';
 import { useCart } from '@/composables/useCart.js';
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
+import { usePricing, getDisplayUOM } from '@/composables/usePricing.js';
 
 const props = defineProps({
     visible: {
@@ -29,6 +30,8 @@ const show = computed({
 })
 
 const inStock = computed(() => props.item?.inventory && props.item.inventory > 0)
+
+const { displayPrice, displayUOM } = usePricing(() => props.item)
 </script>
 
 <template>
@@ -89,13 +92,17 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
 
                     <div class="border-t border-gray-100 pt-5 mt-2">
                         <div class="text-2xl font-bold text-gray-900 mb-4">
-                            {{ item.unit_price ? `${item.unit_price} ₾` : '—' }}
+                            <template v-if="displayPrice">
+                                {{ displayPrice }} ₾
+                                <span v-if="displayUOM" class="text-sm font-normal text-gray-400">/ {{ displayUOM }}</span>
+                            </template>
+                            <template v-else>—</template>
                         </div>
 
                         <div class="flex flex-col sm:flex-row items-center gap-2">
                             <button
                                 v-if="inStock"
-                                @click="buyNow(item.id)"
+                                @click="buyNow(item.id, 1, getDisplayUOM(item))"
                                 :disabled="!inStock"
                                 class="flex-1 flex items-center justify-center gap-2 px-4 cursor-pointer text-sm font-semibold py-3 rounded-2xl border border-gray-500 text-gray-900 hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all"
                                 :class="inStock
@@ -107,7 +114,7 @@ const inStock = computed(() => props.item?.inventory && props.item.inventory > 0
                             </button>
 
                             <button
-                                @click="addToCart(item.id)"
+                                @click="addToCart(item.id, 1, getDisplayUOM(item))"
                                 :disabled="!inStock && isInCart(item.id)"
                                 class="relative flex-1 flex items-center justify-center gap-2 px-4 cursor-pointer text-sm font-semibold py-3 rounded-2xl transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                                 :class="inStock

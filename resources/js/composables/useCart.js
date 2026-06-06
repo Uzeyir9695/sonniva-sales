@@ -5,6 +5,7 @@ import { useToast } from 'primevue/usetoast';
 
 const state = reactive({
     items:   {},  // { [itemId]: quantity }
+    uoms:    {},  // { [itemId]: selectedUOM } — only for package items
     loading: {},
     ready:   false,
 })
@@ -24,9 +25,15 @@ export function useCart() {
             const serverItems = Object.fromEntries(
                 Object.entries(page.props.cart?.items ?? {}).map(([k, v]) => [String(k), v])
             )
+            const serverUoms = Object.fromEntries(
+                Object.entries(page.props.cart?.uoms ?? {}).map(([k, v]) => [String(k), v])
+            )
             Object.assign(state.items, serverItems)
+            Object.assign(state.uoms, serverUoms)
         } else {
-            Object.assign(state.items, loadFromStorage())
+            const storage = loadFromStorage()
+            Object.assign(state.items, storage.items)
+            Object.assign(state.uoms, storage.uoms)
         }
 
         state.ready = true
@@ -34,8 +41,7 @@ export function useCart() {
 
     // ─── Add to cart ──────────────────────────────────────────────────────────
 
-    // quantity defaults to 1 — covers searchbar and quickview cases
-    async function addToCart(itemId, quantity = 1) {
+    async function addToCart(itemId, quantity = 1, selectedUOM = null) {
         const id  = String(itemId)
         const qty = parseInt(quantity) || 1
 
@@ -45,18 +51,20 @@ export function useCart() {
         const previous = state.items[id] ?? 0
         state.items[id] = previous + qty  // optimistic
 
+        if (selectedUOM) state.uoms[id] = selectedUOM
+
         try {
             if (isLoggedIn.value) {
-                const { data } = await axios.post(route('api.cart.add', id), { quantity: qty })
+                const { data } = await axios.post(route('api.cart.add', id), {
+                    quantity: qty,
+                    selected_uom: selectedUOM ?? null,
+                })
                 state.items[id] = data.quantity
             } else {
                 saveToStorage()
             }
-
-            // toast.add({ severity: 'success', summary: 'Success', detail: qty + (qty > 1 ? ' პროდუქტი' : ' პროდუქტი') +' დაემატა შენს კალათაში', life: 3000 });
-
         } catch (error) {
-            state.items[id] = previous  // rollback
+            state.items[id] = previous
             if (previous === 0) delete state.items[id]
             console.error('[Cart] add failed', error)
         } finally {
@@ -93,7 +101,9 @@ export function useCart() {
     async function removeFromCart(itemId) {
         const id = String(itemId)
         const previous = state.items[id]
+        const previousUom = state.uoms[id]
         delete state.items[id]
+        delete state.uoms[id]
 
         try {
             if (isLoggedIn.value) {
@@ -103,17 +113,18 @@ export function useCart() {
             }
         } catch (error) {
             state.items[id] = previous
+            if (previousUom) state.uoms[id] = previousUom
             console.error('[Cart] remove failed', error)
         }
     }
 
     // ─── Buy Now ──────────────────────────────────────────────────────────────
 
-    async function buyNow(itemId, quantity = 1) {
+    async function buyNow(itemId, quantity = 1, selectedUOM = null) {
         if (isInCart(itemId)) {
             await updateQuantity(itemId, quantity)
         } else {
-            await addToCart(itemId, quantity)
+            await addToCart(itemId, quantity, selectedUOM)
         }
         router.visit(route('checkout.index', { item_ids: [itemId] }))
     }
@@ -128,6 +139,10 @@ export function useCart() {
         return state.items[String(itemId)] ?? 0
     }
 
+    function getSelectedUOM(itemId) {
+        return state.uoms[String(itemId)] ?? null
+    }
+
     function isLoading(itemId) {
         return !!state.loading[String(itemId)]
     }
@@ -137,19 +152,22 @@ export function useCart() {
         const serverItems = Object.fromEntries(
             Object.entries(page.props.cart?.items ?? {}).map(([k, v]) => [String(k), v])
         )
+        const serverUoms = Object.fromEntries(
+            Object.entries(page.props.cart?.uoms ?? {}).map(([k, v]) => [String(k), v])
+        )
         Object.keys(state.items).forEach(k => delete state.items[k])
+        Object.keys(state.uoms).forEach(k => delete state.uoms[k])
         Object.assign(state.items, serverItems)
+        Object.assign(state.uoms, serverUoms)
     }
 
     const uniqueCount = computed(() =>
         Object.keys(state.items).filter(id => state.items[id] > 0).length
     )
 
-    // Sum of all quantities for navbar badge
     const count = computed(() =>
         Object.values(state.items).reduce((sum, qty) => sum + qty, 0)
     )
-
 
     // ─── Auth state changes ───────────────────────────────────────────────────
 
@@ -158,16 +176,21 @@ export function useCart() {
             saveToStorage()
         }
 
-        // Capture guest items before clearing
         const guestItems = { ...state.items }
+        const guestUoms  = { ...state.uoms }
 
         state.ready = false
         Object.keys(state.items).forEach(k => delete state.items[k])
+        Object.keys(state.uoms).forEach(k => delete state.uoms[k])
         Object.keys(state.loading).forEach(k => delete state.loading[k])
 
         if (newVal === true && oldVal === false && Object.keys(guestItems).length > 0) {
             try {
-                const items = Object.entries(guestItems).map(([id, quantity]) => ({ id, quantity }))
+                const items = Object.entries(guestItems).map(([id, quantity]) => ({
+                    id,
+                    quantity,
+                    uom: guestUoms[id] ?? null,
+                }))
                 const { data } = await axios.post(route('api.cart.sync'), { items })
                 Object.assign(state.items, data.items ?? {})
                 localStorage.removeItem('guest_cart')
@@ -186,15 +209,22 @@ export function useCart() {
     function loadFromStorage() {
         try {
             const saved = localStorage.getItem('guest_cart')
-            return saved ? JSON.parse(saved) : {}
+            if (!saved) return { items: {}, uoms: {} }
+            const parsed = JSON.parse(saved)
+            // Handle old format (plain quantity map with no uoms key)
+            if (!parsed.items) return { items: parsed, uoms: {} }
+            return { items: parsed.items ?? {}, uoms: parsed.uoms ?? {} }
         } catch {
-            return {}
+            return { items: {}, uoms: {} }
         }
     }
 
     function saveToStorage() {
         try {
-            localStorage.setItem('guest_cart', JSON.stringify(state.items))
+            localStorage.setItem('guest_cart', JSON.stringify({
+                items: state.items,
+                uoms:  state.uoms,
+            }))
         } catch {}
     }
 
@@ -206,5 +236,5 @@ export function useCart() {
         { deep: true }
     )
 
-    return { addToCart, buyNow, updateQuantity, removeFromCart, isInCart, getQuantity, isLoading, uniqueCount, count, syncFromServer }
+    return { addToCart, buyNow, updateQuantity, removeFromCart, isInCart, getQuantity, getSelectedUOM, isLoading, uniqueCount, count, syncFromServer }
 }

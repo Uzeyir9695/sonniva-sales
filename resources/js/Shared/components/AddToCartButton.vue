@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import InputNumber from 'primevue/inputnumber'
 import { useCart } from '@/composables/useCart.js';
+import { getDisplayUOM } from '@/composables/usePricing.js';
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 
 const props = defineProps({
@@ -21,7 +22,7 @@ function onMouseEnter() {
 }
 
 function handleClick() {
-    if (isOutOfStock) addToCart(props.item.id, 1)
+    if (isOutOfStock) addToCart(props.item.id, 1, getDisplayUOM(props.item))
 }
 
 function onMouseLeave() {
@@ -75,7 +76,7 @@ function onMouseLeave() {
                 </InputNumber>
 
                 <button
-                    @click.stop="addToCart(item.id, quantity)"
+                    @click.stop="addToCart(item.id, quantity, getDisplayUOM(item))"
                     :disabled="overLimit"
                     v-tooltip="overLimit ? 'შეკვეთის მაქსიმალური რაოდენობაა '+item.inventory : ''"
                     class="flex items-center justify-center rounded-xl p-2

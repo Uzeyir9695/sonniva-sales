@@ -1,6 +1,6 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useGtag } from '@/composables/useGtag.js'
 import { useClipboard } from '@vueuse/core';
 import SimilarItems from '@/Pages/Items/SimilarItems.vue';
@@ -9,6 +9,7 @@ import WishlistButton from '@/Shared/components/WishlistButton.vue';
 import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue';
 import WhatsappOrderDialog from '@/Shared/components/WhatsappOrderDialog.vue';
 import { useCart } from '@/composables/useCart.js';
+import { usePricing } from '@/composables/usePricing.js';
 import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 import InputNumber from 'primevue/inputnumber';
@@ -44,6 +45,11 @@ const images = computed(() => {
     if (props.item?.image) return [props.item.image]
     return []
 })
+
+/* ---------------- Pricing ---------------- */
+const { isPackageItem, prices } = usePricing(() => props.item)
+const selectedEntry = ref(null)
+watch(prices, (val) => { selectedEntry.value = val[0] ?? null }, { immediate: true })
 
 /* ---------------- Quantity ---------------- */
 const quantity = ref(getQuantity(props.item?.id) || 1)
@@ -141,9 +147,12 @@ const ogImage = computed(() => {
                     <!-- Price -->
                     <div class="flex items-center gap-3 mb-8">
                         <span class="text-lg sm:text-2xl font-bold text-brand-500 tracking-tight">
-                         {{ item.unit_price }} ₾
+                            {{ isPackageItem ? selectedEntry?.price : item.unit_price }} ₾
                         </span>
-                                <span v-if="item.base_uom_desc" class="text-sm text-gray-400">
+                        <span v-if="isPackageItem && selectedEntry?.UOM" class="text-sm text-gray-400">
+                            / {{ selectedEntry.UOM }}
+                        </span>
+                        <span v-else-if="item.base_uom_desc" class="text-sm text-gray-400">
                             / {{ item.base_uom_desc }}
                         </span>
                     </div>
@@ -191,6 +200,27 @@ const ogImage = computed(() => {
                     <!-- Divider -->
                     <div class="h-px bg-gray-200 mb-8"></div>
 
+                    <!-- Package price selector (only for unit_price = 0 items) -->
+                    <div v-if="isPackageItem" class="mb-6">
+                        <p class="text-xs text-gray-400 mb-2">აირჩიეთ შეკვრა</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button
+                                v-for="entry in prices"
+                                :key="entry.UOM"
+                                @click="selectedEntry = entry"
+                                class="flex flex-col items-center px-3 py-2 rounded-xl border font-medium transition-all duration-150 cursor-pointer"
+                                :class="selectedEntry?.UOM === entry.UOM
+                                    ? 'border-brand-500 bg-brand-50 text-brand-600'
+                                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'"
+                            >
+                                <span class="max-sm:text-sm mt-0.5" :class="selectedEntry?.UOM === entry.UOM ? 'text-brand-500' : 'text-gray-400'">
+                                    {{ entry.price }} ₾
+                                </span>
+                                <span class="text-xs sm:text-sm font-semibold">{{ entry.UOM }}</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="space-y-3">
 
@@ -233,7 +263,7 @@ const ogImage = computed(() => {
                             <!-- Add to Cart -->
                             <button
                                 :disabled="overLimit || (!inStock && isInCart(item.id))"
-                                @click="addToCart(item.id, quantity)"
+                                @click="addToCart(item.id, quantity, selectedEntry?.UOM ?? null)"
                                 class="relative w-full max-sm:px-2 max-sm:text-sm py-2.5 rounded-2xl cursor-pointer bg-brand-500 text-white font-semibold
                                 hover:bg-brand-400 disabled:cursor-not-allowed active:scale-[0.98] transition-all shadow-md"
                             >
@@ -251,7 +281,7 @@ const ogImage = computed(() => {
 
                         <div class="mt-8 space-y-3">
                             <!-- Buy Now -->
-                            <button v-if="inStock" @click="buyNow(item.id, quantity)" class="w-full py-2.5 rounded-2xl max-sm:text-sm cursor-pointer border border-gray-500 text-gray-900 font-semibold hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all" >
+                            <button v-if="inStock" @click="buyNow(item.id, quantity, selectedEntry?.UOM ?? null)" class="w-full py-2.5 rounded-2xl max-sm:text-sm cursor-pointer border border-gray-500 text-gray-900 font-semibold hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all" >
                                 <i class="pi pi-bolt mr-2"></i>
                                 ახლავე შეძენა
                             </button>

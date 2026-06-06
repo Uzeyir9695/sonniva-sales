@@ -6,11 +6,14 @@ import ItemImageSwitcher from '@/Shared/components/ItemImageSwitcher.vue'
 import AddToCartButton from '@/Shared/components/AddToCartButton.vue'
 import WhatsappOrderDialog from '@/Shared/components/WhatsappOrderDialog.vue'
 import StockNotifyDialog from '@/Shared/components/StockNotifyDialog.vue'
+import { usePricing } from '@/composables/usePricing.js'
 
-defineProps({
+const props = defineProps({
     item: { type: Object, required: true },
     isOrderOnly: { type: Boolean, default: false },
 })
+
+const { displayPrice, displayUOM } = usePricing(() => props.item)
 
 const emit = defineEmits(['quick-view'])
 
@@ -77,8 +80,17 @@ const viewItemDetails = (item) => {
             </span>
 
             <div class="mt-auto pt-3 flex text-nowrap items-center justify-between gap-2">
-                <span class="text-base font-semibold text-gray-900">
-                    {{ item.unit_price ? `${item.unit_price} ₾` : '—' }}
+                <span>
+                    <template v-if="displayPrice">
+                        <div class="flex flex-col gap-1">
+                            <span v-if="displayUOM" class="text-xs text-blue-400">შეკვრა</span>
+                                <div class="flex items-center gap-1 5">
+                                <span class="text-base font-semibold text-gray-900">{{ displayPrice }} ₾</span>
+                                <span v-if="displayUOM" class="text-xs text-gray-400">/ {{ displayUOM }}</span>
+                            </div>
+                        </div>
+                    </template>
+                    <template v-else>—</template>
                 </span>
 
                 <AddToCartButton :item="item" />

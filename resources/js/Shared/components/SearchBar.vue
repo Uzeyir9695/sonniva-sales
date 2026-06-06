@@ -5,6 +5,7 @@ import axios from 'axios';
 import QuickViewDialog from '@/Shared/components/QuickViewDialog.vue';
 import { useCart } from '@/composables/useCart.js';
 import { useGtag } from '@/composables/useGtag.js'
+import { getDisplayPrice, getDisplayUOM } from '@/composables/usePricing.js'
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 
 const props = defineProps({
@@ -187,7 +188,10 @@ defineExpose({ inputRef });
                         <!-- Stock  + Price-->
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <p class="text-xs sm:text-sm text-brand-500 font-bold mt-0.5">{{ item.unit_price }} ₾</p>
+                                <p class="text-xs sm:text-sm text-brand-500 font-bold mt-0.5">
+                                    {{ getDisplayPrice(item) }} ₾
+                                    <span v-if="getDisplayUOM(item)" class="text-xs font-normal text-gray-400">/ {{ getDisplayUOM(item) }}</span>
+                                </p>
 
                                 <span
                                     class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
@@ -207,7 +211,7 @@ defineExpose({ inputRef });
                                     <i class="pi pi-heart"></i>
                                 </button>
                                 <button
-                                    @click.stop="addToCart(item.id)"
+                                    @click.stop="addToCart(item.id, 1, getDisplayUOM(item))"
                                     :disabled="(item.inventory > 0 && getQuantity(item.id) >= item.inventory) || (item.inventory <= 0 && isInCart(item.id))"
                                     class="relative w-5 sm:w-7 h-5 sm:h-7 rounded-lg cursor-pointer flex items-center justify-center text-gray-400 hover:text-brand-500 hover:bg-brand-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:hover:bg-transparent"
                                     v-tooltip.top="'დაამატე კალათაში'"

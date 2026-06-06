@@ -106,12 +106,17 @@ class HandleInertiaRequests extends Middleware
                     : [],
             ],
 
-            'cart' => [
-                'items' => $request->user()
-                    ? $request->user()->carts()->get(['item_id', 'quantity'])
-                        ->mapWithKeys(fn ($c) => [$c->item_id => $c->quantity])
-                    : [],
-            ],
+            'cart' => function () use ($request) {
+                $carts = $request->user()
+                    ? $request->user()->carts()->get(['item_id', 'quantity', 'selected_uom'])
+                    : collect();
+
+                return [
+                    'items' => $carts->mapWithKeys(fn ($c) => [$c->item_id => $c->quantity]),
+                    'uoms' => $carts->filter(fn ($c) => $c->selected_uom)
+                        ->mapWithKeys(fn ($c) => [$c->item_id => $c->selected_uom]),
+                ];
+            },
 
             'unseenStockCount' => $isAdmin
                 ? fn () => StockNotification::whereNull('seen_at')->count()

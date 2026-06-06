@@ -40,9 +40,16 @@ async function handleRemove(itemId) {
 
 const formatted = (val) => Number(val).toFixed(2)
 
-function calculateTierPrice(item, qty) {
+function calculateTierPrice(item, qty, selectedUOM = null) {
     if (!item) return 0
     if (!item.prices?.length) return item.unit_price
+
+    // Package items: price is determined by which UOM was selected, not by quantity
+    if (item.unit_price == 0 && selectedUOM) {
+        return item.prices.find(p => p.UOM === selectedUOM)?.price ?? item.prices[0]?.price ?? 0
+    }
+
+    // Regular items: tier pricing by quantity
     const tier = [...item.prices]
         .sort((a, b) => b.custMinQuantity - a.custMinQuantity)
         .find(p => qty >= p.custMinQuantity)
@@ -95,7 +102,7 @@ const selectedItems = computed(() =>
 const subtotal = computed(() =>
     selectedItems.value.reduce((sum, c) => {
         const qty = getQuantity(c.item_id)
-        return sum + (calculateTierPrice(c.item, qty) * qty)
+        return sum + (calculateTierPrice(c.item, qty, c.selected_uom) * qty)
     }, 0)
 )
 
@@ -103,7 +110,7 @@ const totalSavings = computed(() =>
     selectedItems.value.reduce((sum, c) => {
         const qty = getQuantity(c.item_id)
         const originalTotal = c.item.unit_price * qty
-        const tieredTotal = calculateTierPrice(c.item, qty) * qty
+        const tieredTotal = calculateTierPrice(c.item, qty, c.selected_uom) * qty
         return sum + Math.max(0, originalTotal - tieredTotal)
     }, 0)
 )
@@ -231,7 +238,7 @@ function goToCheckout() {
 
                                 <div class="flex items-center gap-2 mt-1">
                                     <span
-                                        v-if="calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id)) < cartItem.item.unit_price"
+                                        v-if="cartItem.item.unit_price > 0 && calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id), cartItem.selected_uom) < cartItem.item.unit_price"
                                         class="text-sm text-gray-400 line-through"
                                     >
                                         {{ formatted(cartItem.item.unit_price) }} ₾
@@ -239,7 +246,8 @@ function goToCheckout() {
                                     <p class="text-brand-500 font-bold text-base"
                                        :class="cartItem.item.inventory <= 0 ? ' opacity-60' : ''"
                                     >
-                                        {{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id))) }} ₾
+                                        {{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id), cartItem.selected_uom)) }} ₾
+                                        <span v-if="cartItem.selected_uom" class="text-xs font-normal text-gray-400">/ {{ cartItem.selected_uom }}</span>
                                     </p>
                                 </div>
 
@@ -275,16 +283,16 @@ function goToCheckout() {
 
                                     <!-- Row total -->
                                     <span class="text-sm text-gray-400">
-                                        სულ: <span class="font-semibold text-gray-700">{{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id)) * getQuantity(cartItem.item_id)) }} ₾</span>
+                                        სულ: <span class="font-semibold text-gray-700">{{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id), cartItem.selected_uom) * getQuantity(cartItem.item_id)) }} ₾</span>
                                     </span>
 
                                     <!-- Savings badge -->
                                     <span
-                                        v-if="calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id)) < cartItem.item.unit_price"
+                                        v-if="cartItem.item.unit_price > 0 && calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id), cartItem.selected_uom) < cartItem.item.unit_price"
                                         class="flex items-center text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full"
                                     >
                                         <i class="pi pi-tag text-xs mr-1"></i>
-                                        დანაზოგი: {{ formatted((cartItem.item.unit_price - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id))) * getQuantity(cartItem.item_id)) }} ₾
+                                        დანაზოგი: {{ formatted((cartItem.item.unit_price - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id), cartItem.selected_uom)) * getQuantity(cartItem.item_id)) }} ₾
                                     </span>
 
                                     <p v-if="overLimit(cartItem)" class="text-xs text-red-600">

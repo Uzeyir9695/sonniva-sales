@@ -10,7 +10,7 @@ class Cart extends Model
 {
     use HasUuids;
 
-    protected $fillable = ['user_id', 'item_id', 'quantity'];
+    protected $fillable = ['user_id', 'item_id', 'quantity', 'selected_uom'];
 
     public function user(): BelongsTo
     {

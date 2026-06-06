@@ -41,6 +41,7 @@ class CartController extends Controller
     {
         $request->validate([
             'quantity' => ['integer', 'min:1'],
+            'selected_uom' => ['nullable', 'string'],
         ]);
 
         $quantity = $request->input('quantity', 1);
@@ -51,6 +52,10 @@ class CartController extends Controller
         );
 
         $cart->increment('quantity', $quantity);
+
+        if ($request->filled('selected_uom')) {
+            $cart->update(['selected_uom' => $request->selected_uom]);
+        }
 
         return response()->json([
             'item_id' => $item->id,
@@ -98,7 +103,7 @@ class CartController extends Controller
         foreach ($request->items as $guestItem) {
             $request->user()->carts()->updateOrCreate(
                 ['item_id' => $guestItem['id']],
-                ['quantity' => $guestItem['quantity']]
+                ['quantity' => $guestItem['quantity'], 'selected_uom' => $guestItem['uom'] ?? null]
             );
         }
 
