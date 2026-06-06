@@ -180,7 +180,7 @@ function goToCheckout() {
                             :key="cartItem.item_id"
                             class="bg-white rounded-2xl border shadow-sm p-4 transition-all duration-150"
                             :class="cartItem.item.inventory <= 0
-                                ? 'border-gray-100 opacity-60'
+                                ? 'border-gray-100'
                                 : selectedIds.includes(cartItem.item_id)
                                     ? 'border-brand-200 bg-brand-50/20'
                                     : 'border-gray-100'"
@@ -203,6 +203,7 @@ function goToCheckout() {
                                     :src="`${cartItem.item.storage_path}/${cartItem.item.images[0]}`"
                                     :alt="cartItem.item.name"
                                     class="w-full h-full object-cover"
+                                    :class="cartItem.item.inventory <= 0 ? ' opacity-60' : ''"
                                 />
                                 <div v-else class="w-full h-full flex items-center justify-center">
                                     <i class="pi pi-image text-gray-300 text-sm"></i>
@@ -235,7 +236,9 @@ function goToCheckout() {
                                     >
                                         {{ formatted(cartItem.item.unit_price) }} ₾
                                     </span>
-                                    <p class="text-brand-500 font-bold text-base">
+                                    <p class="text-brand-500 font-bold text-base"
+                                       :class="cartItem.item.inventory <= 0 ? ' opacity-60' : ''"
+                                    >
                                         {{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id))) }} ₾
                                     </p>
                                 </div>
