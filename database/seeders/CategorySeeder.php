@@ -8,7 +8,6 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use Spatie\Image\Image;
 
 class CategorySeeder extends Seeder
@@ -33,23 +32,23 @@ class CategorySeeder extends Seeder
     private function fetchAllCategories(string $token): Collection
     {
         $all = collect();
-//        $url = config('bc.api_base_url') . '904668f4-6aa7-44ce-8285-5c27b33faeeb/Production/ODataV4/Company(\'SONNIVA\')/ItemCategories';
-        $url = 'https://api.businesscentral.dynamics.com/v2.0/Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemCategories';
+        //        $url = config('bc.api_base_url') . '904668f4-6aa7-44ce-8285-5c27b33faeeb/Production/ODataV4/Company(\'SONNIVA\')/ItemCategories';
+        $url = 'https://api.businesscentral.dynamics.com/v2.0/Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemCategories?$select=code,description,parentCategory,imageBase64';
 
         do {
             $response = Http::withToken($token)->timeout(60)->get($url);
 
             if ($response->failed()) {
-                throw new \RuntimeException('BC API error: ' . $response->body());
+                throw new \RuntimeException('BC API error: '.$response->body());
             }
 
             $data = $response->json();
 
-            $all  = $all->merge(
-                collect($data['value'] ?? [])->map(fn($item) => $this->normalize($item))
+            $all = $all->merge(
+                collect($data['value'] ?? [])->map(fn ($item) => $this->normalize($item))
             );
 
-            $url  = $data['@odata.nextLink'] ?? null;
+            $url = $data['@odata.nextLink'] ?? null;
 
         } while ($url);
 
@@ -59,17 +58,17 @@ class CategorySeeder extends Seeder
     private function normalize(array $item): array
     {
         return [
-            'code'           => trim($item['Code'] ?? $item['code'] ?? ''),
-            'description'    => $item['Description'] ?? $item['description'] ?? '',
+            'code' => trim($item['Code'] ?? $item['code'] ?? ''),
+            'description' => $item['Description'] ?? $item['description'] ?? '',
             'parentCategory' => trim($item['Parent_Category'] ?? $item['parentCategory'] ?? ''),
-            'imageBase64'    => $item['imageBase64'] ?? null,
+            'imageBase64' => $item['imageBase64'] ?? null,
         ];
     }
 
     private function insertLevel(Collection $all, ?string $parentCode, int $level): void
     {
         $items = $all->filter(
-            fn($item) => $parentCode === null
+            fn ($item) => $parentCode === null
                 ? $item['parentCategory'] === ''
                 : $item['parentCategory'] === $parentCode
         );
@@ -78,15 +77,15 @@ class CategorySeeder extends Seeder
             $category = Category::updateOrCreate(
                 ['code' => $item['code']],
                 [
-                    'name'       => $item['description'] ?: null,
-                    'slug'       => $this->makeSlug($item['description'] ?: null),
-                    'parent_id'  => $parentCode,
-                    'level'      => $level,
+                    'name' => $item['description'] ?: null,
+                    'slug' => $this->makeSlug($item['description'] ?: null),
+                    'parent_id' => $parentCode,
+                    'level' => $level,
                     'sort_order' => $index,
                 ]
             );
 
-            if (!empty($item['imageBase64'])) {
+            if (! empty($item['imageBase64'])) {
                 $fileName = $this->storeImage($item['imageBase64']);
                 if ($fileName) {
                     $category->update(['image' => $fileName]);
@@ -105,6 +104,7 @@ class CategorySeeder extends Seeder
         $text = preg_replace('/[\/]+/u', '-', $text);
         $text = preg_replace('/[-]+/u', ' ', $text);
         $text = preg_replace('/\s+/u', '-', $text);
+
         return mb_strtolower($text);
     }
 
@@ -115,11 +115,11 @@ class CategorySeeder extends Seeder
         }
 
         $imageData = base64_decode($base64);
-        $hash      = md5($imageData);
-        $fileName  = $hash . '.jpg';
-        $path      = "categories/{$fileName}";
+        $hash = md5($imageData);
+        $fileName = $hash.'.jpg';
+        $path = "categories/{$fileName}";
 
-        if (!\Storage::disk('public')->exists($path)) {
+        if (! \Storage::disk('public')->exists($path)) {
             \Storage::disk('public')->put($path, $imageData);
 
             $fullPath = storage_path("app/public/{$path}");

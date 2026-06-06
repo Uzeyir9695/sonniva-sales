@@ -17,10 +17,10 @@ class ItemSeeder extends Seeder
 
     public function run(): void
     {
-//                DB::statement('SET FOREIGN_KEY_CHECKS=0');
-//                Attribute::truncate();
-//                Item::truncate();
-//                DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        //                DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        //                Attribute::truncate();
+        //                Item::truncate();
+        //                DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         $startedAt = now();
 
@@ -34,10 +34,10 @@ class ItemSeeder extends Seeder
 
         /*** For testing: start from a specific category ***/
 
-//                        $startFromCategory = '1206-01';
-//                        $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
-//
-//                        $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
+        //                        $startFromCategory = '1206-01';
+        //                        $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
+        //
+        //                        $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
 
         foreach ($categories as $category) {
             $this->command->info("Fetching items for category: {$category->code}");
@@ -62,15 +62,14 @@ class ItemSeeder extends Seeder
                     continue;
                 }
 
-                $baseUrl = "https://api.businesscentral.dynamics.com/v2.0/Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed('{$item['no']}')";
+                $detailUrl = "https://api.businesscentral.dynamics.com/v2.0/Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed('{$item['no']}')"
+                    .'?$select=image1,image2,image3,image4,image5'
+                    .'&$expand=itemUnitPrices($select=price,custMinQuantity,priceGroup)';
 
                 $response = Http::withToken($token)
                     ->timeout(180)
                     ->retry(3, 2000)
-                    ->get($baseUrl, [
-                        '$select' => 'image1,image2,image3,image4,image5',
-                        '$expand' => 'itemUnitPrices($select=price,custMinQuantity,priceGroup)',
-                    ]);
+                    ->get($detailUrl);
 
                 $detailed = $response->json();
 
