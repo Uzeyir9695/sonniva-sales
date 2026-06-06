@@ -78,10 +78,10 @@ const menuItems = computed(() => [
             <!-- Logo Section -->
             <div class="h-16 flex items-center px-6 border-b border-gray-200">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-linear-to-br from-brand-500 to-brand-600 rounded-lg flex items-center justify-center">
+                    <div class="sm:w-9 w-7 sm:h-9 h-7 bg-linear-to-br from-brand-500 to-brand-600 rounded-lg flex items-center justify-center">
                         <i class="pi pi-bolt text-white text-lg"></i>
                     </div>
-                    <span class="text-xl font-bold text-gray-900">Admin Panel</span>
+                    <span class="sm:text-xl font-bold text-gray-900">Admin Panel</span>
                 </div>
             </div>
 
@@ -120,7 +120,7 @@ const menuItems = computed(() => [
         <!-- Main Content Area -->
         <main class="flex-1 min-w-0 flex flex-col">
             <!-- Mobile Top Bar -->
-            <div class="sticky top-18 md:hidden h-10 bg-white border-b border-gray-200 rounded-xl flex justify-between items-center px-4 shadow-sm z-30">
+            <div class="sticky top-18 md:hidden h-10 bg-white border-b border-gray-200 rounded-xl flex justify-between items-center px-4 mx-4 shadow-sm z-30">
                 <span class="ml-3 text-sm font-bold text-gray-900">Admin Panel</span>
                 <button
                     @click="sidebarOpen = !sidebarOpen"
