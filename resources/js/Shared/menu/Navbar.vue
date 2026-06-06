@@ -67,7 +67,7 @@ const openSearch = async () => {
                         </div>
 
                         <!-- Right: search + user + cart -->
-                        <div class="flex items-center gap-1">
+                        <div class="flex items-center">
                             <button @click="openSearch" class="flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100">
                                 <i class="pi pi-search text-xl"></i>
                             </button>
@@ -76,9 +76,7 @@ const openSearch = async () => {
 
                             <CartNavIcon />
 
-                            <Link v-if="!isAuthenticated" :href="route('login')" class="flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100">
-                                <i class="pi pi-user text-xl"></i>
-                            </Link>
+                            <UserMenu />
                         </div>
                     </div>
                 </template>

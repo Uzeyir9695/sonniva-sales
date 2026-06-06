@@ -46,7 +46,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
         <!-- Trigger -->
         <button
             @click="open = !open"
-            class="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-gray-100 transition-all cursor-pointer select-none"
+            class="flex items-center gap-2 px-3 sm:py-1.5 rounded-full hover:bg-gray-100 transition-all cursor-pointer select-none"
         >
             <div class="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
                 <i class="pi pi-user text-sm"></i>
