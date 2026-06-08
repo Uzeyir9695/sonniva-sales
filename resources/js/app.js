@@ -14,7 +14,7 @@ const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
 const emitter = mitt()
-window.emitter = emitter // Make it globally accessible
+if (typeof window !== 'undefined') window.emitter = emitter
 
 // Primevue components
 import 'primeicons/primeicons.css'
@@ -29,7 +29,7 @@ import Tooltip from "primevue/tooltip";
 import ToastService from "primevue/toastservice";
 import FloatLabel from "primevue/floatlabel";
 import Ripple from "primevue/ripple";
-import { formatNumber } from '@/utils/numberFormat.js';
+import { formatNumber } from './utils/numberFormat.js';
 
 const appName = import.meta.env.VITE_APP_NAME;
 
@@ -111,12 +111,13 @@ createInertiaApp({
         return page;
     },
     setup({ el, App, props, plugin }) {
-        // window.Ziggy = props.initialPage.props.ziggy || {};
+        const ziggy = props.initialPage.props.ziggy || {};
+        if (typeof window !== 'undefined') window.Ziggy = ziggy;
 
         const app = createApp({ render: () => h(App, props) });
         app.use(plugin);
         app.use(pinia);
-        app.use(ZiggyVue);
+        app.use(ZiggyVue, ziggy);
 
         app.provide('emitter', emitter);
 
@@ -232,7 +233,7 @@ createInertiaApp({
             }
         });
 
-        app.mount(el);
+        if (el) app.mount(el);
         return app;
     },
 })

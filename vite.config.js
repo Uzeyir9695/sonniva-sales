@@ -1,6 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
+import inertia from '@inertiajs/vite';
 import { defineConfig } from 'vite';
 import Components from 'unplugin-vue-components/vite';
 import {PrimeVueResolver} from '@primevue/auto-import-resolver';
@@ -12,9 +13,9 @@ export default defineConfig({
             input: ['resources/js/app.js',
                 'resources/css/app.css',
             ],
-            ssr: 'resources/js/ssr.js',
             refresh: true,
         }),
+        inertia(),
         tailwindcss(),
         vue({
             template: {
@@ -42,6 +43,6 @@ export default defineConfig({
         },
     },
     optimizeDeps: {
-        include: ['vue', '@inertiajs/vue3', 'laravel-vue-i18n', 'primevue'],
+        include: ['vue', '@inertiajs/vue3', 'primevue'],
     },
 });
