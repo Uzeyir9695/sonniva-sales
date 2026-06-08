@@ -174,7 +174,7 @@ function removeChip(chip) {
     <div class="min-h-[calc(100vh-80px)] bg-[#f7f6f 3]">
 
         <!-- ================= BREADCRUMBS ================= -->
-        <div class="bg-white flex items-center justify-between sticky top-20 z-20 sm:mt-4 sm:roun ded-t-xl shadow-xs">
+        <div class="bg-white flex items-center justify-between sticky top-16 sm:top-20 z-20 sm:mt-4 sm:roun ded-t-xl shadow-xs">
             <Breadcrumbs :breadcrumbs="breadcrumbs"/>
             <button
                 @click="sidebarOpen = !sidebarOpen"
@@ -214,7 +214,7 @@ function removeChip(chip) {
 
         <div class="max-w-screen-2xl max-sm:mx-3 py-6 flex gap-6 relative">
             <!-- SIDEBAR -->
-            <div class="max-lg:bg-white -50 shrink-0 w-72 max-lg:pt-3 lg:block lg:sticky top-20 lg:top-32 fixed left-0 h-full space-y-5
+            <div class="max-lg:bg-white shrink-0 w-72 max-lg:pt-3 lg:block lg:sticky top-16 sm:top-20 lg:top-32 fixed left-0 h-full space-y-5
                      max-h-[calc(100vh-80px)] lg:max-h-[690px]
                      overflow-x-hidden overflow-y-auto transition-all duration-300 z-40 lg:z-auto
                     "
