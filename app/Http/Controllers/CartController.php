@@ -47,15 +47,11 @@ class CartController extends Controller
         $quantity = $request->input('quantity', 1);
 
         $cart = $request->user()->carts()->firstOrCreate(
-            ['item_id' => $item->id],
+            ['item_id' => $item->id, 'selected_uom' => $request->input('selected_uom')],
             ['quantity' => 0]
         );
 
         $cart->increment('quantity', $quantity);
-
-        if ($request->filled('selected_uom')) {
-            $cart->update(['selected_uom' => $request->selected_uom]);
-        }
 
         return response()->json([
             'item_id' => $item->id,
@@ -68,13 +64,18 @@ class CartController extends Controller
     {
         $request->validate([
             'quantity' => ['required', 'integer', 'min:1'],
+            'selected_uom' => ['nullable', 'string'],
         ]);
 
-        $cart = $request->user()->carts()->where('item_id', $item->id)->first();
+        $cart = $request->user()->carts()
+            ->where('item_id', $item->id)
+            ->where('selected_uom', $request->input('selected_uom'))
+            ->first();
 
         if (! $cart) {
             $cart = $request->user()->carts()->create([
                 'item_id' => $item->id,
+                'selected_uom' => $request->input('selected_uom'),
                 'quantity' => $request->quantity,
             ]);
         } else {
@@ -89,7 +90,14 @@ class CartController extends Controller
 
     public function remove(Request $request, Item $item): JsonResponse
     {
-        $request->user()->carts()->where('item_id', $item->id)->delete();
+        $request->validate([
+            'selected_uom' => ['nullable', 'string'],
+        ]);
+
+        $request->user()->carts()
+            ->where('item_id', $item->id)
+            ->where('selected_uom', $request->input('selected_uom'))
+            ->delete();
 
         return response()->json([
             'item_id' => $item->id,

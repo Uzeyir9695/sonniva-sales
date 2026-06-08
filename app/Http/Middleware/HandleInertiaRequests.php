@@ -108,13 +108,19 @@ class HandleInertiaRequests extends Middleware
 
             'cart' => function () use ($request) {
                 $carts = $request->user()
-                    ? $request->user()->carts()->get(['item_id', 'quantity', 'selected_uom'])
+                    ? $request->user()->carts()->get(['id', 'item_id', 'quantity', 'selected_uom'])
                     : collect();
 
+                // Use composite key "itemId__uom" for package items so same item with
+                // different UOMs get separate state entries in the frontend.
+                $key = fn ($c) => $c->selected_uom
+                    ? $c->item_id.'__'.$c->selected_uom
+                    : (string) $c->item_id;
+
                 return [
-                    'items' => $carts->mapWithKeys(fn ($c) => [$c->item_id => $c->quantity]),
+                    'items' => $carts->mapWithKeys(fn ($c) => [$key($c) => $c->quantity]),
                     'uoms' => $carts->filter(fn ($c) => $c->selected_uom)
-                        ->mapWithKeys(fn ($c) => [$c->item_id => $c->selected_uom]),
+                        ->mapWithKeys(fn ($c) => [$key($c) => $c->selected_uom]),
                 ];
             },
 

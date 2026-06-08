@@ -29,7 +29,7 @@ class InvoiceController extends Controller
     {
         try {
             $calc = $this->calculatorService->calculate(
-                $request->item_ids,
+                $request->cart_ids,
                 $request->delivery_type,
                 auth()->id()
             );
@@ -69,6 +69,7 @@ class InvoiceController extends Controller
                     'order_id' => $order->id,
                     'item_id' => $item['item_id'],
                     'quantity' => $item['quantity'],
+                    'unit_of_measure_code' => $item['unit_of_measure_code'],
                     'unit_price' => $item['unit_price'],
                     'subtotal' => $item['subtotal'],
                 ]);
@@ -85,7 +86,7 @@ class InvoiceController extends Controller
         });
 
         Cart::where('user_id', auth()->id())
-            ->whereIn('item_id', $request->item_ids)
+            ->whereIn('id', $request->cart_ids)
             ->delete();
 
         $this->generatePDF($order->load('items'), $invoiceNo, $payment);

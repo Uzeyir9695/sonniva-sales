@@ -317,7 +317,7 @@ class BusinessCentralService
                 'Type' => 'Item',
                 'No' => $orderItem->item->no,
                 'Quantity' => $orderItem->quantity,
-                'Unit_of_Measure_Code' => $orderItem->item->base_uom_desc,
+                'Unit_of_Measure_Code' => $orderItem->unit_of_measure_code ?? $orderItem->item->base_uom_desc,
             ];
         }
 

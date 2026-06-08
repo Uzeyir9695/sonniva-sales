@@ -12,6 +12,9 @@ const props = defineProps({
 
 const { removeFromCart, updateQuantity, isLoading, getQuantity, count, syncFromServer } = useCart()
 
+// Unique key per cart row: UUID when available, fallback composite
+const rowKey = (c) => c.id ?? (c.selected_uom ? `${c.item_id}__${c.selected_uom}` : c.item_id)
+
 // If server says cart is empty but local state still has items (e.g. after payment),
 // sync local state immediately so the badge clears, then reload to confirm.
 onMounted(() => {
@@ -21,21 +24,22 @@ onMounted(() => {
     }
 })
 
-const overLimit = (cartItem) => getQuantity(cartItem.item_id) > cartItem.item.inventory
+const overLimit = (cartItem) => getQuantity(cartItem.item_id, cartItem.selected_uom) > cartItem.item.inventory
 
 const anyOverLimit = computed(() => selectedItems.value.some(c => overLimit(c)))
 
 // Filter out items removed client-side
 const items = computed(() =>
-    props.cartItems.filter(c => !removedIds.value.includes(c.item_id))
+    props.cartItems.filter(c => !removedIds.value.includes(rowKey(c)))
 )
 
 const removedIds = ref([])
 
-async function handleRemove(itemId) {
-    removedIds.value.push(itemId)
-    selectedIds.value = selectedIds.value.filter(id => id !== itemId)
-    await removeFromCart(itemId)
+async function handleRemove(cartItem) {
+    const key = rowKey(cartItem)
+    removedIds.value.push(key)
+    selectedIds.value = selectedIds.value.filter(id => id !== key)
+    await removeFromCart(cartItem.item_id, cartItem.selected_uom)
 }
 
 const formatted = (val) => Number(val).toFixed(2)
@@ -61,8 +65,9 @@ function calculateTierPrice(item, qty, selectedUOM = null) {
 const selectedIds = ref([])
 
 // Select all by default once items load
-const allIds = computed(() => items.value.map(c => c.item_id))
-const inStockIds = computed(() => items.value.filter(c => c.item.inventory > 0).map(c => c.item_id))
+// Use row UUID as selection key so same item with different UOMs can be selected independently
+const allIds = computed(() => items.value.map(c => rowKey(c)))
+const inStockIds = computed(() => items.value.filter(c => c.item.inventory > 0).map(c => rowKey(c)))
 
 // Init selectedIds with only in-stock items
 if (inStockIds.value.length) {
@@ -85,30 +90,31 @@ function toggleAll() {
     }
 }
 
-function toggleItem(itemId) {
-    if (selectedIds.value.includes(itemId)) {
-        selectedIds.value = selectedIds.value.filter(id => id !== itemId)
+function toggleItem(cartItem) {
+    const key = rowKey(cartItem)
+    if (selectedIds.value.includes(key)) {
+        selectedIds.value = selectedIds.value.filter(id => id !== key)
     } else {
-        selectedIds.value = [...selectedIds.value, itemId]
+        selectedIds.value = [...selectedIds.value, key]
     }
 }
 
 // ─── Selected items only ──────────────────────────────────────────────────────
 
 const selectedItems = computed(() =>
-    items.value.filter(c => selectedIds.value.includes(c.item_id))
+    items.value.filter(c => selectedIds.value.includes(rowKey(c)))
 )
 
 const subtotal = computed(() =>
     selectedItems.value.reduce((sum, c) => {
-        const qty = getQuantity(c.item_id)
+        const qty = getQuantity(c.item_id, c.selected_uom)
         return sum + (calculateTierPrice(c.item, qty, c.selected_uom) * qty)
     }, 0)
 )
 
 const totalSavings = computed(() =>
     selectedItems.value.reduce((sum, c) => {
-        const qty = getQuantity(c.item_id)
+        const qty = getQuantity(c.item_id, c.selected_uom)
         const originalTotal = c.item.unit_price * qty
         const tieredTotal = calculateTierPrice(c.item, qty, c.selected_uom) * qty
         return sum + Math.max(0, originalTotal - tieredTotal)
@@ -118,9 +124,10 @@ const totalSavings = computed(() =>
 // ─── Checkout ─────────────────────────────────────────────────────────────────
 
 function goToCheckout() {
-    router.get(route('checkout.index'), {
-        item_ids: selectedIds.value,
-    })
+    // Pass cart row UUIDs so the server can uniquely identify each row
+    // (same item with different UOMs would collide if we passed item_ids)
+    const cartIds = selectedItems.value.map(c => c.id)
+    router.get(route('checkout.index'), { cart_ids: cartIds })
 }
 </script>
 
@@ -184,21 +191,21 @@ function goToCheckout() {
                     <TransitionGroup name="cart-item">
                         <div
                             v-for="cartItem in items"
-                            :key="cartItem.item_id"
+                            :key="rowKey(cartItem)"
                             class="bg-white rounded-2xl border shadow-sm p-4 transition-all duration-150"
                             :class="cartItem.item.inventory <= 0
                                 ? 'border-gray-100'
-                                : selectedIds.includes(cartItem.item_id)
+                                : selectedIds.includes(rowKey(cartItem))
                                     ? 'border-brand-200 bg-brand-50/20'
                                     : 'border-gray-100'"
                         >
                         <div class="flex items-center gap-4">
                             <!-- Checkbox -->
                             <Checkbox
-                                :modelValue="selectedIds.includes(cartItem.item_id)"
+                                :modelValue="selectedIds.includes(rowKey(cartItem))"
                                 binary
                                 :disabled="cartItem.item.inventory <= 0"
-                                @change="cartItem.item.inventory > 0 && toggleItem(cartItem.item_id)"
+                                @change="cartItem.item.inventory > 0 && toggleItem(cartItem)"
                                 class="shrink-0"
                                 :class="cartItem.item.inventory > 0 ? 'cursor-pointer' : 'cursor-not-allowed'"
                             />
@@ -255,8 +262,8 @@ function goToCheckout() {
                                 <div v-if="cartItem.item.inventory > 0" class="flex items-center gap-3 mt-3 flex-wrap">
                                     <div :class="overLimit(cartItem) ? 'border-red-500' : ''" class="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm w-fit">
                                         <button
-                                            @click="updateQuantity(cartItem.item_id, getQuantity(cartItem.item_id) - 1)"
-                                            :disabled="getQuantity(cartItem.item_id) <= 1 || isLoading(cartItem.item_id)"
+                                            @click="updateQuantity(cartItem.item_id, getQuantity(cartItem.item_id, cartItem.selected_uom) - 1, cartItem.selected_uom)"
+                                            :disabled="getQuantity(cartItem.item_id, cartItem.selected_uom) <= 1 || isLoading(cartItem.item_id, cartItem.selected_uom)"
                                             class="w-8 h-8 flex items-center justify-center cursor-pointer text-gray-500
                                                    hover:bg-gray-50 transition disabled:text-gray-300 disabled:cursor-not-allowed"
                                         >
@@ -264,16 +271,16 @@ function goToCheckout() {
                                         </button>
 
                                         <InputNumber
-                                            :model-value="getQuantity(cartItem.item_id)"
+                                            :model-value="getQuantity(cartItem.item_id, cartItem.selected_uom)"
                                             :min="1"
                                             :use-grouping="false"
-                                            @input="e => { if (e.value !== null) updateQuantity(cartItem.item_id, e.value) }"
+                                            @input="e => { if (e.value !== null) updateQuantity(cartItem.item_id, e.value, cartItem.selected_uom) }"
                                             :input-style="{ width: '2.5rem', textAlign: 'center', padding: '0', boxShadow: 'none', border: 'none', fontWeight: '600', fontSize: '0.875rem' }"
                                         />
 
                                         <button
-                                            @click="updateQuantity(cartItem.item_id, getQuantity(cartItem.item_id) + 1)"
-                                            :disabled="isLoading(cartItem.item_id) || getQuantity(cartItem.item_id) >= cartItem.item.inventory"
+                                            @click="updateQuantity(cartItem.item_id, getQuantity(cartItem.item_id, cartItem.selected_uom) + 1, cartItem.selected_uom)"
+                                            :disabled="isLoading(cartItem.item_id, cartItem.selected_uom) || getQuantity(cartItem.item_id, cartItem.selected_uom) >= cartItem.item.inventory"
                                             class="w-8 h-8 flex items-center justify-center cursor-pointer text-gray-500
                                                    hover:bg-gray-50 transition disabled:text-gray-300 disabled:cursor-not-allowed"
                                         >
@@ -283,16 +290,16 @@ function goToCheckout() {
 
                                     <!-- Row total -->
                                     <span class="text-sm text-gray-400">
-                                        სულ: <span class="font-semibold text-gray-700">{{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id), cartItem.selected_uom) * getQuantity(cartItem.item_id)) }} ₾</span>
+                                        სულ: <span class="font-semibold text-gray-700">{{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾</span>
                                     </span>
 
                                     <!-- Savings badge -->
                                     <span
-                                        v-if="cartItem.item.unit_price > 0 && calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id), cartItem.selected_uom) < cartItem.item.unit_price"
+                                        v-if="cartItem.item.unit_price > 0 && calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom) < cartItem.item.unit_price"
                                         class="flex items-center text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full"
                                     >
                                         <i class="pi pi-tag text-xs mr-1"></i>
-                                        დანაზოგი: {{ formatted((cartItem.item.unit_price - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id), cartItem.selected_uom)) * getQuantity(cartItem.item_id)) }} ₾
+                                        დანაზოგი: {{ formatted((cartItem.item.unit_price - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
                                     </span>
 
                                     <p v-if="overLimit(cartItem)" class="text-xs text-red-600">
@@ -304,7 +311,7 @@ function goToCheckout() {
 
                             <!-- Remove -->
                             <button
-                                @click="handleRemove(cartItem.item_id)"
+                                @click="handleRemove(cartItem)"
                                 :disabled="isLoading(cartItem.item_id)"
                                 class="shrink-0 self-start w-8 h-8 flex items-center justify-center cursor-pointer rounded-xl
                                        text-gray-300 hover:text-red-400 hover:bg-red-50

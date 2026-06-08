@@ -64,7 +64,7 @@ class PaymentController extends Controller
 
         try {
             $calc = $this->calculatorService->calculate(
-                $request->item_ids,
+                $request->cart_ids,
                 $request->delivery_type,
                 auth()->id()
             );
@@ -106,6 +106,7 @@ class PaymentController extends Controller
                     'order_id' => $order->id,
                     'item_id' => $item['item_id'],
                     'quantity' => $item['quantity'],
+                    'unit_of_measure_code' => $item['unit_of_measure_code'],
                     'unit_price' => $item['unit_price'],
                     'subtotal' => $item['subtotal'],
                 ]);
@@ -323,8 +324,16 @@ class PaymentController extends Controller
         });
 
         if ($shouldProcess) {
+            // Delete only the exact cart rows that were ordered (matched by item + UOM)
             Cart::where('user_id', $order->user_id)
-                ->whereIn('item_id', $order->items->pluck('item_id'))
+                ->where(function ($q) use ($order) {
+                    foreach ($order->items as $orderItem) {
+                        $q->orWhere(fn ($q2) => $q2
+                            ->where('item_id', $orderItem->item_id)
+                            ->where('selected_uom', $orderItem->unit_of_measure_code)
+                        );
+                    }
+                })
                 ->delete();
 
             $this->sendOrderToEmail($lockedPayment, $order);

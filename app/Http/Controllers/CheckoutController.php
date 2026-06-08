@@ -9,13 +9,13 @@ class CheckoutController extends Controller
 {
     public function index(Request $request)
     {
-        $itemIds = $request->input('item_ids', []);
+        $cartIds = $request->input('cart_ids', []);
 
         $cartItems = $request->user()
             ->carts()
             ->whereHas('item', fn ($q) => $q->where('inventory', '>', 0))
             ->with('item')
-            ->when(count($itemIds), fn ($q) => $q->whereIn('item_id', $itemIds))
+            ->when(count($cartIds), fn ($q) => $q->whereIn('id', $cartIds))
             ->latest()
             ->get();
 

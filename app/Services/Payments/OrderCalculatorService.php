@@ -15,18 +15,17 @@ class OrderCalculatorService
 
     const FREE_DELIVERY_THRESHOLD = 1000;
 
-    public function calculate(array $itemIds, string $deliveryType, int|string $userId): array
+    public function calculate(array $cartIds, string $deliveryType, int|string $userId): array
     {
-        // Fetch only cart rows that belong to this user and match the requested item IDs.
-        // This prevents a user from pricing items that belong to someone else.
+        // Fetch only cart rows that belong to this user and match the requested cart UUIDs.
+        // Using cart IDs (not item IDs) correctly handles the same item with different UOMs.
         $cartRows = Cart::with('item')
             ->where('user_id', $userId)
-            ->whereIn('item_id', $itemIds)
-            ->get()
-            ->keyBy('item_id');
+            ->whereIn('id', $cartIds)
+            ->get();
 
-        // Reject if any requested item wasn't found in this user's cart
-        if ($cartRows->count() !== count($itemIds)) {
+        // Reject if any requested cart row wasn't found in this user's cart
+        if ($cartRows->count() !== count($cartIds)) {
             throw new \InvalidArgumentException('One or more items not found in your cart.');
         }
 
@@ -42,7 +41,7 @@ class OrderCalculatorService
 
         foreach ($cartRows as $cartRow) {
             $qty = $cartRow->quantity;
-            $unitPrice = $this->tierPrice($cartRow->item, $qty);
+            $unitPrice = $this->tierPrice($cartRow->item, $qty, $cartRow->selected_uom);
             $rowTotal = $unitPrice * $qty;
             $subtotal += $rowTotal;
             $wholesaleDiscount += ($cartRow->item->unit_price - $unitPrice) * $qty;
@@ -52,6 +51,7 @@ class OrderCalculatorService
                 'quantity' => $qty,
                 'unit_price' => $unitPrice,
                 'subtotal' => $rowTotal,
+                'unit_of_measure_code' => $cartRow->selected_uom,
             ];
         }
 
@@ -66,10 +66,17 @@ class OrderCalculatorService
         ];
     }
 
-    private function tierPrice(Item $item, int $qty): float
+    private function tierPrice(Item $item, int $qty, ?string $uom = null): float
     {
         if (empty($item->prices)) {
             return $item->unit_price;
+        }
+
+        // Package item: price is fixed per selected UOM, not quantity-tiered
+        if ($item->unit_price == 0 && $uom) {
+            $entry = collect($item->prices)->first(fn ($p) => $p['UOM'] === $uom);
+
+            return $entry['price'] ?? $item->prices[0]['price'] ?? 0;
         }
 
         $tier = collect($item->prices)

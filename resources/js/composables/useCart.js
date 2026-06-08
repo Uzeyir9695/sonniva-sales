@@ -4,11 +4,21 @@ import axios from 'axios'
 import { useToast } from 'primevue/usetoast';
 
 const state = reactive({
-    items:   {},  // { [itemId]: quantity }
-    uoms:    {},  // { [itemId]: selectedUOM } — only for package items
+    items:   {},  // { [cartKey]: quantity } — cartKey = itemId or "itemId__uom"
+    uoms:    {},  // { [cartKey]: selectedUOM }
     loading: {},
     ready:   false,
 })
+
+// Composite key: plain itemId for regular items, "itemId__uom" for package items
+function cartKey(itemId, uom = null) {
+    return uom ? `${String(itemId)}__${uom}` : String(itemId)
+}
+
+// Extract itemId from a composite key
+function itemIdFromKey(key) {
+    return key.split('__')[0]
+}
 
 export function useCart() {
     const page = usePage()
@@ -42,78 +52,83 @@ export function useCart() {
     // ─── Add to cart ──────────────────────────────────────────────────────────
 
     async function addToCart(itemId, quantity = 1, selectedUOM = null) {
-        const id  = String(itemId)
+        const key = cartKey(itemId, selectedUOM)
         const qty = parseInt(quantity) || 1
 
-        if (state.loading[id]) return
-        state.loading[id] = true
+        if (state.loading[key]) return
+        state.loading[key] = true
 
-        const previous = state.items[id] ?? 0
-        state.items[id] = previous + qty  // optimistic
+        const previous = state.items[key] ?? 0
+        state.items[key] = previous + qty  // optimistic
 
-        if (selectedUOM) state.uoms[id] = selectedUOM
+        if (selectedUOM) state.uoms[key] = selectedUOM
 
         try {
             if (isLoggedIn.value) {
-                const { data } = await axios.post(route('api.cart.add', id), {
+                const { data } = await axios.post(route('api.cart.add', String(itemId)), {
                     quantity: qty,
                     selected_uom: selectedUOM ?? null,
                 })
-                state.items[id] = data.quantity
+                state.items[key] = data.quantity
             } else {
                 saveToStorage()
             }
         } catch (error) {
-            state.items[id] = previous
-            if (previous === 0) delete state.items[id]
+            state.items[key] = previous
+            if (previous === 0) delete state.items[key]
             console.error('[Cart] add failed', error)
         } finally {
-            delete state.loading[id]
+            delete state.loading[key]
         }
     }
 
     // ─── Update quantity (manual input) ───────────────────────────────────────
 
-    async function updateQuantity(itemId, quantity) {
-        const id  = String(itemId)
+    async function updateQuantity(itemId, quantity, selectedUOM = null) {
+        const key = cartKey(itemId, selectedUOM)
         const qty = parseInt(quantity)
 
         if (!qty || qty < 1) return
 
-        const previous = state.items[id] ?? 0
-        state.items[id] = qty
+        const previous = state.items[key] ?? 0
+        state.items[key] = qty
 
         try {
             if (isLoggedIn.value) {
-                const { data } = await axios.put(route('api.cart.update', id), { quantity: qty })
-                state.items[id] = data.quantity
+                const { data } = await axios.put(route('api.cart.update', String(itemId)), {
+                    quantity: qty,
+                    selected_uom: selectedUOM ?? null,
+                })
+                state.items[key] = data.quantity
             } else {
                 saveToStorage()
             }
         } catch (error) {
-            state.items[id] = previous
+            state.items[key] = previous
             console.error('[Cart] update failed', error)
         }
     }
 
     // ─── Remove ───────────────────────────────────────────────────────────────
 
-    async function removeFromCart(itemId) {
-        const id = String(itemId)
-        const previous = state.items[id]
-        const previousUom = state.uoms[id]
-        delete state.items[id]
-        delete state.uoms[id]
+    async function removeFromCart(itemId, selectedUOM = null) {
+        const key = cartKey(itemId, selectedUOM)
+        const previous = state.items[key]
+        const previousUom = state.uoms[key]
+        delete state.items[key]
+        delete state.uoms[key]
 
         try {
             if (isLoggedIn.value) {
-                await axios.delete(route('api.cart.remove', id))
+                await axios.delete(route('api.cart.remove', String(itemId)), {
+                    data: { selected_uom: selectedUOM ?? null },
+                })
             } else {
                 saveToStorage()
             }
         } catch (error) {
-            state.items[id] = previous
-            if (previousUom) state.uoms[id] = previousUom
+            state.items[key] = previous
+            if (previousUom) state.uoms[key] = previousUom
             console.error('[Cart] remove failed', error)
         }
     }
@@ -121,8 +136,8 @@ export function useCart() {
     // ─── Buy Now ──────────────────────────────────────────────────────────────
 
     async function buyNow(itemId, quantity = 1, selectedUOM = null) {
-        if (isInCart(itemId)) {
-            await updateQuantity(itemId, quantity)
+        if (isInCart(itemId, selectedUOM)) {
+            await updateQuantity(itemId, quantity, selectedUOM)
         } else {
             await addToCart(itemId, quantity, selectedUOM)
         }
@@ -131,20 +146,31 @@ export function useCart() {
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
+    // Returns true if any entry for this itemId exists (regardless of UOM)
     function isInCart(itemId) {
-        return !!state.items[String(itemId)]
+        const prefix = String(itemId)
+        return Object.keys(state.items).some(
+            k => k === prefix || k.startsWith(prefix + '__')
+        )
     }
 
-    function getQuantity(itemId) {
-        return state.items[String(itemId)] ?? 0
+    // Returns quantity for specific uom, or total across all UOMs when uom is null
+    function getQuantity(itemId, uom = null) {
+        if (uom !== null) {
+            return state.items[cartKey(itemId, uom)] ?? 0
+        }
+        const prefix = String(itemId)
+        return Object.entries(state.items)
+            .filter(([k]) => k === prefix || k.startsWith(prefix + '__'))
+            .reduce((sum, [, qty]) => sum + qty, 0)
     }
 
-    function getSelectedUOM(itemId) {
-        return state.uoms[String(itemId)] ?? null
+    function getSelectedUOM(itemId, uom = null) {
+        return state.uoms[cartKey(itemId, uom)] ?? null
     }
 
-    function isLoading(itemId) {
-        return !!state.loading[String(itemId)]
+    function isLoading(itemId, uom = null) {
+        return !!state.loading[cartKey(itemId, uom)]
     }
 
     function syncFromServer() {
@@ -162,7 +188,7 @@ export function useCart() {
     }
 
     const uniqueCount = computed(() =>
-        Object.keys(state.items).filter(id => state.items[id] > 0).length
+        Object.keys(state.items).filter(k => state.items[k] > 0).length
     )
 
     const count = computed(() =>
@@ -186,11 +212,11 @@ export function useCart() {
 
         if (newVal === true && oldVal === false && Object.keys(guestItems).length > 0) {
             try {
-                const items = Object.entries(guestItems).map(([id, quantity]) => ({
-                    id,
-                    quantity,
-                    uom: guestUoms[id] ?? null,
-                }))
+                // Decode composite key back to { id, quantity, uom } for sync endpoint
+                const items = Object.entries(guestItems).map(([key, quantity]) => {
+                    const [id, uom] = key.split('__')
+                    return { id, quantity, uom: uom ?? null }
+                })
                 const { data } = await axios.post(route('api.cart.sync'), { items })
                 Object.assign(state.items, data.items ?? {})
                 localStorage.removeItem('guest_cart')
@@ -211,7 +237,6 @@ export function useCart() {
             const saved = localStorage.getItem('guest_cart')
             if (!saved) return { items: {}, uoms: {} }
             const parsed = JSON.parse(saved)
-            // Handle old format (plain quantity map with no uoms key)
             if (!parsed.items) return { items: parsed, uoms: {} }
             return { items: parsed.items ?? {}, uoms: parsed.uoms ?? {} }
         } catch {

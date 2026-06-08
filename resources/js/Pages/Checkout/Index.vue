@@ -16,8 +16,14 @@ const { getQuantity } = useCart()
 
 // ─── Tiered price helper ───────────────────────────────────────────────────
 
-function calculateTierPrice(item, qty) {
+function calculateTierPrice(item, qty, selectedUOM = null) {
     if (!item.prices?.length) return item.unit_price
+
+    // Package item: price fixed by UOM, not quantity tier
+    if (item.unit_price == 0 && selectedUOM) {
+        return item.prices.find(p => p.UOM === selectedUOM)?.price ?? item.prices[0]?.price ?? 0
+    }
+
     const tier = [...item.prices]
         .sort((a, b) => b.custMinQuantity - a.custMinQuantity)
         .find(p => qty >= p.custMinQuantity)
@@ -29,9 +35,9 @@ function calculateTierPrice(item, qty) {
 const items = computed(() =>
     props.cartItems.map(c => ({
         ...c,
-        qty: getQuantity(c.item_id) || c.quantity,
-        unitPrice: calculateTierPrice(c.item, getQuantity(c.item_id) || c.quantity),
-        rowTotal: calculateTierPrice(c.item, getQuantity(c.item_id) || c.quantity) * (getQuantity(c.item_id) || c.quantity),
+        qty: getQuantity(c.item_id, c.selected_uom) || c.quantity,
+        unitPrice: calculateTierPrice(c.item, getQuantity(c.item_id, c.selected_uom) || c.quantity, c.selected_uom),
+        rowTotal: calculateTierPrice(c.item, getQuantity(c.item_id, c.selected_uom) || c.quantity, c.selected_uom) * (getQuantity(c.item_id, c.selected_uom) || c.quantity),
     }))
 )
 
@@ -118,7 +124,7 @@ function initiatePayment() {
         apartment_number: form.apartment_number,
         comment:          form.comment,
         provider:         selectedProvider.value.code,
-        item_ids: items.value.map(c => ( c.item_id)),
+        cart_ids: items.value.map(c => c.id),
     }
 
     if (selectedProvider.value.code === 'invoice') {
