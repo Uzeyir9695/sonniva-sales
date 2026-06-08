@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import { useCart } from '@/composables/useCart'
 
 const props = defineProps({
@@ -8,7 +8,9 @@ const props = defineProps({
 })
 
 const { syncFromServer } = useCart()
-onMounted(() => syncFromServer())
+onMounted(() => {
+    router.reload({ only: ['cart'], onSuccess: () => syncFromServer() })
+})
 </script>
 
 <template>
