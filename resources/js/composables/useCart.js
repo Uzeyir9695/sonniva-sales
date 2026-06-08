@@ -10,6 +10,10 @@ const state = reactive({
     ready:   false,
 })
 
+// Tracks login state from the last setup() run so we can detect transitions
+// without relying on the auth watcher (which is torn down on component unmount).
+let lastSetupLoginState = null
+
 // Composite key: plain itemId for regular items, "itemId__uom" for package items
 function cartKey(itemId, uom = null) {
     return uom ? `${String(itemId)}__${uom}` : String(itemId)
@@ -29,7 +33,19 @@ export function useCart() {
     // ─── Setup ────────────────────────────────────────────────────────────────
 
     function setup() {
+        const currentLoginState = isLoggedIn.value
+
+        // Detect login/logout transitions. The auth watcher can't be relied on
+        // because it's registered per-component and gets torn down on unmount —
+        // often missing the transition entirely. Instead we compare against the
+        // module-level lastSetupLoginState which persists across navigations.
+        if (state.ready && lastSetupLoginState !== null && lastSetupLoginState !== currentLoginState) {
+            clearState()  // sets state.ready = false; falls through to re-initialize
+        }
+
         if (state.ready) return
+
+        lastSetupLoginState = currentLoginState
 
         if (isLoggedIn.value) {
             const serverItems = Object.fromEntries(
@@ -38,7 +54,33 @@ export function useCart() {
             const serverUoms = Object.fromEntries(
                 Object.entries(page.props.cart?.uoms ?? {}).map(([k, v]) => [String(k), v])
             )
+
+            // Sync any localStorage items not yet in the server cart.
+            // loadFromStorage() runs synchronously before the saveToStorage watcher
+            // fires, so guest_cart still holds guest items even after clearState().
+            const storage = loadFromStorage()
+            const unsyncedKeys = Object.keys(storage.items).filter(k => !(k in serverItems))
+
+            if (unsyncedKeys.length) {
+                const items = unsyncedKeys.map(key => {
+                    const [id, uom] = key.split('__')
+                    return { id, quantity: storage.items[key], uom: uom ?? null }
+                })
+                axios.post(route('api.cart.sync'), { items }).then(({ data }) => {
+                    Object.keys(state.items).forEach(k => delete state.items[k])
+                    Object.keys(state.uoms).forEach(k => delete state.uoms[k])
+                    Object.assign(state.items, data.items ?? {})
+                    Object.assign(state.uoms, data.uoms ?? {})
+                    localStorage.removeItem('guest_cart')
+                    if (page.component === 'Cart/Index') router.reload({ only: ['cartItems'] })
+                }).catch(() => {})
+            }
+
             Object.assign(state.items, serverItems)
+            unsyncedKeys.forEach(k => {
+                state.items[k] = storage.items[k]
+                if (storage.uoms[k]) state.uoms[k] = storage.uoms[k]
+            })
             Object.assign(state.uoms, serverUoms)
         } else {
             const storage = loadFromStorage()
@@ -197,38 +239,12 @@ export function useCart() {
 
     // ─── Auth state changes ───────────────────────────────────────────────────
 
-    watch(isLoggedIn, async (newVal, oldVal) => {
-        if (oldVal === true && newVal === false) {
-            saveToStorage()
-        }
-
-        const guestItems = { ...state.items }
-        const guestUoms  = { ...state.uoms }
-
-        state.ready = false
+    function clearState() {
         Object.keys(state.items).forEach(k => delete state.items[k])
         Object.keys(state.uoms).forEach(k => delete state.uoms[k])
         Object.keys(state.loading).forEach(k => delete state.loading[k])
-
-        if (newVal === true && oldVal === false && Object.keys(guestItems).length > 0) {
-            try {
-                // Decode composite key back to { id, quantity, uom } for sync endpoint
-                const items = Object.entries(guestItems).map(([key, quantity]) => {
-                    const [id, uom] = key.split('__')
-                    return { id, quantity, uom: uom ?? null }
-                })
-                const { data } = await axios.post(route('api.cart.sync'), { items })
-                Object.assign(state.items, data.items ?? {})
-                localStorage.removeItem('guest_cart')
-                state.ready = true
-                return
-            } catch (e) {
-                console.error('[Cart] sync failed', e)
-            }
-        }
-
-        setup()
-    })
+        state.ready = false
+    }
 
     // ─── localStorage ─────────────────────────────────────────────────────────
 

@@ -110,15 +110,21 @@ class CartController extends Controller
     {
         foreach ($request->items as $guestItem) {
             $request->user()->carts()->updateOrCreate(
-                ['item_id' => $guestItem['id']],
-                ['quantity' => $guestItem['quantity'], 'selected_uom' => $guestItem['uom'] ?? null]
+                ['item_id' => $guestItem['id'], 'selected_uom' => $guestItem['uom'] ?? null],
+                ['quantity' => $guestItem['quantity']]
             );
         }
 
-        $cartItems = $request->user()->carts()->get(['item_id', 'quantity']);
+        $carts = $request->user()->carts()->get(['id', 'item_id', 'quantity', 'selected_uom']);
+
+        $key = fn ($c) => $c->selected_uom
+            ? $c->item_id.'__'.$c->selected_uom
+            : (string) $c->item_id;
 
         return response()->json([
-            'items' => $cartItems->mapWithKeys(fn ($c) => [$c->item_id => $c->quantity]),
+            'items' => $carts->mapWithKeys(fn ($c) => [$key($c) => $c->quantity]),
+            'uoms' => $carts->filter(fn ($c) => $c->selected_uom)
+                ->mapWithKeys(fn ($c) => [$key($c) => $c->selected_uom]),
         ]);
     }
 }
