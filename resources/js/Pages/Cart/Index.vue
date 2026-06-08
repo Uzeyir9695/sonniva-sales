@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 import { useCart } from '@/composables/useCart'
 import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue'
@@ -62,17 +62,34 @@ function calculateTierPrice(item, qty, selectedUOM = null) {
 
 // ─── Selection ────────────────────────────────────────────────────────────────
 
+const SELECTION_KEY = 'cart_selection'
+
 const selectedIds = ref([])
 
-// Select all by default once items load
 // Use row UUID as selection key so same item with different UOMs can be selected independently
 const allIds = computed(() => items.value.map(c => rowKey(c)))
 const inStockIds = computed(() => items.value.filter(c => c.item.inventory > 0).map(c => rowKey(c)))
 
-// Init selectedIds with only in-stock items
-if (inStockIds.value.length) {
-    selectedIds.value = [...inStockIds.value]
+// Restore persisted selection, keeping only keys still present in the current cart
+try {
+    const saved = JSON.parse(localStorage.getItem(SELECTION_KEY) ?? '[]')
+    const validKeys = new Set(allIds.value)
+    selectedIds.value = saved.filter(k => validKeys.has(k))
+} catch {
+    selectedIds.value = []
 }
+
+watch(selectedIds, (val) => {
+    localStorage.setItem(SELECTION_KEY, JSON.stringify(val))
+}, { deep: true })
+
+const sortedItems = computed(() =>
+    [...items.value].sort((a, b) => {
+        const aChecked = selectedIds.value.includes(rowKey(a)) ? 0 : 1
+        const bChecked = selectedIds.value.includes(rowKey(b)) ? 0 : 1
+        return aChecked - bChecked
+    })
+)
 
 const allSelected = computed(() =>
     inStockIds.value.length > 0 && selectedIds.value.length === inStockIds.value.length
@@ -190,7 +207,7 @@ function goToCheckout() {
 
                     <TransitionGroup name="cart-item">
                         <div
-                            v-for="cartItem in items"
+                            v-for="cartItem in sortedItems"
                             :key="rowKey(cartItem)"
                             class="bg-white rounded-2xl border shadow-sm p-4 transition-all duration-150"
                             :class="cartItem.item.inventory <= 0
