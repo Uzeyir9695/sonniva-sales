@@ -12,6 +12,8 @@ const state = reactive({
     ready: false,
 })
 
+let lastSetupLoginState = null
+
 export function useWishlist() {
     const page = usePage()
 
@@ -19,21 +21,45 @@ export function useWishlist() {
 
     // ─── Setup ────────────────────────────────────────────────────────────────
 
+    function clearState() {
+        Object.keys(state.wishlisted).forEach(k => delete state.wishlisted[k])
+        Object.keys(state.loading).forEach(k => delete state.loading[k])
+        state.ready = false
+    }
+
     function setup() {
+        const currentLoginState = isLoggedIn.value
+
+        if (state.ready && lastSetupLoginState !== null && lastSetupLoginState !== currentLoginState) {
+            clearState()
+        }
+
         if (state.ready) return
-        state.ready = true
+
+        lastSetupLoginState = currentLoginState
 
         if (isLoggedIn.value) {
-            const serverIds = Array.from(page.props.wishlist?.ids ?? [])
-            serverIds.forEach(id => {
-                state.wishlisted[String(id)] = true
-            })
+            const serverIds = new Set((page.props.wishlist?.ids ?? []).map(String))
+            const guestIds = loadFromStorage().map(String)
+            const unsyncedIds = guestIds.filter(id => !serverIds.has(id))
+
+            if (unsyncedIds.length) {
+                axios.post(route('api.wishlist.sync'), { item_ids: unsyncedIds })
+                    .then(({ data }) => {
+                        Object.keys(state.wishlisted).forEach(k => delete state.wishlisted[k])
+                        ;(data.wishlisted_ids ?? []).forEach(id => { state.wishlisted[String(id)] = true })
+                        localStorage.removeItem('guest_wishlist')
+                    })
+                    .catch(() => {})
+            }
+
+            serverIds.forEach(id => { state.wishlisted[id] = true })
+            unsyncedIds.forEach(id => { state.wishlisted[id] = true })
         } else {
-            // Load guest wishlist from localStorage
-            loadFromStorage().forEach(id => {
-                state.wishlisted[String(id)] = true
-            })
+            loadFromStorage().forEach(id => { state.wishlisted[String(id)] = true })
         }
+
+        state.ready = true
     }
 
     // ─── Toggle ───────────────────────────────────────────────────────────────
@@ -100,35 +126,6 @@ export function useWishlist() {
             localStorage.setItem('guest_wishlist', JSON.stringify(ids))
         } catch {}
     }
-
-    watch(isLoggedIn, async (newVal, oldVal) => {
-        if (oldVal === true && newVal === false) {
-            const ids = Object.keys(state.wishlisted).filter(id => state.wishlisted[id])
-            if (ids.length) {
-                localStorage.setItem('guest_wishlist', JSON.stringify(ids))
-            }
-        }
-
-        const guestIds = Object.keys(state.wishlisted).filter(id => state.wishlisted[id])
-
-        state.ready = false
-        Object.keys(state.wishlisted).forEach(key => delete state.wishlisted[key])
-        Object.keys(state.loading).forEach(key => delete state.loading[key])
-
-        if (newVal === true && oldVal === false && guestIds.length > 0) {
-            try {
-                const { data } = await axios.post(route('api.wishlist.sync'), { item_ids: guestIds })
-                ;(data.wishlisted_ids ?? []).forEach(id => { state.wishlisted[String(id)] = true })
-                localStorage.removeItem('guest_wishlist')
-                state.ready = true
-                return
-            } catch (e) {
-                console.error('[Wishlist] sync failed', e)
-            }
-        }
-
-        setup()
-    })
 
     setup()
 
