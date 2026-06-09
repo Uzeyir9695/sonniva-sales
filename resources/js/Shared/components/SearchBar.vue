@@ -188,10 +188,13 @@ defineExpose({ inputRef });
                         <!-- Stock  + Price-->
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <p class="text-xs sm:text-sm text-brand-500 font-bold mt-0.5">
-                                    {{ getDisplayPrice(item) }} ₾
-                                    <span v-if="getDisplayUOM(item)" class="text-xs font-normal text-gray-400">/ {{ getDisplayUOM(item) }}</span>
-                                </p>
+                                <div class="flex flex-col gap-0.5">
+                                    <span v-if="getDisplayUOM(item)" class="text-xs text-blue-400">შეკვრა</span>
+                                    <p class="text-xs sm:text-sm text-brand-500 font-bold">
+                                        {{ getDisplayPrice(item) }} ₾
+                                        <span v-if="getDisplayUOM(item)" class="text-xs font-normal text-gray-400">/ {{ getDisplayUOM(item) }}</span>
+                                    </p>
+                                </div>
 
                                 <span
                                     class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
