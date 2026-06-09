@@ -9,6 +9,7 @@ import LogoutButton from '@/Shared/components/LogoutButton.vue';
 import CartNavIcon from '@/Shared/components/CartNavIcon.vue';
 import WeglotSwitcher from '@/Shared/components/WeglotSwitcher.vue';
 import UserMenu from '@/Shared/components/UserMenu.vue';
+import GlobalSeoTranslator from '../components/GlobalSeoTranslator.vue';
 
 const page = usePage();
 const user = computed(() => page.props.user);
@@ -99,7 +100,8 @@ const openSearch = async () => {
                     </a>
 
                     <div class="hidden lg:flex items-center gap-1 shrink-0">
-                        <div ref="linguiseMountPoint"></div>
+<!--                        <div ref="linguiseMountPoint"></div>-->
+                        <GlobalSeoTranslator />
 
                         <WishlistNavIcon></WishlistNavIcon>
 
