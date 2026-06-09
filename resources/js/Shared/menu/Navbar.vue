@@ -101,7 +101,7 @@ const openSearch = async () => {
 
                     <div class="hidden lg:flex items-center gap-1 shrink-0">
 <!--                        <div ref="linguiseMountPoint"></div>-->
-                        <GlobalSeoTranslator />
+<!--                        <GlobalSeoTranslator />-->
 
                         <WishlistNavIcon></WishlistNavIcon>
 
