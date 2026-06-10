@@ -7,10 +7,10 @@ const modules = [Autoplay];
 </script>
 
 <template>
-    <div class="grid grid-cols-5 grid-rows-[1fr_1fr_auto] gap-3 px-4 h-[calc(100vh-100px)]">
+    <div class="grid grid-cols-5 gap-3 px-4 h-[calc(100vh-100px)]">
 
         <!-- Frame card 1: col 4-5, row 1 -->
-        <div class="hidden xl:block col-span-3 row-span-2 relative rounded-xl overflow-hidden">
+        <div class="col-span-5 xl:col-span-3 xl:row-span-2 h-full relative rounded-xl overflow-hidden">
             <img src="/frame-examples/fur1.jpeg" alt="frame" class="w-full h-full object-cover" />
         </div>
 
