@@ -131,8 +131,13 @@ class InvoiceController extends Controller
     public function download(string $filename)
     {
         $filename = basename($filename);
-        $path = "invoices/{$filename}";
 
-        return Storage::disk('public')->download($path, $filename);
+        if (str_ends_with($filename, '.pdf')) {
+            return Storage::disk('public')->download("invoices/{$filename}", $filename);
+        }
+
+        $file = "order_{$filename}.pdf";
+
+        return Storage::disk('public')->download("invoices/{$file}", $file);
     }
 }
