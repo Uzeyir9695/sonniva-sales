@@ -22,15 +22,18 @@ export function useWishlist() {
     // ─── Setup ────────────────────────────────────────────────────────────────
 
     function clearState() {
+        state.ready = false
         Object.keys(state.wishlisted).forEach(k => delete state.wishlisted[k])
         Object.keys(state.loading).forEach(k => delete state.loading[k])
-        state.ready = false
     }
 
     function setup() {
         const currentLoginState = isLoggedIn.value
 
         if (state.ready && lastSetupLoginState !== null && lastSetupLoginState !== currentLoginState) {
+            if (lastSetupLoginState === true) {
+                saveToStorage()
+            }
             clearState()
         }
 
@@ -131,7 +134,7 @@ export function useWishlist() {
 
     watch(
         () => ({ ...state.wishlisted }),
-        () => saveToStorage(),
+        () => { if (!isLoggedIn.value && state.ready) saveToStorage() },
         { deep: true }
     )
 
