@@ -4,6 +4,7 @@ import { Link, router } from '@inertiajs/vue3'
 import { useCart } from '@/composables/useCart'
 import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue'
 import InputNumber from 'primevue/inputnumber'
+import { STORAGE_KEYS } from '@/constants/storageKeys'
 
 const props = defineProps({
     cartItems: { type: Array, required: true },
@@ -62,7 +63,7 @@ function calculateTierPrice(item, qty, selectedUOM = null) {
 
 // ─── Selection ────────────────────────────────────────────────────────────────
 
-const SELECTION_KEY = 'cart_selection'
+const SELECTION_KEY = STORAGE_KEYS.cartSelection
 
 const selectedIds = ref([])
 

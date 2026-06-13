@@ -1,7 +1,8 @@
 import { reactive, computed, watch } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import axios from 'axios'
-import { useToast } from 'primevue/usetoast';
+import { useToast } from 'primevue/usetoast'
+import { STORAGE_KEYS } from '@/constants/storageKeys'
 
 const state = reactive({
     items:   {},  // { [cartKey]: quantity } — cartKey = itemId or "itemId__uom"
@@ -71,7 +72,7 @@ export function useCart() {
                     Object.keys(state.uoms).forEach(k => delete state.uoms[k])
                     Object.assign(state.items, data.items ?? {})
                     Object.assign(state.uoms, data.uoms ?? {})
-                    localStorage.removeItem('guest_cart')
+                    localStorage.removeItem(STORAGE_KEYS.guestCart)
                     if (page.component === 'Cart/Index') router.reload({ only: ['cartItems'] })
                 }).catch(() => {})
             }
@@ -250,7 +251,7 @@ export function useCart() {
 
     function loadFromStorage() {
         try {
-            const saved = localStorage.getItem('guest_cart')
+            const saved = localStorage.getItem(STORAGE_KEYS.guestCart)
             if (!saved) return { items: {}, uoms: {} }
             const parsed = JSON.parse(saved)
             if (!parsed.items) return { items: parsed, uoms: {} }
@@ -262,7 +263,7 @@ export function useCart() {
 
     function saveToStorage() {
         try {
-            localStorage.setItem('guest_cart', JSON.stringify({
+            localStorage.setItem(STORAGE_KEYS.guestCart, JSON.stringify({
                 items: state.items,
                 uoms:  state.uoms,
             }))

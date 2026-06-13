@@ -3,6 +3,7 @@
 import { reactive, computed, watch } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
+import { STORAGE_KEYS } from '@/constants/storageKeys'
 
 // Key-value map: { 42: true, 57: false, ... }
 // Much simpler for per-item lookups than an array or Set.
@@ -51,7 +52,7 @@ export function useWishlist() {
                     .then(({ data }) => {
                         Object.keys(state.wishlisted).forEach(k => delete state.wishlisted[k])
                         ;(data.wishlisted_ids ?? []).forEach(id => { state.wishlisted[String(id)] = true })
-                        localStorage.removeItem('guest_wishlist')
+                        localStorage.removeItem(STORAGE_KEYS.guestWishlist)
                     })
                     .catch(() => {})
             }
@@ -115,7 +116,7 @@ export function useWishlist() {
 
     function loadFromStorage() {
         try {
-            const saved = localStorage.getItem('guest_wishlist')
+            const saved = localStorage.getItem(STORAGE_KEYS.guestWishlist)
             return saved ? JSON.parse(saved) : []
         } catch {
             return []
@@ -126,7 +127,7 @@ export function useWishlist() {
         try {
             const ids = Object.keys(state.wishlisted)
                 .filter(id => state.wishlisted[id])
-            localStorage.setItem('guest_wishlist', JSON.stringify(ids))
+            localStorage.setItem(STORAGE_KEYS.guestWishlist, JSON.stringify(ids))
         } catch {}
     }
 
