@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'primevue/usetoast'
 import { useCart } from '@/composables/useCart'
 import PlacesAutocomplete from '@/Shared/components/PlacesAutocomplete.vue'
-import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue';
+import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
+import AutoComplete from 'primevue/autocomplete'
 
 const props = defineProps({
     cartItems: { type: Array, required: true },
@@ -48,35 +49,113 @@ const subtotal = computed(() =>
 // ─── Delivery ─────────────────────────────────────────────────────────────
 
 const deliveryTypes = [
-    { key: 'office',   label: 'თვითგატანა ოფისიდან',   price: 0 },
-    { key: 'tbilisi',  label: 'მიწოდება თბილისში',      price: 70 },
-    { key: 'regions',  label: 'მიწოდება რეგიონებში',    price: 200 },
+    { key: 'office',   label: 'თვითგატანა სონივას ოფისიდან' },
+    { key: 'tbilisi',  label: 'მიწოდება თბილისში' },
+    { key: 'regions',  label: 'მიწოდება რეგიონებში' },
 ]
 
-const selectedDelivery = ref(null)
+const regionOptions = [
+    { key: 'onway_office', label: 'OnWay-ის ფილიალიდან გატანა' },
+    { key: 'address',      label: 'ადგილზე მიტანა' },
+]
 
-const deliveryCost = computed(() => {
-    if (!selectedDelivery.value) return 0
-    if (selectedDelivery.value.key === 'tbilisi' && subtotal.value >= 1000) return 0
-    return selectedDelivery.value.price
+const onwayFilials = [
+    'რუსთავი', 'ბათუმი', 'ზუგდიდი', 'ქუთაისი',
+    'ფოთი', 'ზესტაფონი', 'ხაშური', 'ახალციხე', 'თელავი', 'სამტრედია',
+]
+
+
+const selectedDelivery = ref(null)
+const selectedRegionOption = ref(null)
+const selectedOnwayFilial = ref(null)
+const selectedZone = ref(null)
+const zones = ref([])
+const zoneSuggestions = ref([])
+const zonesLoading = ref(false)
+
+function filterZones(event) {
+    const query = event.query.toLowerCase()
+    zoneSuggestions.value = query
+        ? zones.value.filter(z => z.name.toLowerCase().includes(query))
+        : zones.value
+}
+
+function selectDelivery(type) {
+    selectedDelivery.value = type
+    selectedRegionOption.value = null
+    selectedOnwayFilial.value = null
+    selectedZone.value = null
+}
+
+async function fetchZones() {
+    if (zones.value.length) return
+    zonesLoading.value = true
+    try {
+        const res = await axios.get(route('checkout.onway-regions'))
+        zones.value = res.data.zones ?? []
+    } catch {
+        toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'ზონების ჩატვირთვა ვერ მოხდა', life: 4000 })
+    } finally {
+        zonesLoading.value = false
+    }
+}
+
+watch(selectedRegionOption, (val) => {
+    if (val === 'address') fetchZones()
+    selectedZone.value = null
 })
+
+const deliveryCost = computed(() => 0)
 
 const total = computed(() => subtotal.value + deliveryCost.value)
 
-const freeDeliveryNotice = computed(() =>
-    selectedDelivery.value?.key === 'tbilisi' && subtotal.value >= 1000
+const showAddressField = computed(() =>
+    selectedDelivery.value?.key === 'tbilisi' ||
+    (selectedDelivery.value?.key === 'regions' && selectedRegionOption.value === 'address')
 )
 
 // ─── Payment providers ────────────────────────────────────────────────────
 
 const providers = [
-    { name: 'PCB ბანკი', icon: '/payments/pcb.jpeg', code: 'pcb' },
-    { name: 'BOG ბანკი',     icon: '/payments/bog.png',     code: 'bog' },
-    { name: 'TBC ბანკი',     icon: '/payments/tbc.png',     code: 'tbc' },
-    { name: 'ინვოისით გადახდა', icon: '/payments/invoice-icon.png', code: 'invoice' },
+    { name: 'PCB ბანკი',         icon: '/payments/pcb.jpeg',         code: 'pcb' },
+    { name: 'BOG ბანკი',         icon: '/payments/bog.png',           code: 'bog' },
+    { name: 'TBC ბანკი',         icon: '/payments/tbc.png',           code: 'tbc' },
+    { name: 'ინვოისით გადახდა',  icon: '/payments/invoice-icon.png',  code: 'invoice' },
+    { name: 'ლიმიტით გადახდა',   icon: '',  code: 'limit' },
 ]
 
 const selectedProvider = ref(null)
+
+// ─── Credit limit ─────────────────────────────────────────────────────────
+
+const creditInfo = ref(null)
+const creditLoading = ref(false)
+
+async function fetchCreditInfo() {
+    if (creditInfo.value !== null) return
+    creditLoading.value = true
+    try {
+        const res = await axios.get(route('checkout.credit-info'))
+        creditInfo.value = res.data
+    } catch {
+        creditInfo.value = { has_credit: false, available: 0, limit: 0, used: 0 }
+    } finally {
+        creditLoading.value = false
+    }
+}
+
+watch(selectedProvider, (val) => {
+    if (val?.code === 'limit') fetchCreditInfo()
+})
+
+const canPayWithLimit = computed(() => {
+    if (!creditInfo.value) return false
+    return creditInfo.value.has_credit && creditInfo.value.available >= total.value
+})
+
+const payButtonDisabled = computed(() =>
+    loading.value || (selectedProvider.value?.code === 'limit' && !canPayWithLimit.value)
+)
 
 // ─── Form ─────────────────────────────────────────────────────────────────
 
@@ -102,7 +181,19 @@ function initiatePayment() {
         showError('გთხოვთ აირჩიოთ მიწოდების ტიპი')
         return
     }
-    if (selectedDelivery.value.key !== 'office' && !form.address) {
+    if (selectedDelivery.value.key === 'regions' && !selectedRegionOption.value) {
+        showError('გთხოვთ აირჩიოთ მიწოდების ვარიანტი')
+        return
+    }
+    if (selectedRegionOption.value === 'onway_office' && !selectedOnwayFilial.value) {
+        showError('გთხოვთ აირჩიოთ OnWay ფილიალი')
+        return
+    }
+    if (selectedRegionOption.value === 'address' && !selectedZone.value?.zone_id) {
+        showError('გთხოვთ აირჩიოთ მიწოდების ზონა')
+        return
+    }
+    if (showAddressField.value && !form.address) {
         showError('გთხოვთ შეიყვანოთ მიწოდების მისამართი')
         return
     }
@@ -118,8 +209,10 @@ function initiatePayment() {
     loading.value = true
 
     const data = {
-        delivery_type:    selectedDelivery.value.key,
+        delivery_type:    selectedDelivery.value.key === 'regions' ? selectedRegionOption.value : selectedDelivery.value.key,
         delivery_cost:    deliveryCost.value,
+        onway_filial:     selectedOnwayFilial.value ?? null,
+        zone_id:          selectedZone.value?.zone_id ?? null,
         address:          form.address,
         apartment_number: form.apartment_number,
         comment:          form.comment,
@@ -186,7 +279,7 @@ function initiatePayment() {
                             <button
                                 v-for="type in deliveryTypes"
                                 :key="type.key"
-                                @click="selectedDelivery = type"
+                                @click="selectDelivery(type)"
                                 class="relative flex flex-col items-start gap-1 p-4 rounded-2xl border-2 cursor-pointer transition-all duration-150 text-left"
                                 :class="selectedDelivery?.key === type.key
                                     ? 'border-brand-500 bg-brand-50/50'
@@ -203,42 +296,80 @@ function initiatePayment() {
                                         <div v-if="selectedDelivery?.key === type.key" class="w-2 h-2 rounded-full bg-brand-500"></div>
                                     </div>
                                 </div>
-                                <span class="text-xs" :class="type.price === 0 ? 'text-emerald-600 font-medium' : 'text-gray-400'">
-                                    {{ type.price === 0 ? 'უფასო' : type.price + ' ₾' }}
-                                </span>
                             </button>
-                        </div>
-
-                        <!-- Free delivery notice -->
-                        <div
-                            v-if="freeDeliveryNotice"
-                            class="mt-3 flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 px-3 py-2 rounded-xl"
-                        >
-                            <i class="pi pi-check-circle"></i>
-                            შეკვეთა 1000₾-ზე მეტია — თბილისში მიწოდება უფასოა!
-                        </div>
-
-                        <!-- Tbilisi free delivery hint -->
-                        <div
-                            v-else-if="selectedDelivery?.key === 'tbilisi' && subtotal < 1000"
-                            class="mt-3 flex items-center gap-2 text-xs text-gray-400 bg-gray-50 px-3 py-2 rounded-xl"
-                        >
-                            <i class="pi pi-info-circle"></i>
-                            1000₾-ზე მეტ შეკვეთაზე თბილისში მიწოდება უფასოა
                         </div>
                     </div>
 
                     <!-- Address -->
-                    <div
-                        v-if="selectedDelivery && selectedDelivery.key !== 'office'"
-                        class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
-                    >
+                    <div v-if="selectedDelivery?.key !== 'office'" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-map-marker text-brand-500"></i>
-                            მიწოდების მისამართი
+                            მიწოდების დეტალები
                         </h2>
 
-                        <div class="space-y-4">
+                        <!-- Region sub-options -->
+                        <div v-if="selectedDelivery?.key === 'regions'" class="my-6 space-y-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <button
+                                    v-for="option in regionOptions"
+                                    :key="option.key"
+                                    @click="selectedRegionOption = option.key; selectedOnwayFilial = null"
+                                    class="flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all duration-150 text-left"
+                                    :class="selectedRegionOption === option.key
+                                        ? 'border-brand-500 bg-brand-50/50'
+                                        : 'border-gray-100 hover:border-gray-200 bg-white'"
+                                >
+                                    <span class="text-sm font-semibold text-gray-800">{{ option.label }}</span>
+                                    <div
+                                        class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0"
+                                        :class="selectedRegionOption === option.key ? 'border-brand-500' : 'border-gray-300'"
+                                    >
+                                        <div v-if="selectedRegionOption === option.key" class="w-2 h-2 rounded-full bg-brand-500"></div>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- OnWay filial picker -->
+                            <div v-if="selectedRegionOption === 'onway_office'">
+                                <label for="select-filial" class="font-bold text-gray-700  text-sm mb-2 mt-5 block">
+                                    აირჩიეთ OnWay-ის ფილიალი
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <Select
+                                    v-model="selectedOnwayFilial"
+                                    inputId="select-filial"
+                                    :options="onwayFilials"
+                                    placeholder="არჩევა"
+                                    class="w-full"
+                                />
+                            </div>
+
+                            <!-- Zone picker for address delivery -->
+                            <div v-if="selectedRegionOption === 'address'">
+                                <label for="select-region" class="font-bold text-gray-700  text-sm mb-2 mt-5 block">
+                                    აირჩიეთ ქალაქი/რაიონიო/სოფელი <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none text-sm"></i>
+                                    <AutoComplete
+                                        v-model="selectedZone"
+                                        inputId="select-region"
+                                        :suggestions="zoneSuggestions"
+                                        option-label="name"
+                                        dropdown
+                                        placeholder="ძებნა..."
+                                        :loading="zonesLoading"
+                                        force-selection
+                                        class="w-full rounded-l-xl"
+                                        input-class="w-full rounded-l-xl"
+                                        @complete="filterZones"
+                                        emptySearchMessage="ვერ მოიძებნა"
+                                        :pt="{ pcInputText: { root: { class: 'pl-8' } }, dropdown: { class: 'rounded-r-xl' } }"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="showAddressField" class="space-y-6">
                             <PlacesAutocomplete v-model="form.address" />
 
                             <PrimeInputText
@@ -303,10 +434,13 @@ function initiatePayment() {
                                     : 'border-gray-100 hover:border-gray-200 bg-white'"
                             >
                                 <img
+                                    v-if="provider.code !== 'limit'"
                                     :src="provider.icon"
                                     :alt="provider.name"
                                     class="w-8 h-8 object-contain rounded-lg shrink-0"
                                 />
+
+                                <i v-else class="pi pi-credit-card text-2xl"></i>
                                 <span class="text-sm font-semibold text-gray-800">{{ provider.name }}</span>
                                 <div class="ml-auto">
                                     <div
@@ -325,6 +459,57 @@ function initiatePayment() {
                         <div class="mt-4 flex items-center gap-3">
                             <img src="/payments/payment-cards.jpeg" class="h-6 object-contain rounded" alt="payment cards" />
                             <span class="text-xs text-gray-400">Visa, Mastercard</span>
+                        </div>
+
+                        <!-- Credit limit info -->
+                        <div v-if="selectedProvider?.code === 'limit'" class="mt-4">
+                            <div v-if="creditLoading" class="flex items-center gap-2 text-sm text-gray-400 bg-gray-50 px-3 py-3 rounded-xl">
+                                <i class="pi pi-spinner pi-spin"></i>
+                                მიმდინარეობს ლიმიტის შემოწმება...
+                            </div>
+                            <template v-else-if="creditInfo">
+                                <!-- No credit at all -->
+                                <div v-if="!creditInfo.has_credit" class="flex items-start gap-2 text-xs text-red-600 bg-red-50 px-3 py-3 rounded-xl">
+                                    <i class="pi pi-times-circle mt-0.5 shrink-0"></i>
+                                    <span>თქვენ არ გაქვთ განსაზღვრული ლიმიტი. დაინტერესების შემთხვევაში დაგვიკავშირდით.</span>
+                                </div>
+                                <!-- Has credit but not enough / Enough credit -->
+                                <div v-else class="rounded-xl border border-gray-100 divide-y divide-gray-100 overflow-hidden text-xs">
+                                    <div v-if="!canPayWithLimit" class="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-500">
+                                        <i class="pi pi-info-circle shrink-0"></i>
+                                        <span>არასაკმარისი ლიმიტი!</span>
+                                    </div>
+                                    <div class="flex items-center justify-between px-3 py-2 bg-gray-50">
+                                        <span class="flex items-center gap-1.5 text-gray-500">
+                                            <i class="fa-solid fa-hourglass-start text-lg"></i>
+                                            ლიმიტი
+                                        </span>
+                                        <strong class="text-gray-700">{{ formatted(creditInfo.limit) }} ₾</strong>
+                                    </div>
+                                    <div class="flex items-center justify-between px-3 py-2 bg-white">
+                                        <span class="flex items-center gap-1.5 text-orange-500">
+                                            <i class="fa-solid fa-hourglass-end text-lg"></i>
+                                            გამოყენებული
+                                        </span>
+                                        <strong class="text-orange-600">{{ formatted(creditInfo.used) }} ₾</strong>
+                                    </div>
+                                    <div class="bg-emerald-50 flex items-center justify-between px-3 py-2">
+                                        <span class="text-emerald-600 flex items-center gap-1.5">
+<!--                                            <i class="pi pi-check-circle"></i>-->
+                                            <i class="fa-solid fa-hourglass-half text-lg"></i>
+                                            ხელმისაწვდომი
+                                        </span>
+                                        <strong class="text-emerald-700">{{ formatted(creditInfo.available) }} ₾</strong>
+                                    </div>
+                                    <div v-if="!canPayWithLimit" class="bg-amber-50 flex items-center justify-between px-3 py-2">
+                                        <span class="text-amber-600 flex items-center gap-1.5">
+                                            <i class="pi pi-wallet"></i>
+                                            გადასახდელი თანხა
+                                        </span>
+                                        <strong class="text-amber-700">{{ formatted(creditInfo.available) }} ₾</strong>
+                                    </div>
+                                </div>
+                            </template>
                         </div>
                     </div>
 
@@ -398,10 +583,10 @@ function initiatePayment() {
                         <!-- Pay button -->
                         <button
                             @click="initiatePayment"
-                            :disabled="loading"
+                            :disabled="payButtonDisabled"
                             class="w-full py-3.5 rounded-2xl font-semibold text-sm transition-all shadow-md cursor-pointer
                                    active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-                            :class="loading
+                            :class="payButtonDisabled
                                 ? 'bg-brand-400 text-white'
                                 : 'bg-brand-500 hover:bg-brand-400 text-white'"
                         >

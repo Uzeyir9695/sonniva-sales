@@ -393,4 +393,36 @@ class BusinessCentralService
 
         return $response->json();
     }
+
+    public function getCustomerCreditInfo(string $taxId): array
+    {
+        $token = $this->getAccessToken();
+
+        $response = Http::withToken($token)
+            ->get($this->baseUrl."904668f4-6aa7-44ce-8285-5c27b33faeeb/Production/ODataV4/Company('SONNIVA')/Customers", [
+                '$filter' => "VAT_Registration_No eq '57001013099'",
+                '$select' => 'Balance_Due_LCY,Credit_Limit_LCY',
+            ]);
+
+        if ($response->failed()) {
+            throw new \Exception('Customer credit info fetch failed: '.$response->body());
+        }
+
+        $customer = $response->json()['value'][0] ?? null;
+
+        if (! $customer) {
+            return ['has_credit' => false, 'available' => 0, 'limit' => 0, 'used' => 0];
+        }
+
+        $limit = (float) $customer['Credit_Limit_LCY'];
+        $used = (float) $customer['Balance_Due_LCY'];
+        $available = max(0, $limit - $used);
+
+        return [
+            'has_credit' => $limit > 0.01,
+            'limit' => round($limit, 2),
+            'used' => round($used, 2),
+            'available' => round($available, 2),
+        ];
+    }
 }

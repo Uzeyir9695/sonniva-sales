@@ -30,7 +30,7 @@ const doFetch = debounce(async (input, seq) => {
     try {
         const body = {
             input,
-            includedRegionCodes: ['GE', 'DE', 'FR']
+            includedRegionCodes: ['GE']
         };
         const resp = await fetch(`https://places.googleapis.com/v1/places:autocomplete?key=${GOOGLE_API_KEY}`, {
             method: "POST",
@@ -66,7 +66,7 @@ function selectSuggestion(item) {
     <div class="w-full">
         <FloatLabel variant="on">
             <PrimeInputText id="city" class="py-2.5!" v-model="query" @input="onInput" />
-            <label for="city">მისამართი <span class="text-red-500">*</span></label>
+            <label for="city" class="text-sm">დააზუსტეთ მისამართი <span class="text-red-500">*</span></label>
         </FloatLabel>
         <ul v-if="suggestions.length" class="border rounded-md bg-white mt-2 shadow-md">
             <li

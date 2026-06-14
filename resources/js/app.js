@@ -166,6 +166,8 @@ createInertiaApp({
 
                 select: {
                     listContainer: {class: 'text-sm'},
+                    root: {class: 'rounded-xl focus-within:border-brand-400'},
+                    pcFilter: {root: {class: 'rounded-xl'}},
                 },
 
                 // ── InputText ──────────────────────────────────────

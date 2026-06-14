@@ -127,6 +127,8 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::get('/checkout/onway-regions', [CheckoutController::class, 'onwayRegions'])->name('checkout.onway-regions');
+    Route::get('/checkout/credit-info', [CheckoutController::class, 'creditInfo'])->name('checkout.credit-info');
 
     /*******************************************************************************************************************
      * Payment Route
