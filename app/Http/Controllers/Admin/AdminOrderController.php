@@ -30,8 +30,8 @@ class AdminOrderController extends Controller
             ->where('status', $status)
             ->when($status === 'pending' && $request->filled('start_date'), fn ($q) => $q->whereDate('invoiced_at', '>=', $request->start_date))
             ->when($status === 'pending' && $request->filled('end_date'), fn ($q) => $q->whereDate('invoiced_at', '<=', $request->end_date))
-            ->when($status === 'paid' && $request->filled('start_date'), fn ($q) => $q->whereDate('approved_at', '>=', $request->start_date))
-            ->when($status === 'paid' && $request->filled('end_date'), fn ($q) => $q->whereDate('approved_at', '<=', $request->end_date))
+            ->when(in_array($status, ['paid', 'limit']) && $request->filled('start_date'), fn ($q) => $q->whereDate('approved_at', '>=', $request->start_date))
+            ->when(in_array($status, ['paid', 'limit']) && $request->filled('end_date'), fn ($q) => $q->whereDate('approved_at', '<=', $request->end_date))
             ->when($status === 'ready' && $request->filled('approved_start'), fn ($q) => $q->whereDate('approved_at', '>=', $request->approved_start))
             ->when($status === 'ready' && $request->filled('approved_end'), fn ($q) => $q->whereDate('approved_at', '<=', $request->approved_end))
             ->when($status === 'ready' && $request->filled('ready_start'), fn ($q) => $q->whereDate('ready_at', '>=', $request->ready_start))
@@ -65,11 +65,11 @@ class AdminOrderController extends Controller
 
         $unseenCounts = Order::selectRaw('status, count(*) as count')
             ->whereNull('seen_at')
-            ->whereIn('status', ['pending', 'paid'])
+            ->whereIn('status', ['pending', 'paid', 'limit'])
             ->groupBy('status')
             ->pluck('count', 'status');
 
-        if (in_array($status, ['pending', 'paid'])) {
+        if (in_array($status, ['pending', 'paid', 'limit'])) {
             Order::where('status', $status)->whereNull('seen_at')->update(['seen_at' => now()]);
         }
 

@@ -64,10 +64,13 @@ function selectSuggestion(item) {
 
 <template>
     <div class="w-full">
-        <FloatLabel variant="on">
-            <PrimeInputText id="city" class="py-2.5!" v-model="query" @input="onInput" />
-            <label for="city" class="text-sm">დააზუსტეთ მისამართი <span class="text-red-500">*</span></label>
-        </FloatLabel>
+        <div>
+            <label for="city" class="text-sm font-semibold">
+                ზუსტი მისამართი
+                <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
+            </label>
+            <PrimeInputText id="city" class="py-2.5! mt-2" v-model="query" placeholder="მისამართი" @input="onInput" />
+        </div>
         <ul v-if="suggestions.length" class="border rounded-md bg-white mt-2 shadow-md">
             <li
                 v-for="(item, i) in suggestions"

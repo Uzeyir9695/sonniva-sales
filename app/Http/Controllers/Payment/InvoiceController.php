@@ -27,6 +27,22 @@ class InvoiceController extends Controller
 
     public function initiateInvoice(Request $request): RedirectResponse
     {
+        $result = $this->createOrder($request, 'pending', 'invoice');
+
+        $this->generatePDF($result['order']->load('items'), $result['invoiceNo'], $result['payment']);
+
+        return to_route('payment.invoice.success', ['invoice' => $result['invoiceNo']]);
+    }
+
+    public function initiateLimit(Request $request): RedirectResponse
+    {
+        $result = $this->createOrder($request, 'limit', 'limit');
+
+        return to_route('payment.limit.success', ['invoice' => $result['invoiceNo']]);
+    }
+
+    private function createOrder(Request $request, string $status, string $provider): array
+    {
         try {
             $calc = $this->calculatorService->calculate(
                 $request->cart_ids,
@@ -34,7 +50,7 @@ class InvoiceController extends Controller
                 auth()->id()
             );
         } catch (\InvalidArgumentException $e) {
-            return back()->withErrors(['message' => $e->getMessage()]);
+            back()->withErrors(['message' => $e->getMessage()]);
         }
 
         do {
@@ -48,21 +64,27 @@ class InvoiceController extends Controller
             ->whereDoesntHave('payment', fn ($q) => $q->where('status', 'completed'))
             ->delete();
 
-        DB::transaction(function () use ($request, $calc, $invoiceNo, &$order, &$payment) {
-            $order = Order::create([
+        $order = $payment = null;
+
+        DB::transaction(function () use ($request, $calc, $invoiceNo, $status, $provider, &$order, &$payment) {
+            $orderData = [
                 'user_id' => auth()->id(),
                 'invoice_no' => $invoiceNo,
-                'status' => 'pending',
-                'invoiced_at' => now(),
+                'status' => $status,
                 'delivery_type' => $request->delivery_type,
                 'delivery_cost' => $calc['delivery_cost'],
+                'city' => $request->city,
                 'address' => $request->address,
                 'apartment_number' => $request->apartment_number,
                 'comment' => $request->comment,
                 'subtotal' => $calc['subtotal'],
                 'wholesale_discount' => $calc['wholesale_discount'],
                 'total' => $calc['total'],
-            ]);
+            ];
+
+            $orderData[$provider === 'limit' ? 'approved_at' : 'invoiced_at'] = now();
+
+            $order = Order::create($orderData);
 
             foreach ($calc['items'] as $item) {
                 OrderItem::create([
@@ -79,9 +101,9 @@ class InvoiceController extends Controller
                 'user_id' => auth()->id(),
                 'order_id' => $order->id,
                 'invoice_no' => $invoiceNo,
-                'provider' => 'invoice',
+                'provider' => $provider,
                 'amount' => $calc['total'],
-                'status' => 'pending',
+                'status' => $provider === 'limit' ? 'completed' : 'pending',
             ]);
         });
 
@@ -89,9 +111,7 @@ class InvoiceController extends Controller
             ->whereIn('id', $request->cart_ids)
             ->delete();
 
-        $this->generatePDF($order->load('items'), $invoiceNo, $payment);
-
-        return to_route('payment.invoice.success', ['invoice' => $invoiceNo]);
+        return ['order' => $order, 'invoiceNo' => $invoiceNo, 'payment' => $payment];
     }
 
     public function generatePDF($orderItems, $invoiceNumber, $payment): void
@@ -119,11 +139,20 @@ class InvoiceController extends Controller
         });
     }
 
-    public function success($invoice): Response
+    public function success(string $invoice): Response
     {
         session()->forget('invoice_no');
 
         return Inertia::render('Payment/InvoiceSuccess', [
+            'invoiceNumber' => $invoice,
+        ]);
+    }
+
+    public function limitSuccess(string $invoice): Response
+    {
+        session()->forget('invoice_no');
+
+        return Inertia::render('Payment/LimitSuccess', [
             'invoiceNumber' => $invoice,
         ]);
     }

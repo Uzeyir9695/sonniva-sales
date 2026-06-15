@@ -1,16 +1,20 @@
 import { computed, toValue } from 'vue'
 
 // Plain helpers for use inside v-for loops (SearchBar, etc.)
+function visiblePrices(item) {
+    return (item?.prices ?? []).filter(p => p.priceGroup !== 'Wholesales')
+}
+
 export function getDisplayPrice(item) {
-    return item?.unit_price == 0 && item?.prices?.length
-        ? item.prices[0]?.price ?? null
-        : item?.unit_price
+    if (item?.unit_price != 0) return item?.unit_price
+    const prices = visiblePrices(item)
+    return prices[0]?.price ?? null
 }
 
 export function getDisplayUOM(item) {
-    return item?.unit_price == 0 && item?.prices?.length
-        ? item.prices[0]?.UOM ?? null
-        : null
+    if (item?.unit_price != 0) return null
+    const prices = visiblePrices(item)
+    return prices[0]?.UOM ?? null
 }
 
 // Pass item as a getter: usePricing(() => props.item)
@@ -23,7 +27,9 @@ export function usePricing(item) {
         return i?.unit_price == 0 && i?.prices?.length > 0
     })
 
-    const prices = computed(() => get()?.prices ?? [])
+    const prices = computed(() =>
+        (get()?.prices ?? []).filter(p => p.priceGroup !== 'Wholesales')
+    )
 
     const displayPrice = computed(() =>
         isPackageItem.value ? prices.value[0]?.price ?? null : get()?.unit_price

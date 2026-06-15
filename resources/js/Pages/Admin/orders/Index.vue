@@ -101,6 +101,7 @@ function resetApprovedAtReady() {
 
 const tabs = [
     { label: 'Invoiced',  value: 'pending',   badge: true,  icon: 'pi-clock' },
+    { label: 'Limit',     value: 'limit',     badge: true,  icon: 'pi-credit-card' },
     { label: 'Paid',      value: 'paid',      badge: true,  icon: 'pi-check-circle' },
     { label: 'Ready',     value: 'ready',     badge: false, icon: 'pi-box' },
     { label: 'Cancelled', value: 'cancelled', badge: false, icon: 'pi-times-circle' },
@@ -121,6 +122,7 @@ function switchTab(value) {
 const statusSeverity = {
     awaiting_payment: 'secondary',
     pending:          'warn',
+    limit:            'info',
     paid:             'info',
     ready:            'success',
     cancelled:        'danger',
@@ -137,6 +139,7 @@ const providerLabel = {
     tbc:     'TBC',
     pcb:     'ProCredit',
     invoice: 'Invoice',
+    limit:   'Limit',
 };
 
 const filters = ref({
@@ -420,6 +423,26 @@ function confirmMarkReady(order, informUser) {
                         <template #filtericon />
                     </Column>
 
+                    <Column v-if="status === 'limit'" header="Approved At" style="min-width: 14rem">
+                        <template #body="{ data }">{{ data.approved_at ?? '—' }}</template>
+                        <template #filter>
+                            <DatePicker
+                                v-model="approvedAtDates"
+                                showIcon showButtonBar
+                                @clear-click="resetApprovedAt"
+                                @update:modelValue="filterByApprovedAt"
+                                placeholder="DD/MM/YY"
+                                selectionMode="range"
+                                hideOnRangeSelection
+                                size="small"
+                                :maxDate="new Date()"
+                                :manualInput="false"
+                                inputClass="py-0.5 text-xs"
+                            />
+                        </template>
+                        <template #filtericon />
+                    </Column>
+
                     <Column v-if="status === 'paid'" header="Approved At" style="min-width: 14rem">
                         <template #body="{ data }">{{ data.approved_at ?? '—' }}</template>
                         <template #filter>
@@ -505,7 +528,7 @@ function confirmMarkReady(order, informUser) {
                                     v-tooltip.top="'Mark Paid'"
                                 />
                                 <Button
-                                    v-if="data.status === 'paid'"
+                                    v-if="data.status === 'paid' || data.status === 'limit'"
                                     icon="pi pi-box"
                                     size="small"
                                     variant="text"

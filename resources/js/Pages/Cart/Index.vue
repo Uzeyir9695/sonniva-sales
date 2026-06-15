@@ -45,13 +45,23 @@ async function handleRemove(cartItem) {
 
 const formatted = (val) => Number(val).toFixed(2)
 
+function getRetailPrice(item, selectedUOM = null) {
+    if (item.unit_price > 0) return item.unit_price
+    if (!selectedUOM || !item.prices?.length) return null
+    return item.prices.find(p => p.UOM === selectedUOM && p.priceGroup !== 'Wholesales')?.price ?? null
+}
+
 function calculateTierPrice(item, qty, selectedUOM = null) {
     if (!item) return 0
     if (!item.prices?.length) return item.unit_price
 
-    // Package items: price is determined by which UOM was selected, not by quantity
+    // Package items: price determined by selected UOM, with optional quantity-based wholesale
     if (item.unit_price == 0 && selectedUOM) {
-        return item.prices.find(p => p.UOM === selectedUOM)?.price ?? item.prices[0]?.price ?? 0
+        const entry = [...item.prices]
+            .filter(p => p.UOM === selectedUOM)
+            .sort((a, b) => b.custMinQuantity - a.custMinQuantity)
+            .find(p => qty >= p.custMinQuantity)
+        return entry?.price ?? 0
     }
 
     // Regular items: tier pricing by quantity
@@ -263,10 +273,10 @@ function goToCheckout() {
 
                                 <div class="flex items-center gap-2 mt-1">
                                     <span
-                                        v-if="cartItem.item.unit_price > 0 && calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id), cartItem.selected_uom) < cartItem.item.unit_price"
+                                        v-if="getRetailPrice(cartItem.item, cartItem.selected_uom) !== null && calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom) < getRetailPrice(cartItem.item, cartItem.selected_uom)"
                                         class="text-sm text-gray-400 line-through"
                                     >
-                                        {{ formatted(cartItem.item.unit_price) }} ₾
+                                        {{ formatted(getRetailPrice(cartItem.item, cartItem.selected_uom)) }} ₾
                                     </span>
                                     <p class="text-brand-500 font-bold text-base"
                                        :class="cartItem.item.inventory <= 0 ? ' opacity-60' : ''"
@@ -313,11 +323,11 @@ function goToCheckout() {
 
                                     <!-- Savings badge -->
                                     <span
-                                        v-if="cartItem.item.unit_price > 0 && calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom) < cartItem.item.unit_price"
+                                        v-if="getRetailPrice(cartItem.item, cartItem.selected_uom) !== null && calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom) < getRetailPrice(cartItem.item, cartItem.selected_uom)"
                                         class="flex items-center text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full"
                                     >
                                         <i class="pi pi-tag text-xs mr-1"></i>
-                                        დანაზოგი: {{ formatted((cartItem.item.unit_price - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
+                                        დანაზოგი: {{ formatted((getRetailPrice(cartItem.item, cartItem.selected_uom) - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
                                     </span>
 
                                     <p v-if="overLimit(cartItem)" class="text-xs text-red-600">

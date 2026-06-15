@@ -93,6 +93,7 @@ class PaymentController extends Controller
                 'status' => 'awaiting_payment',
                 'delivery_type' => $request->delivery_type,
                 'delivery_cost' => $calc['delivery_cost'],
+                'city' => $request->city,
                 'address' => $request->address,
                 'apartment_number' => $request->apartment_number,
                 'comment' => $request->comment,

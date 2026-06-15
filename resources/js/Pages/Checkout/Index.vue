@@ -20,9 +20,13 @@ const { getQuantity } = useCart()
 function calculateTierPrice(item, qty, selectedUOM = null) {
     if (!item.prices?.length) return item.unit_price
 
-    // Package item: price fixed by UOM, not quantity tier
+    // Package item: price determined by selected UOM, with optional quantity-based wholesale
     if (item.unit_price == 0 && selectedUOM) {
-        return item.prices.find(p => p.UOM === selectedUOM)?.price ?? item.prices[0]?.price ?? 0
+        const entry = [...item.prices]
+            .filter(p => p.UOM === selectedUOM)
+            .sort((a, b) => b.custMinQuantity - a.custMinQuantity)
+            .find(p => qty >= p.custMinQuantity)
+        return entry?.price ?? 0
     }
 
     const tier = [...item.prices]
@@ -189,7 +193,7 @@ function initiatePayment() {
         showError('გთხოვთ აირჩიოთ OnWay ფილიალი')
         return
     }
-    if (selectedRegionOption.value === 'address' && !selectedZone.value?.zone_id) {
+    if (selectedRegionOption.value === 'address' && !selectedZone.value) {
         showError('გთხოვთ აირჩიოთ მიწოდების ზონა')
         return
     }
@@ -208,11 +212,12 @@ function initiatePayment() {
 
     loading.value = true
 
+    const city = selectedOnwayFilial.value ?? selectedZone.value?.name ?? null
+
     const data = {
-        delivery_type:    selectedDelivery.value.key === 'regions' ? selectedRegionOption.value : selectedDelivery.value.key,
+        delivery_type:    selectedDelivery.value.key,
         delivery_cost:    deliveryCost.value,
-        onway_filial:     selectedOnwayFilial.value ?? null,
-        zone_id:          selectedZone.value?.zone_id ?? null,
+        city:             city,
         address:          form.address,
         apartment_number: form.apartment_number,
         comment:          form.comment,
@@ -222,6 +227,14 @@ function initiatePayment() {
 
     if (selectedProvider.value.code === 'invoice') {
         router.post(route('initiate.payment.invoice'), data, {
+            onSuccess: () => { loading.value = false },
+            onError: (err) => {
+                showError(err?.message || 'დაფიქსირდა შეცდომა')
+                loading.value = false
+            },
+        })
+    } else if (selectedProvider.value.code === 'limit') {
+        router.post(route('initiate.payment.limit'), data, {
             onSuccess: () => { loading.value = false },
             onError: (err) => {
                 showError(err?.message || 'დაფიქსირდა შეცდომა')
@@ -273,6 +286,7 @@ function initiatePayment() {
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-truck text-brand-500"></i>
                             მიწოდების ტიპი
+                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
                         </h2>
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -304,7 +318,8 @@ function initiatePayment() {
                     <div v-if="selectedDelivery?.key !== 'office'" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-map-marker text-brand-500"></i>
-                            მიწოდების დეტალები
+                            მიწოდების მისამართი
+                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
                         </h2>
 
                         <!-- Region sub-options -->
@@ -331,9 +346,9 @@ function initiatePayment() {
 
                             <!-- OnWay filial picker -->
                             <div v-if="selectedRegionOption === 'onway_office'">
-                                <label for="select-filial" class="font-bold text-gray-700  text-sm mb-2 mt-5 block">
+                                <label for="select-filial" class="flex items-center-safe font-bold text-gray-700  text-sm mb-2 mt-5">
                                     აირჩიეთ OnWay-ის ფილიალი
-                                    <span class="text-red-500">*</span>
+                                    <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
                                 </label>
                                 <Select
                                     v-model="selectedOnwayFilial"
@@ -347,7 +362,9 @@ function initiatePayment() {
                             <!-- Zone picker for address delivery -->
                             <div v-if="selectedRegionOption === 'address'">
                                 <label for="select-region" class="font-bold text-gray-700  text-sm mb-2 mt-5 block">
-                                    აირჩიეთ ქალაქი/რაიონიო/სოფელი <span class="text-red-500">*</span></label>
+                                    აირჩიეთ ქალაქი/რაიონიო/სოფელი
+                                    <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
+                                </label>
                                 <div class="relative">
                                     <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none text-sm"></i>
                                     <AutoComplete
@@ -406,7 +423,6 @@ function initiatePayment() {
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-comment text-brand-500"></i>
                             კომენტარი
-                            <span class="text-xs text-gray-400 font-normal">(არასავალდებულო)</span>
                         </h2>
                         <Textarea
                             v-model="form.comment"
@@ -421,6 +437,7 @@ function initiatePayment() {
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-credit-card text-brand-500"></i>
                             გადახდის მეთოდი
+                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
                         </h2>
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -506,7 +523,7 @@ function initiatePayment() {
                                             <i class="pi pi-wallet"></i>
                                             გადასახდელი თანხა
                                         </span>
-                                        <strong class="text-amber-700">{{ formatted(creditInfo.available) }} ₾</strong>
+                                        <strong class="text-amber-700">{{ formatted(total) }} ₾</strong>
                                     </div>
                                 </div>
                             </template>
@@ -519,6 +536,7 @@ function initiatePayment() {
                         <label for="agreement" class="text-sm text-gray-600 cursor-pointer leading-relaxed">
                             ვეთანხმები
                             <a :href="route('terms-of-service')" target="_blank" class="text-brand-500 hover:underline">წესებსა და პირობებს</a>
+                            <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
                         </label>
                     </div>
 

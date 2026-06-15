@@ -44,7 +44,10 @@ class OrderCalculatorService
             $unitPrice = $this->tierPrice($cartRow->item, $qty, $cartRow->selected_uom);
             $rowTotal = $unitPrice * $qty;
             $subtotal += $rowTotal;
-            $wholesaleDiscount += ($cartRow->item->unit_price - $unitPrice) * $qty;
+            $retailPrice = $this->retailPrice($cartRow->item, $cartRow->selected_uom);
+            if ($retailPrice !== null) {
+                $wholesaleDiscount += ($retailPrice - $unitPrice) * $qty;
+            }
 
             $itemsData[] = [
                 'item_id' => $cartRow->item_id,
@@ -66,17 +69,36 @@ class OrderCalculatorService
         ];
     }
 
+    private function retailPrice(Item $item, ?string $uom): ?float
+    {
+        if ($item->unit_price > 0) {
+            return (float) $item->unit_price;
+        }
+
+        if (! $uom || empty($item->prices)) {
+            return null;
+        }
+
+        $entry = collect($item->prices)
+            ->first(fn ($p) => $p['UOM'] === $uom && $p['priceGroup'] === 'Retail');
+
+        return $entry ? (float) $entry['price'] : null;
+    }
+
     private function tierPrice(Item $item, int $qty, ?string $uom = null): float
     {
         if (empty($item->prices)) {
             return $item->unit_price;
         }
 
-        // Package item: price is fixed per selected UOM, not quantity-tiered
+        // Package item: price determined by selected UOM, with optional quantity-based wholesale
         if ($item->unit_price == 0 && $uom) {
-            $entry = collect($item->prices)->first(fn ($p) => $p['UOM'] === $uom);
+            $entry = collect($item->prices)
+                ->filter(fn ($p) => $p['UOM'] === $uom)
+                ->sortByDesc('custMinQuantity')
+                ->first(fn ($p) => $qty >= $p['custMinQuantity']);
 
-            return $entry['price'] ?? $item->prices[0]['price'] ?? 0;
+            return $entry ? (float) $entry['price'] : 0;
         }
 
         $tier = collect($item->prices)

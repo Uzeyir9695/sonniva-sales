@@ -143,6 +143,9 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
 
     Route::get('/payment/invoice/{invoice}', [InvoiceController::class, 'success'])->name('payment.invoice.success');
 
+    Route::post('/initiate/payment/limit', [InvoiceController::class, 'initiateLimit'])->name('initiate.payment.limit');
+    Route::get('/payment/limit/{invoice}', [InvoiceController::class, 'limitSuccess'])->name('payment.limit.success');
+
     Route::get('/pro-credit-bank/order-details', [PaymentController::class, 'proCreditBankCallback'])->name('payment.pcb.order.details');
 
 });
