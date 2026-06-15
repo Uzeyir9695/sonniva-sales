@@ -133,9 +133,11 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
     /*******************************************************************************************************************
      * Payment Route
      * *****************************************************************************************************************/
-    Route::post('/payment/initiate', [PaymentController::class, 'initiate'])->name('payment.initiate');
-
-    Route::post('/initiate/payment/invoice', [InvoiceController::class, 'initiateInvoice'])->name('initiate.payment.invoice');
+    Route::middleware('can:access-admin')->group(function () {
+        Route::post('/payment/initiate', [PaymentController::class, 'initiate'])->name('payment.initiate');
+        Route::post('/initiate/payment/invoice', [InvoiceController::class, 'initiateInvoice'])->name('initiate.payment.invoice');
+        Route::post('/initiate/payment/limit', [InvoiceController::class, 'initiateLimit'])->name('initiate.payment.limit');
+    });
 
     Route::get('/payment/success/{provider}', [PaymentController::class, 'success'])->name('payment.success');
 
@@ -143,7 +145,6 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
 
     Route::get('/payment/invoice/{invoice}', [InvoiceController::class, 'success'])->name('payment.invoice.success');
 
-    Route::post('/initiate/payment/limit', [InvoiceController::class, 'initiateLimit'])->name('initiate.payment.limit');
     Route::get('/payment/limit/{invoice}', [InvoiceController::class, 'limitSuccess'])->name('payment.limit.success');
 
     Route::get('/pro-credit-bank/order-details', [PaymentController::class, 'proCreditBankCallback'])->name('payment.pcb.order.details');
