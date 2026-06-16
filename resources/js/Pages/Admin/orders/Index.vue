@@ -323,6 +323,7 @@ function confirmMarkReady(order, informUser) {
                     class="text-sm"
                     v-model:filters="filters"
                     filterDisplay="row"
+                    scrollable
                 >
                     <template #header>
                         <div class="flex items-center gap-2">
@@ -340,7 +341,7 @@ function confirmMarkReady(order, informUser) {
                         </template>
                     </Column>
 
-                    <Column field="invoice_no" header="Invoice" style="min-width: 10rem">
+                    <Column field="invoice_no" header="Invoice" frozen style="min-width: 10rem">
                         <template #body="{ data }">
                             <span class="font-mono text-xs">{{ data.invoice_no ?? '—' }}</span>
                         </template>
@@ -391,15 +392,6 @@ function confirmMarkReady(order, informUser) {
                         </template>
                     </Column>
 
-                    <Column field="status" header="Status">
-                        <template #body="{ data }">
-                            <Tag
-                                :value="data.status"
-                                :severity="statusSeverity[data.status]"
-                                class="capitalize"
-                            />
-                        </template>
-                    </Column>
 
                     <Column v-if="status === 'cancelled'" field="created_at" header="Date" style="min-width: 7rem" />
 
@@ -503,7 +495,7 @@ function confirmMarkReady(order, informUser) {
                         <template #filtericon />
                     </Column>
 
-                    <Column header="Actions">
+                    <Column header="Actions" frozen alignFrozen="right">
                         <template #body="{ data }">
                             <div class="flex items-center gap-1">
                                 <Button

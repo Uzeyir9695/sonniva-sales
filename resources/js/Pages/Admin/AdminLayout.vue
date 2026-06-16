@@ -6,6 +6,11 @@ import Navbar from '@/Shared/menu/Navbar.vue';
 const sidebarOpen = ref(false);
 const page = usePage();
 
+const currentRouteName = computed(() => {
+    page.url;
+    return route().current();
+});
+
 usePoll(10000, {
     only: ['unseenOrdersCount', 'unseenStockCount'],
     preserveScroll: true, preserveState: true
@@ -94,14 +99,14 @@ const menuItems = computed(() => [
                             @click="sidebarOpen = false"
                             :class="[
                                 'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200',
-                                  route().current(item.route)
+                                  currentRouteName === item.route
                                   ? 'bg-green-100 text-green-700 shadow-sm'
                                   : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                               ]"
                         >
                             <div class="flex w-full items-center justify-between">
                                 <div class="inline-flex gap-2">
-                                    <i :class="['pi text-lg', item.icon, route().current(item.route) ? 'text-green-600' : 'text-gray-500']"></i>
+                                    <i :class="['pi text-lg', item.icon, currentRouteName === item.route ? 'text-green-600' : 'text-gray-500']"></i>
                                     <span>{{ item.name }}</span>
                                 </div>
                                 <span
