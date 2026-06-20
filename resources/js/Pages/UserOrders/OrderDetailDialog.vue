@@ -35,7 +35,7 @@ const statusSeverity = {
 
 const statusLabel = {
     awaiting_payment: 'გადახდის მოლოდინში',
-    pending:          'ინვოისირებული',
+    pending:          'დაუდასტურებელი',
     paid:             'გადახდილი',
     ready:            'მზადაა',
     cancelled:        'გაუქმებული',
@@ -155,16 +155,35 @@ const providerLabel = {
                     </Column>
                 </DataTable>
 
-                <div class="flex items-center justify-end gap-6 px-4 py-3 border-t border-gray-200 bg-gray-50">
-                    <span class="text-gray-500">ჯამი: <span class="font-medium text-gray-700">{{ order.subtotal }} ₾</span></span>
-                    <span class="text-gray-800 font-bold">
-                        სულ: <span class="text-brand-600 text-base">{{ order.total }} ₾</span>
-                    </span>
+                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 space-y-1.5">
+                    <div v-if="order.wholesale_discount > 0" class="flex justify-between text-sm text-gray-500">
+                        <span>ჯამი</span>
+                        <span>
+                            <span class="line-through text-gray-400 mr-1">{{ (Number(order.subtotal) + Number(order.wholesale_discount)).toFixed(2) }} ₾</span>
+                            <span class="font-medium text-emerald-600">{{ order.subtotal }} ₾</span>
+                        </span>
+                    </div>
+                    <div v-else class="flex justify-between text-sm text-gray-500">
+                        <span>ჯამი</span>
+                        <span class="font-medium text-gray-700">{{ order.subtotal }} ₾</span>
+                    </div>
+                    <div v-if="order.wholesale_discount > 0" class="flex justify-between text-sm text-emerald-600">
+                        <span>საბითუმო ფასდაკლება</span>
+                        <span class="font-medium">-{{ order.wholesale_discount }} ₾</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>მიწოდება</span>
+                        <span class="font-medium text-gray-700">{{ order.delivery_cost }} ₾</span>
+                    </div>
+                    <div class="flex justify-between text-sm font-bold text-gray-800 border-t border-gray-200 pt-1.5 mt-1">
+                        <span>სულ</span>
+                        <span class="text-brand-600 text-base">{{ order.total }} ₾</span>
+                    </div>
                 </div>
             </div>
 
             <!-- Download invoice -->
-            <div v-if="order.payment?.invoice_no" class="flex justify-end">
+            <div v-if="order.payment?.provider === 'invoice' && order.payment?.invoice_no" class="flex justify-end">
                 <a :href="route('download.file', order.payment.invoice_no)" target="_blank">
                     <Button label="ინვოისის ჩამოტვირთვა" icon="pi pi-download" severity="secondary" size="small" outlined />
                 </a>

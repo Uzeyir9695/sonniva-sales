@@ -195,12 +195,30 @@ const providerLabel = {
                 </DataTable>
 
                 <!-- Totals row -->
-                <div class="flex items-center justify-end gap-6 px-4 py-3 border-t border-gray-200 bg-gray-50">
-                    <span class="text-gray-500">Subtotal: <span class="font-medium text-gray-700">{{ order.subtotal }} ₾</span></span>
-                    <span class="text-gray-800 font-bold">
-                        Total:
+                <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 space-y-1.5">
+                    <div v-if="order.wholesale_discount > 0" class="flex justify-between text-sm text-gray-500">
+                        <span>Subtotal</span>
+                        <span>
+                            <span class="line-through text-gray-400 mr-1">{{ (Number(order.subtotal) + Number(order.wholesale_discount)).toFixed(2) }} ₾</span>
+                            <span class="font-medium text-emerald-600">{{ order.subtotal }} ₾</span>
+                        </span>
+                    </div>
+                    <div v-else class="flex justify-between text-sm text-gray-500">
+                        <span>Subtotal</span>
+                        <span class="font-medium text-gray-700">{{ order.subtotal }} ₾</span>
+                    </div>
+                    <div v-if="order.wholesale_discount > 0" class="flex justify-between text-sm text-emerald-600">
+                        <span>Wholesale discount</span>
+                        <span class="font-medium">-{{ order.wholesale_discount }} ₾</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Delivery</span>
+                        <span class="font-medium text-gray-700">{{ order.delivery_cost }} ₾</span>
+                    </div>
+                    <div class="flex justify-between text-sm font-bold text-gray-800 border-t border-gray-200 pt-1.5 mt-1">
+                        <span>Total</span>
                         <span class="text-brand-600 text-base">{{ order.total }} ₾</span>
-                    </span>
+                    </div>
                 </div>
             </div>
 

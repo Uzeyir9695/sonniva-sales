@@ -18,7 +18,7 @@ const statusSeverity = {
 };
 
 const statusLabel = {
-    pending:   'ინვოისირებული',
+    pending:   'დაუდასტურებელი',
     paid:      'გადახდილი',
     ready:     'მზადაა',
     cancelled: 'უარყოფილი',

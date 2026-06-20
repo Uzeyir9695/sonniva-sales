@@ -98,6 +98,7 @@ class AdminOrderController extends Controller
                 'address' => $order->address,
                 'apartment_number' => $order->apartment_number,
                 'subtotal' => $order->subtotal,
+                'wholesale_discount' => $order->wholesale_discount,
                 'total' => $order->total,
                 'comment' => $order->comment,
                 'created_at' => $order->created_at,
