@@ -52,6 +52,29 @@ const subtotal = computed(() =>
 
 // ─── Delivery ─────────────────────────────────────────────────────────────
 
+const DELIVERY_RATES = [
+    { maxKg: 1,    tbilisi: 6.5,  region: 10.5, office: 6,   village: 15.5 },
+    { maxKg: 5,    tbilisi: 7.5,  region: 12.5, office: 6,   village: 17.5 },
+    { maxKg: 10,   tbilisi: 11,   region: 16,   office: 10,  village: 21   },
+    { maxKg: 15,   tbilisi: 16,   region: 21,   office: 15,  village: 26   },
+    { maxKg: 20,   tbilisi: 19,   region: 26,   office: 20,  village: 31   },
+    { maxKg: 30,   tbilisi: 30,   region: 36,   office: 30,  village: 45   },
+    { maxKg: 50,   tbilisi: 45,   region: 65,   office: 50,  village: 80   },
+    { maxKg: 100,  tbilisi: 65,   region: 105,  office: 80,  village: 120  },
+    { maxKg: 150,  tbilisi: 80,   region: 145,  office: 110, village: 175  },
+    { maxKg: 200,  tbilisi: 100,  region: 185,  office: 140, village: 215  },
+    { maxKg: 250,  tbilisi: 120,  region: 220,  office: 170, village: 250  },
+    { maxKg: 300,  tbilisi: 140,  region: 260,  office: 200, village: 290  },
+    { maxKg: 500,  tbilisi: 220,  region: 340,  office: 280, village: 390  },
+    { maxKg: 750,  tbilisi: 300,  region: 450,  office: 370, village: 500  },
+    { maxKg: 1000, tbilisi: 380,  region: 700,  office: 510, village: 750  },
+]
+
+function calcDeliveryPrice(weightKg, type) {
+    const rate = DELIVERY_RATES.find(r => weightKg <= r.maxKg)
+    return (rate ?? DELIVERY_RATES[DELIVERY_RATES.length - 1])[type]
+}
+
 const deliveryTypes = [
     { key: 'office',   label: 'თვითგატანა სონივას ოფისიდან' },
     { key: 'tbilisi',  label: 'მიწოდება თბილისში' },
@@ -77,10 +100,25 @@ const zones = ref([])
 const zoneSuggestions = ref([])
 const zonesLoading = ref(false)
 
+const GEO_TO_LATIN = {
+    'ა':'a','ბ':'b','გ':'g','დ':'d','ე':'e','ვ':'v','ზ':'z','თ':'t',
+    'ი':'i','კ':'k','ლ':'l','მ':'m','ნ':'n','ო':'o','პ':'p','ჟ':'zh',
+    'რ':'r','ს':'s','ტ':'t','უ':'u','ფ':'f','ქ':'k','ღ':'gh','ყ':'q',
+    'შ':'sh','ჩ':'ch','ც':'ts','ძ':'dz','წ':'ts','ჭ':'ch','ხ':'kh',
+    'ჯ':'j','ჰ':'h',
+}
+
+function geoToLatin(text) {
+    return text.split('').map(c => GEO_TO_LATIN[c] ?? c).join('').toLowerCase()
+}
+
 function filterZones(event) {
     const query = event.query.toLowerCase()
     zoneSuggestions.value = query
-        ? zones.value.filter(z => z.name.toLowerCase().includes(query))
+        ? zones.value.filter(z =>
+            z.name.toLowerCase().includes(query) ||
+            geoToLatin(z.name).includes(query)
+          )
         : zones.value
 }
 
@@ -109,9 +147,43 @@ watch(selectedRegionOption, (val) => {
     selectedZone.value = null
 })
 
-const deliveryCost = computed(() => 0)
+const totalWeightKg = computed(() =>
+    items.value.reduce((sum, cartItem) => {
+        const item = cartItem.item
+        const qty = cartItem.qty
 
-const total = computed(() => subtotal.value + deliveryCost.value)
+        if (item.unit_price == 0 && cartItem.selected_uom) {
+            const entry = (item.weights ?? []).find(w => w.uom === cartItem.selected_uom)
+            return sum + (entry ? entry.weight * qty : 0)
+        }
+
+        return sum + ((item.weights?.[0]?.weight ?? 0) * qty)
+    }, 0)
+)
+
+const deliveryPriceType = computed(() => {
+    const key = selectedDelivery.value?.key
+    if (!key || key === 'office') return null
+    if (key === 'tbilisi') return 'tbilisi'
+    if (key === 'regions') {
+        if (selectedRegionOption.value === 'onway_office') return 'office'
+        if (selectedRegionOption.value === 'address' && selectedZone.value?.name) {
+            return selectedZone.value.name.includes('>') ? 'village' : 'region'
+        }
+    }
+    return null
+})
+
+const deliveryCost = computed(() => {
+    const key = selectedDelivery.value?.key
+    if (!key) return null
+    if (key === 'office') return 0
+    const type = deliveryPriceType.value
+    if (!type) return null
+    return calcDeliveryPrice(totalWeightKg.value, type)
+})
+
+const total = computed(() => subtotal.value + (deliveryCost.value ?? 0))
 
 const showAddressField = computed(() =>
     selectedDelivery.value?.key === 'tbilisi' ||
@@ -215,8 +287,9 @@ function initiatePayment() {
     const city = selectedOnwayFilial.value ?? selectedZone.value?.name ?? null
 
     const data = {
-        delivery_type:    selectedDelivery.value.key,
-        delivery_cost:    deliveryCost.value,
+        delivery_type:       selectedDelivery.value.key,
+        delivery_price_type: deliveryPriceType.value,
+        delivery_cost:       deliveryCost.value ?? 0,
         city:             city,
         address:          form.address,
         apartment_number: form.apartment_number,
@@ -373,7 +446,7 @@ function initiatePayment() {
                                         :suggestions="zoneSuggestions"
                                         option-label="name"
                                         dropdown
-                                        placeholder="ძებნა..."
+                                        placeholder="ძებნა (ქართული შრიფტით)..."
                                         :loading="zonesLoading"
                                         force-selection
                                         class="w-full rounded-l-xl"
@@ -586,7 +659,9 @@ function initiatePayment() {
                                 <span
                                     :class="deliveryCost === 0 ? 'text-emerald-600 font-medium' : 'font-medium text-gray-700'"
                                 >
-                                    {{ deliveryCost === 0 ? 'უფასო' : formatted(deliveryCost) + ' ₾' }}
+                                    <template v-if="deliveryCost === null">—</template>
+                                    <template v-else-if="deliveryCost === 0">უფასო</template>
+                                    <template v-else>{{ formatted(deliveryCost) }} ₾</template>
                                 </span>
                             </div>
                         </div>

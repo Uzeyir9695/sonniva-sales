@@ -47,7 +47,8 @@ class InvoiceController extends Controller
             $calc = $this->calculatorService->calculate(
                 $request->cart_ids,
                 $request->delivery_type,
-                auth()->id()
+                auth()->id(),
+                $request->delivery_price_type
             );
         } catch (\InvalidArgumentException $e) {
             back()->withErrors(['message' => $e->getMessage()]);
@@ -162,11 +163,17 @@ class InvoiceController extends Controller
         $filename = basename($filename);
 
         if (str_ends_with($filename, '.pdf')) {
-            return Storage::disk('public')->download("invoices/{$filename}", $filename);
+            $path = "invoices/{$filename}";
+        } elseif (Storage::disk('public')->exists("invoices/invoice_{$filename}.pdf")) {
+            $path = "invoices/invoice_{$filename}.pdf";
+        } else {
+            $path = "invoices/order_{$filename}.pdf";
         }
 
-        $file = "order_{$filename}.pdf";
+        if (! Storage::disk('public')->exists($path)) {
+            abort(404, 'Invoice file not found.');
+        }
 
-        return Storage::disk('public')->download("invoices/{$file}", $file);
+        return Storage::disk('public')->download($path, basename($path));
     }
 }

@@ -66,7 +66,8 @@ class PaymentController extends Controller
             $calc = $this->calculatorService->calculate(
                 $request->cart_ids,
                 $request->delivery_type,
-                auth()->id()
+                auth()->id(),
+                $request->delivery_price_type
             );
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 422);
