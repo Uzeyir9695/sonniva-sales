@@ -112,12 +112,15 @@ createInertiaApp({
     },
     setup({ el, App, props, plugin }) {
         const ziggy = props.initialPage.props.ziggy || {};
-        if (typeof window !== 'undefined') window.Ziggy = ziggy;
+        // Client: strip location so route().current() uses window.location (always up-to-date after navigation)
+        // SSR: keep location since window is unavailable
+        const { location: _ziggyLoc, ...ziggyConfig } = typeof window !== 'undefined' ? ziggy : {};
+        const ziggyForVue = typeof window !== 'undefined' ? ziggyConfig : ziggy;
 
         const app = createApp({ render: () => h(App, props) });
         app.use(plugin);
         app.use(pinia);
-        app.use(ZiggyVue, ziggy);
+        app.use(ZiggyVue, ziggyForVue);
 
         app.provide('emitter', emitter);
 
