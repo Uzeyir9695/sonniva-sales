@@ -232,7 +232,7 @@ const providerLabel = {
                     @click="confirmStatusChange('cancelled')"
                 />
                 <a
-                    v-if="order.payment?.invoice_no"
+                    v-if="order.payment?.provider === 'invoice' && order.payment?.invoice_no"
                     :href="route('download.file', order.payment.invoice_no)"
                     target="_blank"
                 >
