@@ -35,7 +35,10 @@ class SyncItemWeightsCommand extends Command
             ."904668f4-6aa7-44ce-8285-5c27b33faeeb/Production/ODataV4/Company('SONNIVA')/ItemUnitOfMeasureAPI";
 
         $updatedCount = 0;
-        $zeroWeightItems = [];
+        $zeroWeightCount = 0;
+
+        $bar = $this->output->createProgressBar($items->count());
+        $bar->start();
 
         foreach ($items->chunk(50) as $chunk) {
             if (now()->diffInMinutes($tokenFetchedAt) >= 55) {
@@ -55,6 +58,8 @@ class SyncItemWeightsCommand extends Command
             });
 
             foreach ($responses as $index => $response) {
+                $bar->advance();
+
                 if ($response instanceof \Throwable || $response->failed()) {
                     continue;
                 }
@@ -69,7 +74,7 @@ class SyncItemWeightsCommand extends Command
                 $weights = $this->buildWeights($item, $entries);
 
                 if (collect($weights)->every(fn ($w) => ($w['weight'] ?? 0) == 0)) {
-                    $zeroWeightItems[] = $item->no;
+                    $zeroWeightCount++;
                 }
 
                 DB::table('items')
@@ -80,15 +85,15 @@ class SyncItemWeightsCommand extends Command
             }
         }
 
+        $bar->finish();
+        $this->newLine();
+
         $totalSeconds = $startedAt->diffInSeconds(now());
         $this->info("Done in {$totalSeconds}s. Updated: {$updatedCount} items.");
 
-        if (! empty($zeroWeightItems)) {
+        if ($zeroWeightCount > 0) {
             $this->newLine();
-            $this->warn(count($zeroWeightItems).' item(s) have zero weight in BC:');
-            foreach ($zeroWeightItems as $no) {
-                $this->line("  - {$no}");
-            }
+            $this->warn("{$zeroWeightCount} item(s) have zero weight in BC.");
         }
 
         return self::SUCCESS;
