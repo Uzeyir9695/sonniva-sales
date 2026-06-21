@@ -165,6 +165,14 @@ function getMenuItems(order) {
         });
     }
 
+    if ((order.status === 'paid' || order.status === 'limit') && order.delivery_type !== 'office') {
+        items.push({
+            label:   'Send to Onway',
+            icon:    'pi pi-truck',
+            command: () => confirmSendToOnway(order),
+        });
+    }
+
     if (order.status === 'paid') {
         items.push({
             label:   'Mark Ready (no notify)',
@@ -249,6 +257,25 @@ function confirmStatusChange(order, newStatus) {
     });
 }
 
+function confirmSendToOnway(order) {
+    confirm.require({
+        message: `Send order ${order.invoice_no ?? order.id.slice(0, 8)} to Onway courier?`,
+        header: 'Send to Onway',
+        icon: 'pi pi-truck',
+        rejectProps: { label: 'No', severity: 'secondary', outlined: true },
+        acceptProps: { label: 'Send', severity: 'info' },
+        accept: () => {
+            router.post(route('admin.orders.send-onway', order.id), {}, {
+                preserveScroll: true,
+                onSuccess: () => toast.add({ severity: 'success', summary: 'Sent', detail: 'Order sent to Onway.', life: 3000 }),
+                onError:   (errors) => {
+                    toast.add({ severity: 'error',   summary: 'Error', detail: errors?.message, life: 3000 })
+                },
+            });
+        },
+    });
+}
+
 function confirmMarkReady(order, informUser) {
     confirm.require({
         message: `Mark order ${order.invoice_no ?? order.id.slice(0, 8)} as ready${informUser ? ' and notify customer' : ' (no notification)'}?`,
@@ -268,8 +295,6 @@ function confirmMarkReady(order, informUser) {
 </script>
 
 <template>
-    <ConfirmDialog />
-
     <!-- Send PDF Dialog -->
     <Dialog v-model:visible="sendPdfVisible" header="Send PDF" modal :style="{ width: '22rem' }">
         <div class="flex flex-col gap-3 py-2">

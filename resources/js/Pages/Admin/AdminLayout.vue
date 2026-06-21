@@ -59,6 +59,8 @@ const menuItems = computed(() => [
 </script>
 
 <template>
+    <Toast position="top-right" />
+    <ConfirmDialog />
     <Navbar />
 
     <div class="container mx-auto min-h-[calc(100vh-110px)] flex space-x-2 my-4">

@@ -49,6 +49,7 @@ class OrderCalculatorService
 
         $subtotal = 0;
         $wholesaleDiscount = 0;
+        $totalWeightKg = 0.0;
         $itemsData = [];
 
         foreach ($cartRows as $cartRow) {
@@ -56,10 +57,14 @@ class OrderCalculatorService
             $unitPrice = $this->tierPrice($cartRow->item, $qty, $cartRow->selected_uom);
             $rowTotal = $unitPrice * $qty;
             $subtotal += $rowTotal;
+
             $retailPrice = $this->retailPrice($cartRow->item, $cartRow->selected_uom);
             if ($retailPrice !== null) {
                 $wholesaleDiscount += ($retailPrice - $unitPrice) * $qty;
             }
+
+            $unitWeightKg = $this->unitWeightKg($cartRow);
+            $totalWeightKg += $unitWeightKg * $qty;
 
             $itemsData[] = [
                 'item_id' => $cartRow->item_id,
@@ -67,10 +72,10 @@ class OrderCalculatorService
                 'unit_price' => $unitPrice,
                 'subtotal' => $rowTotal,
                 'unit_of_measure_code' => $cartRow->selected_uom,
+                'unit_weight' => $unitWeightKg,
             ];
         }
 
-        $totalWeightKg = $this->totalWeightKg($cartRows);
         $deliveryCost = $this->deliveryCost($deliveryType, $subtotal, $deliveryPriceType, $totalWeightKg);
 
         return [
@@ -141,20 +146,16 @@ class OrderCalculatorService
         return (float) ($rate[$priceType] ?? 0);
     }
 
-    private function totalWeightKg($cartRows): float
+    private function unitWeightKg(Cart $cartRow): float
     {
-        return $cartRows->sum(function ($cartRow) {
-            $item = $cartRow->item;
-            $qty = $cartRow->quantity;
-            $weights = $item->weights ?? [];
+        $weights = $cartRow->item->weights ?? [];
 
-            if ($item->unit_price == 0 && $cartRow->selected_uom) {
-                $entry = collect($weights)->first(fn ($w) => $w['uom'] === $cartRow->selected_uom);
+        if ($cartRow->item->unit_price == 0 && $cartRow->selected_uom) {
+            $entry = collect($weights)->first(fn ($w) => $w['uom'] === $cartRow->selected_uom);
 
-                return $entry ? ($entry['weight'] * $qty) : 0;
-            }
+            return $entry ? (float) $entry['weight'] : 0.0;
+        }
 
-            return ($weights[0]['weight'] ?? 0) * $qty;
-        });
+        return (float) ($weights[0]['weight'] ?? 0);
     }
 }

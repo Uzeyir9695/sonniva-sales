@@ -81,6 +81,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::put('/orders/{order}/ready', [AdminOrderController::class, 'markAsReady'])->name('orders.ready');
         Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('orders.cancel');
         Route::post('/orders/{order}/send-pdf', [AdminOrderController::class, 'sendPdf'])->name('orders.send-pdf');
+        Route::post('/orders/{order}/send-onway', [AdminOrderController::class, 'sendToOnway'])->name('orders.send-onway');
         Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
 
         // ******** Admin Payments ********//

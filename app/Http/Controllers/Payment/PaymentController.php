@@ -110,6 +110,7 @@ class PaymentController extends Controller
                     'quantity' => $item['quantity'],
                     'unit_of_measure_code' => $item['unit_of_measure_code'],
                     'unit_price' => $item['unit_price'],
+                    'unit_weight' => $item['unit_weight'],
                     'subtotal' => $item['subtotal'],
                 ]);
             }

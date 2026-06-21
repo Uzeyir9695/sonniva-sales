@@ -43,7 +43,15 @@ function confirmStatusChange(newStatus) {
 }
 
 function updateStatus(newStatus) {
-    router.put(route('admin.orders.update-status', order.value.id), { status: newStatus }, {
+    const routeMap = {
+        paid:      { name: 'admin.orders.approve', params: {} },
+        ready:     { name: 'admin.orders.ready',   params: { inform_user: true } },
+        cancelled: { name: 'admin.orders.cancel',  params: {} },
+    };
+
+    const { name, params } = routeMap[newStatus];
+
+    router.put(route(name, order.value.id), params, {
         preserveScroll: true,
         onSuccess: () => {
             toast.add({ severity: 'success', summary: 'Updated', detail: 'Order status changed.', life: 3000 });
@@ -184,6 +192,11 @@ const providerLabel = {
                     <Column field="item_no" header="No" />
                     <Column field="item_name" header="Name" />
                     <Column field="quantity" header="Qty" />
+                    <Column header="Weight">
+                        <template #body="{ data }">
+                            <span class="text-gray-500">{{ (data.unit_weight * data.quantity).toFixed(3) }} kg</span>
+                        </template>
+                    </Column>
                     <Column field="unit_price" header="Unit Price">
                         <template #body="{ data }">{{ data.unit_price }} ₾</template>
                     </Column>
@@ -214,6 +227,10 @@ const providerLabel = {
                     <div class="flex justify-between text-sm text-gray-500">
                         <span>Delivery</span>
                         <span class="font-medium text-gray-700">{{ order.delivery_cost }} ₾</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Total weight</span>
+                        <span class="font-medium text-gray-700">{{ order.items.reduce((s, i) => s + i.unit_weight * i.quantity, 0).toFixed(3) }} kg</span>
                     </div>
                     <div class="flex justify-between text-sm font-bold text-gray-800 border-t border-gray-200 pt-1.5 mt-1">
                         <span>Total</span>

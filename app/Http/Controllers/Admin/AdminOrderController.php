@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Services\SmsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -112,6 +113,7 @@ class AdminOrderController extends Controller
                     'item_name' => $oi->item?->name,
                     'quantity' => $oi->quantity,
                     'unit_price' => $oi->unit_price,
+                    'unit_weight' => $oi->unit_weight,
                     'subtotal' => $oi->subtotal,
                 ]),
             ],
@@ -188,6 +190,46 @@ class AdminOrderController extends Controller
         }
 
         return redirect()->back()->with('message', 'PDF sent.');
+    }
+
+    public function sendToOnway(Order $order): RedirectResponse
+    {
+        $order->load(['user:id,name,lastname,phone,phone_country', 'items']);
+
+        $payload = [
+            'username' => config('onway.username'),
+            'key' => config('onway.key'),
+            'from_city' => config('onway.from.city'),
+            'from_name' => config('onway.from.name'),
+            'from_phone' => config('onway.from.phone'),
+            'from_address' => config('onway.from.address'),
+            'from_company' => config('onway.from.company'),
+            'to_city' => $order->city,
+            'to_name' => trim($order->user->name.' '.$order->user->lastname),
+            'to_phone' => $order->user->local_phone,
+            'to_address' => $order->address,
+            'to_company' => $order->user->name,
+            'payment' => 3,
+            'payer' => 3,
+            'weight' => max($order->items->sum(fn ($i) => $i->unit_weight * $i->quantity), 0.1),
+            'quantity' => $order->items->sum('quantity'),
+            'service_level' => 1,
+            'order_number' => $order->invoice_no,
+        ];
+
+        $response = Http::post(config('onway.url'), $payload);
+
+        if ($response->failed()) {
+            return redirect()->back()->withErrors(['message' => 'Onway API error: '.$response->body()]);
+        }
+
+        $result = $response->json();
+
+        if (! empty($result['error'])) {
+            return redirect()->back()->withErrors(['message' => 'Onway error: '.$result['error']]);
+        }
+
+        return redirect()->back()->with('message', 'Order sent to Onway successfully.');
     }
 
     public function destroy(Order $order): RedirectResponse
