@@ -82,7 +82,7 @@ class SyncItemDataCommand extends Command
 
         $updatedCount = 0;
 
-        foreach ($items->chunk(50) as $chunk) {
+        foreach ($items->chunk(20) as $chunkIndex => $chunk) {
             if (now()->diffInMinutes($tokenFetchedAt) >= 55) {
                 $token = $this->bc->getAccessToken(forceRefresh: true);
                 $tokenFetchedAt = now();
@@ -112,6 +112,12 @@ class SyncItemDataCommand extends Command
                     ->update(['prices' => json_encode($detail['itemUnitPrices'] ?? [])]);
 
                 $updatedCount++;
+            }
+
+            unset($responses);
+
+            if ($chunkIndex % 50 === 0) {
+                gc_collect_cycles();
             }
         }
 
