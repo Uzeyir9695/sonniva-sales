@@ -121,6 +121,9 @@ class SyncItemDataCommand extends Command
         $this->info("Phase 2 done in {$phase2Seconds}s. Wholesale prices updated: {$updatedCount}.");
         $this->info("Total: {$totalSeconds}s.");
 
+        $this->info('Running PriceListSeeder...');
+        $this->call('db:seed', ['--class' => 'PriceListSeeder']);
+
         return self::SUCCESS;
     }
 }
