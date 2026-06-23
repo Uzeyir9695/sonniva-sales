@@ -9,6 +9,7 @@ import LogoutButton from '@/Shared/components/LogoutButton.vue';
 import CartNavIcon from '@/Shared/components/CartNavIcon.vue';
 import WeglotSwitcher from '@/Shared/components/WeglotSwitcher.vue';
 import UserMenu from '@/Shared/components/UserMenu.vue';
+import DotsMenu from '@/Shared/components/DotsMenu.vue';
 import GlobalSeoTranslator from '../components/GlobalSeoTranslator.vue';
 
 const page = usePage();
@@ -78,6 +79,8 @@ const openSearch = async () => {
                             <CartNavIcon />
 
                             <UserMenu />
+
+                            <DotsMenu />
                         </div>
                     </div>
                 </template>
@@ -108,6 +111,8 @@ const openSearch = async () => {
                         <CartNavIcon />
 
                         <UserMenu />
+
+                        <DotsMenu />
                     </div>
                 </template>
             </div>

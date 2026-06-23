@@ -319,11 +319,25 @@ const ogImage = computed(() => {
                                 <i :class="['pi text-xs text-gray-400', collapsed ? 'pi-plus' : 'pi-minus']"></i>
                             </template>
                             <ul class="space-y-2 text-xs text-gray-600">
-                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span><strong>თვითგატანა ოფისიდან:</strong> უფასო. გატანის წერტილები <a href="#" class="text-blue-500 hover:underline">რუკაზე</a></span></li>
-                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>მიწოდება თბილისში: 1000+ ₾ უფასო, 1000-მდე ₾ 70 </span></li>
-                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>მიწოდება რეგიონებში: 200 ლარიდან</span></li>
-                                <li class="flex gap-2"><span class="text-brand-500">→</span> <a href="#" class="text-blue-500 hover:underline">დეტალურად მიწოდების შესახებ</a></li>
-                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>13:00-მდე გაფორმებულ შეკვეთებს გაწვდით იმავე დღეს!</span></li>
+                                <li class="flex gap-2">
+                                    <span class="text-brand-500">→</span>
+                                    <span>
+                                        <strong>თვითგატანა ოფისიდან:</strong>
+                                        უფასო. გატანის წერტილი
+                                    <a href="https://maps.app.goo.gl/3YwH55CnhUUfJoYQ9" target="_blank" class="text-blue-500 hover:underline">
+                                        რუკაზე
+                                    </a>
+                                </span>
+                                </li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>მიწოდება თბილისში: 100+ ₾ უფასო </span></li>
+                                <li class="flex gap-2">
+                                    <span class="text-brand-500">→</span>
+                                    <span>
+                                        მიწოდება რეგიონებში:
+                                        <a href="#" class="text-blue-500 hover:underline">იხილეთ მიწოდების ტარიფები</a>
+                                    </span>
+                                </li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>13:00-მდე გაფორმებულ შეკვეთებს თბილისში გაწვდით იმავე დღეს!</span></li>
                                 <li class="flex gap-2"><span class="text-brand-500">→</span> <span>მიტანის სერვისის ფარგლებში პროდუქციის მანქანიდან ჩამოტვირთვა და სართულზე ატანა არ შედის მომსახურებაში.</span></li>
                             </ul>
                         </Panel>

@@ -292,7 +292,7 @@ class BusinessCentralService
 
         $deliveryType = $order->delivery_type;
 
-        if ($deliveryType !== 'office' && ($deliveryType === 'regions' || ($deliveryType === 'tbilisi' && $order->total < 1000))) {
+        if ($deliveryType !== 'office' && ($deliveryType === 'tbilisi' && $order->total < 100)) {
             $code = match ($deliveryType) {
                 'tbilisi' => 'NONIN9999-02',
                 'regions' => 'NONIN9999-01',

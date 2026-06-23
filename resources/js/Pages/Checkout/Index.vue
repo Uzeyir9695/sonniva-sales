@@ -76,7 +76,7 @@ function calcDeliveryPrice(weightKg, type) {
 }
 
 const deliveryTypes = [
-    { key: 'office',   label: 'თვითგატანა სონივას ოფისიდან' },
+    { key: 'office',   label: 'თვითგატანა სონივას ფილიალიდან' },
     { key: 'tbilisi',  label: 'მიწოდება თბილისში' },
     { key: 'regions',  label: 'მიწოდება რეგიონებში' },
 ]
@@ -96,9 +96,40 @@ const selectedDelivery = ref(null)
 const selectedRegionOption = ref(null)
 const selectedOnwayFilial = ref(null)
 const selectedZone = ref(null)
+const selectedTbilisiZone = ref(null)
 const zones = ref([])
 const zoneSuggestions = ref([])
 const zonesLoading = ref(false)
+
+const TBILISI_FREE_THRESHOLD = 100
+
+const tbilisiZoneOptions = [
+    {
+        label: 'I ზონა – 40 ₾',
+        price: 40,
+        items: [
+            'გლდანი', 'გლდანულა', 'სოფელი გლდანი', 'ზაჰესი', 'ავჭალა',
+            'თემქა', 'მუხიანი', 'დიღომი 7', 'დიღმის მასივი', 'დიდი დიღომი', 'სოფელი დიღომი',
+        ].map(name => ({ name, price: 40 })),
+    },
+    {
+        label: 'II ზონა – 50 ₾',
+        price: 50,
+        items: [
+            'ვაკე', 'საბურთალო', 'ბაგები', 'ლისი', 'ვაშლიჯვარი', 'ორთაჭალა',
+            'მთაწმინდა', 'სოლოლაკი', 'ვერა', 'დიდუბე', 'ჩუღურეთი', 'ნაძალადევი',
+        ].map(name => ({ name, price: 50 })),
+    },
+    {
+        label: 'III ზონა – 60 ₾',
+        price: 60,
+        items: [
+            'ისანი', 'სამგორი', 'ლილო', 'ორხევი', 'აეროპორტის დასახლება',
+            'ქვემო ფონიჭალა', 'ზემო ფონიჭალა', 'რუსთავი', 'ვარკეთილი', 'წყნეთი',
+            'კოჯორი', 'ტაბახმელა', 'წავკისი', 'შინდისი', 'ოქროყანა', 'ნაფეტვრები',
+        ].map(name => ({ name, price: 60 })),
+    },
+]
 
 const GEO_TO_LATIN = {
     'ა':'a','ბ':'b','გ':'g','დ':'d','ე':'e','ვ':'v','ზ':'z','თ':'t',
@@ -127,6 +158,7 @@ function selectDelivery(type) {
     selectedRegionOption.value = null
     selectedOnwayFilial.value = null
     selectedZone.value = null
+    selectedTbilisiZone.value = null
 }
 
 async function fetchZones() {
@@ -178,6 +210,10 @@ const deliveryCost = computed(() => {
     const key = selectedDelivery.value?.key
     if (!key) return null
     if (key === 'office') return 0
+    if (key === 'tbilisi') {
+        if (!selectedTbilisiZone.value) return null
+        return subtotal.value >= TBILISI_FREE_THRESHOLD ? 0 : selectedTbilisiZone.value.price
+    }
     const type = deliveryPriceType.value
     if (!type) return null
     return calcDeliveryPrice(totalWeightKg.value, type)
@@ -196,7 +232,7 @@ const providers = [
     { name: 'PCB ბანკი',         icon: '/payments/pcb.jpeg',         code: 'pcb' },
     { name: 'BOG ბანკი',         icon: '/payments/bog.png',           code: 'bog' },
     { name: 'TBC ბანკი',         icon: '/payments/tbc.png',           code: 'tbc' },
-    { name: 'ინვოისით გადახდა',  icon: '/payments/invoice-icon.png',  code: 'invoice' },
+    { name: 'საბანკო გადარიცხვა',  icon: '/payments/invoice-icon.png',  code: 'invoice' },
     { name: 'ლიმიტით გადახდა',   icon: '',  code: 'limit' },
 ]
 
@@ -246,45 +282,86 @@ const loading = ref(false)
 
 const formatted = (val) => Number(val).toFixed(2)
 
-function showError(detail) {
-    toast.add({ severity: 'error', summary: 'შეცდომა', detail, life: 5000 })
+const errors = reactive({
+    deliveryType: null,
+    tbilisiZone: null,
+    regionOption: null,
+    onwayFilial: null,
+    regionZone: null,
+    address: null,
+    provider: null,
+    agreement: null,
+})
+
+function clearErrors() {
+    Object.keys(errors).forEach(k => errors[k] = null)
 }
+
+watch(selectedDelivery, () => { errors.deliveryType = null })
+watch(selectedTbilisiZone, () => { errors.tbilisiZone = null })
+watch(selectedRegionOption, () => { errors.regionOption = null })
+watch(selectedOnwayFilial, () => { errors.onwayFilial = null })
+watch(selectedZone, () => { errors.regionZone = null })
+watch(() => form.address, () => { errors.address = null })
+watch(selectedProvider, () => { errors.provider = null })
+watch(() => form.agreement, () => { errors.agreement = null })
 
 // ─── Validation & submit ──────────────────────────────────────────────────
 
-function initiatePayment() {
+function validate() {
+    clearErrors()
+    let valid = true
+
     if (!selectedDelivery.value) {
-        showError('გთხოვთ აირჩიოთ მიწოდების ტიპი')
-        return
+        errors.deliveryType = 'გთხოვთ აირჩიოთ მიწოდების ტიპი'
+        valid = false
     }
-    if (selectedDelivery.value.key === 'regions' && !selectedRegionOption.value) {
-        showError('გთხოვთ აირჩიოთ მიწოდების ვარიანტი')
-        return
+    if (selectedDelivery.value?.key === 'tbilisi' && !selectedTbilisiZone.value) {
+        errors.tbilisiZone = 'გთხოვთ აირჩიოთ თბილისის ზონა'
+        valid = false
+    }
+    if (selectedDelivery.value?.key === 'regions' && !selectedRegionOption.value) {
+        errors.regionOption = 'გთხოვთ აირჩიოთ მიწოდების ვარიანტი'
+        valid = false
     }
     if (selectedRegionOption.value === 'onway_office' && !selectedOnwayFilial.value) {
-        showError('გთხოვთ აირჩიოთ OnWay ფილიალი')
-        return
+        errors.onwayFilial = 'გთხოვთ აირჩიოთ OnWay ფილიალი'
+        valid = false
     }
     if (selectedRegionOption.value === 'address' && !selectedZone.value) {
-        showError('გთხოვთ აირჩიოთ მიწოდების ზონა')
-        return
+        errors.regionZone = 'გთხოვთ აირჩიოთ ქალაქი/სოფელი'
+        valid = false
     }
     if (showAddressField.value && !form.address) {
-        showError('გთხოვთ შეიყვანოთ მიწოდების მისამართი')
-        return
+        errors.address = 'გთხოვთ შეიყვანოთ მიწოდების მისამართი'
+        valid = false
     }
     if (!selectedProvider.value) {
-        showError('გთხოვთ აირჩიოთ გადახდის მეთოდი')
-        return
+        errors.provider = 'გთხოვთ აირჩიოთ გადახდის მეთოდი'
+        valid = false
     }
     if (!form.agreement) {
-        showError('გთხოვთ დაეთანხმოთ წესებსა და პირობებს')
+        errors.agreement = 'გთხოვთ დაეთანხმოთ წესებსა და პირობებს'
+        valid = false
+    }
+
+    return valid
+}
+
+function initiatePayment() {
+    if (!validate()) {
+        toast.add({
+            severity: 'error',
+            summary: 'შეცდომა',
+            detail: 'გთხოვთ შეასწოროთ მონიშნული ველები გაგრძელებამდე',
+            life: 5000,
+        })
         return
     }
 
     loading.value = true
 
-    const city = selectedOnwayFilial.value ?? selectedZone.value?.name ?? null
+    const city = selectedTbilisiZone.value?.name ?? selectedOnwayFilial.value ?? selectedZone.value?.name ?? null
 
     const data = {
         delivery_type:       selectedDelivery.value.key,
@@ -302,7 +379,7 @@ function initiatePayment() {
         router.post(route('initiate.payment.invoice'), data, {
             onSuccess: () => { loading.value = false },
             onError: (err) => {
-                showError(err?.message || 'დაფიქსირდა შეცდომა')
+                toast.add({ severity: 'error', summary: 'შეცდომა', detail: err?.message || 'დაფიქსირდა შეცდომა', life: 5000 })
                 loading.value = false
             },
         })
@@ -310,7 +387,7 @@ function initiatePayment() {
         router.post(route('initiate.payment.limit'), data, {
             onSuccess: () => { loading.value = false },
             onError: (err) => {
-                showError(err?.message || 'დაფიქსირდა შეცდომა')
+                toast.add({ severity: 'error', summary: 'შეცდომა', detail: err?.message || 'დაფიქსირდა შეცდომა', life: 5000 })
                 loading.value = false
             },
         })
@@ -320,12 +397,12 @@ function initiatePayment() {
                 if (res.data.redirect_url) {
                     window.location.href = res.data.redirect_url
                 } else {
-                    showError('ბანკიდან პასუხი ვერ მივიღეთ')
+                    toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'ბანკიდან პასუხი ვერ მივიღეთ', life: 5000 })
                     loading.value = false
                 }
             })
             .catch(err => {
-                showError(err.response?.data?.error || 'დაფიქსირდა შეცდომა')
+                toast.add({ severity: 'error', summary: 'შეცდომა', detail: err.response?.data?.error || 'დაფიქსირდა შეცდომა', life: 5000 })
                 loading.value = false
             })
     }
@@ -355,7 +432,7 @@ function initiatePayment() {
                 <div class="lg:col-span-2 space-y-4">
 
                     <!-- Delivery type -->
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                    <div class="bg-white rounded-2xl border shadow-sm p-6" :class="errors.deliveryType ? 'border-red-300' : 'border-gray-100'">
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-truck text-brand-500"></i>
                             მიწოდების ტიპი
@@ -373,7 +450,10 @@ function initiatePayment() {
                                     : 'border-gray-100 hover:border-gray-200 bg-white'"
                             >
                                 <div class="flex items-center justify-between w-full">
-                                    <span class="text-sm font-semibold text-gray-800">{{ type.label }}</span>
+                                    <div class="block space-x-2">
+                                        <span class="text-sm font-semibold text-gray-800">{{ type.label }}</span>
+                                        <span v-if="type.key === 'office'" class="text-sm font-semibold text-green-600">(უფასო)</span>
+                                    </div>
                                     <div
                                         class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0"
                                         :class="selectedDelivery?.key === type.key
@@ -385,10 +465,14 @@ function initiatePayment() {
                                 </div>
                             </button>
                         </div>
+                        <p v-if="errors.deliveryType" class="mt-3 text-sm text-red-500 flex items-center gap-1.5">
+                            <i class="pi pi-exclamation-circle shrink-0"></i>
+                            {{ errors.deliveryType }}
+                        </p>
                     </div>
 
                     <!-- Address -->
-                    <div v-if="selectedDelivery?.key !== 'office'" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                    <div v-if="selectedDelivery && selectedDelivery?.key !== 'office'" class="bg-white rounded-2xl border shadow-sm p-6" :class="errors.tbilisiZone || errors.regionOption || errors.onwayFilial || errors.regionZone || errors.address ? 'border-red-300' : 'border-gray-100'">
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-map-marker text-brand-500"></i>
                             მიწოდების მისამართი
@@ -417,6 +501,11 @@ function initiatePayment() {
                                 </button>
                             </div>
 
+                            <p v-if="errors.regionOption" class="mt-1 text-sm text-red-500 flex items-center gap-1.5">
+                                <i class="pi pi-exclamation-circle shrink-0"></i>
+                                {{ errors.regionOption }}
+                            </p>
+
                             <!-- OnWay filial picker -->
                             <div v-if="selectedRegionOption === 'onway_office'">
                                 <label for="select-filial" class="flex items-center-safe font-bold text-gray-700  text-sm mb-2 mt-5">
@@ -430,6 +519,10 @@ function initiatePayment() {
                                     placeholder="არჩევა"
                                     class="w-full"
                                 />
+                                <p v-if="errors.onwayFilial" class="mt-1.5 text-sm text-red-500 flex items-center gap-1.5">
+                                    <i class="pi pi-exclamation-circle shrink-0"></i>
+                                    {{ errors.onwayFilial }}
+                                </p>
                             </div>
 
                             <!-- Zone picker for address delivery -->
@@ -446,7 +539,7 @@ function initiatePayment() {
                                         :suggestions="zoneSuggestions"
                                         option-label="name"
                                         dropdown
-                                        placeholder="ძებნა (ქართული შრიფტით)..."
+                                        placeholder="ძებნა..."
                                         :loading="zonesLoading"
                                         force-selection
                                         class="w-full rounded-l-xl"
@@ -456,15 +549,60 @@ function initiatePayment() {
                                         :pt="{ pcInputText: { root: { class: 'pl-8' } }, dropdown: { class: 'rounded-r-xl' } }"
                                     />
                                 </div>
+                                <p v-if="errors.regionZone" class="mt-1.5 text-sm text-red-500 flex items-center gap-1.5">
+                                    <i class="pi pi-exclamation-circle shrink-0"></i>
+                                    {{ errors.regionZone }}
+                                </p>
                             </div>
                         </div>
 
-                        <div v-if="showAddressField" class="space-y-6">
-                            <PlacesAutocomplete v-model="form.address" />
+                        <!-- Tbilisi zone picker -->
+                        <div v-if="selectedDelivery?.key === 'tbilisi'" class="mb-6">
+                            <label class="font-bold text-gray-700 text-sm mb-2 block">
+                                აირჩიეთ ზონა
+                                <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
+                            </label>
+                            <Select
+                                v-model="selectedTbilisiZone"
+                                :options="tbilisiZoneOptions"
+                                optionGroupLabel="label"
+                                optionGroupChildren="items"
+                                optionLabel="name"
+                                placeholder="აირჩიეთ ზონა"
+                                class="w-full"
+                                filter
+                                showClear
+                                filterPlaceholder="ძებნა..."
+                            >
+                                <template #optiongroup="{ option }">
+                                    <div class="flex items-center justify-between py-1">
+                                        <span class="font-semibold text-gray-800 text-sm">{{ option.label }}</span>
+                                        <span v-if="subtotal >= TBILISI_FREE_THRESHOLD" class="text-xs text-emerald-600 font-medium">უფასო</span>
+                                    </div>
+                                </template>
+                            </Select>
+                            <p v-if="subtotal >= TBILISI_FREE_THRESHOLD" class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1">
+                                <i class="pi pi-check-circle text-sm"></i>
+                                შეკვეთა 100 ₾-ზე მეტია — თბილისში მიწოდება უფასოა
+                            </p>
+                            <p v-if="errors.tbilisiZone" class="mt-1.5 text-sm text-red-500 flex items-center gap-1.5">
+                                <i class="pi pi-exclamation-circle shrink-0"></i>
+                                {{ errors.tbilisiZone }}
+                            </p>
+                        </div>
+
+                        <div v-if="showAddressField" class="space-y-4">
+                            <div>
+                                <PlacesAutocomplete v-model="form.address" />
+                                <p v-if="errors.address" class="mt-1.5 text-sm text-red-500 flex items-center gap-1.5">
+                                    <i class="pi pi-exclamation-circle shrink-0"></i>
+                                    {{ errors.address }}
+                                </p>
+                            </div>
 
                             <PrimeInputText
                                 v-model="form.apartment_number"
-                                placeholder="ბინის / ოფისის ნომერი (არასავალდებულო)"
+                                placeholder="ქუჩის ნომერი (არასავალდებულო)"
                                 class="py-2.5!"
                             />
                         </div>
@@ -479,16 +617,17 @@ function initiatePayment() {
                             <i class="pi pi-building text-brand-500"></i>
                             გატანის წერტილები
                         </h2>
-                        <ul class="space-y-2 text-sm text-gray-600">
-                            <li class="flex items-start gap-2">
-                                <i class="pi pi-map-marker text-brand-500 mt-0.5 shrink-0"></i>
-                                <span>ავჭალა, შუშის ქუჩა 38 — ორშაბათი-პარასკევი 09:00-18:00</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <i class="pi pi-map-marker text-brand-500 mt-0.5 shrink-0"></i>
-                                <span>დიდუბე, მექანიზაციის ქუჩა 1 — ორშაბათი-პარასკევი 09:00-18:00</span>
-                            </li>
-                        </ul>
+                        <div class="space-y-2 text-sm text-gray-600">
+                            <div class="flex flex-col gap-1.5">
+                                <div class="flex items-center gap-1">
+                                    <i class="pi pi-map-marker text-brand-500 mt-0.5 shrink-0"></i>
+                                    <span>ავჭალა, შუშის ქუჩა 38 — ორშაბათი-პარასკევი 09:00-18:00</span>
+                                </div>
+                                <a href="https://maps.app.goo.gl/3YwH55CnhUUfJoYQ9" target="_blank" class="text-brand-500 underline">
+                                    დააჭირეთ ლინკზე მისამართის სანახავად
+                                </a>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Comment -->
@@ -506,7 +645,7 @@ function initiatePayment() {
                     </div>
 
                     <!-- Payment method -->
-                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                    <div class="bg-white rounded-2xl border shadow-sm p-6" :class="errors.provider ? 'border-red-300' : 'border-gray-100'">
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-credit-card text-brand-500"></i>
                             გადახდის მეთოდი
@@ -544,6 +683,11 @@ function initiatePayment() {
                                 </div>
                             </button>
                         </div>
+
+                        <p v-if="errors.provider" class="mt-3 text-sm text-red-500 flex items-center gap-1.5">
+                            <i class="pi pi-exclamation-circle shrink-0"></i>
+                            {{ errors.provider }}
+                        </p>
 
                         <!-- Card logos -->
                         <div class="mt-4 flex items-center gap-3">
@@ -604,13 +748,18 @@ function initiatePayment() {
                     </div>
 
                     <!-- Agreement -->
-                    <div class="flex items-start gap-3 px-1">
-                        <Checkbox v-model="form.agreement" inputId="agreement" binary class="mt-0.5 cursor-pointer" />
-                        <label for="agreement" class="text-sm text-gray-600 cursor-pointer leading-relaxed">
-                            ვეთანხმები
-                            <a :href="route('terms-of-service')" target="_blank" class="text-brand-500 hover:underline">წესებსა და პირობებს</a>
-                            <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
-                        </label>
+                    <div class="px-1 space-y-1.5 rounded-2xl p-3 border transition-colors" :class="errors.agreement ? 'border-red-300 bg-red-50/40' : 'border-transparent'">
+                        <div class="flex items-start gap-3">
+                            <Checkbox v-model="form.agreement" inputId="agreement" binary class="mt-0.5 cursor-pointer" />
+                            <label for="agreement" class="text-sm text-gray-600 cursor-pointer leading-relaxed">
+                                ვეთანხმები
+                                <a :href="route('terms-of-service')" target="_blank" class="text-brand-500 hover:underline">წესებსა და პირობებს</a>
+                            </label>
+                        </div>
+                        <p v-if="errors.agreement" class="text-sm text-red-500 flex items-center gap-1.5 pl-7">
+                            <i class="pi pi-exclamation-circle shrink-0"></i>
+                            {{ errors.agreement }}
+                        </p>
                     </div>
 
                 </div>

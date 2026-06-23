@@ -178,19 +178,19 @@ Route::get('/about-us', function () {
 })->name('about-us');
 
 Route::get('/terms-of-service', function () {
-    return Inertia::render('policies/TermsOfService');
+    return Inertia::render('Policies/TermsOfService');
 })->name('terms-of-service');
 
 Route::get('/keep-conditions', function () {
-    return Inertia::render('policies/KeepConditions');
+    return Inertia::render('Policies/KeepConditions');
 })->name('keep-conditions');
 
 Route::get('/privacy-policy', function () {
-    return Inertia::render('policies/PrivacyPolicy');
+    return Inertia::render('Policies/PrivacyPolicy');
 })->name('privacy-policy');
 
 Route::get('/cookie-policy', function () {
-    return Inertia::render('policies/CookiePolicy');
+    return Inertia::render('Policies/CookiePolicy');
 })->name('cookie-policy');
 
 /*******************************************************************************************************************

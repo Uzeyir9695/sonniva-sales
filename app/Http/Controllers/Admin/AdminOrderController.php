@@ -208,7 +208,7 @@ class AdminOrderController extends Controller
             'to_name' => trim($order->user->name.' '.$order->user->lastname),
             'to_phone' => $order->user->local_phone,
             'to_address' => $order->address,
-            'to_company' => $order->user->name,
+            'to_company' => $order->user->user_type === 'legal_entity' ? $order->user->name : null,
             'payment' => 3,
             'payer' => 3,
             'weight' => max($order->items->sum(fn ($i) => $i->unit_weight * $i->quantity), 0.1),
