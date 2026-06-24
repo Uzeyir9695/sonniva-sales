@@ -7,7 +7,7 @@ const menuRef = ref(null)
 
 const items = [
     { label: 'ჩვენს შესახებ', icon: 'fa-circle-info', route: 'about-us' },
-    { label: 'მიწოდების ტარიფები', icon: 'fa-truck', route: 'delivery-rates' },
+    { label: 'მიწოდების ტარიფები', icon: 'fa-truck-fast', route: 'delivery-rates' },
     { label: 'Cookie პოლიტიკა', icon: 'fa-cookie-bite', route: 'cookie-policy' },
     { label: 'კონფიდენციალურობა', icon: 'fa-shield-halved', route: 'privacy-policy' },
     { label: 'მომსახურების პირობები', icon: 'fa-file-lines', route: 'terms-of-service' },
