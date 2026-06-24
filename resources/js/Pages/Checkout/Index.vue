@@ -82,8 +82,8 @@ const deliveryTypes = [
 ]
 
 const regionOptions = [
-    { key: 'onway_office', label: 'OnWay-ის ფილიალიდან გატანა' },
-    { key: 'address',      label: 'ადგილზე მიტანა' },
+    { key: 'onway_office', label: 'OnWay-ის ფილიალიდან გატანა', icon: 'fa-solid fa-warehouse' },
+    { key: 'address',      label: 'ადგილზე მიტანა',             icon: 'fa-solid fa-truck-fast' },
 ]
 
 const onwayFilials = [
@@ -491,7 +491,10 @@ function initiatePayment() {
                                         ? 'border-brand-500 bg-brand-50/50'
                                         : 'border-gray-100 hover:border-gray-200 bg-white'"
                                 >
-                                    <span class="text-sm font-semibold text-gray-800">{{ option.label }}</span>
+                                    <span class="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                                        <i :class="[option.icon, 'text-brand-500']"></i>
+                                        {{ option.label }}
+                                    </span>
                                     <div
                                         class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0"
                                         :class="selectedRegionOption === option.key ? 'border-brand-500' : 'border-gray-300'"
