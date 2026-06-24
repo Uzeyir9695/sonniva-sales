@@ -27,7 +27,10 @@ class SyncItemWeightsCommand extends Command
         $token = $this->bc->getAccessToken();
         $tokenFetchedAt = now();
 
-        $items = DB::table('items')->select('no', 'unit_price', 'prices')->get();
+        $items = DB::table('items')
+            ->select('no', 'unit_price', 'prices')
+            ->whereJsonContains('weights', ['weight' => 0])
+            ->get();
 
         $this->info("Processing {$items->count()} items in parallel chunks...");
 
