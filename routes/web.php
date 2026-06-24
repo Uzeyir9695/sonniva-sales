@@ -193,6 +193,10 @@ Route::get('/cookie-policy', function () {
     return Inertia::render('Policies/CookiePolicy');
 })->name('cookie-policy');
 
+Route::get('/delivery-rates', function () {
+    return Inertia::render('Policies/DeliveryRates');
+})->name('delivery-rates');
+
 /*******************************************************************************************************************
  * Items Routes
  * *****************************************************************************************************************/

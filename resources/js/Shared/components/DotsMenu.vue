@@ -7,6 +7,7 @@ const menuRef = ref(null)
 
 const items = [
     { label: 'ჩვენს შესახებ', icon: 'fa-circle-info', route: 'about-us' },
+    { label: 'მიწოდების ტარიფები', icon: 'fa-truck', route: 'delivery-rates' },
     { label: 'Cookie პოლიტიკა', icon: 'fa-cookie-bite', route: 'cookie-policy' },
     { label: 'კონფიდენციალურობა', icon: 'fa-shield-halved', route: 'privacy-policy' },
     { label: 'მომსახურების პირობები', icon: 'fa-file-lines', route: 'terms-of-service' },
@@ -42,7 +43,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
         >
             <div
                 v-if="open"
-                class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg ring-1 ring-black/5 z-50 overflow-hidden origin-top-right py-1"
+                class="absolute right-0 mt-2 w-58 bg-white rounded-xl shadow-lg ring-1 ring-black/5 z-50 overflow-hidden origin-top-right py-1"
             >
                 <Link
                     v-for="item in items"
