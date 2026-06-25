@@ -54,7 +54,6 @@ function deleteNotification(id) {
 </script>
 
 <template>
-    <ConfirmDialog />
     <div class="p-6">
         <div class="flex items-center justify-between mb-6">
             <div>
