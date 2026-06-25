@@ -14,7 +14,6 @@ class StockNotificationSeeder extends Seeder
 
         Item::query()
             ->where('inventory', 0)
-            ->limit(400)
             ->get()
             ->each(function (Item $item) use ($userId) {
                 StockNotification::firstOrCreate([
