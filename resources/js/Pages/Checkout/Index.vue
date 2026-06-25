@@ -750,21 +750,6 @@ function initiatePayment() {
                         </div>
                     </div>
 
-                    <!-- Agreement -->
-                    <div class="px-1 space-y-1.5 rounded-2xl p-3 border transition-colors" :class="errors.agreement ? 'border-red-300 bg-red-50/40' : 'border-transparent'">
-                        <div class="flex items-start gap-3">
-                            <Checkbox v-model="form.agreement" inputId="agreement" binary class="mt-0.5 cursor-pointer" />
-                            <label for="agreement" class="text-sm text-gray-600 cursor-pointer leading-relaxed">
-                                ვეთანხმები
-                                <a :href="route('terms-of-service')" target="_blank" class="text-brand-500 hover:underline">წესებსა და პირობებს</a>
-                            </label>
-                        </div>
-                        <p v-if="errors.agreement" class="text-sm text-red-500 flex items-center gap-1.5 pl-7">
-                            <i class="pi pi-exclamation-circle shrink-0"></i>
-                            {{ errors.agreement }}
-                        </p>
-                    </div>
-
                 </div>
 
                 <!-- ── Right: Order summary ── -->
@@ -823,6 +808,22 @@ function initiatePayment() {
                         <div class="flex justify-between items-center mb-6">
                             <span class="font-bold text-gray-900">სულ</span>
                             <span class="text-xl font-bold text-brand-500">{{ formatted(total) }} ₾</span>
+                        </div>
+
+
+                        <!-- Agreement -->
+                        <div class="px-1 space-y-1.5 rounded-2xl p-3 mb-3 border transition-colors" :class="errors.agreement ? 'border-red-300 bg-red-50/40' : 'border-transparent'">
+                            <div class="flex items-start gap-3">
+                                <Checkbox v-model="form.agreement" inputId="agreement" binary class="mt-0.5 cursor-pointer" />
+                                <label for="agreement" class="text-sm text-gray-600 cursor-pointer leading-relaxed">
+                                    ვეთანხმები
+                                    <a :href="route('terms-of-service')" target="_blank" class="text-brand-500 hover:underline">წესებსა და პირობებს</a>
+                                </label>
+                            </div>
+                            <p v-if="errors.agreement" class="text-sm text-red-500 flex items-center gap-1.5 pl-7">
+                                <i class="pi pi-exclamation-circle shrink-0"></i>
+                                {{ errors.agreement }}
+                            </p>
                         </div>
 
                         <!-- Pay button -->
