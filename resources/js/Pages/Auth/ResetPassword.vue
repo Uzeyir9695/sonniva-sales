@@ -3,8 +3,9 @@
         <title>პაროლის შეცვლა</title>
     </Head>
 
-    <div class="bg-white flex flex-col justify-evenly mx-3 sm:mx-auto shadow-lg rounded-xl border border-slate-200 mt-8 w-[250px] sm:w-[450px] h-[400px]">
-        <form @submit.prevent="resetPassword" class="flex flex-col p-8 gap-6 self-center">
+    <div class="px-2.5 sm:px-0">
+        <div class="bg-white flex flex-col justify-evenly sm:mx-auto shadow-lg rounded-xl border border-slate-200 mt-8 w-full max-w-[450px] h-100">
+        <form @submit.prevent="resetPassword" class="flex flex-col p-8 gap-6 self-center w-full">
             <div class="flex flex-col space-y-5">
                 <div class="self-center text-2xl font-semibold">ახალი პაროლი</div>
             </div>
@@ -74,6 +75,7 @@
                 />
             </div>
         </form>
+    </div>
     </div>
 </template>
 
