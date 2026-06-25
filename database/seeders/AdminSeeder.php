@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -22,18 +21,19 @@ class AdminSeeder extends Seeder
                 'name' => 'Admin',
                 'lastname' => 'Panel',
                 'tax_id' => '12345678910',
-                'email' => 'sales@sonniva.ge',
+                'email' => 'frame@sonniva.ge',
                 'role' => 'admin',
                 'phone_country' => 'GE',
                 'phone_verified_at' => now(),
                 'email_verified_at' => now(),
-                'password' => Hash::make('SonnivaSales2026@'),
+                'password' => Hash::make('adminFrame2026@'),
             ]
         );
 
+        // Manager
         User::updateOrCreate(
             [
-                'phone' => '+995596720001'],
+                'phone' => '+995591008799'],
             [
                 'name' => 'Manager',
                 'lastname' => 'Panel',
@@ -43,7 +43,7 @@ class AdminSeeder extends Seeder
                 'phone_country' => 'GE',
                 'phone_verified_at' => now(),
                 'email_verified_at' => now(),
-                'password' => Hash::make('Sonniva2026@'),
+                'password' => Hash::make('managerFrame2026@'),
             ]);
     }
 }
