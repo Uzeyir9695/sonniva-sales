@@ -1,5 +1,5 @@
 <script setup>
-import { Head, usePage } from '@inertiajs/vue3'
+import { Deferred, Head, usePage } from '@inertiajs/vue3'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useGtag } from '@/composables/useGtag.js'
 import { useClipboard } from '@vueuse/core';
@@ -157,45 +157,55 @@ const ogImage = computed(() => {
                         </span>
                     </div>
 
-<!--                    <div class="flex items-center gap-3 mt-4 mb-6">-->
-<!--                        <div class="flex-1 flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">-->
-<!--                            <div class="flex items-center gap-2">-->
-<!--                                <i class="pi pi-warehouse text-brand-500 text-sm"></i>-->
-<!--                                <span class="text-xs text-gray-500">მაღაზია 1</span>-->
-<!--                            </div>-->
-<!--                            <span class="text-sm font-semibold text-gray-800">{{ inventory.shop1Total }}</span>-->
-<!--                        </div>-->
+                    <Deferred v-if="$page.props.user?.can_view_inventory" data="inventory">
+                        <template #fallback>
+                            <div class="flex items-center gap-3 mt-4 mb-6">
+                                <div class="flex-1 h-[52px] bg-gray-100 rounded-2xl animate-pulse" />
+                                <div class="flex-1 h-[52px] bg-gray-100 rounded-2xl animate-pulse" />
+                            </div>
+                        </template>
+                        <template #default>
+                            <div class="flex items-center gap-3 mt-4 mb-6">
+                                <div class="flex-1 flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">
+                                    <div class="flex items-center gap-2">
+                                        <i class="pi pi-warehouse text-brand-500 text-sm"></i>
+                                        <span class="text-xs text-gray-500">დიდუბის ფილიალი</span>
+                                    </div>
+                                    <span class="text-sm font-semibold text-gray-800">{{ inventory.shop1Total }}</span>
+                                </div>
 
-<!--                        <div class="flex-1 flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">-->
-<!--                            <div class="flex items-center gap-2">-->
-<!--                                <i class="pi pi-warehouse text-brand-500 text-sm"></i>-->
-<!--                                <span class="text-xs text-gray-500">მაღაზია 2</span>-->
-<!--                            </div>-->
-<!--                            <span class="text-sm font-semibold text-gray-800">{{ inventory.shop2Total }}</span>-->
-<!--                        </div>-->
-<!--                    </div>-->
+                                <div class="flex-1 flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">
+                                    <div class="flex items-center gap-2">
+                                        <i class="pi pi-warehouse text-brand-500 text-sm"></i>
+                                        <span class="text-xs text-gray-500">ავჭალლის ფილიალი</span>
+                                    </div>
+                                    <span class="text-sm font-semibold text-gray-800">{{ inventory.shop2Total }}</span>
+                                </div>
+                            </div>
+                        </template>
+                    </Deferred>
 
-<!--                    <template v-for="price in item.prices" :key="price.id">-->
-<!--                        <div class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 mb-2 hover:border-brand-200 hover:bg-brand-50/30 transition-all duration-150">-->
-<!--                            <div class="flex-1">-->
-<!--                                <p class="text-sm font-semibold text-gray-800 mb-1">-->
-<!--                                    {{ price.priceGroup }}-->
-<!--                                </p>-->
-<!--                                <div class="flex items-center gap-1.5">-->
-<!--                                    <i class="pi pi-box text-gray-400 text-xs"></i>-->
-<!--                                    <p class="text-xs text-gray-400">-->
-<!--                                        მინ. რაოდენობა: <span class="text-gray-600 font-medium">{{ price.custMinQuantity }}</span>-->
-<!--                                    </p>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                            <div class="text-right ml-4">-->
-<!--                                <p class="text-xs text-gray-400 mb-0.5">ცალის ფასი</p>-->
-<!--                                <p class="text-brand-500 font-bold text-xl">-->
-<!--                                    {{ price.price }}<span class="text-sm ml-0.5">₾</span>-->
-<!--                                </p>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </template>-->
+                    <template v-for="price in item.prices" :key="price.id">
+                        <div v-if="($page.props.user?.can_view_wholesales) || (price.priceGroup === 'VIP' && $page.props.user?.can_view_vip)" class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 mb-2 hover:border-brand-200 hover:bg-brand-50/30 transition-all duration-150">
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-gray-800 mb-1">
+                                    {{ price.priceGroup === 'VIP' ? 'VIP' : price.priceGroup === 'Wholesales' ? 'საბითუმო' : 'საცალო'}}
+                                </p>
+                                <div v-if="price.custMinQuantity > 0" class="flex items-center gap-1.5">
+                                    <i class="pi pi-box text-gray-400 text-xs"></i>
+                                    <p class="text-xs text-gray-400">
+                                        მინ. რაოდენობა: <span class="text-gray-600 font-medium">{{ price.custMinQuantity }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right ml-4">
+                                <p class="text-xs text-gray-400 mb-0.5">{{ item.unit_price === '0.00' ? 'შეკვრის ფასი' : 'ცალის ფასი'}}</p>
+                                <p class="text-brand-500 font-bold text-xl">
+                                    {{ price.price }}<span class="text-sm ml-0.5">₾</span>
+                                </p>
+                            </div>
+                        </div>
+                    </template>
 
                     <!-- Divider -->
                     <div class="h-px bg-gray-200 mb-8"></div>

@@ -17,11 +17,11 @@ use Propaganistas\LaravelPhone\Casts\E164PhoneNumberCast;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasUuids, HasApiTokens;
+    use HasApiTokens, HasFactory, HasUuids, Notifiable;
 
     public $incrementing = false;
 
-    protected $keyType='string';
+    protected $keyType = 'string';
 
     /**
      * The attributes that are mass assignable.
@@ -53,6 +53,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'is_handyman' => 'boolean',
             'is_entrepreneur' => 'boolean',
+            'can_view_wholesales' => 'boolean',
+            'can_view_vip' => 'boolean',
+            'can_view_inventory' => 'boolean',
             'password' => 'hashed',
             'phone' => E164PhoneNumberCast::class.':phone_country',
         ];
@@ -61,7 +64,7 @@ class User extends Authenticatable
     protected function createdAt(): Attribute
     {
         return Attribute::make(
-            get: fn(string $value) => Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y'),
+            get: fn (string $value) => Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y'),
         );
     }
 
@@ -119,10 +122,12 @@ class User extends Authenticatable
 
         if ($exists) {
             $this->wishlists()->where('item_id', $itemId)->delete();
+
             return false; // removed
         }
 
         $this->wishlists()->create(['item_id' => $itemId]);
+
         return true; // added
     }
 

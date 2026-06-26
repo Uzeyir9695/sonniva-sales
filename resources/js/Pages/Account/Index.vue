@@ -1,6 +1,6 @@
 <script setup>
 import { useForm, usePage, Head } from '@inertiajs/vue3';
-import {computed, onMounted, ref} from "vue";
+import {computed, ref, watch} from "vue";
 import UpdatePassword from "./UpdatePassword.vue";
 
 const page = usePage();
@@ -23,6 +23,9 @@ const form = useForm({
   lastname: null,
   is_handyman: false,
   is_entrepreneur: false,
+  can_view_wholesales: false,
+  can_view_vip: false,
+  can_view_inventory: false,
   tax_id: null,
   phone_country: selectedCountryCode.value,
   phone: null,
@@ -72,18 +75,21 @@ async function changePassword(){
   })
 }
 
-onMounted(() => {
-    const user = props.user;
+watch(() => props.user, (user) => {
+    if (!user) return;
     selectedUserType.value = {key: user.user_type, value: user.user_type === 'individual' ? 'Individual' : 'Legal Entity'};
     form.name = user.name;
     form.email = user.email;
     form.lastname = user.lastname;
     form.is_handyman = user.is_handyman;
     form.is_entrepreneur = user.is_entrepreneur;
+    form.can_view_wholesales = user.can_view_wholesales;
+    form.can_view_vip = user.can_view_vip;
+    form.can_view_inventory = user.can_view_inventory;
     form.tax_id = user.tax_id;
     form.phone = user.phone;
     form.address = user.address;
-});
+}, { immediate: true });
 
 </script>
 
@@ -196,6 +202,21 @@ onMounted(() => {
                             <div class="flex items-center gap-2">
                                 <Checkbox v-model="form.is_entrepreneur" binary />
                                 <label for="ingredient1"> არის მცირე მეწარმე </label>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <Checkbox v-model="form.can_view_wholesales" binary />
+                                <label for="ingredient1"> შეძლოს საბითუმო ფასების ნახვა </label>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <Checkbox v-model="form.can_view_vip" binary />
+                                <label for="ingredient1"> შეძლოს VIP ფასების ნახვა </label>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <Checkbox v-model="form.can_view_inventory" binary />
+                                <label for="ingredient1"> შეძლოს მაღაზებში ნაშთის ნახვა </label>
                             </div>
                         </div>
 

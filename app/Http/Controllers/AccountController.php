@@ -7,13 +7,13 @@ use App\Models\User;
 use App\Services\BusinessCentralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class AccountController extends Controller
 {
     protected $bcService;
+
     public function __construct(BusinessCentralService $bcService)
     {
         $this->bcService = $bcService;
@@ -27,6 +27,7 @@ class AccountController extends Controller
             'user' => $user,
         ]);
     }
+
     public function changePassword(Request $request)
     {
         $request->validate([
@@ -56,18 +57,28 @@ class AccountController extends Controller
     {
         $validated = $request->validate([
             'user_type' => 'required_if:user_type,individual,legal_entity|string',
-            'name'      => 'required|string|max:30',
-            'lastname'  => 'required_if:user_type,individual|max:30',
-            'phone_country'  => 'required|string',
-            'phone'     => 'required|string|min:9|max:13|unique:users,phone,' . $user->id,
-            'email'     => 'required|email|unique:users,email,' . $user->id,
+            'name' => 'required|string|max:30',
+            'lastname' => 'required_if:user_type,individual|max:30',
+            'phone_country' => 'required|string',
+            'phone' => 'required|string|min:9|max:13|unique:users,phone,'.$user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'tax_id' => 'required|string|max:30',
-            'address'   => 'nullable|string|max:100',
+            'address' => 'nullable|string|max:100',
         ],
-        [
-            'tax_id.required' => __($user->user_type === 'individual' ? 'The ID number is required.' : 'The tax id is required.'),
-            'lastname.required_if' => __('The lastname field is required for the individual users.'),
-        ]);
+            [
+                'tax_id.required' => __($user->user_type === 'individual' ? 'The ID number is required.' : 'The tax id is required.'),
+                'lastname.required_if' => __('The lastname field is required for the individual users.'),
+            ]);
+
+        if (Auth::user()->role === 'admin') {
+            $validated = array_merge($validated, $request->only([
+                'is_handyman',
+                'is_entrepreneur',
+                'can_view_wholesales',
+                'can_view_vip',
+                'can_view_inventory',
+            ]));
+        }
 
         $user->update($validated);
         $user->refresh();
@@ -77,11 +88,11 @@ class AccountController extends Controller
             'Address_2' => '',
             'City' => $user->city ?? '',
             'Phone_No' => $user->phone,
-            'E_Mail' => $user->email?? 'Email not provided',
+            'E_Mail' => $user->email ?? 'Email not provided',
             'Prices_Including_VAT' => true,
             'VAT_Registration_No' => $user->tax_id,
             'Gen_Bus_Posting_Group' => 'DOMESTIC',
-            'Customer_Posting_Group' => 'DOMESTIC'
+            'Customer_Posting_Group' => 'DOMESTIC',
         ];
 
         $endpoint = "Customers(No='{$user->bc_customer_no}')";

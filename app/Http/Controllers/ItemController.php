@@ -127,7 +127,9 @@ class ItemController extends Controller
             ->limit(10)
             ->get(['id', 'name', 'slug', 'unit_price', 'images', 'inventory']);
 
-        //        $inventory = $bcService->calcInventory($item->no);
+        $inventory = auth()->check() && auth()->user()->can_view_inventory
+            ? Inertia::defer(fn () => $bcService->calcInventory($item->no))
+            : null;
 
         $breadcrumbs = $this->buildBreadcrumbs($item);
 
@@ -148,6 +150,7 @@ class ItemController extends Controller
             'attributes' => $item->attributes,
             'similarItems' => $similarItems,
             'breadcrumbs' => $breadcrumbs,
+            'inventory' => $inventory,
             'isSubscribedToNotification' => $isSubscribedToNotification,
             'isOrderOnly' => $itemCategory ? $this->isOrderOnlyCategory($itemCategory) : false,
         ]);
