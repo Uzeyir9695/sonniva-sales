@@ -1,7 +1,7 @@
 <script setup>
 import { Head } from '@inertiajs/vue3'
 
-const TBILISI_FREE_THRESHOLD = 100
+const TBILISI_FREE_THRESHOLD = 500
 
 const deliveryMethods = [
     {

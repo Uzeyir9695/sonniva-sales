@@ -101,7 +101,7 @@ const zones = ref([])
 const zoneSuggestions = ref([])
 const zonesLoading = ref(false)
 
-const TBILISI_FREE_THRESHOLD = 100
+const TBILISI_FREE_THRESHOLD = 500
 
 const tbilisiZoneOptions = [
     {
@@ -586,7 +586,7 @@ function initiatePayment() {
                             </Select>
                             <p v-if="subtotal >= TBILISI_FREE_THRESHOLD" class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1">
                                 <i class="pi pi-check-circle text-sm"></i>
-                                შეკვეთა 100 ₾-ზე მეტია — თბილისში მიწოდება უფასოა
+                                შეკვეთა 500 ₾-ზე მეტია — თბილისში მიწოდება უფასოა
                             </p>
                             <p v-if="errors.tbilisiZone" class="mt-1.5 text-sm text-red-500 flex items-center gap-1.5">
                                 <i class="pi pi-exclamation-circle shrink-0"></i>
