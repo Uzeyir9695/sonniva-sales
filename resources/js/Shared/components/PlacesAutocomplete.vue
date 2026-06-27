@@ -11,6 +11,8 @@ const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
 const query = ref("");
 const suggestions = ref([]);
+const isConfirmed = ref(false);
+const showWarning = ref(false);
 let lastSeq = 0;
 
 const debounceTimerRef = { t: null };
@@ -50,14 +52,25 @@ const doFetch = debounce(async (input, seq) => {
 }, 100);
 
 function onInput() {
+    isConfirmed.value = false;
+    showWarning.value = false;
+    emits("update:modelValue", "");
     const text = query.value.trim();
     const seq = ++lastSeq;
     doFetch(text, seq);
 }
 
+function onBlur() {
+    if (query.value.trim() && !isConfirmed.value) {
+        showWarning.value = true;
+    }
+}
+
 function selectSuggestion(item) {
     query.value = item.placePrediction.text.text;
     suggestions.value = [];
+    isConfirmed.value = true;
+    showWarning.value = false;
     emits("update:modelValue", query.value);
 }
 </script>
@@ -69,7 +82,16 @@ function selectSuggestion(item) {
                 ზუსტი მისამართი
                 <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
             </label>
-            <PrimeInputText id="city" class="py-2.5! mt-2" v-model="query" placeholder="მისამართი" @input="onInput" />
+            <p v-if="showWarning" class="text-sm text-red-500 mt-1 mb-1">
+                <i class="pi pi-exclamation-circle text-xs"></i>
+                აირჩიეთ შესაბამისი მისამართი ქვემოთ მოცემული ლისტიდან
+            </p>
+            <div class="relative mt-2">
+                <PrimeInputText id="city" class="py-2.5! w-full pr-8!" v-model="query" placeholder="მისამართი" @input="onInput" @blur="onBlur" />
+                <span v-if="isConfirmed" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-green-500 pointer-events-none">
+                    <i class="pi pi-check-circle text-base"></i>
+                </span>
+            </div>
         </div>
         <ul v-if="suggestions.length" class="border rounded-md bg-white mt-2 shadow-md">
             <li
@@ -78,7 +100,6 @@ function selectSuggestion(item) {
                 class="p-2 hover:bg-gray-100 cursor-pointer"
                 @click="selectSuggestion(item)"
             >
-                <!-- Use structuredFormat if available, else fallback to text.text -->
                 <strong>
                     {{ item.placePrediction.structuredFormat?.mainText?.text || item.placePrediction.text?.text }}
                 </strong>
