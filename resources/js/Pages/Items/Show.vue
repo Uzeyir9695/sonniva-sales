@@ -37,8 +37,8 @@ onMounted(() => {
     })
 })
 
-const source = ref(props.item?.no);
-const { copy, copied } = useClipboard({ source });
+const { copy: copyNo, copied: copiedNo } = useClipboard();
+const { copy: copyName, copied: copiedName } = useClipboard();
 
 const images = computed(() => {
     if (props.item?.images?.length) return props.item.images
@@ -122,23 +122,36 @@ const ogImage = computed(() => {
                                 variant="pill"
                                 class="border border-gray-100 rounded-lg! shrink-0"
                             />
-                            <span v-if="copied" class="text-emerald-500 text-xs">დაკოპირებულია</span>
 
-                            <div
-                                @click="copy(item.no)"
-                                v-tooltip.bottom="'დააკოპირე პროდუქტის კოდი'"
-                                class="flex items-center justify-center w-7 h-7 border border-gray-200 rounded-lg shadow-md hover:bg-gray-50 hover:border-gray-300 transition-all duration-150 cursor-pointer"
-                            >
-                                <i v-if="copied" class="pi pi-check text-emerald-500 text-xs"></i>
-                                <i v-else class="pi pi-copy text-gray-400 text-sm"></i>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- Title -->
-                    <h1 class="sm:text-xl font-semibold text-gray-900 leading-snug mb-2">
-                        {{ item.name }}
-                    </h1>
+                    <div class="flex items-center gap-2 mb-2">
+                        <p class="text-xs sm:text-sm font-semibold text-gray-500 leading-snug">
+                            {{ item?.no }}
+                        </p>
+                        <div
+                            @click="copyNo(item.no)"
+                            v-tooltip.bottom="'დააკოპირე პროდუქტის კოდი'"
+                            class="flex items-center justify-center w-5 h-5 cursor-pointer"
+                        >
+                            <i v-if="copiedNo" class="pi pi-check text-emerald-500 text-xs"></i>
+                            <i v-else class="pi pi-copy text-gray-400 text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <h1 class="sm:text-xl font-semibold text-gray-900 leading-snug">
+                            {{ item.name }}
+                        </h1>
+                        <div
+                            @click="copyName(item.name)"
+                            v-tooltip.bottom="'დააკოპირე პროდუქტის სახელი'"
+                            class="flex items-center justify-center w-5 h-5 cursor-pointer shrink-0"
+                        >
+                            <i v-if="copiedName" class="pi pi-check text-emerald-500 text-xs"></i>
+                            <i v-else class="pi pi-copy text-gray-400 text-sm"></i>
+                        </div>
+                    </div>
                     <!-- Item NO -->
 <!--                    <h1 class="sm:text-xs font-semibold text-gray-900 leading-snug mb-5">-->
 <!--                        {{ item.no }}-->
