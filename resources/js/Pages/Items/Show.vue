@@ -1,5 +1,5 @@
 <script setup>
-import { Deferred, Head, usePage } from '@inertiajs/vue3'
+import { Deferred, Head, Link, usePage } from '@inertiajs/vue3'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useGtag } from '@/composables/useGtag.js'
 import { useClipboard } from '@vueuse/core';
@@ -165,44 +165,51 @@ const ogImage = computed(() => {
                             </div>
                         </template>
                         <template #default>
-                            <div class="flex items-center gap-3 mt-4 mb-6">
-                                <div class="flex-1 flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">
-                                    <div class="flex items-center gap-2">
+                            <div class="flex flex-wrap items-center gap-3 mt-4 mb-6">
+                                <div class="flex-1 flex flex-col sm:flex-row items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-2 sm:px-4 py-3">
+                                    <div class="flex items-center gap-2 text-nowrap">
                                         <i class="pi pi-warehouse text-brand-500 text-sm"></i>
-                                        <span class="text-xs text-gray-500">დიდუბის ფილიალი</span>
-                                    </div>
-                                    <span class="text-sm font-semibold text-gray-800">{{ inventory.shop1Total }}</span>
-                                </div>
-
-                                <div class="flex-1 flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">
-                                    <div class="flex items-center gap-2">
-                                        <i class="pi pi-warehouse text-brand-500 text-sm"></i>
-                                        <span class="text-xs text-gray-500">ავჭალლის ფილიალი</span>
+                                        <span class="text-xs sm:text-sm text-gray-500">ავჭალლის ფილიალი</span>
                                     </div>
                                     <span class="text-sm font-semibold text-gray-800">{{ inventory.shop2Total }}</span>
+                                </div>
+
+                                <div class="flex-1 flex flex-col sm:flex-row items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-2 sm:px-4 py-3">
+                                    <div class="flex items-center gap-2 text-nowrap">
+                                        <i class="pi pi-warehouse text-brand-500 text-sm"></i>
+                                        <span class="text-xs sm:text-sm text-gray-500">დიდუბის ფილიალი</span>
+                                    </div>
+                                    <span class="text-sm font-semibold text-gray-800">{{ inventory.shop1Total }}</span>
                                 </div>
                             </div>
                         </template>
                     </Deferred>
 
                     <template v-for="price in item.prices" :key="price.id">
-                        <div v-if="($page.props.user?.can_view_wholesales) || (price.priceGroup === 'VIP' && $page.props.user?.can_view_vip)" class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 mb-2 hover:border-brand-200 hover:bg-brand-50/30 transition-all duration-150">
+                        <div v-if="(price.priceGroup === 'VIP' && $page.props.user?.can_view_vip) || (price.priceGroup !== 'VIP' && $page.props.user?.can_view_wholesales)" class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 mb-2 hover:border-brand-200 hover:bg-brand-50/30 transition-all duration-150">
                             <div class="flex-1">
                                 <p class="text-sm font-semibold text-gray-800 mb-1">
-                                    {{ price.priceGroup === 'VIP' ? 'VIP' : price.priceGroup === 'Wholesales' ? 'საბითუმო' : 'საცალო'}}
+                                    {{ price.priceGroup === 'VIP' ? 'VIP' : price.priceGroup === 'Wholesales' ? 'საბითუმო' : (item?.unit_price === '0.00' ? 'შეკვრა' : 'საცალო')}}
                                 </p>
                                 <div v-if="price.custMinQuantity > 0" class="flex items-center gap-1.5">
-                                    <i class="pi pi-box text-gray-400 text-xs"></i>
-                                    <p class="text-xs text-gray-400">
-                                        მინ. რაოდენობა: <span class="text-gray-600 font-medium">{{ price.custMinQuantity }}</span>
+                                    <p class="text-sm text-gray-500">
+                                        ფასი ვრცელდება
+                                        <span class="text-sm mx-1 text-gray-600 font-semibold">{{ price.custMinQuantity }}</span>
+                                        {{ item?.unit_price === '0.00' ? 'შეკვრის შეძენის შემთხვევაში' : 'ცალის შეძენის შემთხვევაში' }}
                                     </p>
                                 </div>
                             </div>
                             <div class="text-right ml-4">
                                 <p class="text-xs text-gray-400 mb-0.5">{{ item.unit_price === '0.00' ? 'შეკვრის ფასი' : 'ცალის ფასი'}}</p>
-                                <p class="text-brand-500 font-bold text-xl">
-                                    {{ price.price }}<span class="text-sm ml-0.5">₾</span>
-                                </p>
+                                <div class="flex items-center gap-2">
+                                    <p class="text-brand-500 font-bold text-xl">
+                                        {{ price.price }}<span class="text-sm ml-0.5">₾</span>
+                                    </p>
+                                    <div v-if="price.UOM">
+                                        <i class="pi pi-box text-gray-400 text-xs"></i>
+                                        <p class="text-sm text-gray-400 mt-0.5">{{ price.UOM }}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -344,7 +351,7 @@ const ogImage = computed(() => {
                                     <span class="text-brand-500">→</span>
                                     <span>
                                         მიწოდება რეგიონებში:
-                                        <a href="#" class="text-blue-500 hover:underline">იხილეთ მიწოდების ტარიფები</a>
+                                        <Link :href="route('delivery-rates')" class="text-blue-500 hover:underline">იხილეთ მიწოდების ტარიფები</Link>
                                     </span>
                                 </li>
                                 <li class="flex gap-2"><span class="text-brand-500">→</span> <span>13:00-მდე გაფორმებულ შეკვეთებს თბილისში გაწვდით იმავე დღეს!</span></li>
