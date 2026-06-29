@@ -184,7 +184,9 @@ export function useCart() {
         } else {
             await addToCart(itemId, quantity, selectedUOM)
         }
-        router.visit(route('checkout.index', { item_ids: [itemId] }))
+        const params = { item_ids: [itemId] }
+        if (selectedUOM) params.uom = selectedUOM
+        router.visit(route('checkout.index', params))
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

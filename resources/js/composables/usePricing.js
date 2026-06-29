@@ -50,7 +50,7 @@ export function usePricing(item) {
     })
 
     const prices = computed(() =>
-        (get()?.prices ?? []).filter(p => p.priceGroup !== 'Wholesales')
+        (get()?.prices ?? []).filter(p => p.priceGroup !== 'Wholesales' && p.priceGroup !== 'VIP')
     )
 
     const displayPrice = computed(() =>

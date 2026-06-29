@@ -14,12 +14,18 @@ class CheckoutController extends Controller
     public function index(Request $request)
     {
         $cartIds = $request->input('cart_ids', []);
+        $itemIds = $request->input('item_ids', []);
+        $uom = $request->input('uom');
 
         $cartItems = $request->user()
             ->carts()
             ->whereHas('item', fn ($q) => $q->where('inventory', '>', 0))
             ->with('item')
             ->when(count($cartIds), fn ($q) => $q->whereIn('id', $cartIds))
+            ->when(count($itemIds), fn ($q) => $q
+                ->whereIn('item_id', $itemIds)
+                ->when($uom, fn ($q) => $q->where('selected_uom', $uom))
+            )
             ->latest()
             ->get();
 
