@@ -139,9 +139,13 @@ const providerLabel = {
                     </div>
                     <div class="px-3 py-3 space-y-1.5">
                         <p class="font-semibold text-gray-800">{{ deliveryLabel[order.delivery_type] ?? order.delivery_type }}</p>
-                        <p v-if="order.city" class="flex items-center gap-1.5 text-gray-500">
+                        <p v-if="order.branch" class="flex items-center gap-1.5 text-gray-500">
                             <i class="pi pi-building text-xs text-brand-400"></i>
-                            {{ order.city }}
+                            Pickup: <span class="font-medium text-gray-700 ml-1 capitalize">{{ order.branch }} Office</span>
+                        </p>
+                        <p v-if="order.city" class="flex items-center gap-1.5 text-gray-500">
+                            <i class="pi pi-map-marker text-xs text-brand-400"></i>
+                            City: {{ order.city }}
                         </p>
                         <p v-if="order.address" class="flex items-start gap-1.5 text-gray-500">
                             <i class="pi pi-map-marker text-xs text-brand-400 mt-0.5"></i>

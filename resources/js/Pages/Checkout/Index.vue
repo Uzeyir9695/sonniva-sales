@@ -69,7 +69,7 @@ const regionOptions = [
     { key: 'address',      label: 'ადგილზე მიტანა',             icon: 'fa-solid fa-truck-fast' },
 ]
 
-const onwayFilials = [
+const onwayBranches = [
     'რუსთავი', 'ბათუმი', 'ზუგდიდი', 'ქუთაისი',
     'ფოთი', 'ზესტაფონი', 'ხაშური', 'ახალციხე', 'თელავი', 'სამტრედია',
 ]
@@ -77,7 +77,7 @@ const onwayFilials = [
 
 const selectedDelivery = ref(null)
 const selectedRegionOption = ref(null)
-const selectedOnwayFilial = ref(null)
+const selectedOnwayBranch = ref(null)
 const selectedZone = ref(null)
 const selectedTbilisiZone = ref(null)
 const zones = ref([])
@@ -139,7 +139,7 @@ function filterZones(event) {
 function selectDelivery(type) {
     selectedDelivery.value = type
     selectedRegionOption.value = null
-    selectedOnwayFilial.value = null
+    selectedOnwayBranch.value = null
     selectedZone.value = null
     selectedTbilisiZone.value = null
 }
@@ -269,7 +269,7 @@ const errors = reactive({
     deliveryType: null,
     tbilisiZone: null,
     regionOption: null,
-    onwayFilial: null,
+    onwayBranch: null,
     regionZone: null,
     address: null,
     provider: null,
@@ -283,7 +283,7 @@ function clearErrors() {
 watch(selectedDelivery, () => { errors.deliveryType = null })
 watch(selectedTbilisiZone, () => { errors.tbilisiZone = null })
 watch(selectedRegionOption, () => { errors.regionOption = null })
-watch(selectedOnwayFilial, () => { errors.onwayFilial = null })
+watch(selectedOnwayBranch, () => { errors.onwayBranch = null })
 watch(selectedZone, () => { errors.regionZone = null })
 watch(() => form.address, () => { errors.address = null })
 watch(selectedProvider, () => { errors.provider = null })
@@ -307,8 +307,8 @@ function validate() {
         errors.regionOption = 'გთხოვთ აირჩიოთ მიწოდების ვარიანტი'
         valid = false
     }
-    if (selectedRegionOption.value === 'onway_office' && !selectedOnwayFilial.value) {
-        errors.onwayFilial = 'გთხოვთ აირჩიოთ OnWay ფილიალი'
+    if (selectedRegionOption.value === 'onway_office' && !selectedOnwayBranch.value) {
+        errors.onwayBranch = 'გთხოვთ აირჩიოთ OnWay ფილიალი'
         valid = false
     }
     if (selectedRegionOption.value === 'address' && !selectedZone.value) {
@@ -344,13 +344,19 @@ function initiatePayment() {
 
     loading.value = true
 
-    const city = selectedTbilisiZone.value?.name ?? selectedOnwayFilial.value ?? selectedZone.value?.name ?? null
+    const city = selectedTbilisiZone.value?.name ?? selectedOnwayBranch.value ?? selectedZone.value?.name ?? null
+
+    const deliveryKey = selectedDelivery.value.key
+    const branch = deliveryKey === 'office'
+        ? 'sonniva'
+        : (deliveryKey === 'regions' && selectedRegionOption.value === 'onway_office' ? 'onway' : null)
 
     const data = {
         delivery_type:       selectedDelivery.value.key,
         delivery_price_type: deliveryPriceType.value,
         delivery_cost:       deliveryCost.value ?? 0,
         city:             city,
+        branch:           branch,
         address:          form.address,
         apartment_number: form.apartment_number,
         comment:          form.comment,
@@ -455,7 +461,7 @@ function initiatePayment() {
                     </div>
 
                     <!-- Address -->
-                    <div v-if="selectedDelivery && selectedDelivery?.key !== 'office'" class="bg-white rounded-2xl border shadow-sm p-6" :class="errors.tbilisiZone || errors.regionOption || errors.onwayFilial || errors.regionZone || errors.address ? 'border-red-300' : 'border-gray-100'">
+                    <div v-if="selectedDelivery && selectedDelivery?.key !== 'office'" class="bg-white rounded-2xl border shadow-sm p-6" :class="errors.tbilisiZone || errors.regionOption || errors.onwayBranch || errors.regionZone || errors.address ? 'border-red-300' : 'border-gray-100'">
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-map-marker text-brand-500"></i>
                             მიწოდების მისამართი
@@ -468,7 +474,7 @@ function initiatePayment() {
                                 <button
                                     v-for="option in regionOptions"
                                     :key="option.key"
-                                    @click="selectedRegionOption = option.key; selectedOnwayFilial = null"
+                                    @click="selectedRegionOption = option.key; selectedOnwayBranch = null"
                                     class="flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all duration-150 text-left"
                                     :class="selectedRegionOption === option.key
                                         ? 'border-brand-500 bg-brand-50/50'
@@ -492,22 +498,22 @@ function initiatePayment() {
                                 {{ errors.regionOption }}
                             </p>
 
-                            <!-- OnWay filial picker -->
+                            <!-- OnWay branch picker -->
                             <div v-if="selectedRegionOption === 'onway_office'">
-                                <label for="select-filial" class="flex items-center-safe font-bold text-gray-700  text-sm mb-2 mt-5">
+                                <label for="select-branch" class="flex items-center-safe font-bold text-gray-700  text-sm mb-2 mt-5">
                                     აირჩიეთ OnWay-ის ფილიალი
                                     <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
                                 </label>
                                 <Select
-                                    v-model="selectedOnwayFilial"
-                                    inputId="select-filial"
-                                    :options="onwayFilials"
+                                    v-model="selectedOnwayBranch"
+                                    inputId="select-branch"
+                                    :options="onwayBranches"
                                     placeholder="არჩევა"
                                     class="w-full"
                                 />
-                                <p v-if="errors.onwayFilial" class="mt-1.5 text-sm text-red-500 flex items-center gap-1.5">
+                                <p v-if="errors.onwayBranch" class="mt-1.5 text-sm text-red-500 flex items-center gap-1.5">
                                     <i class="pi pi-exclamation-circle shrink-0"></i>
-                                    {{ errors.onwayFilial }}
+                                    {{ errors.onwayBranch }}
                                 </p>
                             </div>
 

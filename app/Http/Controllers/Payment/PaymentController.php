@@ -95,6 +95,7 @@ class PaymentController extends Controller
                 'delivery_type' => $request->delivery_type,
                 'delivery_cost' => $calc['delivery_cost'],
                 'city' => $request->city,
+                'branch' => $request->branch,
                 'address' => $request->address,
                 'apartment_number' => $request->apartment_number,
                 'comment' => $request->comment,
