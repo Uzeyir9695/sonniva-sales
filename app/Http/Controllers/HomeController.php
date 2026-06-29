@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BannerImage;
 use App\Models\Item;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class HomeController extends Controller
@@ -20,8 +23,16 @@ class HomeController extends Controller
             $this->getItemsByBrand('TOLSEN'),
         ];
 
+        $banners = Cache::rememberForever('nav_banners', function () {
+            return BannerImage::orderBy('sort_order')
+                ->get()
+                ->groupBy('slot')
+                ->map(fn ($group) => $group->map(fn ($b) => Storage::disk('public')->url($b->image_path))->values());
+        });
+
         return Inertia::render('Home/Index', [
             'carouselItems' => $carouselItems,
+            'banners' => $banners,
         ]);
     }
 

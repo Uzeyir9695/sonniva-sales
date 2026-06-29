@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminAnalyticsController;
+use App\Http\Controllers\Admin\AdminBannerController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminPaymentController;
@@ -94,6 +95,11 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
 
         // ******** Admin Analytics ********//
         Route::get('/analytics', [AdminAnalyticsController::class, 'index'])->name('analytics.index');
+
+        // ******** Admin Home Page Banners ********//
+        Route::get('/home-page', [AdminBannerController::class, 'index'])->name('home-page.index');
+        Route::post('/home-page/banners', [AdminBannerController::class, 'store'])->name('home-page.banners.store');
+        Route::delete('/home-page/banners/{banner}', [AdminBannerController::class, 'destroy'])->name('home-page.banners.destroy');
 
         // ******** Admin Users Controllers ********//
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');

@@ -54,6 +54,11 @@ const menuItems = computed(() => [
         route: 'admin.analytics.index',
         icon: 'pi-chart-line',
     },
+    {
+        name: 'Home Page',
+        route: 'admin.home-page.index',
+        icon: 'pi-image',
+    },
 ]);
 
 </script>
