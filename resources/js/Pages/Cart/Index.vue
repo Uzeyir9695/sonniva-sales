@@ -51,7 +51,12 @@ const formatted = (val) => Number(val).toFixed(2)
 function getRetailPrice(item, selectedUOM = null) {
     if (item.unit_price > 0) return item.unit_price
     if (!selectedUOM || !item.prices?.length) return null
-    return item.prices.find(p => p.UOM === selectedUOM && p.priceGroup !== 'Wholesales')?.price ?? null
+    return item.prices.find(p => p.UOM === selectedUOM && p.priceGroup === 'Retail')?.price ?? null
+}
+
+function isVipPriceActive(item, qty, selectedUOM = null) {
+    if (!isVip.value) return false
+    return calculateTierPrice(item, qty, selectedUOM, true) < calculateTierPrice(item, qty, selectedUOM, false)
 }
 
 
@@ -268,6 +273,10 @@ function goToCheckout() {
                                         {{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id), cartItem.selected_uom, isVip)) }} ₾
                                         <span v-if="cartItem.selected_uom" class="text-xs font-normal text-gray-400">/ {{ cartItem.selected_uom }}</span>
                                     </p>
+                                    <span
+                                        v-if="isVipPriceActive(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom)"
+                                        class="text-xs font-semibold text-purple-600 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full"
+                                    >VIP</span>
                                 </div>
 
                                 <!-- Quantity stepper (in-stock only) -->
@@ -308,10 +317,17 @@ function goToCheckout() {
                                     <!-- Savings badge -->
                                     <span
                                         v-if="getRetailPrice(cartItem.item, cartItem.selected_uom) !== null && calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip) < getRetailPrice(cartItem.item, cartItem.selected_uom)"
-                                        class="flex items-center text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full"
+                                        :class="isVipPriceActive(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom)
+                                            ? 'flex items-center text-xs text-purple-600 font-medium bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full'
+                                            : 'flex items-center text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full'"
                                     >
                                         <i class="pi pi-tag text-xs mr-1"></i>
-                                        დანაზოგი: {{ formatted((getRetailPrice(cartItem.item, cartItem.selected_uom) - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
+                                        <template v-if="isVipPriceActive(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom)">
+                                            VIP დანაზოგი: {{ formatted((getRetailPrice(cartItem.item, cartItem.selected_uom) - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
+                                        </template>
+                                        <template v-else>
+                                            დანაზოგი: {{ formatted((getRetailPrice(cartItem.item, cartItem.selected_uom) - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
+                                        </template>
                                     </span>
 
                                     <p v-if="overLimit(cartItem)" class="text-xs text-red-600">
