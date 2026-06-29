@@ -96,6 +96,7 @@ class AdminOrderController extends Controller
                 'status' => $order->status,
                 'delivery_type' => $order->delivery_type,
                 'delivery_cost' => $order->delivery_cost,
+                'city' => $order->city,
                 'address' => $order->address,
                 'apartment_number' => $order->apartment_number,
                 'subtotal' => $order->subtotal,
