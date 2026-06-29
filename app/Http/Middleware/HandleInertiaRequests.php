@@ -129,7 +129,7 @@ class HandleInertiaRequests extends Middleware
                 : null,
 
             'unseenOrdersCount' => $isAdmin
-                ? fn () => Order::whereNull('seen_at')->whereIn('status', ['pending', 'paid'])->count()
+                ? fn () => Order::whereNull('seen_at')->whereIn('status', ['pending', 'limit', 'paid'])->count()
                 : null,
 
             'flash' => [
