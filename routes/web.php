@@ -134,11 +134,9 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
     /*******************************************************************************************************************
      * Payment Route
      * *****************************************************************************************************************/
-    Route::middleware('can:access-admin')->group(function () {
-        Route::post('/payment/initiate', [PaymentController::class, 'initiate'])->name('payment.initiate');
-        Route::post('/initiate/payment/invoice', [InvoiceController::class, 'initiateInvoice'])->name('initiate.payment.invoice');
-        Route::post('/initiate/payment/limit', [InvoiceController::class, 'initiateLimit'])->name('initiate.payment.limit');
-    });
+    Route::post('/payment/initiate', [PaymentController::class, 'initiate'])->name('payment.initiate');
+    Route::post('/initiate/payment/invoice', [InvoiceController::class, 'initiateInvoice'])->name('initiate.payment.invoice');
+    Route::post('/initiate/payment/limit', [InvoiceController::class, 'initiateLimit'])->name('initiate.payment.limit');
 
     Route::get('/payment/success/{provider}', [PaymentController::class, 'success'])->name('payment.success');
 
