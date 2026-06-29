@@ -3,6 +3,7 @@ import { ref, computed, reactive, watch } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'primevue/usetoast'
 import { useCart } from '@/composables/useCart'
+import { calculateTierPrice } from '@/composables/usePricing.js'
 import PlacesAutocomplete from '@/Shared/components/PlacesAutocomplete.vue'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 import AutoComplete from 'primevue/autocomplete'
@@ -15,25 +16,7 @@ const page = usePage()
 const toast = useToast()
 const { getQuantity } = useCart()
 
-// ─── Tiered price helper ───────────────────────────────────────────────────
-
-function calculateTierPrice(item, qty, selectedUOM = null) {
-    if (!item.prices?.length) return item.unit_price
-
-    // Package item: price determined by selected UOM, with optional quantity-based wholesale
-    if (item.unit_price == 0 && selectedUOM) {
-        const entry = [...item.prices]
-            .filter(p => p.UOM === selectedUOM)
-            .sort((a, b) => b.custMinQuantity - a.custMinQuantity)
-            .find(p => qty >= p.custMinQuantity)
-        return entry?.price ?? 0
-    }
-
-    const tier = [...item.prices]
-        .sort((a, b) => b.custMinQuantity - a.custMinQuantity)
-        .find(p => qty >= p.custMinQuantity)
-    return tier?.price ?? item.unit_price
-}
+const isVip = computed(() => page.props.user?.can_view_vip ?? false)
 
 // ─── Cart items with reactive quantities ──────────────────────────────────
 
@@ -41,8 +24,8 @@ const items = computed(() =>
     props.cartItems.map(c => ({
         ...c,
         qty: getQuantity(c.item_id, c.selected_uom) || c.quantity,
-        unitPrice: calculateTierPrice(c.item, getQuantity(c.item_id, c.selected_uom) || c.quantity, c.selected_uom),
-        rowTotal: calculateTierPrice(c.item, getQuantity(c.item_id, c.selected_uom) || c.quantity, c.selected_uom) * (getQuantity(c.item_id, c.selected_uom) || c.quantity),
+        unitPrice: calculateTierPrice(c.item, getQuantity(c.item_id, c.selected_uom) || c.quantity, c.selected_uom, isVip.value),
+        rowTotal: calculateTierPrice(c.item, getQuantity(c.item_id, c.selected_uom) || c.quantity, c.selected_uom, isVip.value) * (getQuantity(c.item_id, c.selected_uom) || c.quantity),
     }))
 )
 

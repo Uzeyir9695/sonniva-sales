@@ -4,6 +4,7 @@ namespace App\Services\Payments;
 
 use App\Models\Cart;
 use App\Models\Item;
+use App\Models\User;
 
 class OrderCalculatorService
 {
@@ -29,6 +30,8 @@ class OrderCalculatorService
 
     public function calculate(array $cartIds, string $deliveryType, int|string $userId, ?string $deliveryPriceType = null): array
     {
+        $isVip = User::find($userId)?->can_view_vip ?? false;
+
         // Fetch only cart rows that belong to this user and match the requested cart UUIDs.
         // Using cart IDs (not item IDs) correctly handles the same item with different UOMs.
         $cartRows = Cart::with('item')
@@ -54,7 +57,7 @@ class OrderCalculatorService
 
         foreach ($cartRows as $cartRow) {
             $qty = $cartRow->quantity;
-            $unitPrice = $this->tierPrice($cartRow->item, $qty, $cartRow->selected_uom);
+            $unitPrice = $this->tierPrice($cartRow->item, $qty, $cartRow->selected_uom, $isVip);
             $rowTotal = $unitPrice * $qty;
             $subtotal += $rowTotal;
 
@@ -103,15 +106,18 @@ class OrderCalculatorService
         return $entry ? (float) $entry['price'] : null;
     }
 
-    private function tierPrice(Item $item, int $qty, ?string $uom = null): float
+    private function tierPrice(Item $item, int $qty, ?string $uom = null, bool $isVip = false): float
     {
         if (empty($item->prices)) {
             return $item->unit_price;
         }
 
+        $prices = collect($item->prices)
+            ->when(! $isVip, fn ($c) => $c->filter(fn ($p) => ($p['priceGroup'] ?? '') !== 'VIP'));
+
         // Package item: price determined by selected UOM, with optional quantity-based wholesale
         if ($item->unit_price == 0 && $uom) {
-            $entry = collect($item->prices)
+            $entry = $prices
                 ->filter(fn ($p) => $p['UOM'] === $uom)
                 ->sortByDesc('custMinQuantity')
                 ->first(fn ($p) => $qty >= $p['custMinQuantity']);
@@ -119,7 +125,7 @@ class OrderCalculatorService
             return $entry ? (float) $entry['price'] : 0;
         }
 
-        $tier = collect($item->prices)
+        $tier = $prices
             ->sortByDesc('custMinQuantity')
             ->first(fn ($p) => $qty >= $p['custMinQuantity']);
 

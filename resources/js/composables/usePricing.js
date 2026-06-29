@@ -5,6 +5,28 @@ function visiblePrices(item) {
     return (item?.prices ?? []).filter(p => p.priceGroup !== 'Wholesales')
 }
 
+export function calculateTierPrice(item, qty, selectedUOM = null, isVip = false) {
+    if (!item) return 0
+    if (!item.prices?.length) return item.unit_price ?? 0
+
+    const prices = isVip
+        ? item.prices
+        : item.prices.filter(p => p.priceGroup !== 'VIP')
+
+    if (item.unit_price == 0 && selectedUOM) {
+        const entry = [...prices]
+            .filter(p => p.UOM === selectedUOM)
+            .sort((a, b) => b.custMinQuantity - a.custMinQuantity)
+            .find(p => qty >= p.custMinQuantity)
+        return entry?.price ?? 0
+    }
+
+    const tier = [...prices]
+        .sort((a, b) => b.custMinQuantity - a.custMinQuantity)
+        .find(p => qty >= p.custMinQuantity)
+    return tier?.price ?? item.unit_price
+}
+
 export function getDisplayPrice(item) {
     if (item?.unit_price != 0) return item?.unit_price
     const prices = visiblePrices(item)
