@@ -34,10 +34,10 @@ class ItemSeeder extends Seeder
 
         /*** For testing: start from a specific category ***/
 
-        $startFromCategory = '2102-06';
-        $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
-
-        $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
+//        $startFromCategory = '2102-06';
+//        $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
+//
+//        $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
 
         foreach ($categories as $category) {
             $this->command->info("Fetching items for category: {$category->code}");
