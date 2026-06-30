@@ -6,10 +6,10 @@ const languages = ref([])
 const open = ref(false)
 
 const flagMap = {
-    ka: '🇬🇪',
-    ru: '🇷🇺',
-    en: '🇬🇧',
-    tr: '🇹🇷',
+    ka: 'https://flagcdn.com/w40/ge.png',
+    ru: 'https://flagcdn.com/w40/ru.png',
+    en: 'https://flagcdn.com/w40/gb.png',
+    tr: 'https://flagcdn.com/w40/tr.png',
 }
 
 const nameMap = {
@@ -94,7 +94,7 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
             class="flex items-center justify-center md:w-8 md:h-8 lg:w-10 lg:h-10 gap-1.5 rounded-full
            text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"
         >
-            <span class="text-2xl leading-none">{{ flagMap[currentLang] ?? '🌐' }}</span>
+            <img :src="flagMap[currentLang]" class="w-6 h-4 object-cover rounded-xs shrink-0" alt="" />
             <span data-wg-notranslate class="sm:hidden text-sm font-medium text-gray-600">
                 <span>{{ fullNameMap[currentLang] ?? currentLang.toUpperCase() }}</span>
             </span>
@@ -124,7 +124,7 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
                         ? 'text-brand-500 font-semibold bg-brand-50/50'
                         : 'text-gray-700'"
                 >
-                    <span class="text-base">{{ flagMap[lang] ?? '🌐' }}</span>
+                    <img :src="flagMap[lang]" class="w-5 h-3.5 object-cover rounded-xs shrink-0" alt="" />
                     <span data-wg-notranslate>
                         <span class="hidden sm:inline">{{ nameMap[lang] ?? lang.toUpperCase() }}</span>
                         <span class="sm:hidden">{{ fullNameMap[lang] ?? lang.toUpperCase() }}</span>
