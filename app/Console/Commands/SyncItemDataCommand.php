@@ -96,6 +96,8 @@ class SyncItemDataCommand extends Command
                 }
             });
 
+            $batch = [];
+
             foreach ($responses as $response) {
                 if ($response instanceof \Throwable || $response->failed()) {
                     continue;
@@ -107,11 +109,28 @@ class SyncItemDataCommand extends Command
                     continue;
                 }
 
-                DB::table('items')
-                    ->where('no', $detail['no'])
-                    ->update(['prices' => json_encode($detail['itemUnitPrices'] ?? [])]);
+                $structuredPrices = collect($detail['itemUnitPrices'] ?? [])
+                    ->map(fn ($entry) => [
+                        'price'           => $entry['price'],
+                        'priceGroup'      => $entry['priceGroup'],
+                        'custMinQuantity' => $entry['custMinQuantity'],
+                    ])->values()->all();
 
-                $updatedCount++;
+                $batch[] = [
+                    'no'     => $detail['no'],
+                    'prices' => json_encode($structuredPrices),
+                ];
+            }
+
+            if (! empty($batch)) {
+                DB::transaction(function () use ($batch): void {
+                    foreach ($batch as $row) {
+                        DB::table('items')
+                            ->where('no', $row['no'])
+                            ->update(['prices' => $row['prices']]);
+                    }
+                });
+                $updatedCount += count($batch);
             }
 
             unset($responses);
