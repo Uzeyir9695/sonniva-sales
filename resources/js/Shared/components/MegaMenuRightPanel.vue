@@ -33,7 +33,7 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
                 :modules="modules"
                 :slides-per-view="1"
                 :loop="mainSrc.length > 1"
-                :autoplay="mainSrc.length > 1 ? { delay: 3000, disableOnInteraction: false } : false"
+                :autoplay="mainSrc.length > 1 ? { delay: 5000, disableOnInteraction: false } : false"
                 class="h-full w-full"
             >
                 <SwiperSlide v-for="(src, i) in mainSrc" :key="i" class="h-full!">
@@ -48,7 +48,7 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
                 :modules="modules"
                 :slides-per-view="1"
                 :loop="doorSrc.length > 1"
-                :autoplay="doorSrc.length > 1 ? { delay: 3000, disableOnInteraction: false } : false"
+                :autoplay="doorSrc.length > 1 ? { delay: 5000, disableOnInteraction: false } : false"
                 class="h-full w-full"
             >
                 <SwiperSlide v-for="(src, i) in doorSrc" :key="i" class="h-full!">
@@ -74,7 +74,7 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
                 :modules="modules"
                 :slides-per-view="1"
                 :loop="frameSrc.length > 1"
-                :autoplay="frameSrc.length > 1 ? { delay: 3000, disableOnInteraction: false } : false"
+                :autoplay="frameSrc.length > 1 ? { delay: 5000, disableOnInteraction: false } : false"
                 class="h-full w-full"
             >
                 <SwiperSlide v-for="(src, i) in frameSrc" :key="i" class="h-full!">
