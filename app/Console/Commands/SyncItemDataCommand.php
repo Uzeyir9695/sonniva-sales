@@ -82,7 +82,7 @@ class SyncItemDataCommand extends Command
 
         $updatedCount = 0;
 
-        foreach ($items->chunk(50) as $chunkIndex => $chunk) {
+        foreach ($items->chunk(20) as $chunkIndex => $chunk) {
             if (now()->diffInMinutes($tokenFetchedAt) >= 55) {
                 $token = $this->bc->getAccessToken(forceRefresh: true);
                 $tokenFetchedAt = now();
