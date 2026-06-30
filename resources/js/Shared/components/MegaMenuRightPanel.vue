@@ -37,7 +37,7 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
                 class="h-full w-full"
             >
                 <SwiperSlide v-for="(src, i) in mainSrc" :key="i" class="h-full!">
-                    <img :src="src" :alt="`main ${i + 1}`" class="w-full h-full object-cover" />
+                    <img :src="src" :alt="`main ${i + 1}`" class="w-full h-full object-contain" />
                 </SwiperSlide>
             </Swiper>
         </div>
@@ -52,7 +52,7 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
                 class="h-full w-full"
             >
                 <SwiperSlide v-for="(src, i) in doorSrc" :key="i" class="h-full!">
-                    <img :src="src" :alt="`door ${i + 1}`" class="w-full h-full object-cover" />
+                    <img :src="src" :alt="`door ${i + 1}`" class="w-full h-full object-contain" />
                 </SwiperSlide>
             </Swiper>
             <div class="absolute bottom-0 left-0 right-0 p-4 z-10 flex items-center justify-between bg-black/50">
@@ -78,7 +78,7 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
                 class="h-full w-full"
             >
                 <SwiperSlide v-for="(src, i) in frameSrc" :key="i" class="h-full!">
-                    <img :src="src" :alt="`frame ${i + 1}`" class="w-full h-full object-cover" />
+                    <img :src="src" :alt="`frame ${i + 1}`" class="w-full h-full object-contain" />
                 </SwiperSlide>
             </Swiper>
             <div class="absolute bottom-0 left-0 right-0 p-4 z-10 flex items-center justify-between bg-black/50">
