@@ -17,10 +17,10 @@ class ItemSeeder extends Seeder
 
     public function run(): void
     {
-//                        DB::statement('SET FOREIGN_KEY_CHECKS=0');
-//                        Attribute::truncate();
-//                        Item::truncate();
-//                        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+//        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+//        Attribute::truncate();
+//        Item::truncate();
+//        DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         $startedAt = now();
 
@@ -34,7 +34,7 @@ class ItemSeeder extends Seeder
 
         /*** For testing: start from a specific category ***/
 
-//        $startFromCategory = '2102-06';
+//        $startFromCategory = '2201-03';
 //        $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
 //
 //        $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
