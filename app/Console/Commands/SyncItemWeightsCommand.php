@@ -29,7 +29,6 @@ class SyncItemWeightsCommand extends Command
 
         $items = DB::table('items')
             ->select('no', 'unit_price', 'prices')
-            ->whereJsonContains('weights', ['weight' => 0])
             ->get();
 
         $this->info("Processing {$items->count()} items in parallel chunks...");
