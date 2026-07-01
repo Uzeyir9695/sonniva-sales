@@ -99,7 +99,7 @@ const openSearch = async () => {
 
                     <a href="tel:+995591047372" class="hidden lg:flex items-center gap-2 text-gray-600 hover:text-gray-900 shrink-0">
                         <i class="pi pi-phone text-brand-500"></i>
-                        <span class="text-sm font-medium whitespace-nowrap">+995 591 04-73-72</span>
+                        <span class="text-sm font-medium whitespace-nowrap">032 269 36 99</span>
                     </a>
 
                     <div class="hidden lg:flex items-center gap-1 shrink-0">
