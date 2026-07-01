@@ -103,8 +103,7 @@ class BOGPaymentService
                 'capture'           => 'automatic',
                 'purchase_units'    => [
                     'currency'     => 'GEL',
-//                    'total_amount' => round($totalAmount, 2),
-                    'total_amount' => 0.01,
+                    'total_amount' => round($totalAmount, 2),
                     'basket'       => $basket,
                 ],
                 'redirect_urls' => [
