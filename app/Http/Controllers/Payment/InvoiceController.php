@@ -136,17 +136,9 @@ class InvoiceController extends Controller
         $fileName = 'invoice_'.$invoiceNumber.'.pdf';
 
         dispatch(function () use ($viewVars, $invoiceNumber, $fileName, $user) {
-            \Log::info('[Invoice PDF] Starting generation', ['file' => $fileName]);
-            try {
-                $this->pdfService->generate($viewVars, $fileName);
-                \Log::info('[Invoice PDF] Generated successfully', ['file' => $fileName]);
-                $pdfUrl = route('download.file', ['filename' => $fileName]);
-                Mail::to($user->email)->send(new PaymentInvoiceMail($pdfUrl, $invoiceNumber));
-                \Log::info('[Invoice PDF] Email sent', ['to' => $user->email]);
-            } catch (\Throwable $e) {
-                \Log::error('[Invoice PDF] Failed', ['file' => $fileName, 'error' => $e->getMessage()]);
-                throw $e;
-            }
+            $this->pdfService->generate($viewVars, $fileName);
+            $pdfUrl = route('download.file', ['filename' => $fileName]);
+            Mail::to($user->email)->send(new PaymentInvoiceMail($pdfUrl, $invoiceNumber));
         });
     }
 
