@@ -46,6 +46,11 @@ export function useCart() {
 
         if (state.ready) return
 
+        // Capture whether this was a guest→logged-in transition before updating.
+        // null  = full page reload for an already-logged-in user (e.g. after BOG redirect)
+        // false = user was genuinely a guest and just logged in
+        const wasGuest = lastSetupLoginState === false
+
         lastSetupLoginState = currentLoginState
 
         if (isLoggedIn.value) {
@@ -56,11 +61,14 @@ export function useCart() {
                 Object.entries(page.props.cart?.uoms ?? {}).map(([k, v]) => [String(k), v])
             )
 
-            // Sync any localStorage items not yet in the server cart.
-            // loadFromStorage() runs synchronously before the saveToStorage watcher
-            // fires, so guest_cart still holds guest items even after clearState().
+            // Only sync localStorage → server when the user just logged in from a guest session.
+            // On a full page reload (e.g. after a payment redirect) lastSetupLoginState was null,
+            // so wasGuest is false and we skip the re-sync — preventing paid items from being
+            // restored from localStorage back to the server cart.
             const storage = loadFromStorage()
-            const unsyncedKeys = Object.keys(storage.items).filter(k => !(k in serverItems))
+            const unsyncedKeys = wasGuest
+                ? Object.keys(storage.items).filter(k => !(k in serverItems))
+                : []
 
             if (unsyncedKeys.length) {
                 const items = unsyncedKeys.map(key => {
