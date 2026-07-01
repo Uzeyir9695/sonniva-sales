@@ -400,7 +400,7 @@ class BusinessCentralService
 
         $response = Http::withToken($token)
             ->get($this->baseUrl."904668f4-6aa7-44ce-8285-5c27b33faeeb/Production/ODataV4/Company('SONNIVA')/Customers", [
-                '$filter' => "VAT_Registration_No eq '57001013099'",
+                '$filter' => "VAT_Registration_No eq '{$taxId}'",
                 '$select' => 'Balance_Due_LCY,Credit_Limit_LCY',
             ]);
 
