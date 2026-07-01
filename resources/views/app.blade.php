@@ -27,19 +27,6 @@
         </script>
         @endif
 
-{{--        GlobalSeo Service --}}
-        <link href="https://unpkg.com/globalseo/dist/translate.css" rel="stylesheet">
-{{--        <script--}}
-{{--            defer--}}
-{{--            src="https://unpkg.com/globalseo/dist/translate.js"--}}
-{{--            data-globalseo-key="55350ca0-f788-4234-bf81-9a40769e6094"--}}
-{{--            data-use-browser-language="false"--}}
-{{--            data-original-language="ka"--}}
-{{--            data-translation-mode="searchParams"--}}
-{{--            data-allowed-languages="en, tr"--}}
-{{--            data-exclude-classes=""--}}
-{{--        ></script>--}}
-
         <script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>
         <script>
             Weglot.initialize({
@@ -48,8 +35,6 @@
                 cache: true,
             });
         </script>
-
-{{--        <script async src="https://static.linguise.com/script-js/switcher.bundle.js?d=pk_2ULbqKvkPcCPvJK9MW7qD9FpmOGFTbIX"></script>--}}
 
         <link rel="canonical" href="{{ request()->url() }}" />
 
@@ -79,8 +64,6 @@
 
     </head>
     <body class="font-sans antialiased bg-gray-50">
-        <!-- Linguise: must be static HTML, not rendered by Inertia/Vue -->
-{{--        <div id="linguise-slot" style="display:none">[linguise]</div>--}}
         @inertia
     </body>
 </html>
