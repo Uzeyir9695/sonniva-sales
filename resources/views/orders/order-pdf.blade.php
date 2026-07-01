@@ -73,7 +73,7 @@
             <p class="text-sm text-gray-500 mt-2">
                 მიწოდება:
                 <span class="font-semibold {{ $order->delivery_cost > 0 ? 'text-gray-800' : 'text-emerald-600' }}">
-                    {{ $order->delivery_cost > 0 ? number_format($order->delivery_cost, 2) . ' ₾' : 'უფასო' }}
+                    {{ $order->delivery_cost > 0 ? number_format($order->delivery_cost, 2) . ' ლარი' : 'უფასო' }}
                 </span>
             </p>
             @if($order->comment)
@@ -109,8 +109,8 @@
                                 <span class="text-xs text-gray-400">{{ $orderItem->item->base_uom_desc }}</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 text-right text-gray-600 whitespace-nowrap">{{ number_format($orderItem->unit_price, 2) }} ₾</td>
-                        <td class="px-6 py-4 text-right font-bold text-gray-900 whitespace-nowrap">{{ number_format($orderItem->subtotal, 2) }} ₾</td>
+                        <td class="px-6 py-4 text-right text-gray-600 whitespace-nowrap">{{ number_format($orderItem->unit_price, 2) }} ლარი</td>
+                        <td class="px-6 py-4 text-right font-bold text-gray-900 whitespace-nowrap">{{ number_format($orderItem->subtotal, 2) }} ლარი</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -122,22 +122,22 @@
         <div class="flex flex-col items-end gap-2 text-sm">
             <div class="flex justify-between w-72 text-gray-500">
                 <span>შუალედური ჯამი</span>
-                <span>{{ number_format($order->subtotal, 2) }} ₾</span>
+                <span>{{ number_format($order->subtotal, 2) }} ლარი</span>
             </div>
             @if($order->wholesale_discount > 0)
                 <div class="flex justify-between w-72 text-emerald-600">
                     <span>საბითუმო ფასდაკლება</span>
-                    <span>-{{ number_format($order->wholesale_discount, 2) }} ₾</span>
+                    <span>-{{ number_format($order->wholesale_discount, 2) }} ლარი</span>
                 </div>
             @endif
             <div class="flex justify-between w-72 text-gray-500">
                 <span>მიწოდება</span>
-                <span>{{ $order->delivery_cost > 0 ? number_format($order->delivery_cost, 2) . ' ₾' : 'უფასო' }}</span>
+                <span>{{ $order->delivery_cost > 0 ? number_format($order->delivery_cost, 2) . ' ლარი' : 'უფასო' }}</span>
             </div>
             <div class="h-px w-72 bg-gray-200 my-2"></div>
             <div class="flex justify-between w-72 text-base font-bold text-gray-900">
                 <span>სულ გადასახდელი</span>
-                <span class="text-brand-500 text-lg">{{ number_format($order->total, 2) }} ₾</span>
+                <span class="text-brand-500 text-lg">{{ number_format($order->total, 2) }} ლარი</span>
             </div>
             <p class="text-xs text-gray-400 mt-1">
                 გადახდის მეთოდი: {{ strtoupper($payment->provider) }}
