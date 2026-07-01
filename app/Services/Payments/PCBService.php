@@ -29,8 +29,8 @@ class PCBService
         ])->post($this->config['base_url'] . '/order',
             [
                 'order' => [
-                    'typeRid' => 1,
-                    'amount'  => 0.01,
+                    'typeRid' => 225,
+                    'amount'  => $totalAmount,
                     'currency'=> 'GEL',
                     'language' => strtolower($language),
                     'hppRedirectUrl' => $hppRedirectUrl,
