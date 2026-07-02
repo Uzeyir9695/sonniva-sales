@@ -48,10 +48,8 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
             @click="open = !open"
             class="flex items-center gap-2 px-3 sm:py-1.5 rounded-full hover:bg-gray-100 transition-all cursor-pointer select-none"
         >
-            <div class="w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                <i class="pi pi-user text-sm"></i>
-            </div>
-            <span class="text-sm font-medium text-gray-700 max-w-20 truncate">
+            <i class="fa-solid fa-user-gear text-xl! text-brand-500"></i>
+            <span class="hidden sm:block text-sm font-medium text-gray-700 max-w-20 truncate">
                 {{ displayName }}
               </span>
             <i class="pi pi-chevron-down text-xs text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
