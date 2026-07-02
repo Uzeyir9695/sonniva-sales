@@ -10,8 +10,8 @@ const emit = defineEmits(['closeEditor']);
 const editableUser = props.user;
 const activeTab = ref('0')
 const userTypes = ref([
-    { key: 'individual', value: 'Individual' },
-    { key: 'legal_entity', value: 'Legal Entity' },
+    { key: 'individual', value: 'ფიზიკური პირი' },
+    { key: 'legal_entity', value: 'იურიდიული პირი' },
 ]);
 const selectedUserType = ref(null);
 
@@ -77,7 +77,7 @@ async function changePassword(){
 
 watch(() => props.user, (user) => {
     if (!user) return;
-    selectedUserType.value = {key: user.user_type, value: user.user_type === 'individual' ? 'Individual' : 'Legal Entity'};
+    selectedUserType.value = {key: user.user_type, value: user.user_type === 'individual' ? 'ფიზიკური პირი' : 'იურიდიული პირი'};
     form.name = user.name;
     form.email = user.email;
     form.lastname = user.lastname;

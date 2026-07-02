@@ -8,10 +8,10 @@ const page = usePage();
 const recaptchaSiteKey = page.props.recaptcha_site_key;
 
 const userTypes = ref([
-    { key: 'individual', value: 'პერსონალური' },
-    { key: 'legal_entity', value: 'იურიდიული' },
+    { key: 'individual', value: 'ფიზიკური პირი' },
+    { key: 'legal_entity', value: 'იურიდიული პირი' },
 ]);
-const selectedUserType = ref({ key: 'individual', value: 'პერსონალური' });
+const selectedUserType = ref({ key: 'individual', value: 'ფიზიკური პირი' });
 
 const selectedCountryCode = ref('GE');
 
@@ -198,7 +198,10 @@ async function register(){
                     </FloatLabel>
                 </InputGroup>
 
-                <p>თუ გაქვთ მცირე მეწარმის სტატუსი, ან ხართ ხელოსანი, სპეციალური შეთავაზებების მისაღებად დაგვიკავშირდით</p>
+                <p>
+                    თუ გაქვთ მცირე მეწარმის სტატუსი ან ხართ იურიდიული პირი,
+                    სპეციალური შეთავაზებების მისაღებად დაგვიკავშირდით
+                </p>
                 <!-- Submit Button -->
                 <div>
                     <Button
