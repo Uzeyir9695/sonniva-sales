@@ -14,6 +14,7 @@ class StockNotificationSeeder extends Seeder
 
         Item::query()
             ->where('inventory', 0)
+            ->whereJsonContains('weights', ['weight' => 0])
             ->get()
             ->each(function (Item $item) use ($userId) {
                 StockNotification::firstOrCreate([
