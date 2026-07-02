@@ -256,7 +256,7 @@ function goToCheckout() {
                                         v-if="cartItem.item.inventory <= 0"
                                         class="inline-flex items-center gap-1 text-xs font-medium"
                                     >
-                                        მარაგში არაა
+                                        მარაგში არ არის
                                     </span>
                                 </div>
 

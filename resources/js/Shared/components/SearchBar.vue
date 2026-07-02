@@ -200,7 +200,7 @@ defineExpose({ inputRef });
                                     class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
                                     :class="item.inventory > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-500'"
                                 >
-                                {{ item.inventory > 0 ? 'მარაგშია' : 'მარაგში არაა' }}
+                                {{ item.inventory > 0 ? 'მარაგშია' : 'მარაგში არ არის' }}
                             </span>
                             </div>
 

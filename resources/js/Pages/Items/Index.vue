@@ -25,7 +25,7 @@ const sidebarOpen = ref(false);
 const stockOptions = [
     { label: 'ყველა', value: '' },
     { label: 'მარაგშია', value: 'in' },
-    { label: 'მარაგში არაა', value: 'out' },
+    { label: 'მარაგში არ არის', value: 'out' },
 ];
 
 const params = route().params;

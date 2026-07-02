@@ -32,7 +32,7 @@ const viewItemDetails = (item) => {
                 <span
                     v-if="item.inventory < 1"
                     class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-600"
-                >მარაგში არაა</span>
+                >მარაგში არ არის</span>
                 <span
                     v-else
                     class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700"

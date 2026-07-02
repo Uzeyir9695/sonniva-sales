@@ -111,7 +111,7 @@ const ogImage = computed(() => {
                         >
                             <div v-if="inStock" class="w-2 h-2 rounded-full bg-emerald-700 animate-pulse"></div>
                             <div v-if="!inStock" class="w-2 h-2 rounded-full bg-red-500"></div>
-                            <span>{{ inStock ? 'მარაგშია' : 'მარაგში არაა' }}</span>
+                            <span>{{ inStock ? 'მარაგშია' : 'მარაგში არ არის' }}</span>
                         </div>
 
                         <div class="flex items-center gap-3">

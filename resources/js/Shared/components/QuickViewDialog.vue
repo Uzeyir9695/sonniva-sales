@@ -68,7 +68,7 @@ const { displayPrice, displayUOM } = usePricing(() => props.item)
                             class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
                             :class="inStock ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'"
                         >
-                            {{ inStock ? 'მარაგშია' : 'მარაგში არაა' }}
+                            {{ inStock ? 'მარაგშია' : 'მარაგში არ არის' }}
                         </span>
 
                         <WishlistButton :item-id="item?.id" size="md" />

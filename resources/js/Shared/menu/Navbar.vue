@@ -1,16 +1,13 @@
 <script setup>
 import { ref, computed, nextTick, onMounted } from 'vue'
 import {Link, usePage} from '@inertiajs/vue3';
-import LargeDeviceMegaMenu from '@/Shared/menu/LargeDeviceMegaMenu.vue';
 import SmallDeviceMegaMenu from '@/Shared/menu/SmallDeviceMegaMenu.vue';
 import SearchBar from '@/Shared/components/SearchBar.vue';
 import WishlistNavIcon from '@/Shared/components/WishlistNavIcon.vue';
-import LogoutButton from '@/Shared/components/LogoutButton.vue';
 import CartNavIcon from '@/Shared/components/CartNavIcon.vue';
 import WeglotSwitcher from '@/Shared/components/WeglotSwitcher.vue';
 import UserMenu from '@/Shared/components/UserMenu.vue';
 import DotsMenu from '@/Shared/components/DotsMenu.vue';
-import GlobalSeoTranslator from '../components/GlobalSeoTranslator.vue';
 
 const page = usePage();
 const user = computed(() => page.props.user);
