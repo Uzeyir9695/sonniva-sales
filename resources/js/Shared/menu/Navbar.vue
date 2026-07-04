@@ -8,6 +8,7 @@ import CartNavIcon from '@/Shared/components/CartNavIcon.vue';
 import WeglotSwitcher from '@/Shared/components/WeglotSwitcher.vue';
 import UserMenu from '@/Shared/components/UserMenu.vue';
 import DotsMenu from '@/Shared/components/DotsMenu.vue';
+import NavbarContactMenu from '@/Shared/components/NavbarContactMenu.vue';
 
 const page = usePage();
 const user = computed(() => page.props.user);
@@ -67,11 +68,11 @@ const openSearch = async () => {
 
                         <!-- Right: search + user + cart -->
                         <div class="flex items-center">
+                            <NavbarContactMenu />
                             <button @click="openSearch" class="flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100">
                                 <i class="pi pi-search text-xl"></i>
                             </button>
 
-                            <WishlistNavIcon></WishlistNavIcon>
 
                             <CartNavIcon />
 
