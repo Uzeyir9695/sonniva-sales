@@ -38,7 +38,11 @@ class RecaptchaV3 implements ValidationRule
 
         // Validation: must succeed
         if (! ($response['success'] ?? false)) {
-            Log::warning('Recaptcha validation failed', ['response' => $response]);
+            Log::warning('Recaptcha validation failed', [
+                'response' => $response,
+                'token_length' => strlen($value),
+                'token_prefix' => substr($value, 0, 20),
+            ]);
             $fail('Recaptcha validation failed.');
 
             return;
