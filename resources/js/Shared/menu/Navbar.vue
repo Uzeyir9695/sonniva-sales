@@ -68,7 +68,7 @@ const openSearch = async () => {
 
                         <!-- Right: search + user + cart -->
                         <div class="flex items-center">
-                            <NavbarContactMenu />
+<!--                            <NavbarContactMenu />-->
                             <button @click="openSearch" class="flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100">
                                 <i class="pi pi-search text-xl"></i>
                             </button>
