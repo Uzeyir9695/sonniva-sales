@@ -8,7 +8,20 @@ use App\Models\User;
 
 class OrderCalculatorService
 {
-    const FREE_DELIVERY_THRESHOLD = 1000;
+    const FREE_DELIVERY_THRESHOLD = 500;
+
+    const TBILISI_ZONE_RATES = [
+        // I ზონა – 40 ₾
+        'გლდანი' => 40, 'გლდანულა' => 40, 'სოფელი გლდანი' => 40, 'ზაჰესი' => 40, 'ავჭალა' => 40,
+        'თემქა' => 40, 'მუხიანი' => 40, 'დიღომი 7' => 40, 'დიღმის მასივი' => 40, 'დიდი დიღომი' => 40, 'სოფელი დიღომი' => 40,
+        // II ზონა – 50 ₾
+        'ვაკე' => 50, 'საბურთალო' => 50, 'ბაგები' => 50, 'ლისი' => 50, 'ვაშლიჯვარი' => 50, 'ორთაჭალა' => 50,
+        'მთაწმინდა' => 50, 'სოლოლაკი' => 50, 'ვერა' => 50, 'დიდუბე' => 50, 'ჩუღურეთი' => 50, 'ნაძალადევი' => 50,
+        // III ზონა – 60 ₾
+        'ისანი' => 60, 'სამგორი' => 60, 'ლილო' => 60, 'ორხევი' => 60, 'აეროპორტის დასახლება' => 60,
+        'ქვემო ფონიჭალა' => 60, 'ზემო ფონიჭალა' => 60, 'რუსთავი' => 60, 'ვარკეთილი' => 60, 'წყნეთი' => 60,
+        'კოჯორი' => 60, 'ტაბახმელა' => 60, 'წავკისი' => 60, 'შინდისი' => 60, 'ოქროყანა' => 60, 'ნაფეტვრები' => 60,
+    ];
 
     const DELIVERY_RATES = [
         ['maxKg' => 1,    'tbilisi' => 6.5,  'region' => 10.5, 'office' => 6,   'village' => 15.5],
@@ -28,7 +41,7 @@ class OrderCalculatorService
         ['maxKg' => 1000, 'tbilisi' => 380,  'region' => 700,  'office' => 510, 'village' => 750],
     ];
 
-    public function calculate(array $cartIds, string $deliveryType, int|string $userId, ?string $deliveryPriceType = null): array
+    public function calculate(array $cartIds, string $deliveryType, int|string $userId, ?string $deliveryPriceType = null, ?string $city = null): array
     {
         $isVip = User::find($userId)?->can_view_vip ?? false;
 
@@ -79,7 +92,7 @@ class OrderCalculatorService
             ];
         }
 
-        $deliveryCost = $this->deliveryCost($deliveryType, $subtotal, $deliveryPriceType, $totalWeightKg);
+        $deliveryCost = $this->deliveryCost($deliveryType, $subtotal, $deliveryPriceType, $totalWeightKg, $city);
 
         return [
             'subtotal' => $subtotal,
@@ -132,7 +145,7 @@ class OrderCalculatorService
         return $tier['price'] ?? $item->unit_price;
     }
 
-    private function deliveryCost(string $deliveryType, float $subtotal, ?string $priceType, float $weightKg): float
+    private function deliveryCost(string $deliveryType, float $subtotal, ?string $priceType, float $weightKg, ?string $city = null): float
     {
         if ($deliveryType === 'office') {
             return 0;
@@ -144,6 +157,10 @@ class OrderCalculatorService
 
         if (! $priceType) {
             return 0;
+        }
+
+        if ($priceType === 'tbilisi') {
+            return (float) (self::TBILISI_ZONE_RATES[$city] ?? 0);
         }
 
         $rate = collect(self::DELIVERY_RATES)->first(fn ($r) => $weightKg <= $r['maxKg'])

@@ -67,7 +67,8 @@ class PaymentController extends Controller
                 $request->cart_ids,
                 $request->delivery_type,
                 auth()->id(),
-                $request->delivery_price_type
+                $request->delivery_price_type,
+                $request->city
             );
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 422);

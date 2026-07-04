@@ -64,10 +64,16 @@
                 ];
             @endphp
             <p class="font-semibold text-gray-900">{{ $deliveryLabels[$order->delivery_type] ?? $order->delivery_type }}</p>
+            @if($order->branch)
+                <p class="text-sm text-gray-500 mt-1">აღება: <span class="font-medium text-gray-700 capitalize">{{ $order->branch }} ფილიალი</span></p>
+            @endif
+            @if($order->city)
+                <p class="text-sm text-gray-500 mt-1">ქალაქი/რაიონი: <span class="font-medium text-gray-700 capitalize">{{ $order->city }}</span></p>
+            @endif
             @if($order->address)
                 <p class="text-sm text-gray-500 mt-1">{{ $order->address }}</p>
                 @if($order->apartment_number)
-                    <p class="text-sm text-gray-500">ბინა / ოფისი: {{ $order->apartment_number }}</p>
+                    <p class="text-sm text-gray-500">ბინა / ოფისი: <span class="font-medium text-gray-700 capitalize">{{ $order->apartment_number }}</span></p>
                 @endif
             @endif
             <p class="text-sm text-gray-500 mt-2">
@@ -121,8 +127,13 @@
     <div class="bg-white rounded-2xl border border-gray-200 p-6">
         <div class="flex flex-col items-end gap-2 text-sm">
             <div class="flex justify-between w-72 text-gray-500">
-                <span>შუალედური ჯამი</span>
-                <span>{{ number_format($order->subtotal, 2) }} ლარი</span>
+                <span>ჯამი</span>
+                <span>
+                    @if($order->wholesale_discount > 0)
+                        <span class="line-through text-gray-400 mr-2">{{ number_format($order->subtotal + $order->wholesale_discount, 2) }} ლარი</span>
+                    @endif
+                    <span class="{{ $order->wholesale_discount > 0 ? 'font-semibold text-gray-900' : '' }}">{{ number_format($order->subtotal, 2) }} ლარი</span>
+                </span>
             </div>
             @if($order->wholesale_discount > 0)
                 <div class="flex justify-between w-72 text-emerald-600">
