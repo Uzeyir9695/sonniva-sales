@@ -6,6 +6,7 @@ const open = ref(false)
 const menuRef = ref(null)
 
 const items = [
+    { label: 'ფავორიტების სია', icon: 'fa-heart', route: 'wishlist.index', class: 'sm:hidden' },
     { label: 'ჩვენს შესახებ', icon: 'fa-circle-info', route: 'about-us' },
     { label: 'მიწოდების ტარიფები', icon: 'fa-truck-fast', route: 'delivery-rates' },
     { label: 'Cookie პოლიტიკა', icon: 'fa-cookie-bite', route: 'cookie-policy' },
@@ -50,7 +51,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
                     :key="item.label"
                     :href="route(item.route)"
                     @click="open = false"
-                    class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    :class="[item.class, 'flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors']"
                 >
                     <i :class="['fa-solid', item.icon, 'text-gray-400 text-sm w-4']"></i>
                     {{ item.label }}
