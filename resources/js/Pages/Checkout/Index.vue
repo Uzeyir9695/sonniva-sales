@@ -173,7 +173,7 @@ async function fetchZones() {
         const res = await axios.get(route('checkout.onway-regions'))
         zones.value = res.data.zones ?? []
     } catch {
-        toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'ზონების ჩატვირთვა ვერ მოხდა', life: 4000 })
+        toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'ზონების ჩატვირთვა ვერ მოხერხდა. გთხოვთ განაახლოთ გვერდი და სცადოთ ხელახლა.', life: 4000 })
     } finally {
         zonesLoading.value = false
     }
@@ -355,10 +355,11 @@ function validate() {
 
 function initiatePayment() {
     if (!validate()) {
+        const firstError = Object.values(errors).find(Boolean)
         toast.add({
             severity: 'error',
             summary: 'შეცდომა',
-            detail: 'გთხოვთ შეასწოროთ მონიშნული ველები გაგრძელებამდე',
+            detail: firstError ?? 'გთხოვთ შეასწოროთ მონიშნული ველები გაგრძელებამდე',
             life: 5000,
         })
         return
