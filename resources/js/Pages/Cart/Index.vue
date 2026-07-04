@@ -379,7 +379,7 @@ function goToCheckout() {
                                 <span>{{ selectedItems.length }} პროდუქტი</span>
                                 <span class="font-medium text-gray-700">
                                     <span v-if="totalSavings > 0" class="line-through text-gray-400 mr-1">{{ formatted(subtotal + totalSavings) }} ₾</span>
-                                    <span v-else>{{ formatted(subtotal) }} ₾</span>
+                                    <span>{{ formatted(subtotal) }} ₾</span>
                                 </span>
                             </div>
 

@@ -20,17 +20,39 @@ const isVip = computed(() => page.props.user?.can_view_vip ?? false)
 
 // ─── Cart items with reactive quantities ──────────────────────────────────
 
+const removedCartIds = ref([])
+
+function removeFromCheckout(cartId) {
+    removedCartIds.value = [...removedCartIds.value, cartId]
+}
+
 const items = computed(() =>
-    props.cartItems.map(c => ({
-        ...c,
-        qty: getQuantity(c.item_id, c.selected_uom) || c.quantity,
-        unitPrice: calculateTierPrice(c.item, getQuantity(c.item_id, c.selected_uom) || c.quantity, c.selected_uom, isVip.value),
-        rowTotal: calculateTierPrice(c.item, getQuantity(c.item_id, c.selected_uom) || c.quantity, c.selected_uom, isVip.value) * (getQuantity(c.item_id, c.selected_uom) || c.quantity),
-    }))
+    props.cartItems
+        .filter(c => !removedCartIds.value.includes(c.id))
+        .map(c => ({
+            ...c,
+            qty: getQuantity(c.item_id, c.selected_uom) || c.quantity,
+            unitPrice: calculateTierPrice(c.item, getQuantity(c.item_id, c.selected_uom) || c.quantity, c.selected_uom, isVip.value),
+            rowTotal: calculateTierPrice(c.item, getQuantity(c.item_id, c.selected_uom) || c.quantity, c.selected_uom, isVip.value) * (getQuantity(c.item_id, c.selected_uom) || c.quantity),
+        }))
 )
+
+watch(() => items.value.length, (len) => {
+    if (len === 0) {
+        toast.add({ severity: 'info', summary: 'კალათა ცარიელია', detail: 'ყველა პროდუქტი ამოღებულია გადახდის გვერდიდან', life: 4000 })
+        router.visit(route('cart.index'))
+    }
+})
 
 const subtotal = computed(() =>
     items.value.reduce((sum, c) => sum + c.rowTotal, 0)
+)
+
+const totalSavings = computed(() =>
+    items.value.reduce((sum, c) => {
+        const originalTotal = c.item.unit_price * c.qty
+        return sum + Math.max(0, originalTotal - c.rowTotal)
+    }, 0)
 )
 
 // ─── Delivery ─────────────────────────────────────────────────────────────
@@ -750,7 +772,7 @@ function initiatePayment() {
                         <div class="space-y-3 mb-5 h-36 border border-gray-100 rounded-xl p-2 overflow-y-auto">
                             <div
                                 v-for="cartItem in items"
-                                :key="cartItem.item_id"
+                                :key="cartItem.id"
                                 class="flex items-center gap-3"
                             >
                                 <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-50 shrink-0">
@@ -769,6 +791,14 @@ function initiatePayment() {
                                     <p class="text-xs text-gray-400 mt-0.5">{{ cartItem.qty }} × {{ formatted(cartItem.unitPrice) }} ₾</p>
                                 </div>
                                 <span class="text-sm font-semibold text-gray-800 shrink-0">{{ formatted(cartItem.rowTotal) }} ₾</span>
+                                <button
+                                    type="button"
+                                    @click="removeFromCheckout(cartItem.id)"
+                                    v-tooltip.top="'წაშლა'"
+                                    class="text-gray-300 hover:text-red-500 transition-colors shrink-0 cursor-pointer"
+                                >
+                                    <i class="pi pi-times text-xs"></i>
+                                </button>
                             </div>
                         </div>
 
@@ -778,8 +808,24 @@ function initiatePayment() {
                         <div class="space-y-2.5 text-sm mb-5">
                             <div class="flex justify-between text-gray-500">
                                 <span>{{ items.length }} პროდუქტი</span>
-                                <span class="font-medium text-gray-700">{{ formatted(subtotal) }} ₾</span>
+                                <span class="font-medium text-gray-700">
+                                    <span v-if="totalSavings > 0" class="line-through text-gray-400 mr-1">{{ formatted(subtotal + totalSavings) }} ₾</span>
+                                    <span>{{ formatted(subtotal) }} ₾</span>
+                                </span>
                             </div>
+
+                            <!-- Savings -->
+                            <div
+                                v-if="totalSavings > 0"
+                                class="flex justify-between text-emerald-600"
+                            >
+                                <span class="flex items-center gap-1">
+                                    <i class="pi pi-tag text-xs"></i>
+                                    ჯამური დანაზოგი
+                                </span>
+                                <span class="font-medium">-{{ formatted(totalSavings) }} ₾</span>
+                            </div>
+
                             <div class="flex justify-between text-gray-500">
                                 <span>მიწოდება</span>
                                 <span
