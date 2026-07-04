@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminAnalyticsController;
 use App\Http\Controllers\Admin\AdminBannerController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminItemController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminStockNotificationController;
@@ -84,6 +85,10 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::post('/orders/{order}/send-pdf', [AdminOrderController::class, 'sendPdf'])->name('orders.send-pdf');
         Route::post('/orders/{order}/send-onway', [AdminOrderController::class, 'sendToOnway'])->name('orders.send-onway');
         Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
+
+        // ******** Admin Items ********//
+        Route::get('/items', [AdminItemController::class, 'index'])->name('items.index');
+        Route::post('/items/sync-category', [AdminItemController::class, 'syncCategory'])->name('items.sync-category');
 
         // ******** Admin Payments ********//
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
