@@ -135,4 +135,3 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
         </Transition>
     </div>
 </template>
-```

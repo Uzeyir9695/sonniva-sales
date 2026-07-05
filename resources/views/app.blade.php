@@ -31,7 +31,7 @@
         <script>
             Weglot.initialize({
                 api_key: 'wg_7ace44a8c1f484cdedc879984406c4cb5',
-                hide_switcher: true,
+                hide_switcher: false,
                 cache: true,
             });
         </script>
