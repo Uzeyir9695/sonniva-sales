@@ -30,7 +30,7 @@ class SyncItemDataCommand extends Command
 
         $url = config('bc.api_base_url')
             .'Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items'
-            .'?$select=no,description,unitPrice,minQtyUnitPrice';
+            .'?$select=no,description,unitPrice';
 
         $items = collect();
 
@@ -65,7 +65,6 @@ class SyncItemDataCommand extends Command
                 ->update([
                     'name' => $item['description'] ?? null,
                     'unit_price' => $item['unitPrice'] ?? 0,
-                    'min_qty_unit_price' => $item['minQtyUnitPrice'] ?? 0,
                 ]);
         }
 

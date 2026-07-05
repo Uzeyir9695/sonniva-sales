@@ -18,7 +18,7 @@ class PriceListSeeder extends Seeder
         $token = $this->bc->getAccessToken();
         $tokenFetchedAt = now();
 
-        $items = Item::where('unit_price', 0)->get();
+        $items = Item::where('unit_price', 0)->select('id', 'no')->get();
 
         $this->command->info("Found {$items->count()} items with unit_price = 0.");
 
