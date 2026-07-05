@@ -71,73 +71,71 @@ class SyncItemDataCommand extends Command
         $phase1Seconds = $startedAt->diffInSeconds(now());
         $this->info("Phase 1 done in {$phase1Seconds}s.");
 
-        // ── Phase 2: fetch wholesale prices per item via Http::pool() ─────────────
+        // ── Phase 2: fetch wholesale prices in bulk via itemsDetailed + $expand ────
 
-        $this->info('Fetching wholesale prices in parallel chunks...');
+        $this->info('Fetching wholesale prices in bulk...');
 
         $phase2Start = now();
-        $detailedBase = config('bc.api_base_url')
-            ."Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed('%s')?\$select=no&\$expand=itemUnitPrices";
+        $detailedUrl = config('bc.api_base_url')
+            .'Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed'
+            .'?$select=no&$expand=itemUnitPrices';
 
         $updatedCount = 0;
 
-        foreach ($items->chunk(50) as $chunkIndex => $chunk) {
+        do {
             if (now()->diffInMinutes($tokenFetchedAt) >= 55) {
                 $token = $this->bc->getAccessToken(forceRefresh: true);
                 $tokenFetchedAt = now();
             }
 
-            $responses = Http::pool(function ($pool) use ($chunk, $token, $detailedBase) {
-                foreach ($chunk as $item) {
-                    $pool->withToken($token)
-                        ->timeout(60)
-                        ->get(sprintf($detailedBase, $item['no']));
-                }
-            });
+            $response = Http::withToken($token)
+                ->timeout(120)
+                ->retry(3, 2000)
+                ->get($detailedUrl);
+
+            if ($response->failed()) {
+                $this->error('BC API error: '.$response->body());
+
+                return self::FAILURE;
+            }
+
+            $data = $response->json();
+            $details = collect($data['value'] ?? []);
+            $detailedUrl = $data['@odata.nextLink'] ?? null;
 
             $batch = [];
 
-            foreach ($responses as $response) {
-                if ($response instanceof \Throwable || $response->failed()) {
-                    continue;
-                }
-
-                $detail = $response->json();
-
+            foreach ($details as $detail) {
                 if (empty($detail['no'])) {
                     continue;
                 }
 
                 $structuredPrices = collect($detail['itemUnitPrices'] ?? [])
                     ->map(fn ($entry) => [
-                        'price'           => $entry['price'],
-                        'priceGroup'      => $entry['priceGroup'],
+                        'price' => $entry['price'],
+                        'priceGroup' => $entry['priceGroup'],
                         'custMinQuantity' => $entry['custMinQuantity'],
                     ])->values()->all();
 
                 $batch[] = [
-                    'no'     => $detail['no'],
+                    'no' => $detail['no'],
                     'prices' => json_encode($structuredPrices),
                 ];
             }
 
-            if (! empty($batch)) {
-                DB::transaction(function () use ($batch): void {
-                    foreach ($batch as $row) {
+            foreach (array_chunk($batch, 500) as $chunk) {
+                DB::transaction(function () use ($chunk): void {
+                    foreach ($chunk as $row) {
                         DB::table('items')
                             ->where('no', $row['no'])
                             ->update(['prices' => $row['prices']]);
                     }
                 });
-                $updatedCount += count($batch);
             }
 
-            unset($responses);
+            $updatedCount += count($batch);
 
-            if ($chunkIndex % 50 === 0) {
-                gc_collect_cycles();
-            }
-        }
+        } while ($detailedUrl);
 
         $phase2Seconds = $phase2Start->diffInSeconds(now());
         $totalSeconds = $startedAt->diffInSeconds(now());
