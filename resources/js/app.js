@@ -1,7 +1,7 @@
 import './bootstrap'
 import '../css/app.css'
 import {createApp, h} from 'vue'
-import {createInertiaApp, router } from '@inertiajs/vue3'
+import {createInertiaApp, router} from '@inertiajs/vue3'
 import { createPinia } from 'pinia'
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
@@ -16,19 +16,68 @@ pinia.use(piniaPluginPersistedstate)
 const emitter = mitt()
 if (typeof window !== 'undefined') window.emitter = emitter
 
-// Inertia navigations never trigger a full page load, so Weglot only gets to
-// translate/URL-sync a page once (on the very first request). Re-invoking it
-// after every client-side navigation forces it to redo that work for the
-// page Inertia just swapped in.
-router.on('navigate', () => {
+// Returns Weglot's current language code, or null if we're on the site's
+// original (untranslated) language.
+const getWeglotLang = () => {
     const weglot = typeof window !== 'undefined' ? window.Weglot : undefined
-    if (!weglot?.getCurrentLang) return
-
+    if (!weglot?.getCurrentLang) return null
     const lang = weglot.getCurrentLang()
-    if (lang && lang !== weglot.options?.language_from) {
-        weglot.switchTo(lang)
+    return lang && lang !== weglot.options?.language_from ? lang : null
+}
+
+const stripWeglotPrefix = (pathname) => {
+    const lang = getWeglotLang()
+    if (lang && (pathname === `/${lang}` || pathname.startsWith(`/${lang}/`))) {
+        return pathname.slice(lang.length + 1) || '/'
     }
-})
+    return pathname
+}
+
+// Ziggy's route().current() (used by Paginate.vue and Items/Index.vue to
+// rebuild the current route with new query params) matches window.location
+// against route patterns that have no locale segment, so it breaks the
+// moment the address bar carries Weglot's /en/-style prefix. Feeding Ziggy
+// this location override - evaluated fresh on every access - keeps it
+// matching regardless of what the visible URL currently shows.
+const ziggyLocation = typeof window !== 'undefined' ? {
+    get host() {
+        return window.location.host
+    },
+    get pathname() {
+        return stripWeglotPrefix(window.location.pathname)
+    },
+    get search() {
+        return window.location.search
+    },
+} : undefined
+
+// Inertia rewrites the address bar to Laravel's (locale-less) canonical URL
+// after every visit settles - see history.pushState/replaceState in
+// @inertiajs/core - which is what strips Weglot's /en/ prefix right after it
+// briefly appears. Restore it once Inertia is done, now that ziggyLocation
+// above makes routing resilient to that prefix being present.
+//
+// Runs on both 'navigate' and 'success': 'navigate' is skipped by Inertia for
+// visits made with `replace: true` (e.g. Search/Index.vue, Items/Index.vue),
+// so 'success' - which always fires - covers that gap. Idempotent, so running
+// twice on a normal visit is harmless.
+const restoreWeglotUrlPrefix = () => {
+    const lang = getWeglotLang()
+    if (!lang) return
+
+    window.Weglot.switchTo(lang)
+
+    const url = new URL(window.location.href)
+    const hasPrefix = url.pathname === `/${lang}` || url.pathname.startsWith(`/${lang}/`)
+    if (!hasPrefix) {
+        url.pathname = `/${lang}${url.pathname}`
+        window.history.replaceState(window.history.state, '', url)
+    }
+}
+
+router.on('navigate', restoreWeglotUrlPrefix)
+router.on('success', restoreWeglotUrlPrefix)
+
 
 // Primevue components
 import 'primeicons/primeicons.css'
@@ -129,7 +178,7 @@ createInertiaApp({
         // Client: strip location so route().current() uses window.location (always up-to-date after navigation)
         // SSR: keep location since window is unavailable
         const { location: _ziggyLoc, ...ziggyConfig } = typeof window !== 'undefined' ? ziggy : {};
-        const ziggyForVue = typeof window !== 'undefined' ? ziggyConfig : ziggy;
+        const ziggyForVue = typeof window !== 'undefined' ? { ...ziggyConfig, location: ziggyLocation } : ziggy;
 
         const app = createApp({ render: () => h(App, props) });
         app.use(plugin);
