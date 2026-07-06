@@ -16,6 +16,20 @@ pinia.use(piniaPluginPersistedstate)
 const emitter = mitt()
 if (typeof window !== 'undefined') window.emitter = emitter
 
+// Inertia navigations never trigger a full page load, so Weglot only gets to
+// translate/URL-sync a page once (on the very first request). Re-invoking it
+// after every client-side navigation forces it to redo that work for the
+// page Inertia just swapped in.
+router.on('navigate', () => {
+    const weglot = typeof window !== 'undefined' ? window.Weglot : undefined
+    if (!weglot?.getCurrentLang) return
+
+    const lang = weglot.getCurrentLang()
+    if (lang && lang !== weglot.options?.language_from) {
+        weglot.switchTo(lang)
+    }
+})
+
 // Primevue components
 import 'primeicons/primeicons.css'
 import PrimeVue from 'primevue/config';

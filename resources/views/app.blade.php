@@ -31,25 +31,8 @@
         <script>
             Weglot.initialize({
                 api_key: 'wg_7ace44a8c1f484cdedc879984406c4cb5',
-                hide_switcher: false,
+                hide_switcher: true,
                 cache: true,
-                switchers: [
-                    {
-                        style: {
-                            full_name: false,
-                            with_name: true,
-                            is_dropdown: true,
-                            with_flags: true,
-                            flag_type: "circle",
-                            invert_flags: true
-                        },
-                        // Move switcher somewhere in the page
-                        location: {
-                            target: ".weglot-switcher",
-                            sibling: null
-                        }
-                    }
-                ],
             });
         </script>
 

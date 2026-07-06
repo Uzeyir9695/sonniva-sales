@@ -76,7 +76,7 @@ function toggle() {
 
 // Close on outside click
 function onClickOutside(e) {
-    if (!e.target.closest('.weglot-switcher')) {
+    if (!e.target.closest('.lang-switcher')) {
         open.value = false
     }
 }
@@ -87,7 +87,7 @@ onUnmounted(() => document.removeEventListener('mousedown', onClickOutside))
 </script>
 
 <template>
-    <div class="weglot-switcher relative">
+    <div class="lang-switcher relative">
         <!-- Trigger button -->
         <button
             @click="toggle"
