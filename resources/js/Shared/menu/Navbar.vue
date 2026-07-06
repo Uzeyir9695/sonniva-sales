@@ -101,7 +101,7 @@ const openSearch = async () => {
                     </a>
 
                     <div class="hidden lg:flex items-center gap-1 shrink-0">
-                        <WeglotSwitcher />
+<!--                        <WeglotSwitcher />-->
 
                         <div class="weglot-switcher"></div>
 

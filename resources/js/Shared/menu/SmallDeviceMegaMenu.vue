@@ -116,8 +116,8 @@ defineExpose({ openDrawer })
                 class="fixed top-16 sm:top-20 left-0 z-50 h-[calc(100dvh-60px)] w-full sm:w-80 bg-white shadow-2xl flex flex-col"
             >
                 <div class="bg-gray-50 shado w-full sm:w-xs flex items-center justify-between px-4 py-4 border-y border-gray-100 sm:hidden">
-                    <WeglotSwitcher />
-
+<!--                    <WeglotSwitcher />-->
+                    <div class="weglot-switcher"></div>
                     <LogoutButton />
                 </div>
 
