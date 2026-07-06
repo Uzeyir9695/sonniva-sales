@@ -39,6 +39,7 @@ const statusLabel = {
     paid:             'გადახდილი',
     ready:            'მზადაა',
     cancelled:        'გაუქმებული',
+    limit:            'ლიმიტი',
 };
 
 const deliveryLabel = {
@@ -142,13 +143,13 @@ const providerLabel = {
                     <span class="font-semibold text-gray-700 text-xs uppercase tracking-wide">პროდუქცია</span>
                 </div>
                 <DataTable :value="order.items" size="small" class="text-sm">
-                    <Column field="item_no" header="კოდი" />
-                    <Column field="item_name" header="დასახელება" />
+                    <Column field="item_no" header="კოდი" style="min-width: 10rem" />
+                    <Column field="item_name" header="დასახელება" style="min-width: 16rem" />
                     <Column field="quantity" header="რაოდ." />
-                    <Column field="unit_price" header="ერთ. ფასი">
+                    <Column field="unit_price" header="ერთ. ფასი" style="min-width: 7rem">
                         <template #body="{ data }">{{ data.unit_price }} ₾</template>
                     </Column>
-                    <Column field="subtotal" header="სულ">
+                    <Column field="subtotal" header="სულ" style="min-width: 7rem">
                         <template #body="{ data }">
                             <span class="font-semibold text-gray-800">{{ data.subtotal }} ₾</span>
                         </template>
