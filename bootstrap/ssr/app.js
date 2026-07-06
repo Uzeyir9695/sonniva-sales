@@ -593,14 +593,43 @@ const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 const emitter = mitt();
 if (typeof window !== "undefined") window.emitter = emitter;
-router.on("navigate", () => {
+const getWeglotLang = () => {
   const weglot = typeof window !== "undefined" ? window.Weglot : void 0;
-  if (!weglot?.getCurrentLang) return;
+  if (!weglot?.getCurrentLang) return null;
   const lang = weglot.getCurrentLang();
-  if (lang && lang !== weglot.options?.language_from) {
-    weglot.switchTo(lang);
+  return lang && lang !== weglot.options?.language_from ? lang : null;
+};
+const stripWeglotPrefix = (pathname) => {
+  const lang = getWeglotLang();
+  if (lang && (pathname === `/${lang}` || pathname.startsWith(`/${lang}/`))) {
+    return pathname.slice(lang.length + 1) || "/";
   }
-});
+  return pathname;
+};
+const ziggyLocation = typeof window !== "undefined" ? {
+  get host() {
+    return window.location.host;
+  },
+  get pathname() {
+    return stripWeglotPrefix(window.location.pathname);
+  },
+  get search() {
+    return window.location.search;
+  }
+} : void 0;
+const restoreWeglotUrlPrefix = () => {
+  const lang = getWeglotLang();
+  if (!lang) return;
+  window.Weglot.switchTo(lang);
+  const url = new URL(window.location.href);
+  const hasPrefix = url.pathname === `/${lang}` || url.pathname.startsWith(`/${lang}/`);
+  if (!hasPrefix) {
+    url.pathname = `/${lang}${url.pathname}`;
+    window.history.replaceState(window.history.state, "", url);
+  }
+};
+router.on("navigate", restoreWeglotUrlPrefix);
+router.on("success", restoreWeglotUrlPrefix);
 const appName = "Sonniva";
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -678,7 +707,7 @@ const render = await createInertiaApp({
   setup({ el, App, props, plugin }) {
     const ziggy = props.initialPage.props.ziggy || {};
     const { location: _ziggyLoc, ...ziggyConfig } = typeof window !== "undefined" ? ziggy : {};
-    const ziggyForVue = typeof window !== "undefined" ? ziggyConfig : ziggy;
+    const ziggyForVue = typeof window !== "undefined" ? { ...ziggyConfig, location: ziggyLocation } : ziggy;
     const app = createApp({ render: () => h$1(App, props) });
     app.use(plugin);
     app.use(pinia);
