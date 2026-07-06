@@ -5,157 +5,131 @@ import { Head } from '@inertiajs/vue3'
 <template>
     <Head title="ქუქი ფაილების პოლიტიკა" />
 
-    <div class="max-w-3xl mx-auto px-4 py-10 sm:py-16">
-        <!-- Header -->
-        <div class="mb-10 border-b border-gray-200 pb-6">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">ქუქი (Cookies) პოლიტიკა</h1>
+    <div class="max-w-3xl mx-auto py-12 px-6 text-gray-800">
+        <h1 class="text-3xl font-bold mb-6">Cookie პოლიტიკა</h1>
+        <p class="text-sm text-gray-500 mb-6">ბოლო განახლება: ივლისი 2026</p>
+
+        <p class="mb-4">
+            აღნიშნული Cookie პოლიტიკა განმარტავს, თუ როგორ ვიყენებთ ჩვენს ვებგვერდზე Cookie და მსგავს ტექნოლოგიებს.
+            ჩვენ ვიყენებთ მხოლოდ იმ Cookie-ებს, რომლებიც საჭიროა საიტის გამართული მუშაობისთვის, უსაფრთხოებისთვის და გამოყენების ანალიზისთვის.
+        </p>
+
+        <!-- What Are Cookies -->
+        <h2 class="text-xl font-semibold mt-8 mb-3">რა არის Cookie?</h2>
+        <p class="mb-4">
+            Cookie წარმოადგენს მცირე ტექსტურ ფაილებს, რომლებიც ინახება თქვენს ბრაუზერში იმისათვის, რომ ვებგვერდმა
+            იმუშაოს გამართულად, გააუმჯობესოს შესრულება ან საუკეთესო გამოყენების გამოცდილება.
+        </p>
+
+        <!-- What Cookies We Use -->
+        <h2 class="text-xl font-semibold mt-8 mb-3">რასთვის ვიყენებთ Cookie</h2>
+
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
+
+            <div>
+                <h3 class="font-semibold">1. აუცილებელი Cookie</h3>
+                <p class="text-gray-700">
+                    ეს Cookie საჭიროა ვებგვერდის გამართული მუშაობისთვის, მათ შორის:
+                </p>
+                <ul class="list-disc ml-6 mt-2 text-gray-700">
+                    <li>მომხმარებლის ავტორიზაციის სესიის Cookie</li>
+                    <li>უსაფრთხოების და CSRF დაცვის Cookie</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="font-semibold">2. Google Places API (მისამართის ავტომატური შევსება)</h3>
+                <p class="text-gray-700">
+                    მისამართის შეყვანისას თქვენ მიერ აკრეფილი ტექსტი იგზავნება Google Places API-ზე ავტომატური
+                    შევსების შეთავაზებების გენერირებისთვის. ამ მოთხოვნის ფარგლებში Google-ს ასევე გადაეცემა
+                    თქვენი IP მისამართი.
+                </p>
+                <p class="mt-2 text-gray-700">
+                    ეს სერვისი <strong>არ</strong> ადგენს Cookie-ებს. იგი გამოიყენება მხოლოდ მისამართის
+                    შეყვანის დასახმარებლად და ექვემდებარება
+                    <a href="https://policies.google.com/privacy" class="text-blue-600 underline" target="_blank" rel="noopener">Google-ის კონფიდენციალურობის პოლიტიკას</a>.
+                </p>
+            </div>
+
+            <div>
+                <h3 class="font-semibold">3. Google reCAPTCHA</h3>
+                <p class="text-gray-700">
+                    ეს საიტი იყენებს Google reCAPTCHA-ს ბოტებისა და სპამისგან დასაცავად.
+                    reCAPTCHA სკრიპტი ადგენს შემდეგ Cookie-ს:
+                </p>
+                <table class="w-full mt-2 text-sm text-gray-700 border border-gray-200 rounded">
+                    <thead class="bg-gray-100">
+                    <tr>
+                        <th class="text-left px-3 py-2">Cookie</th>
+                        <th class="text-left px-3 py-2">დანიშნულება</th>
+                        <th class="text-left px-3 py-2">ვადა</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="border-t border-gray-200">
+                        <td class="px-3 py-2 font-mono">_GRECAPTCHA</td>
+                        <td class="px-3 py-2">განასხვავებს ადამიანებს ბოტებისგან</td>
+                        <td class="px-3 py-2">6 თვე</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p class="mt-3 text-gray-700">
+                    მისი გამოყენება ექვემდებარება
+                    <a href="https://policies.google.com/privacy" class="text-blue-600 underline" target="_blank" rel="noopener">Google-ის კონფიდენციალურობის პოლიტიკას</a>.
+                </p>
+            </div>
+
+            <div>
+                <h3 class="font-semibold">4. Google Analytics (GA4)</h3>
+                <p class="text-gray-700">
+                    ჩვენ ვიყენებთ Google Analytics GA4-ს იმის გასაგებად, თუ როგორ სარგებლობენ ვიზიტორები ჩვენი
+                    ვებგვერდით (ნანახი გვერდები, სესიის ხანგრძლივობა, ტრაფიკის წყარო). ეს მონაცემები ანონიმიზებულია
+                    და გამოიყენება მხოლოდ ჩვენი ვებგვერდის გასაუმჯობესებლად.
+                </p>
+                <p class="mt-2 text-gray-700">Google Analytics ადგენს შემდეგ Cookie-ებს:</p>
+                <table class="w-full mt-2 text-sm text-gray-700 border border-gray-200 rounded">
+                    <thead class="bg-gray-100">
+                    <tr>
+                        <th class="text-left px-3 py-2">Cookie</th>
+                        <th class="text-left px-3 py-2">დანიშნულება</th>
+                        <th class="text-left px-3 py-2">ვადა</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="border-t border-gray-200">
+                        <td class="px-3 py-2 font-mono">_ga</td>
+                        <td class="px-3 py-2">განასხვავებს მომხმარებლებს</td>
+                        <td class="px-3 py-2">2 წელი</td>
+                    </tr>
+                    <tr class="border-t border-gray-200">
+                        <td class="px-3 py-2 font-mono">_gid</td>
+                        <td class="px-3 py-2">განასხვავებს მომხმარებლებს</td>
+                        <td class="px-3 py-2">24 საათი</td>
+                    </tr>
+                    <tr class="border-t border-gray-200">
+                        <td class="px-3 py-2 font-mono">_ga_*</td>
+                        <td class="px-3 py-2">ინარჩუნებს სესიის მდგომარეობას</td>
+                        <td class="px-3 py-2">2 წელი</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p class="mt-3 text-gray-700">
+                    დამატებითი ინფორმაციისთვის იხილეთ
+                    <a href="https://policies.google.com/privacy" class="text-blue-600 underline" target="_blank" rel="noopener">Google-ის კონფიდენციალურობის პოლიტიკა</a>.
+                    შეგიძლიათ უარი თქვათ
+                    <a href="https://tools.google.com/dlpage/gaoptout" class="text-blue-600 underline" target="_blank" rel="noopener">Google Analytics-ის გამორთვის გაფართოების</a> საშუალებით.
+                </p>
+            </div>
         </div>
 
-        <div class="space-y-8 text-gray-700 text-[15px] leading-8">
-
-            <!-- 1 -->
-            <section>
-                <h2 class="text-lg font-semibold text-gray-900 mb-3">1. ზოგადი ინფორმაცია</h2>
-                <p>
-                    Sonniva Georgia იყენებს ქუქი ფაილებს (Cookies) და მსგავს ტექნოლოგიებს, რათა უზრუნველყოს
-                    ვებგვერდის გამართული ფუნქციონირება, გააუმჯობესოს მომხმარებლის გამოცდილება და გააანალიზოს
-                    ვებგვერდის გამოყენების სტატისტიკა.
-                </p>
-                <p class="mt-3">
-                    წინამდებარე ქუქი პოლიტიკა განმარტავს, თუ რა არის ქუქი ფაილები, რა ტიპის ქუქიებს ვიყენებთ
-                    და როგორ შეგიძლიათ მათი მართვა.
-                </p>
-            </section>
-
-            <!-- 2 -->
-            <section>
-                <h2 class="text-lg font-semibold text-gray-900 mb-3">2. რა არის ქუქი ფაილები?</h2>
-                <p>
-                    ქუქი (Cookie) არის მცირე ზომის ტექსტური ფაილი, რომელიც ინახება თქვენს კომპიუტერში,
-                    მობილურ ტელეფონში ან სხვა მოწყობილობაზე ვებგვერდის მონახულებისას.
-                </p>
-                <p class="mt-3">
-                    ქუქი ფაილები საშუალებას აძლევს ვებგვერდს დაიმახსოვროს მომხმარებლის მოქმედებები და
-                    პარამეტრები, რაც აუმჯობესებს ვებგვერდის გამოყენების გამოცდილებას.
-                </p>
-            </section>
-
-            <!-- 3 -->
-            <section>
-                <h2 class="text-lg font-semibold text-gray-900 mb-3">3. რა მიზნით ვიყენებთ ქუქიებს?</h2>
-                <p class="mb-3">ქუქი ფაილები გამოიყენება შემდეგი მიზნებისთვის:</p>
-                <ul class="space-y-1.5 list-none">
-                    <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ვებგვერდის ძირითადი ფუნქციების უზრუნველსაყოფად;</li>
-                    <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>მომხმარებლის პარამეტრების დასამახსოვრებლად;</li>
-                    <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ავტორიზაციისა და უსაფრთხოების გასაუმჯობესებლად;</li>
-                    <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ვებგვერდის მუშაობის ანალიზისა და გაუმჯობესებისთვის;</li>
-                    <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ვიზიტორების ქცევის სტატისტიკური ანალიზისთვის;</li>
-                    <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>მარკეტინგული და სარეკლამო აქტივობების ოპტიმიზაციისთვის.</li>
-                </ul>
-            </section>
-
-            <!-- 4 -->
-            <section>
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">4. ქუქიების ტიპები</h2>
-
-                <div class="space-y-5">
-                    <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">აუცილებელი (Essential Cookies)</h3>
-                        <p class="mb-3">
-                            ეს ქუქიები აუცილებელია ვებგვერდის გამართული მუშაობისთვის და მათი გამორთვის
-                            შემთხვევაში საიტის გარკვეული ფუნქციები შეიძლება გახდეს მიუწვდომელი.
-                        </p>
-                        <p class="text-sm text-gray-500 mb-2">მაგალითად:</p>
-                        <ul class="space-y-1 text-sm">
-                            <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ავტორიზაცია;</li>
-                            <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>უსაფრთხოების ფუნქციები;</li>
-                            <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>კალათის მუშაობა;</li>
-                            <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>შეკვეთის პროცესის უზრუნველყოფა.</li>
-                        </ul>
-                    </div>
-
-                    <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">ფუნქციური (Functional Cookies)</h3>
-                        <p class="mb-3">ეს ქუქიები ინახავს მომხმარებლის არჩევანს და პარამეტრებს, როგორიცაა:</p>
-                        <ul class="space-y-1 text-sm">
-                            <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ენის არჩევანი;</li>
-                            <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>რეგიონის არჩევანი;</li>
-                            <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>მომხმარებლის ინდივიდუალური პარამეტრები.</li>
-                        </ul>
-                    </div>
-
-                    <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">ანალიტიკური (Analytics Cookies)</h3>
-                        <p class="mb-3">გამოიყენება ვებგვერდის მუშაობის შეფასებისა და გაუმჯობესების მიზნით. ისინი გვაწვდიან ინფორმაციას:</p>
-                        <ul class="space-y-1 text-sm">
-                            <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>რომელ გვერდებს სტუმრობენ მომხმარებლები ყველაზე ხშირად;</li>
-                            <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>რამდენ ხანს რჩებიან საიტზე;</li>
-                            <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>რომელი ფუნქციებია ყველაზე მოთხოვნადი.</li>
-                        </ul>
-                    </div>
-
-                    <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">მარკეტინგული (Marketing Cookies)</h3>
-                        <p>
-                            ეს ქუქიები გამოიყენება რეკლამის ეფექტიანობის გასაზომად და მომხმარებლისთვის
-                            უფრო რელევანტური შეთავაზებების საჩვენებლად.
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 5 -->
-            <section>
-                <h2 class="text-lg font-semibold text-gray-900 mb-3">5. მესამე მხარის ქუქიები</h2>
-                <p class="mb-3">
-                    Sonniva Georgia შესაძლოა იყენებდეს მესამე მხარის სერვისებს, რომლებიც ასევე იყენებენ
-                    ქუქი ფაილებს, მათ შორის:
-                </p>
-                <ul class="space-y-1.5 list-none">
-                    <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>Google Analytics;</li>
-                    <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>Google Ads;</li>
-                    <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>Meta (Facebook და Instagram);</li>
-                    <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>YouTube;</li>
-                    <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>სხვა ანალიტიკური და მარკეტინგული პლატფორმები.</li>
-                </ul>
-                <p class="mt-3">
-                    აღნიშნული სერვისების მიერ მონაცემთა დამუშავება რეგულირდება მათი საკუთარი
-                    კონფიდენციალურობის პოლიტიკებით.
-                </p>
-            </section>
-
-            <!-- 6 -->
-            <section>
-                <h2 class="text-lg font-semibold text-gray-900 mb-3">6. ქუქიების მართვა</h2>
-                <p>
-                    მომხმარებელს შეუძლია ნებისმიერ დროს მართოს ან გამორთოს ქუქი ფაილები საკუთარი
-                    ინტერნეტ ბრაუზერის პარამეტრებიდან.
-                </p>
-                <p class="mt-3">
-                    ქუქიების წაშლის ან დაბლოკვის შემთხვევაში ვებგვერდის ზოგიერთი ფუნქცია შესაძლოა
-                    სრულად ან ნაწილობრივ მიუწვდომელი გახდეს.
-                </p>
-            </section>
-
-            <!-- 7 -->
-            <section>
-                <h2 class="text-lg font-semibold text-gray-900 mb-3">7. ქუქიების შენახვის ვადა</h2>
-                <p>
-                    ზოგიერთი ქუქი მოქმედებს მხოლოდ მიმდინარე სესიის განმავლობაში და ავტომატურად იშლება
-                    ბრაუზერის დახურვის შემდეგ, ხოლო ნაწილი ინახება უფრო ხანგრძლივი პერიოდის განმავლობაში,
-                    რათა დაიმახსოვროს თქვენი პარამეტრები და არჩევანი.
-                </p>
-            </section>
-
-            <!-- 8 -->
-            <section>
-                <h2 class="text-lg font-semibold text-gray-900 mb-3">8. პოლიტიკის ცვლილებები</h2>
-                <p>
-                    Sonniva Georgia უფლებას იტოვებს პერიოდულად განაახლოს აღნიშნული ქუქი პოლიტიკა.
-                    ნებისმიერი ცვლილება გამოქვეყნდება ვებგვერდზე და ძალაში შევა გამოქვეყნების მომენტიდან.
-                </p>
-            </section>
-
-        </div>
+        <!-- Managing Cookies -->
+        <h2 class="text-xl font-semibold mt-8 mb-3">Cookie მართვა</h2>
+        <p class="mb-4">
+            თქვენ შეგიძლიათ აკონტროლოთ ან გამორთოთ Cookie თქვენი ბრაუზერის პარამეტრებიდან.
+            თუმცა, აუცილებელი Cookie გამორთვამ შესაძლოა ხელი შეუშალოს ვებგვერდის ფუნქციონირებას.
+        </p>
+        <p class="text-gray-700">
+            Cookie მართვის შესახებ ინფორმაციისთვის იხილეთ თქვენი ბრაუზერის დახმარების განყოფილება.
+        </p>
     </div>
 </template>
