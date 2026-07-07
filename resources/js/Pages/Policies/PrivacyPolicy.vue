@@ -174,7 +174,7 @@ import { Head } from '@inertiajs/vue3'
                 </p>
                 <div class="rounded-xl border border-gray-200 p-4 space-y-1.5 text-sm">
                     <p class="font-semibold text-gray-800">შპს Sonniva Georgia</p>
-                    <p>ელ. ფოსტა: <a href="mailto:info1@sonniva.ge" class="text-brand-600 hover:underline">info1@sonniva.ge</a></p>
+                    <p>ელ. ფოსტა: <a href="mailto:eshop@sonniva.ge" class="text-brand-600 hover:underline">eshop@sonniva.ge</a></p>
                     <p>ვებგვერდი: <a href="https://www.sonniva.ge" class="text-brand-600 hover:underline">www.sonniva.ge</a></p>
                 </div>
                 <p class="mt-4">
