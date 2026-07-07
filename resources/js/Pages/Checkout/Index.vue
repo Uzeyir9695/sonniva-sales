@@ -81,7 +81,7 @@ function calcDeliveryPrice(weightKg, type) {
 }
 
 const deliveryTypes = [
-    { key: 'office',   label: 'თვითგატანა სონივას ფილიალიდან' },
+    { key: 'office',   label: 'თვითგატანა სონნივას ფილიალიდან' },
     { key: 'tbilisi',  label: 'მიწოდება თბილისში' },
     { key: 'regions',  label: 'მიწოდება რეგიონებში' },
 ]

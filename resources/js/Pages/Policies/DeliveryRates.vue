@@ -6,7 +6,7 @@ const TBILISI_FREE_THRESHOLD = 500
 const deliveryMethods = [
     {
         icon: 'pi pi-building',
-        title: 'სონივას ფილიალიდან გატანა',
+        title: 'სონნივას ფილიალიდან გატანა',
         subtitle: 'ავჭალა — შუშის ქუჩა 38',
         badge: 'უფასო',
         badgeClass: 'bg-emerald-100 text-emerald-700',
@@ -133,7 +133,7 @@ function weightLabel(rate, index) {
                 <div class="bg-emerald-50 px-6 py-4 flex items-center gap-3 border-b border-emerald-100">
                     <i class="pi pi-building text-emerald-600 text-lg"></i>
                     <div>
-                        <h2 class="font-bold text-gray-900 text-base">სონივას ფილიალიდან გატანა</h2>
+                        <h2 class="font-bold text-gray-900 text-base">სონნივას ფილიალიდან გატანა</h2>
                         <p class="text-xs text-emerald-600 font-medium mt-0.5">სრულიად უფასო</p>
                     </div>
                     <span class="ml-auto text-xl font-bold text-emerald-600">0 ₾</span>
