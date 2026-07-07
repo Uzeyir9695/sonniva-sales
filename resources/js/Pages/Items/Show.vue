@@ -359,7 +359,7 @@ const ogImage = computed(() => {
                                     </a>
                                 </span>
                                 </li>
-                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>მიწოდება თბილისში: 100+ ₾ უფასო </span></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>მიწოდება თბილისში: 500+ ₾ უფასო </span></li>
                                 <li class="flex gap-2">
                                     <span class="text-brand-500">→</span>
                                     <span>
