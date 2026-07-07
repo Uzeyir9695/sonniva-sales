@@ -292,6 +292,7 @@ class ItemController extends Controller
         }
 
         $items = Item::where('name', 'like', "%{$q}%")
+            ->orWhere('no', 'like', "%{$q}%")
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
             ->get(['id', 'no', 'name', 'slug', 'unit_price', 'prices', 'images', 'inventory']);
 
