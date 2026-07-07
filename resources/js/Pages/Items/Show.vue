@@ -182,7 +182,7 @@ const ogImage = computed(() => {
                                 <div class="flex-1 flex flex-col sm:flex-row items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-2 sm:px-4 py-3">
                                     <div class="flex items-center gap-2 text-nowrap">
                                         <i class="pi pi-warehouse text-brand-500 text-sm"></i>
-                                        <span class="text-xs sm:text-sm text-gray-500">ავჭალლის ფილიალი</span>
+                                        <span class="text-xs sm:text-sm text-gray-500">ავჭალის ფილიალი</span>
                                     </div>
                                     <span class="text-sm font-semibold text-gray-800">{{ inventory.shop2Total }}</span>
                                 </div>

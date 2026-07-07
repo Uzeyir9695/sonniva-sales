@@ -33,7 +33,7 @@ function login() {
     <div class="w-full max-w-md mx-auto mt-6">
         <!-- Login Card -->
         <div class="bg-white mx-3 rounded-xl shadow-lg transition-shadow duration-500 ease-in-out border border-slate-200 p-8">
-            <h1 class="text-2xl font-bold mb-6 text-center">აუტორიზაცია</h1>
+            <h1 class="text-2xl font-bold mb-6 text-center">ავტორიზაცია</h1>
 
             <!-- Error Message -->
             <Message v-if="$page.props.errors.message" class="mb-8" severity="error" icon="pi pi-exclamation-circle" :closable="true">
