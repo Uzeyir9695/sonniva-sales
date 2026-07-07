@@ -15,12 +15,12 @@ class HomeController extends Controller
     public function index()
     {
         $carouselItems = [
-            $this->getItemsByBrand('SAMET'),
-            $this->getItemsByBrand('DEWALT'),
-            $this->getItemsByBrand('ALBATUR'),
             $this->getItemsByBrand('HMSFIX'),
-            $this->getItemsByBrand('EKSEN'),
+            $this->getItemsByBrand('SAMET'),
+            $this->getItemsByBrand('ALBATUR'),
             $this->getItemsByBrand('TOLSEN'),
+            $this->getItemsByBrand('DEWALT'),
+            $this->getItemsByBrand('EKSEN'),
         ];
 
         $banners = Cache::rememberForever('nav_banners', function () {
