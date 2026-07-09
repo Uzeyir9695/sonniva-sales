@@ -84,15 +84,9 @@ class ItemController extends Controller
                 ->orderBy('sort_order')
                 ->get(['name', 'slug', 'code', 'image']),
 
-            2 => $category->children->isEmpty()
-                // no children → show siblings
-                ? Category::where('parent_id', $category->parent_id)
-                    ->orderBy('sort_order')
-                    ->get(['name', 'slug', 'code'])
-                // has children → show itself + children
-                : Category::where('parent_id', $category->code)
-                    ->orderBy('sort_order')
-                    ->get(['name', 'slug', 'code']),
+            2 => Category::where('parent_id', $category->code)
+                ->orderBy('sort_order')
+                ->get(['name', 'slug', 'code']),
 
             3 => Category::where('parent_id', $category->parent_id)
                 ->orderBy('sort_order')
@@ -107,6 +101,21 @@ class ItemController extends Controller
                 ? ['name' => $category->name, 'slug' => $category->slug]
                 : null);
 
+        // Image strip: always the level-1 category's children, kept visible while
+        // browsing level-1 and level-2 pages, hidden once drilled into level-3.
+        $level1Category = match ($category->level) {
+            1 => $category,
+            2 => $category->parent,
+            3 => null,
+            default => null,
+        };
+
+        $subcategoryStrip = $level1Category
+            ? Category::where('parent_id', $level1Category->code)
+                ->orderBy('sort_order')
+                ->get(['name', 'slug', 'code', 'image'])
+            : collect();
+
         $breadcrumbs = $this->buildCategoryBreadcrumbs($category);
 
         View::share('breadcrumb_json_ld', $this->buildBreadcrumbJsonLd($breadcrumbs));
@@ -117,6 +126,7 @@ class ItemController extends Controller
             'breadcrumbs' => $breadcrumbs,
             'relatedCategories' => $relatedCategories,
             'relatedCategoriesParent' => $relatedCategoriesParent,
+            'subcategoryStrip' => $subcategoryStrip,
             'currentCategorySlug' => $category->slug,
             'isOrderOnly' => $this->isOrderOnlyCategory($category),
         ]);

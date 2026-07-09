@@ -14,6 +14,7 @@ const props = defineProps({
     breadcrumbs: Array,
     relatedCategories: Array,
     relatedCategoriesParent: Object,
+    subcategoryStrip: Array,
     currentCategorySlug: String,
     isOrderOnly: Boolean,
 })
@@ -206,10 +207,11 @@ function removeChip(chip) {
             />
         </Transition>
 
-        <!-- Subcategory strip — shown only on level-1 category pages (relatedCategories have images) -->
+        <!-- Subcategory strip — the level-1 category's children, kept visible on level-1 and level-2 pages, hidden on level-3 -->
         <SubcategoryStrip
-            v-if="relatedCategories?.length && relatedCategories[0]?.image"
-            :categories="relatedCategories"
+            v-if="subcategoryStrip?.length"
+            :categories="subcategoryStrip"
+            :current-slug="currentCategorySlug"
         />
 
         <div class="max-w-screen-2xl max-sm:mx-3 py-6 flex gap-6 relative">
@@ -228,7 +230,7 @@ function removeChip(chip) {
                 <div v-if="relatedCategories?.length" class="bg-white max-sm:mx-2 border rounded-xl shadow-xs border-gray-100 px-5 py-3">
                     <Panel
                         toggleable
-                        :collapsed="true"
+                        :collapsed="false"
                     >
                         <template #header>
                             <span class="text-sm font-bold text-gray-500">კატეგორიები</span>
