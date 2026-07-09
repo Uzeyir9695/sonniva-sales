@@ -8,6 +8,11 @@ defineProps([
 
 <template>
     <div class="text-sm text-gray-500 sticky top-16 sm:top-20 flex items-center text-nowrap overflow-x-auto px-3 sm:px-4 py-3 no-scrollbar scroll-smooth z-20">
+        <Link :href="route('home')" class="shrink-0 font-semibold">
+            საწყისი გვერდი
+        </Link>
+        <i v-if="breadcrumbs?.length" class="pi pi-chevron-right text-xs mx-1 shrink-0"></i>
+
         <template v-for="(crumb, i) in breadcrumbs" :key="i">
             <template v-if="i < breadcrumbs.length - 1">
                 <Link
