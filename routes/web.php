@@ -89,6 +89,8 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         // ******** Admin Items ********//
         Route::get('/items', [AdminItemController::class, 'index'])->name('items.index');
         Route::post('/items/sync-category', [AdminItemController::class, 'syncCategory'])->name('items.sync-category');
+        Route::get('/items/search', [AdminItemController::class, 'search'])->name('items.search');
+        Route::put('/items/{item}/video', [AdminItemController::class, 'updateVideo'])->name('items.update-video');
 
         // ******** Admin Payments ********//
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');

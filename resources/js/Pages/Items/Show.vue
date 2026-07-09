@@ -95,7 +95,7 @@ const ogImage = computed(() => {
 
                 <!-- ========== LEFT: GALLERY ========== -->
                 <div class="lg:col-span-4 lg:row-start-1 lg:row-end-2 order-1">
-                    <ItemGallery :images="images" :item-name="item.name" :image-path="item.storage_path" />
+                    <ItemGallery :images="images" :item-name="item.name" :image-path="item.storage_path" :video-url="item.video_url" />
                 </div>
 
                 <!-- ========== RIGHT: DETAILS ========== -->
