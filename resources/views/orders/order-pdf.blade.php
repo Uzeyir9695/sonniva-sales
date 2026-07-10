@@ -38,6 +38,23 @@
         </div>
     </div>
 
+    @if($payment->provider === 'invoice')
+        {{-- ── Bank Accounts (invoice only) ── --}}
+        <div class="bg-white rounded-2xl p-6 border border-gray-200">
+            <h2 class="text-xs font-bold text-brand-500 uppercase tracking-wider mb-3">საბანკო რეკვიზიტები</h2>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500">თიბისი ბანკი</p>
+                    <p class="font-semibold text-gray-900">{{ config('payments.tbc.iban') }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">საქართველოს ბანკი</p>
+                    <p class="font-semibold text-gray-900">{{ config('payments.bog.iban') }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- ── Customer + Delivery ── --}}
     <div class="grid grid-cols-2 gap-4">
 

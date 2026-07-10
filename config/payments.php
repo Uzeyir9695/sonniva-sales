@@ -1,21 +1,15 @@
 <?php
 
 return [
-    'tbc' => [
-        'client_id' => env('TBC_CLIENT_ID'),
-        'client_secret' => env('TBC_CLIENT_SECRET'),
-        'api_key'     => env('BOG_API_KEY'),
-        'secret_key' => env('BOG_SECRET'),
-        'api_url' => env('TBC_API_URL'),
-        'callback_url' => env('TBC_CALLBACK_URL') . '/payment/callback?provider=tbc',
-        'iban' => env('TBC_IBAN'),
-    ],
     'flitt' => [
         'merchant_id' => env('FLITT_MERCHANT_ID'),
         'secret_key' => env('FLITT_SECRET_KEY'),
         'api_version' => env('FLITT_API_VERSION', '1.0'),
         'request_type' => env('FLITT_REQUEST_TYPE', 'json'),
         'callback_url' => env('FLITT_CALLBACK_URL') . '/payment/callback?provider=tbc',
+    ],
+    'tbc' => [
+        'iban' => env('TBC_IBAN'),
     ],
     'bog' => [
         'client_id' => env('BOG_CLIENT_ID'), // For Production

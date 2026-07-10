@@ -27,7 +27,11 @@ class InvoiceController extends Controller
 
     public function initiateInvoice(Request $request): RedirectResponse
     {
-        $result = $this->createOrder($request, 'pending', 'invoice');
+        try {
+            $result = $this->createOrder($request, 'pending', 'invoice');
+        } catch (\InvalidArgumentException $e) {
+            return back()->withErrors(['message' => $e->getMessage()]);
+        }
 
         $this->generatePDF($result['order']->load('items'), $result['invoiceNo'], $result['payment']);
 
@@ -36,24 +40,24 @@ class InvoiceController extends Controller
 
     public function initiateLimit(Request $request): RedirectResponse
     {
-        $result = $this->createOrder($request, 'limit', 'limit');
+        try {
+            $result = $this->createOrder($request, 'limit', 'limit');
+        } catch (\InvalidArgumentException $e) {
+            return back()->withErrors(['message' => $e->getMessage()]);
+        }
 
         return to_route('payment.limit.success', ['invoice' => $result['invoiceNo']]);
     }
 
     private function createOrder(Request $request, string $status, string $provider): array
     {
-        try {
-            $calc = $this->calculatorService->calculate(
-                $request->cart_ids,
-                $request->delivery_type,
-                auth()->id(),
-                $request->delivery_price_type,
-                $request->city
-            );
-        } catch (\InvalidArgumentException $e) {
-            back()->withErrors(['message' => $e->getMessage()]);
-        }
+        $calc = $this->calculatorService->calculate(
+            $request->cart_ids,
+            $request->delivery_type,
+            auth()->id(),
+            $request->delivery_price_type,
+            $request->city
+        );
 
         do {
             $invoiceNo = 'S'.random_int(100000, 999999);
