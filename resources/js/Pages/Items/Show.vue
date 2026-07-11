@@ -316,15 +316,15 @@ const ogImage = computed(() => {
                                 ახლავე შეძენა
                             </button>
 
-                            <!-- Order via WhatsApp -->
-                            <button
-                                v-if="!inStock"
-                                @click="showWhatsappDialog = true"
-                                class="w-full py-2.5 rounded-2xl max-sm:text-sm flex items-center justify-center gap-2 bg-slate-700 cursor-pointer border border-slate-800 text-white font-bold hover:bg-slate-800 active:scale-[0.98] transition-all"
-                            >
-                                <i class="pi pi-file-edit"></i>
-                                მოითხოვე შეკვეთა
-                            </button>
+                            <!-- Require Order -->
+<!--                            <button-->
+<!--                                v-if="!inStock"-->
+<!--                                @click="showWhatsappDialog = true"-->
+<!--                                class="w-full py-2.5 rounded-2xl max-sm:text-sm flex items-center justify-center gap-2 bg-slate-700 cursor-pointer border border-slate-800 text-white font-bold hover:bg-slate-800 active:scale-[0.98] transition-all"-->
+<!--                            >-->
+<!--                                <i class="pi pi-file-edit"></i>-->
+<!--                                მოითხოვე შეკვეთა-->
+<!--                            </button>-->
 
                             <!-- Notify when back in stock -->
                             <StockNotifyButton

@@ -52,15 +52,15 @@ const viewItemDetails = (item) => {
                     <i class="pi pi-eye text-xs"></i>
                 </button>
 
-                <!--  Order via WhatsApp -->
-                <button
-                    v-if="item.inventory < 1"
-                    @click.stop="showWhatsappDialog = true"
-                    v-tooltip.left="'მოითხოვე შეკვეთა'"
-                    class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-brand-600 hover:text-brand-700 hover:shadow-lg transition-all duration-150"
-                >
-                    <i class="pi pi-file-edit text-xs"></i>
-                </button>
+                <!--  Require Order -->
+<!--                <button-->
+<!--                    v-if="item.inventory < 1"-->
+<!--                    @click.stop="showWhatsappDialog = true"-->
+<!--                    v-tooltip.left="'მოითხოვე შეკვეთა'"-->
+<!--                    class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-brand-600 hover:text-brand-700 hover:shadow-lg transition-all duration-150"-->
+<!--                >-->
+<!--                    <i class="pi pi-file-edit text-xs"></i>-->
+<!--                </button>-->
 
                 <!--  Notify when back in stock -->
                 <button
