@@ -16,7 +16,7 @@ class AdminBannerController extends Controller
     public function index(): Response
     {
         $banners = BannerImage::with('item:id,name,slug')
-            ->orderBy('slot')->orderBy('sort_order')->get()
+            ->orderBy('sort_order')->get()
             ->groupBy('slot')
             ->map(fn ($group) => $group->map(fn ($b) => [
                 'id' => $b->id,
