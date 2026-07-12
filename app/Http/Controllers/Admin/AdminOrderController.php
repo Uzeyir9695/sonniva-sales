@@ -117,6 +117,8 @@ class AdminOrderController extends Controller
                     'unit_price' => $oi->unit_price,
                     'unit_weight' => $oi->unit_weight,
                     'subtotal' => $oi->subtotal,
+                    'discount' => $oi->discount,
+                    'wholesale_discount' => $oi->wholesale_discount,
                 ]),
             ],
         ]);
@@ -209,7 +211,7 @@ class AdminOrderController extends Controller
             'to_city' => $order->city,
             'to_name' => trim($order->user->name.' '.$order->user->lastname),
             'to_phone' => $order->user->local_phone,
-            'to_address' => $order->address?? $order->city,
+            'to_address' => $order->address ?? $order->city,
             'to_company' => $order->user->user_type === 'legal_entity' ? $order->user->name : null,
             'payment' => 3,
             'payer' => 3,

@@ -1,10 +1,11 @@
 <script setup>
 import { ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, useForm } from '@inertiajs/vue3'
 import { useToast } from 'primevue/usetoast'
 import axios from 'axios'
 import AdminLayout from '../AdminLayout.vue'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
+import InputNumber from 'primevue/inputnumber'
 
 defineOptions({ layout: AdminLayout })
 
@@ -61,35 +62,37 @@ function onSearchInput() {
     debounceTimer = setTimeout(() => runSearch(q), 400)
 }
 
-const videoDialogVisible = ref(false)
+const manageDialogVisible = ref(false)
 const editingItem = ref(null)
-const videoUrlInput = ref('')
-const savingVideo = ref(false)
 
-function openVideoDialog(item) {
+const manageForm = useForm({
+    video_url: '',
+    discount: null,
+})
+
+function openManageDialog(item) {
     editingItem.value = item
-    videoUrlInput.value = item.video_url ?? ''
-    videoDialogVisible.value = true
+    manageForm.clearErrors()
+    manageForm.video_url = item.video_url ?? ''
+    manageForm.discount = item.discount ?? null
+    manageDialogVisible.value = true
 }
 
-function saveVideo() {
-    savingVideo.value = true
-    router.put(route('admin.items.update-video', editingItem.value.id), {
-        video_url: videoUrlInput.value.trim() || null,
-    }, {
-        preserveScroll: true,
-        onSuccess: (res) => {
-            editingItem.value.video_url = videoUrlInput.value.trim() || null
-            videoDialogVisible.value = false
-            toast.add({ severity: 'success', summary: 'Saved', detail: res.props.flash.message, life: 3000 })
-        },
-        onError: (errors) => {
-            toast.add({ severity: 'error', summary: 'Error', detail: errors.video_url ?? 'Could not save the video link.', life: 4000 })
-        },
-        onFinish: () => {
-            savingVideo.value = false
-        },
-    })
+function saveItem() {
+    manageForm
+        .transform(data => ({
+            video_url: data.video_url.trim() || null,
+            discount: data.discount || null,
+        }))
+        .put(route('admin.items.update', editingItem.value.id), {
+            preserveScroll: true,
+            onSuccess: (res) => {
+                editingItem.value.video_url = manageForm.video_url.trim() || null
+                editingItem.value.discount = manageForm.discount || null
+                manageDialogVisible.value = false
+                toast.add({ severity: 'success', summary: 'Saved', detail: res.props.flash.message, life: 3000 })
+            },
+        })
 }
 </script>
 
@@ -154,19 +157,35 @@ function saveVideo() {
                             </div>
 
                             <span
+                                v-if="item.discount > 0"
+                                class="text-xs px-2 py-0.5 rounded-full font-semibold shrink-0 bg-red-100 text-red-600"
+                            >
+                                -{{ Number(item.discount) }}%
+                            </span>
+
+                            <span
                                 class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
                                 :class="item.video_url ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'"
                             >
                                 {{ item.video_url ? 'Video set' : 'No video' }}
                             </span>
 
+                            <a
+                                :href="route('items.show', item.slug)"
+                                target="_blank"
+                                v-tooltip.top="'View item page'"
+                                class="w-8 h-8 flex items-center justify-center rounded-lg shrink-0 text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                            >
+                                <i class="pi pi-external-link text-sm"></i>
+                            </a>
+
                             <Button
-                                :label="item.video_url ? 'Edit' : 'Add Video'"
-                                :icon="item.video_url ? 'pi pi-pencil' : 'pi pi-plus'"
+                                label="Manage"
+                                icon="pi pi-cog"
                                 size="small"
                                 severity="secondary"
                                 outlined
-                                @click="openVideoDialog(item)"
+                                @click="openManageDialog(item)"
                             />
                         </li>
                     </ul>
@@ -188,29 +207,53 @@ function saveVideo() {
             </TabPanels>
         </Tabs>
 
-        <!-- Video Link Dialog -->
-        <Dialog v-model:visible="videoDialogVisible" modal header="Item Video Link" :style="{ width: '28rem' }">
-            <div v-if="editingItem" class="space-y-3">
-                <p class="text-sm font-medium text-gray-800">{{ editingItem.name }}</p>
-                <p class="text-xs text-gray-400 font-mono">{{ editingItem.no }}</p>
+        <!-- Manage Item Dialog -->
+        <Dialog v-model:visible="manageDialogVisible" modal header="Manage Item" :style="{ width: '28rem' }">
+            <div v-if="editingItem" class="space-y-4">
+                <div>
+                    <p class="text-sm font-medium text-gray-800">{{ editingItem.name }}</p>
+                    <p class="text-xs text-gray-400 font-mono">{{ editingItem.no }}</p>
+                </div>
 
-                <PrimeInputText
-                    v-model="videoUrlInput"
-                    placeholder="https://youtu.be/..."
-                    class="w-full"
-                    fluid
-                />
-                <p class="text-xs text-gray-400">Paste the link from YouTube's Share button. Leave empty to remove the video.</p>
+                <div>
+                    <label class="text-xs font-medium text-gray-500 mb-1 block">Video Link</label>
+                    <PrimeInputText
+                        v-model="manageForm.video_url"
+                        placeholder="https://youtu.be/..."
+                        :invalid="!!manageForm.errors.video_url"
+                        class="w-full"
+                        fluid
+                    />
+                    <p v-if="manageForm.errors.video_url" class="text-xs text-red-500 mt-1">{{ manageForm.errors.video_url }}</p>
+                    <p v-else class="text-xs text-gray-400 mt-1">Paste the link from YouTube's Share button. Leave empty to remove the video.</p>
+                </div>
+
+                <div>
+                    <label class="text-xs font-medium text-gray-500 mb-1 block">Discount</label>
+                    <InputNumber
+                        v-model="manageForm.discount"
+                        :min="0"
+                        :max="100"
+                        :min-fraction-digits="0"
+                        :max-fraction-digits="2"
+                        suffix="%"
+                        placeholder="0"
+                        :invalid="!!manageForm.errors.discount"
+                        fluid
+                    />
+                    <p v-if="manageForm.errors.discount" class="text-xs text-red-500 mt-1">{{ manageForm.errors.discount }}</p>
+                    <p v-else class="text-xs text-gray-400 mt-1">Percentage off unit price. Leave empty for no discount.</p>
+                </div>
             </div>
 
             <template #footer>
-                <Button label="Cancel" size="small" severity="secondary" variant="text" @click="videoDialogVisible = false" />
+                <Button label="Cancel" size="small" severity="secondary" variant="text" @click="manageDialogVisible = false" />
                 <Button
                     label="Save"
                     size="small"
                     icon="pi pi-check"
-                    :loading="savingVideo"
-                    @click="saveVideo"
+                    :loading="manageForm.processing"
+                    @click="saveItem"
                 />
             </template>
         </Dialog>

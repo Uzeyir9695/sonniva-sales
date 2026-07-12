@@ -5,7 +5,7 @@ import axios from 'axios';
 import QuickViewDialog from '@/Shared/components/QuickViewDialog.vue';
 import { useCart } from '@/composables/useCart.js';
 import { useGtag } from '@/composables/useGtag.js'
-import { getDisplayPrice, getDisplayUOM } from '@/composables/usePricing.js'
+import { getDisplayPrice, getDisplayUOM, hasDiscount, getOriginalPrice } from '@/composables/usePricing.js'
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 
 const props = defineProps({
@@ -190,6 +190,7 @@ defineExpose({ inputRef });
                             <div class="flex items-center gap-2">
                                 <div class="flex flex-col gap-0.5">
                                     <span v-if="getDisplayUOM(item)" class="text-xs text-blue-400">შეკვრა</span>
+                                    <span v-if="hasDiscount(item)" class="text-xs text-red-500 line-through">{{ getOriginalPrice(item) }} ₾</span>
                                     <p class="text-xs sm:text-sm text-brand-500 font-bold">
                                         {{ getDisplayPrice(item) }} ₾
                                         <span v-if="getDisplayUOM(item)" class="text-xs font-normal text-gray-400">/ {{ getDisplayUOM(item) }}</span>

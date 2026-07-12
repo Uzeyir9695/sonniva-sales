@@ -13,7 +13,7 @@ const props = defineProps({
     isOrderOnly: { type: Boolean, default: false },
 })
 
-const { displayPrice, displayUOM } = usePricing(() => props.item)
+const { displayPrice, displayUOM, hasDiscount, originalPrice } = usePricing(() => props.item)
 
 const emit = defineEmits(['quick-view'])
 
@@ -39,7 +39,15 @@ const viewItemDetails = (item) => {
                 >მარაგშია</span>
             </div>
 
-            <div class="absolute top-2.5 right-2.5 flex flex-col gap-1.5 sm:opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0">
+            <span
+                v-if="hasDiscount"
+                class="absolute top-2.5 right-2.5 z-10 text-[10px] font-bold px-2 py-1 rounded-full bg-red-500 text-white shadow-md"
+            >-{{ Number(item.discount) }}%</span>
+
+            <div
+                class="absolute right-2.5 flex flex-col gap-1.5 sm:opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0"
+                :class="hasDiscount ? 'top-11' : 'top-2.5'"
+            >
 
                 <!--  Wishlist -->
                 <WishlistButton :item-id="item.id" />
@@ -84,6 +92,7 @@ const viewItemDetails = (item) => {
                     <template v-if="displayPrice">
                         <div class="flex flex-col gap-1">
                             <span v-if="displayUOM" class="text-xs text-blue-400">შეკვრა</span>
+                            <span v-if="hasDiscount" class="text-xs text-red-500 line-through">{{ originalPrice }} ₾</span>
                                 <div class="flex items-center gap-1 5">
                                 <span class="text-base font-semibold text-gray-900">{{ displayPrice }} ₾</span>
                                 <span v-if="displayUOM" class="text-xs text-gray-400">/ {{ displayUOM }}</span>

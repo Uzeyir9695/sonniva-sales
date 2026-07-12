@@ -75,9 +75,8 @@ class OrderCalculatorService
             $subtotal += $rowTotal;
 
             $retailPrice = $this->retailPrice($cartRow->item, $cartRow->selected_uom);
-            if ($retailPrice !== null) {
-                $wholesaleDiscount += ($retailPrice - $unitPrice) * $qty;
-            }
+            $rowWholesaleDiscount = $retailPrice !== null ? ($retailPrice - $unitPrice) * $qty : 0;
+            $wholesaleDiscount += $rowWholesaleDiscount;
 
             $unitWeightKg = $this->unitWeightKg($cartRow);
             $totalWeightKg += $unitWeightKg * $qty;
@@ -89,6 +88,8 @@ class OrderCalculatorService
                 'subtotal' => $rowTotal,
                 'unit_of_measure_code' => $cartRow->selected_uom,
                 'unit_weight' => $unitWeightKg,
+                'discount' => $cartRow->item->discount,
+                'wholesale_discount' => $rowWholesaleDiscount,
             ];
         }
 
@@ -106,7 +107,7 @@ class OrderCalculatorService
     private function retailPrice(Item $item, ?string $uom): ?float
     {
         if ($item->unit_price > 0) {
-            return (float) $item->unit_price;
+            return (float) ($item->discounted_price ?? $item->unit_price);
         }
 
         if (! $uom || empty($item->prices)) {
@@ -122,7 +123,7 @@ class OrderCalculatorService
     private function tierPrice(Item $item, int $qty, ?string $uom = null, bool $isVip = false): float
     {
         if (empty($item->prices)) {
-            return $item->unit_price;
+            return (float) ($item->discounted_price ?? $item->unit_price);
         }
 
         $prices = collect($item->prices)
@@ -142,7 +143,13 @@ class OrderCalculatorService
             ->sortByDesc('custMinQuantity')
             ->first(fn ($p) => $qty >= $p['custMinQuantity']);
 
-        return $tier['price'] ?? $item->unit_price;
+        // Retail-tier (or no tier matched) is a plain retail purchase, so the discount applies.
+        // Wholesale/VIP tiers are already preferential pricing and keep their raw price.
+        if (! $tier || ($tier['priceGroup'] ?? null) === 'Retail') {
+            return (float) ($item->discounted_price ?? $item->unit_price);
+        }
+
+        return (float) $tier['price'];
     }
 
     private function deliveryCost(string $deliveryType, float $subtotal, ?string $priceType, float $weightKg, ?string $city = null): float

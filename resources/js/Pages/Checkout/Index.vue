@@ -3,7 +3,7 @@ import { ref, computed, reactive, watch } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'primevue/usetoast'
 import { useCart } from '@/composables/useCart'
-import { calculateTierPrice } from '@/composables/usePricing.js'
+import { calculateTierPrice, hasDiscount } from '@/composables/usePricing.js'
 import PlacesAutocomplete from '@/Shared/components/PlacesAutocomplete.vue'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 import AutoComplete from 'primevue/autocomplete'
@@ -789,7 +789,11 @@ function initiatePayment() {
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <p v-tooltip.top="cartItem.item.name" class="text-xs text-gray-700 font-medium line-clamp-1">{{ cartItem.item.name }}</p>
-                                    <p class="text-xs text-gray-400 mt-0.5">{{ cartItem.qty }} × {{ formatted(cartItem.unitPrice) }} ₾</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">
+                                        {{ cartItem.qty }} ×
+                                        <span v-if="hasDiscount(cartItem.item) && cartItem.unitPrice == cartItem.item.discounted_price" class="line-through mr-1">{{ formatted(cartItem.item.unit_price) }} ₾</span>
+                                        {{ formatted(cartItem.unitPrice) }} ₾
+                                    </p>
                                 </div>
                                 <span class="text-sm font-semibold text-gray-800 shrink-0">{{ formatted(cartItem.rowTotal) }} ₾</span>
                                 <button

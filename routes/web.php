@@ -18,6 +18,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\Payment\InvoiceController;
 use App\Http\Controllers\Payment\PaymentController;
+use App\Http\Controllers\SalesController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\StockNotificationController;
 use App\Http\Controllers\UserOrderController;
@@ -90,7 +91,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::get('/items', [AdminItemController::class, 'index'])->name('items.index');
         Route::post('/items/sync-category', [AdminItemController::class, 'syncCategory'])->name('items.sync-category');
         Route::get('/items/search', [AdminItemController::class, 'search'])->name('items.search');
-        Route::put('/items/{item}/video', [AdminItemController::class, 'updateVideo'])->name('items.update-video');
+        Route::put('/items/{item}', [AdminItemController::class, 'update'])->name('items.update');
 
         // ******** Admin Payments ********//
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
@@ -219,6 +220,8 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+
+Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
 
 Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])
     ->name('items.index');

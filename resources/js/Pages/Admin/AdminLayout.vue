@@ -44,11 +44,6 @@ const menuItems = computed(() => [
         icon: 'pi-credit-card',
     },
     {
-        name: 'Manage Items',
-        route: 'admin.items.index',
-        icon: 'pi-box',
-    },
-    {
         name: 'Stock Requests',
         route: 'admin.stock-notifications.index',
         icon: 'pi-bell',
@@ -58,6 +53,11 @@ const menuItems = computed(() => [
         name: 'Analytics',
         route: 'admin.analytics.index',
         icon: 'pi-chart-line',
+    },
+    {
+        name: 'Manage Items',
+        route: 'admin.items.index',
+        icon: 'pi-box',
     },
     {
         name: 'Home Page',

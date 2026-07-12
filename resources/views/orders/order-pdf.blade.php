@@ -132,7 +132,19 @@
                                 <span class="text-xs text-gray-400">{{ $orderItem->item->base_uom_desc }}</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 text-right text-gray-600 whitespace-nowrap">{{ number_format($orderItem->unit_price, 2) }} ლარი</td>
+                        <td class="px-6 py-4 text-right text-gray-600 whitespace-nowrap">
+                            @if($orderItem->wholesale_discount > 0)
+                                <div class="line-through text-gray-400 text-xs">{{ number_format($orderItem->unit_price + $orderItem->wholesale_discount / $orderItem->quantity, 2) }} ლარი</div>
+                                <div class="text-emerald-600 font-medium">{{ number_format($orderItem->unit_price, 2) }} ლარი</div>
+                                <span class="inline-block text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold mt-0.5">საბითუმო</span>
+                            @elseif($orderItem->discount > 0)
+                                <div class="line-through text-gray-400 text-xs">{{ number_format($orderItem->unit_price / (1 - $orderItem->discount / 100), 2) }} ლარი</div>
+                                <div class="text-red-600 font-medium">{{ number_format($orderItem->unit_price, 2) }} ლარი</div>
+                                <span class="inline-block text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 font-semibold mt-0.5">-{{ (float) $orderItem->discount }}%</span>
+                            @else
+                                {{ number_format($orderItem->unit_price, 2) }} ლარი
+                            @endif
+                        </td>
                         <td class="px-6 py-4 text-right font-bold text-gray-900 whitespace-nowrap">{{ number_format($orderItem->subtotal, 2) }} ლარი</td>
                     </tr>
                 @endforeach

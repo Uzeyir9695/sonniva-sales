@@ -12,17 +12,27 @@ class Item extends Model
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
-    protected $appends = ['storage_path'];
+    protected $appends = ['storage_path', 'discounted_price'];
 
     protected $casts = [
         'images' => 'array',
         'prices' => 'array',
         'weights' => 'array',
+        'discount' => 'decimal:2',
     ];
 
     public function getStoragePathAttribute()
     {
         return '/storage/items';
+    }
+
+    public function getDiscountedPriceAttribute(): ?string
+    {
+        if ((float) $this->discount <= 0 || (float) $this->unit_price <= 0) {
+            return null;
+        }
+
+        return number_format($this->unit_price * (1 - $this->discount / 100), 2, '.', '');
     }
 
     public function attributes(): HasMany

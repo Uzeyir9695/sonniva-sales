@@ -5,9 +5,23 @@ function visiblePrices(item) {
     return (item?.prices ?? []).filter(p => p.priceGroup !== 'Wholesales')
 }
 
+// `discounted_price` is computed on the backend (Item::getDiscountedPriceAttribute) from
+// unit_price + discount%. Discount only ever applies to unit_price, never to package/tiered prices.
+function effectiveUnitPrice(item) {
+    return item?.discounted_price ?? item?.unit_price ?? 0
+}
+
+export function hasDiscount(item) {
+    return item?.discounted_price != null
+}
+
+export function getOriginalPrice(item) {
+    return item?.unit_price ?? null
+}
+
 export function calculateTierPrice(item, qty, selectedUOM = null, isVip = false) {
     if (!item) return 0
-    if (!item.prices?.length) return item.unit_price ?? 0
+    if (!item.prices?.length) return effectiveUnitPrice(item)
 
     const prices = isVip
         ? item.prices
@@ -24,11 +38,15 @@ export function calculateTierPrice(item, qty, selectedUOM = null, isVip = false)
     const tier = [...prices]
         .sort((a, b) => b.custMinQuantity - a.custMinQuantity)
         .find(p => qty >= p.custMinQuantity)
-    return tier?.price ?? item.unit_price
+
+    // Retail-tier (or no tier matched) is a plain retail purchase, so the discount applies.
+    // Wholesale/VIP tiers are already preferential pricing and keep their raw price.
+    if (!tier || tier.priceGroup === 'Retail') return effectiveUnitPrice(item)
+    return tier.price
 }
 
 export function getDisplayPrice(item) {
-    if (item?.unit_price != 0) return item?.unit_price
+    if (item?.unit_price != 0) return effectiveUnitPrice(item)
     const prices = visiblePrices(item)
     return prices[0]?.price ?? null
 }
@@ -54,12 +72,19 @@ export function usePricing(item) {
     )
 
     const displayPrice = computed(() =>
-        isPackageItem.value ? prices.value[0]?.price ?? null : get()?.unit_price
+        isPackageItem.value ? prices.value[0]?.price ?? null : effectiveUnitPrice(get())
     )
 
     const displayUOM = computed(() =>
         isPackageItem.value ? prices.value[0]?.UOM ?? null : null
     )
 
-    return { isPackageItem, prices, displayPrice, displayUOM }
+    // Discount only applies to unit_price items, never package/tiered ones.
+    const itemHasDiscount = computed(() => !isPackageItem.value && hasDiscount(get()))
+
+    const originalPrice = computed(() =>
+        itemHasDiscount.value ? get()?.unit_price : null
+    )
+
+    return { isPackageItem, prices, displayPrice, displayUOM, hasDiscount: itemHasDiscount, originalPrice }
 }

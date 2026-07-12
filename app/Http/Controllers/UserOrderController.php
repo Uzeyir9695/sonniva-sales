@@ -70,6 +70,8 @@ class UserOrderController extends Controller
                     'quantity' => $oi->quantity,
                     'unit_price' => $oi->unit_price,
                     'subtotal' => $oi->subtotal,
+                    'discount' => $oi->discount,
+                    'wholesale_discount' => $oi->wholesale_discount,
                 ]),
             ],
         ]);

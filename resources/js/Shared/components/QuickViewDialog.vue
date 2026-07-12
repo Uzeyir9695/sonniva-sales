@@ -31,7 +31,7 @@ const show = computed({
 
 const inStock = computed(() => props.item?.inventory && props.item.inventory > 0)
 
-const { displayPrice, displayUOM } = usePricing(() => props.item)
+const { displayPrice, displayUOM, hasDiscount, originalPrice } = usePricing(() => props.item)
 </script>
 
 <template>
@@ -91,10 +91,13 @@ const { displayPrice, displayUOM } = usePricing(() => props.item)
                     <div v-else class="flex-1" />
 
                     <div class="border-t border-gray-100 pt-5 mt-2">
-                        <div class="text-2xl font-bold text-gray-900 mb-4">
+                        <div class="mb-4">
                             <template v-if="displayPrice">
-                                {{ displayPrice }} ₾
-                                <span v-if="displayUOM" class="text-sm font-normal text-gray-400">/ {{ displayUOM }}</span>
+                                <span v-if="hasDiscount" class="text-base text-red-500 line-through mr-2">{{ originalPrice }} ₾</span>
+                                <span class="text-2xl font-bold text-gray-900">
+                                    {{ displayPrice }} ₾
+                                    <span v-if="displayUOM" class="text-sm font-normal text-gray-400">/ {{ displayUOM }}</span>
+                                </span>
                             </template>
                             <template v-else>—</template>
                         </div>

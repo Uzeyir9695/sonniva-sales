@@ -47,7 +47,7 @@ const images = computed(() => {
 })
 
 /* ---------------- Pricing ---------------- */
-const { isPackageItem, prices } = usePricing(() => props.item)
+const { isPackageItem, prices, displayPrice, hasDiscount, originalPrice } = usePricing(() => props.item)
 const selectedEntry = ref(null)
 watch(prices, (val) => { selectedEntry.value = val[0] ?? null }, { immediate: true })
 
@@ -95,7 +95,13 @@ const ogImage = computed(() => {
 
                 <!-- ========== LEFT: GALLERY ========== -->
                 <div class="lg:col-span-4 lg:row-start-1 lg:row-end-2 order-1">
-                    <ItemGallery :images="images" :item-name="item.name" :image-path="item.storage_path" :video-url="item.video_url" />
+                    <ItemGallery :images="images" :item-name="item.name" :image-path="item.storage_path" :video-url="item.video_url">
+                        <template v-if="hasDiscount" #badge>
+                            <span class="absolute top-3 right-3 z-10 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full bg-red-500 text-white shadow-md">
+                                -{{ Number(item.discount) }}%
+                            </span>
+                        </template>
+                    </ItemGallery>
                 </div>
 
                 <!-- ========== RIGHT: DETAILS ========== -->
@@ -158,9 +164,12 @@ const ogImage = computed(() => {
 <!--                    </h1>-->
 
                     <!-- Price -->
-                    <div class="flex items-center gap-3 mb-8">
+                    <div class="flex items-center gap-3 mb-8 flex-wrap">
+                        <span v-if="hasDiscount" class="text-base sm:text-lg text-red-500 line-through">
+                            {{ originalPrice }} ₾
+                        </span>
                         <span class="text-lg sm:text-2xl font-bold text-brand-500 tracking-tight">
-                            {{ isPackageItem ? selectedEntry?.price : item.unit_price }} ₾
+                            {{ isPackageItem ? selectedEntry?.price : displayPrice }} ₾
                         </span>
                         <span v-if="isPackageItem && selectedEntry?.UOM" class="text-sm text-gray-400">
                             / {{ selectedEntry.UOM }}

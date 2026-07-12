@@ -53,31 +53,34 @@ const slides = computed(() => {
         </div>
 
         <!-- Main Swiper -->
-        <Swiper
-            v-else
-            :modules="modules"
-            :thumbs="{ swiper: thumbsSwiper }"
-            :navigation="true"
-            :loop="slides.length > 1"
-            class="main-gallery w-full rounded-3xl overflow-hidden border border-gray-100 shadow-sm h-[270px] sm:h-[500px]"
-        >
-            <SwiperSlide v-for="(slide, i) in slides" :key="i" class="bg-white flex items-center justify-center">
-                <img
-                    v-if="slide.type === 'image'"
-                    :src="`${imagePath}/${slide.src}`"
-                    :alt="itemName"
-                    class="max-w-[500px] mx-auto h-full object-cover"
-                >
-                <iframe
-                    v-else
-                    :src="`https://www.youtube.com/embed/${slide.id}`"
-                    :title="itemName"
-                    class="w-full h-full border-0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen
-                ></iframe>
-            </SwiperSlide>
-        </Swiper>
+        <div v-else class="relative">
+            <slot name="badge" />
+
+            <Swiper
+                :modules="modules"
+                :thumbs="{ swiper: thumbsSwiper }"
+                :navigation="true"
+                :loop="slides.length > 1"
+                class="main-gallery w-full rounded-3xl overflow-hidden border border-gray-100 shadow-sm h-[270px] sm:h-[500px]"
+            >
+                <SwiperSlide v-for="(slide, i) in slides" :key="i" class="bg-white flex items-center justify-center">
+                    <img
+                        v-if="slide.type === 'image'"
+                        :src="`${imagePath}/${slide.src}`"
+                        :alt="itemName"
+                        class="max-w-[500px] mx-auto h-full object-cover"
+                    >
+                    <iframe
+                        v-else
+                        :src="`https://www.youtube.com/embed/${slide.id}`"
+                        :title="itemName"
+                        class="w-full h-full border-0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen
+                    ></iframe>
+                </SwiperSlide>
+            </Swiper>
+        </div>
 
         <!-- Thumbs Swiper -->
         <Swiper

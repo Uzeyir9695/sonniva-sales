@@ -61,7 +61,7 @@ const providerLabel = {
         v-model:visible="visible"
         modal
         :header="order ? `შეკვეთა #${order.invoice_no ?? order.id?.slice(0, 8)}` : 'შეკვეთის დეტალები'"
-        class="w-[95%] sm:w-[75%] lg:w-[58%]"
+        class="w-[95%] sm:w-[75%] lg:w-[65%]"
         pt:header:class="border-b border-gray-100"
     >
         <!-- Loading -->
@@ -147,7 +147,23 @@ const providerLabel = {
                     <Column field="item_name" header="დასახელება" style="min-width: 16rem" />
                     <Column field="quantity" header="რაოდ." />
                     <Column field="unit_price" header="ერთ. ფასი" style="min-width: 7rem">
-                        <template #body="{ data }">{{ data.unit_price }} ₾</template>
+                        <template #body="{ data }">
+                            <div v-if="data.wholesale_discount > 0" class="flex flex-col gap-0.5">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="line-through text-gray-400 text-xs">{{ (Number(data.unit_price) + Number(data.wholesale_discount) / data.quantity).toFixed(2) }} ₾</span>
+                                    <span class="font-medium text-emerald-600">{{ data.unit_price }} ₾</span>
+                                </div>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold w-fit">საბითუმო</span>
+                            </div>
+                            <div v-else-if="data.discount > 0" class="flex flex-col gap-0.5">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="line-through text-gray-400 text-xs">{{ (Number(data.unit_price) / (1 - Number(data.discount) / 100)).toFixed(2) }} ₾</span>
+                                    <span class="font-medium text-red-600">{{ data.unit_price }} ₾</span>
+                                </div>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 font-semibold w-fit">-{{ Number(data.discount) }}%</span>
+                            </div>
+                            <span v-else>{{ data.unit_price }} ₾</span>
+                        </template>
                     </Column>
                     <Column field="subtotal" header="სულ" style="min-width: 7rem">
                         <template #body="{ data }">

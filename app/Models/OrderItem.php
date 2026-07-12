@@ -9,8 +9,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrderItem extends Model
 {
-    use HasUuids, HasFactory;
+    use HasFactory, HasUuids;
+
     protected $guarded = ['created_at', 'updated_at'];
+
+    protected $casts = [
+        'discount' => 'decimal:2',
+        'wholesale_discount' => 'decimal:2',
+    ];
 
     public function order(): BelongsTo
     {
