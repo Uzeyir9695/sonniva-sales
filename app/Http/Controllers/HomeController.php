@@ -24,10 +24,16 @@ class HomeController extends Controller
         ];
 
         $banners = Cache::rememberForever('nav_banners', function () {
-            return BannerImage::orderBy('sort_order')
+            return BannerImage::with('item:id,slug')
+                ->orderBy('sort_order')
                 ->get()
                 ->groupBy('slot')
-                ->map(fn ($group) => $group->map(fn ($b) => Storage::disk('public')->url($b->image_path))->values());
+                ->map(fn ($group, $slot) => $slot === 'main'
+                    ? $group->map(fn ($b) => [
+                        'image_url' => Storage::disk('public')->url($b->image_path),
+                        'item_slug' => $b->item?->slug,
+                    ])->values()
+                    : $group->map(fn ($b) => Storage::disk('public')->url($b->image_path))->values());
         });
 
         return Inertia::render('Home/Index', [

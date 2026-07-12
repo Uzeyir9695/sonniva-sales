@@ -15,12 +15,14 @@ class AdminBannerController extends Controller
 {
     public function index(): Response
     {
-        $banners = BannerImage::orderBy('slot')->orderBy('sort_order')->get()
+        $banners = BannerImage::with('item:id,name,slug')
+            ->orderBy('slot')->orderBy('sort_order')->get()
             ->groupBy('slot')
             ->map(fn ($group) => $group->map(fn ($b) => [
                 'id' => $b->id,
                 'image_url' => Storage::disk('public')->url($b->image_path),
                 'sort_order' => $b->sort_order,
+                'item' => $b->item,
             ]));
 
         return Inertia::render('Admin/HomePage/Index', [
@@ -32,6 +34,7 @@ class AdminBannerController extends Controller
     {
         $request->validate([
             'slot' => ['required', 'in:main,doors,frames'],
+            'item_id' => ['required_if:slot,main', 'nullable', 'exists:items,id'],
             'images' => ['required', 'array', 'min:1'],
             'images.*' => ['required', 'image', 'max:4096'],
         ]);
@@ -43,6 +46,7 @@ class AdminBannerController extends Controller
             $path = $file->store("banners/{$slot}", 'public');
             BannerImage::create([
                 'slot' => $slot,
+                'item_id' => $request->item_id,
                 'image_path' => $path,
                 'sort_order' => $nextOrder++,
             ]);

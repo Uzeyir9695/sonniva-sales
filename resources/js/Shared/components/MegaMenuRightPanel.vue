@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { usePage } from '@inertiajs/vue3'
+import { Link, usePage } from '@inertiajs/vue3'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay } from 'swiper/modules'
 import 'swiper/css'
@@ -15,7 +15,7 @@ const doorImages  = computed(() => banners.value.doors  ?? [])
 const frameImages = computed(() => banners.value.frames ?? [])
 
 // Fallback static images when nothing uploaded yet
-const FALLBACK_MAIN   = ['/frame-examples/fur1.jpeg']
+const FALLBACK_MAIN   = [{ image_url: '/frame-examples/fur1.jpeg', item_slug: null }]
 const FALLBACK_DOORS  = ['/door-examples/picture1.png', '/door-examples/picture2.png', '/door-examples/picture3.png']
 const FALLBACK_FRAMES = ['/frame-examples/fur1.jpeg', '/frame-examples/fur2.jpeg', '/frame-examples/fur3.jpeg']
 
@@ -36,8 +36,11 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
                 :autoplay="mainSrc.length > 1 ? { delay: 5000, disableOnInteraction: false } : false"
                 class="h-full w-full"
             >
-                <SwiperSlide v-for="(src, i) in mainSrc" :key="i" class="h-full!">
-                    <img :src="src" :alt="`main ${i + 1}`" class="w-full h-full object-cover sm:object-contain" />
+                <SwiperSlide v-for="(slide, i) in mainSrc" :key="i" class="h-full!">
+                    <Link v-if="slide.item_slug" :href="route('items.show', slide.item_slug)" class="block h-full w-full">
+                        <img :src="slide.image_url" :alt="`main ${i + 1}`" class="w-full h-full object-cover sm:object-contain" />
+                    </Link>
+                    <img v-else :src="slide.image_url" :alt="`main ${i + 1}`" class="w-full h-full object-cover sm:object-contain" />
                 </SwiperSlide>
             </Swiper>
         </div>
