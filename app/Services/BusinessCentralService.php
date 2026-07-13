@@ -179,21 +179,21 @@ class BusinessCentralService
         $token = $this->getAccessToken();
 
         $data = [
-            'Name' => $user->name.' '.$user->lastname,
-            'Search_Name' => $user->name.' '.$user->lastname,
-            'Address' => $user->address,
+            'Name' => $user?->name.' '.$user?->lastname,
+            'Search_Name' => $user?->name.' '.$user?->lastname,
+            'Address' => $user?->address,
             'Address_2' => '',
             'Credit_Limit_LCY' => 0.01,
             'Salesperson_Code' => '6002',
-            'Phone_No' => $user->phone,
-            'E_Mail' => $user->email ?? 'Email not provided',
-            'VAT_Registration_No' => $user->tax_id,
+            'Phone_No' => $user?->phone,
+            'E_Mail' => $user?->email ?? 'Email not provided',
+            'VAT_Registration_No' => $user?->tax_id,
             'Prices_Including_VAT' => true,
             'Gen_Bus_Posting_Group' => 'DOMESTIC',
             'Customer_Posting_Group' => 'DOMESTIC',
         ];
 
-        $custEndpoint = 'Customers?$filter=VAT_Registration_No eq '."'".$user->tax_id."'";
+        $custEndpoint = 'Customers?$filter=VAT_Registration_No eq '."'".$user?->tax_id."'";
 
         $bcCustomer = $this->getCustomer($custEndpoint);
 
