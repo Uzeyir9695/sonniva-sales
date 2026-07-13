@@ -64,8 +64,12 @@ onMounted(() => {
 })
 
 function switchTo(lang) {
+    const from = currentLang.value
     if (typeof Weglot !== 'undefined') {
         Weglot.switchTo(lang)
+        if (lang === Weglot.options?.language_from) {
+            window.history.replaceState(null, '', location.pathname.replace(`/${from}`, '') || '/')
+        }
     }
     open.value = false
 }
