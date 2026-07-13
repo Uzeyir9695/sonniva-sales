@@ -253,22 +253,8 @@ class RegisterService
      */
     private function addCustomerToBC(User $user): void
     {
-        $payload = [
-            'Name' => trim($user->name.' '.$user->lastname),
-            'Search_Name' => trim($user->name.' '.$user->lastname),
-            'Address' => $user->address,
-            'Address_2' => '',
-            'Salesperson_Code' => '6002',
-            'Phone_No' => $user->phone,
-            'E_Mail' => $user->email ?? 'Email not provided',
-            'VAT_Registration_No' => $user->tax_id,
-        ];
-
-        $result = $this->bcService->addCustomer($payload);
-
-        if ($result) {
-            $user->bc_customer_no = $result['No'];
-            $user->save();
-        }
+        // addCustomer() reads directly off the User model and saves
+        // bc_customer_no on it itself - it doesn't take a plain array.
+        $this->bcService->addCustomer($user);
     }
 }
