@@ -56,7 +56,7 @@ class AdminItemController extends Controller
         // relative to the item's current unit_price before saving.
         $discount = $validated['discount'] ?? null;
         if (! empty($validated['discount_amount']) && $item->unit_price > 0) {
-            $discount = round($validated['discount_amount'] / $item->unit_price * 100, 2);
+            $discount = round($validated['discount_amount'] / $item->unit_price * 100, 4);
         }
 
         $item->update([

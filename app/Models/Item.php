@@ -18,7 +18,7 @@ class Item extends Model
         'images' => 'array',
         'prices' => 'array',
         'weights' => 'array',
-        'discount' => 'decimal:2',
+        'discount' => 'decimal:4',
     ];
 
     public function getStoragePathAttribute()
