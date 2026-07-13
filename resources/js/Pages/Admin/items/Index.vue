@@ -6,6 +6,7 @@ import axios from 'axios'
 import AdminLayout from '../AdminLayout.vue'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 import InputNumber from 'primevue/inputnumber'
+import { hasDiscount } from '@/composables/usePricing.js'
 
 defineOptions({ layout: AdminLayout })
 
@@ -154,6 +155,10 @@ function saveItem() {
                             <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-gray-800 truncate">{{ item.name }}</p>
                                 <p class="text-xs text-gray-400 font-mono">{{ item.no }}</p>
+                                <p class="text-sm mt-0.5">
+                                    <span v-if="hasDiscount(item)" class="text-red-500 line-through mr-1.5">{{ Number(item.unit_price).toFixed(2) }} ₾</span>
+                                    <span class="font-semibold text-gray-700">{{ Number(hasDiscount(item) ? item.discounted_price : item.unit_price).toFixed(2) }} ₾</span>
+                                </p>
                             </div>
 
                             <span
