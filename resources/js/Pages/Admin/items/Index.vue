@@ -69,6 +69,7 @@ const editingItem = ref(null)
 const manageForm = useForm({
     video_url: '',
     discount: null,
+    discount_amount: null,
 })
 
 function openManageDialog(item) {
@@ -76,6 +77,7 @@ function openManageDialog(item) {
     manageForm.clearErrors()
     manageForm.video_url = item.video_url ?? ''
     manageForm.discount = item.discount ?? null
+    manageForm.discount_amount = null
     manageDialogVisible.value = true
 }
 
@@ -84,14 +86,17 @@ function saveItem() {
         .transform(data => ({
             video_url: data.video_url.trim() || null,
             discount: data.discount || null,
+            discount_amount: data.discount_amount || null,
         }))
         .put(route('admin.items.update', editingItem.value.id), {
             preserveScroll: true,
             onSuccess: (res) => {
                 editingItem.value.video_url = manageForm.video_url.trim() || null
-                editingItem.value.discount = manageForm.discount || null
                 manageDialogVisible.value = false
                 toast.add({ severity: 'success', summary: 'Saved', detail: res.props.flash.message, life: 3000 })
+                // Discount may have been derived server-side from the ₾ amount -
+                // refetch so the list shows the actual saved percentage/price.
+                if (query.value.trim().length >= 2) runSearch(query.value.trim())
             },
         })
 }
@@ -234,7 +239,7 @@ function saveItem() {
                 </div>
 
                 <div>
-                    <label class="text-xs font-medium text-gray-500 mb-1 block">Discount</label>
+                    <label class="text-xs font-medium text-gray-500 mb-1 block">Discount (in %)</label>
                     <InputNumber
                         v-model="manageForm.discount"
                         :min="0"
@@ -248,6 +253,23 @@ function saveItem() {
                     />
                     <p v-if="manageForm.errors.discount" class="text-xs text-red-500 mt-1">{{ manageForm.errors.discount }}</p>
                     <p v-else class="text-xs text-gray-400 mt-1">Percentage off unit price. Leave empty for no discount.</p>
+                </div>
+
+                <div>
+                    <label class="text-xs font-medium text-gray-500 mb-1 block">Amount Off (₾)</label>
+                    <InputNumber
+                        v-model="manageForm.discount_amount"
+                        :min="0"
+                        :max="editingItem.unit_price"
+                        :min-fraction-digits="0"
+                        :max-fraction-digits="2"
+                        suffix=" ₾"
+                        placeholder="0"
+                        :invalid="!!manageForm.errors.discount_amount"
+                        fluid
+                    />
+                    <p v-if="manageForm.errors.discount_amount" class="text-xs text-red-500 mt-1">{{ manageForm.errors.discount_amount }}</p>
+                    <p v-else class="text-xs text-gray-400 mt-1">e.g. price is {{ Number(editingItem.unit_price).toFixed(2) }} ₾, enter 1 to make it {{ (editingItem.unit_price - 1).toFixed(2) }} ₾. Overrides the percentage above if filled.</p>
                 </div>
             </div>
 

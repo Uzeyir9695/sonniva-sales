@@ -44,16 +44,24 @@ class AdminItemController extends Controller
 
     public function update(Request $request, Item $item): RedirectResponse
     {
-        $request->validate([
+        $validated = $request->validate([
             'video_url' => ['nullable', 'url', 'regex:/^https?:\/\/youtu\.be\/[a-zA-Z0-9_-]{11}/'],
             'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'discount_amount' => ['nullable', 'numeric', 'min:0', 'max:'.$item->unit_price],
         ], [
             'video_url.regex' => 'Paste the link from YouTube\'s Share button (youtu.be/...).',
         ]);
 
+        // A ₾ amount off takes priority over the raw percentage - convert it
+        // relative to the item's current unit_price before saving.
+        $discount = $validated['discount'] ?? null;
+        if (! empty($validated['discount_amount']) && $item->unit_price > 0) {
+            $discount = round($validated['discount_amount'] / $item->unit_price * 100, 2);
+        }
+
         $item->update([
             'video_url' => $request->input('video_url') ?: null,
-            'discount' => $request->input('discount') ?: null,
+            'discount' => $discount,
         ]);
 
         return redirect()->back()->with('message', 'Item updated.');
