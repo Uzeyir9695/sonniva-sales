@@ -5,7 +5,7 @@ import { useCart } from '@/composables/useCart'
 import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue'
 import InputNumber from 'primevue/inputnumber'
 import { STORAGE_KEYS } from '@/constants/storageKeys'
-import { calculateTierPrice } from '@/composables/usePricing.js'
+import { calculateTierPrice, hasDiscount } from '@/composables/usePricing.js'
 
 const props = defineProps({
     cartItems: { type: Array, required: true },
@@ -209,13 +209,17 @@ function goToCheckout() {
                         <div
                             v-for="cartItem in sortedItems"
                             :key="rowKey(cartItem)"
-                            class="bg-white rounded-2xl border shadow-sm p-4 transition-all duration-150"
+                            class="relative bg-white rounded-2xl border shadow-sm p-4 transition-all duration-150"
                             :class="cartItem.item.inventory <= 0
                                 ? 'border-gray-100'
                                 : selectedIds.includes(rowKey(cartItem))
                                     ? 'border-brand-200 bg-brand-50/20'
                                     : 'border-gray-100'"
                         >
+                        <span
+                            v-if="hasDiscount(cartItem.item)"
+                            class="absolute top-2 left-3 z-10 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500 text-white shadow-md"
+                        >-{{ Number(cartItem.item.discount) }}%</span>
                         <div class="flex items-center gap-4">
                             <!-- Checkbox -->
                             <Checkbox
