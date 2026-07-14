@@ -33,7 +33,7 @@ defineProps({
         <div class="py-6">
             <Deferred data="items">
                 <template #default>
-                    <ItemsGrid v-if="items.data?.length" :items="items" />
+                    <ItemsGrid v-if="items.data?.length" :items="items" is-sale-page />
 
                     <div v-else class="flex flex-col items-center justify-center h-72 text-center">
                         <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
@@ -43,7 +43,7 @@ defineProps({
                     </div>
                 </template>
                 <template #fallback>
-                    <GridSkeletonLoader />
+                    <GridSkeletonLoader is-sale-page />
                 </template>
             </Deferred>
         </div>

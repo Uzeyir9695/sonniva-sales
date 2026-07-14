@@ -7,6 +7,7 @@ import { ref } from 'vue';
 defineProps({
     items: { type: Object, required: true },
     isOrderOnly: { type: Boolean, default: false },
+    isSalePage: { type: Boolean, default: false },
 })
 
 defineEmits(['quick-view'])
@@ -23,7 +24,10 @@ function openQuickView(item) {
 
 <template>
     <div v-if="items.data?.length > 0">
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-3 sm:gap-4">
+        <div
+            class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4"
+            :class="isSalePage ? 'xl:grid-cols-5 3xl:grid-cols-6' : 'xl:grid-cols-4 3xl:grid-cols-5'"
+        >
             <ItemCard
                 v-for="(item, index) in items.data"
                 :key="index"

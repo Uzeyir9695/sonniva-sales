@@ -1,9 +1,16 @@
 <script setup>
 import Skeleton from 'primevue/skeleton';
+
+defineProps({
+    isSalePage: { type: Boolean, default: false },
+})
 </script>
 
 <template>
-    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-3 sm:gap-4">
+    <div
+        class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3 sm:gap-4"
+        :class="isSalePage ? 'xl:grid-cols-5 3xl:grid-cols-6' : 'xl:grid-cols-4 3xl:grid-cols-5'"
+    >
         <div v-for="item in 24" :key="item" class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm flex flex-col">
 
             <!-- Image area -->
