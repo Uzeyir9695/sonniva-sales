@@ -3,18 +3,18 @@ import { mergeProps, unref, withCtx, createVNode, createTextVNode, useSSRContext
 import { Link, usePage, router, createInertiaApp, Head } from "@inertiajs/vue3";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
-import { _ as _sfc_main$3, s as script, C as ConfirmationEventBus, T as ToastEventBus } from "./assets/index-CBNFSyNW.js";
+import { _ as _sfc_main$3, s as script, C as ConfirmationEventBus, T as ToastEventBus } from "./assets/index-BrbE0bdJ.js";
 import { ssrRenderAttrs, ssrRenderComponent, ssrRenderSlot, renderToString } from "vue/server-renderer";
 import mitt from "mitt";
 import { definePreset } from "@primeuix/themes";
 import Aura from "@primeuix/themes/aura";
 import { K as KeyFilter } from "./assets/index-CpR3PScz.js";
 import { P as PrimeVueConfirmSymbol } from "./assets/index-DPwr32It.js";
-import { s as script$1 } from "./assets/index-DOeVcSWx.js";
+import { s as script$1 } from "./assets/index--B3DAMqV.js";
 import { T as Tooltip } from "./assets/index-C3Ts-4IM.js";
 import { P as PrimeVueToastSymbol } from "./assets/index-Qb24q4w2.js";
 import { s as script$2 } from "./assets/index-1kO8dZCM.js";
-import { R as Ripple } from "./assets/index-BWQ0UkXI.js";
+import { R as Ripple } from "./assets/index-YvTnrAwi.js";
 import { a as formatNumber } from "./assets/numberFormat-BgUHwZc2.js";
 import createServer from "@inertiajs/vue3/server";
 import PrimeVue from "@primevue/core/config";
@@ -34,14 +34,10 @@ import "@primevue/icons/times";
 import "@primevue/icons/timescircle";
 import "@vueuse/core";
 import "./assets/_plugin-vue_export-helper-1tPrXgE0.js";
-import "./assets/QuickViewDialog-8Z0R3wjt.js";
-import "./assets/index-nsBhLTBN.js";
+import "./assets/QuickViewDialog-NNHt1a_n.js";
+import "./assets/index-D46B4f3g.js";
 import "@primevue/icons/windowmaximize";
 import "@primevue/icons/windowminimize";
-import "./assets/index-hSjFFc9a.js";
-import "@primevue/icons/spinner";
-import "@primeuix/styles/badge";
-import "@primeuix/styles/button";
 import "@primevue/core/basedirective";
 import "@primeuix/styled";
 import "@primeuix/styles/dialog";
@@ -52,6 +48,7 @@ import "@primevue/core/utils";
 import "@primevue/icons/blank";
 import "@primevue/icons/chevrondown";
 import "@primevue/icons/search";
+import "@primevue/icons/spinner";
 import "@primeuix/styles/iconfield";
 import "./assets/index-BAgOeBfa.js";
 import "@primevue/core/baseinput";
@@ -62,7 +59,9 @@ import "@primeuix/styles/select";
 import "@primeuix/utils/uuid";
 import "@primeuix/styles/tooltip";
 import "@primeuix/styles/floatlabel";
+import "@primeuix/styles/badge";
 import "@primeuix/styles/ripple";
+import "@primeuix/styles/button";
 axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
 axios.defaults.withCredentials = true;
 axios.defaults.withXSRFToken = true;
@@ -740,7 +739,7 @@ const render = await createInertiaApp({
   },
   title: (title) => title ? `${title} - ${appName}` : appName,
   resolve: async (name) => {
-    const page = await resolvePageComponent(`./Pages/${name}.vue`, /* @__PURE__ */ Object.assign({ "./Pages/Account/Index.vue": () => import("./assets/Index-DwVltn9W.js"), "./Pages/Account/UpdatePassword.vue": () => import("./assets/UpdatePassword-DcDu14nr.js"), "./Pages/Admin/AdminLayout.vue": () => import("./assets/AdminLayout-ExP25Y1Z.js").then((n2) => n2.A), "./Pages/Admin/Analytics/Index.vue": () => import("./assets/Index-DcAPXRef.js"), "./Pages/Admin/HomePage/Index.vue": () => import("./assets/Index-qn4h6nPR.js"), "./Pages/Admin/Index.vue": () => import("./assets/Index-DEcZS676.js"), "./Pages/Admin/StockNotifications/Index.vue": () => import("./assets/Index-Bgi2i0Vi.js"), "./Pages/Admin/items/Index.vue": () => import("./assets/Index-BquCGNq8.js"), "./Pages/Admin/orders/Index.vue": () => import("./assets/Index-C32T9wYZ.js"), "./Pages/Admin/orders/OrderDetailDialog.vue": () => import("./assets/OrderDetailDialog-CLP08PQx.js"), "./Pages/Admin/payments/Index.vue": () => import("./assets/Index-BUxjgHOO.js"), "./Pages/Admin/users/Index.vue": () => import("./assets/Index-OGsMDUVd.js"), "./Pages/Auth/ForgotPassword.vue": () => import("./assets/ForgotPassword-XBUHr1mf.js"), "./Pages/Auth/ForgotPasswordVerifyPhone.vue": () => import("./assets/ForgotPasswordVerifyPhone-izRod8eN.js"), "./Pages/Auth/Login.vue": () => import("./assets/Login-gxsf78Mt.js"), "./Pages/Auth/Register.vue": () => import("./assets/Register-Bz1aV81p.js"), "./Pages/Auth/RegisterVerifyPhone.vue": () => import("./assets/RegisterVerifyPhone-DpsspxL0.js"), "./Pages/Auth/ResetPassword.vue": () => import("./assets/ResetPassword-Ct7hBKsi.js"), "./Pages/Cart/Index.vue": () => import("./assets/Index-CfakLArS.js"), "./Pages/Checkout/Index.vue": () => import("./assets/Index-DYcpFXiz.js"), "./Pages/Contact/ContactButtons.vue": () => import("./assets/ContactButtons-YnLEMOVK.js"), "./Pages/Error.vue": () => import("./assets/Error-DA2GFQKK.js"), "./Pages/Home/Index.vue": () => import("./assets/Index-B-pSN0Pa.js"), "./Pages/Home/ReadMore.vue": () => import("./assets/ReadMore-BtrKOEqj.js"), "./Pages/Items/ActiveFilterChips.vue": () => import("./assets/ActiveFilterChips-XpR4B2fs.js"), "./Pages/Items/Index.vue": () => import("./assets/Index-mCsfvELp.js"), "./Pages/Items/ItemGallery.vue": () => import("./assets/ItemGallery-B72UFyX_.js"), "./Pages/Items/Show.vue": () => import("./assets/Show-BmdmRf3d.js"), "./Pages/Items/SimilarItems.vue": () => import("./assets/SimilarItems-0PuEhm_E.js"), "./Pages/Items/SubcategoryStrip.vue": () => import("./assets/SubcategoryStrip-BsI0AUf3.js"), "./Pages/Payment/Cancel.vue": () => import("./assets/Cancel-DxMjprSF.js"), "./Pages/Payment/InvoiceSuccess.vue": () => import("./assets/InvoiceSuccess-UxWql-ZN.js"), "./Pages/Payment/LimitSuccess.vue": () => import("./assets/LimitSuccess-DydR_EmH.js"), "./Pages/Payment/Success.vue": () => import("./assets/Success-BwaIpHtC.js"), "./Pages/Policies/CookiePolicy.vue": () => import("./assets/CookiePolicy-DEnVfhui.js"), "./Pages/Policies/DeliveryRates.vue": () => import("./assets/DeliveryRates-DdrVY2lc.js"), "./Pages/Policies/PrivacyPolicy.vue": () => import("./assets/PrivacyPolicy-D46B0Nqz.js"), "./Pages/Policies/TermsOfService.vue": () => import("./assets/TermsOfService-uI8VplD0.js"), "./Pages/PrimevueComponents/PrimeInputText.vue": () => import("./assets/PrimeInputText-BlIRrCdA.js"), "./Pages/Sales/Index.vue": () => import("./assets/Index-DxzzbKsM.js"), "./Pages/Search/Index.vue": () => import("./assets/Index-DV4wbhFN.js"), "./Pages/UserOrders/Index.vue": () => import("./assets/Index-D6DWEwLj.js"), "./Pages/UserOrders/OrderDetailDialog.vue": () => import("./assets/OrderDetailDialog-1aGa_rNe.js"), "./Pages/Welcome.vue": () => import("./assets/Welcome-DaGKOMOX.js"), "./Pages/Wishlist/Index.vue": () => import("./assets/Index-tD4mbmwG.js"), "./Pages/about-us/Index.vue": () => import("./assets/Index-CnCemXjd.js") }));
+    const page = await resolvePageComponent(`./Pages/${name}.vue`, /* @__PURE__ */ Object.assign({ "./Pages/Account/Index.vue": () => import("./assets/Index-BvxII3GO.js"), "./Pages/Account/UpdatePassword.vue": () => import("./assets/UpdatePassword-B6tEF7gB.js"), "./Pages/Admin/AdminLayout.vue": () => import("./assets/AdminLayout-B-X-I3HF.js").then((n2) => n2.A), "./Pages/Admin/Analytics/Index.vue": () => import("./assets/Index-HdQ--VBD.js"), "./Pages/Admin/HomePage/Index.vue": () => import("./assets/Index-3LmaMRRm.js"), "./Pages/Admin/Index.vue": () => import("./assets/Index-ChQtKsXm.js"), "./Pages/Admin/StockNotifications/Index.vue": () => import("./assets/Index-CeE3NBOy.js"), "./Pages/Admin/items/Index.vue": () => import("./assets/Index-Ca2I9VeX.js"), "./Pages/Admin/orders/Index.vue": () => import("./assets/Index-BsUZSPCa.js"), "./Pages/Admin/orders/OrderDetailDialog.vue": () => import("./assets/OrderDetailDialog-PQ5zjO3j.js"), "./Pages/Admin/payments/Index.vue": () => import("./assets/Index-BOLtItqA.js"), "./Pages/Admin/users/Index.vue": () => import("./assets/Index-CB4X7wu6.js"), "./Pages/Auth/ForgotPassword.vue": () => import("./assets/ForgotPassword-BEYVPxSJ.js"), "./Pages/Auth/ForgotPasswordVerifyPhone.vue": () => import("./assets/ForgotPasswordVerifyPhone-1hVWJFaR.js"), "./Pages/Auth/Login.vue": () => import("./assets/Login-DYtraSQS.js"), "./Pages/Auth/Register.vue": () => import("./assets/Register-CUnKXqv8.js"), "./Pages/Auth/RegisterVerifyPhone.vue": () => import("./assets/RegisterVerifyPhone-CBLOWOpw.js"), "./Pages/Auth/ResetPassword.vue": () => import("./assets/ResetPassword-BxDTEgBd.js"), "./Pages/Cart/Index.vue": () => import("./assets/Index-BXiX7eMs.js"), "./Pages/Checkout/Index.vue": () => import("./assets/Index-BIJazkkM.js"), "./Pages/Contact/ContactButtons.vue": () => import("./assets/ContactButtons-DLpmamTt.js"), "./Pages/Error.vue": () => import("./assets/Error-DA2GFQKK.js"), "./Pages/Home/Index.vue": () => import("./assets/Index-Cj0BdVFq.js"), "./Pages/Home/ReadMore.vue": () => import("./assets/ReadMore-BtrKOEqj.js"), "./Pages/Items/ActiveFilterChips.vue": () => import("./assets/ActiveFilterChips-XpR4B2fs.js"), "./Pages/Items/Index.vue": () => import("./assets/Index-6koMPxY9.js"), "./Pages/Items/ItemGallery.vue": () => import("./assets/ItemGallery-B72UFyX_.js"), "./Pages/Items/Show.vue": () => import("./assets/Show-B6PaQL5o.js"), "./Pages/Items/SimilarItems.vue": () => import("./assets/SimilarItems-DDpePGo2.js"), "./Pages/Items/SubcategoryStrip.vue": () => import("./assets/SubcategoryStrip-BsI0AUf3.js"), "./Pages/Payment/Cancel.vue": () => import("./assets/Cancel-DxMjprSF.js"), "./Pages/Payment/InvoiceSuccess.vue": () => import("./assets/InvoiceSuccess-UxWql-ZN.js"), "./Pages/Payment/LimitSuccess.vue": () => import("./assets/LimitSuccess-DydR_EmH.js"), "./Pages/Payment/Success.vue": () => import("./assets/Success-BwaIpHtC.js"), "./Pages/Policies/CookiePolicy.vue": () => import("./assets/CookiePolicy-DEnVfhui.js"), "./Pages/Policies/DeliveryRates.vue": () => import("./assets/DeliveryRates-DdrVY2lc.js"), "./Pages/Policies/PrivacyPolicy.vue": () => import("./assets/PrivacyPolicy-D46B0Nqz.js"), "./Pages/Policies/TermsOfService.vue": () => import("./assets/TermsOfService-uI8VplD0.js"), "./Pages/PrimevueComponents/PrimeInputText.vue": () => import("./assets/PrimeInputText-BlIRrCdA.js"), "./Pages/Sales/Index.vue": () => import("./assets/Index-DdyUWpYT.js"), "./Pages/Search/Index.vue": () => import("./assets/Index-B-QvSoYc.js"), "./Pages/UserOrders/Index.vue": () => import("./assets/Index-aYQVw0U_.js"), "./Pages/UserOrders/OrderDetailDialog.vue": () => import("./assets/OrderDetailDialog-CaHS0gRZ.js"), "./Pages/Welcome.vue": () => import("./assets/Welcome-DaGKOMOX.js"), "./Pages/Wishlist/Index.vue": () => import("./assets/Index-W9KACiPb.js"), "./Pages/about-us/Index.vue": () => import("./assets/Index-CnCemXjd.js") }));
     page.default.layout ??= _sfc_main;
     return page;
   },
