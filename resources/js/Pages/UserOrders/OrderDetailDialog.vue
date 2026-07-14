@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
+import { formatDiscount } from '@/utils/numberFormat.js';
 
 const toast = useToast();
 
@@ -160,7 +161,7 @@ const providerLabel = {
                                     <span class="line-through text-gray-400 text-xs">{{ (Number(data.unit_price) / (1 - Number(data.discount) / 100)).toFixed(2) }} ₾</span>
                                     <span class="font-medium text-red-600">{{ data.unit_price }} ₾</span>
                                 </div>
-                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 font-semibold w-fit">-{{ Number(data.discount) }}%</span>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 font-semibold w-fit">-{{ formatDiscount(data.discount) }}%</span>
                             </div>
                             <span v-else>{{ data.unit_price }} ₾</span>
                         </template>

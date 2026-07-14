@@ -1,3 +1,10 @@
+export const formatDiscount = (value) => {
+    const number = Number(value);
+    if (isNaN(number)) return 0;
+
+    return Math.round(number);
+};
+
 export const formatNumber = (value, locale = 'en-US') => {
     if (value === null || value === undefined || value === '') return '0.00';
 

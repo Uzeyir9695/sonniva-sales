@@ -7,6 +7,7 @@ import AdminLayout from '../AdminLayout.vue'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 import InputNumber from 'primevue/inputnumber'
 import { hasDiscount } from '@/composables/usePricing.js'
+import { formatDiscount } from '@/utils/numberFormat.js'
 
 defineOptions({ layout: AdminLayout })
 
@@ -170,7 +171,7 @@ function saveItem() {
                                 v-if="item.discount > 0"
                                 class="text-xs px-2 py-0.5 rounded-full font-semibold shrink-0 bg-red-100 text-red-600"
                             >
-                                -{{ Number(item.discount) }}%
+                                -{{ formatDiscount(item.discount) }}%
                             </span>
 
                             <span

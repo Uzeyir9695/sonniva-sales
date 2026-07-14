@@ -7,6 +7,7 @@ import AddToCartButton from '@/Shared/components/AddToCartButton.vue'
 import WhatsappOrderDialog from '@/Shared/components/WhatsappOrderDialog.vue'
 import StockNotifyDialog from '@/Shared/components/StockNotifyDialog.vue'
 import { usePricing } from '@/composables/usePricing.js'
+import { formatDiscount } from '@/utils/numberFormat.js'
 
 const props = defineProps({
     item: { type: Object, required: true },
@@ -42,7 +43,7 @@ const viewItemDetails = (item) => {
             <span
                 v-if="hasDiscount"
                 class="absolute top-2.5 right-2.5 z-10 text-[10px] font-bold px-2 py-1 rounded-full bg-red-500 text-white shadow-md"
-            >-{{ Number(item.discount) }}%</span>
+            >-{{ formatDiscount(item.discount) }}%</span>
 
             <div
                 class="absolute right-2.5 flex flex-col gap-1.5 sm:opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-2 group-hover:translate-x-0"

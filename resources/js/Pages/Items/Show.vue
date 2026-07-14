@@ -10,6 +10,7 @@ import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue';
 import WhatsappOrderDialog from '@/Shared/components/WhatsappOrderDialog.vue';
 import { useCart } from '@/composables/useCart.js';
 import { usePricing } from '@/composables/usePricing.js';
+import { formatDiscount } from '@/utils/numberFormat.js';
 import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 import InputNumber from 'primevue/inputnumber';
@@ -98,7 +99,7 @@ const ogImage = computed(() => {
                     <ItemGallery :images="images" :item-name="item.name" :image-path="item.storage_path" :video-url="item.video_url">
                         <template v-if="hasDiscount" #badge>
                             <span class="absolute top-3 right-3 z-10 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full bg-red-500 text-white shadow-md">
-                                -{{ Number(item.discount) }}%
+                                -{{ formatDiscount(item.discount) }}%
                             </span>
                         </template>
                     </ItemGallery>
