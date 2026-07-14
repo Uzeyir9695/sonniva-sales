@@ -180,7 +180,7 @@ const ogImage = computed(() => {
                         </span>
                     </div>
 
-                    <Deferred v-if="$page.props.user?.can_view_inventory" data="inventory">
+                    <Deferred data="inventory">
                         <template #fallback>
                             <div class="flex items-center gap-3 mt-4 mb-6">
                                 <div class="flex-1 h-[52px] bg-gray-100 rounded-2xl animate-pulse" />

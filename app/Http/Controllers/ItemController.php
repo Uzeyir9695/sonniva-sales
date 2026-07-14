@@ -140,9 +140,7 @@ class ItemController extends Controller
             ->limit(10)
             ->get(['id', 'name', 'slug', 'unit_price', 'discount', 'images', 'inventory']);
 
-        $inventory = auth()->check() && auth()->user()->can_view_inventory
-            ? Inertia::defer(fn () => $bcService->calcInventory($item->no))
-            : null;
+        $inventory = Inertia::defer(fn () => $bcService->calcInventory($item->no));
 
         $breadcrumbs = $this->buildBreadcrumbs($item);
 
