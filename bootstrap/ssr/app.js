@@ -525,17 +525,17 @@ const _sfc_main$1 = {
   __ssrInlineRender: true,
   setup(__props) {
     return (_ctx, _push, _parent, _attrs) => {
-      _push(`<div${ssrRenderAttrs(mergeProps({ class: "bg-brand-500" }, _attrs))}><div class="w-full lg:max-w-11/12 2xl:max-w-9/12 mx-auto px-3 sm:px-4 flex justify-center items-center gap-5 h-9 text-xs sm:text-sm font-semibold text-white overflow-x-auto no-scrollbar">`);
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "bg-brand-500" }, _attrs))}><div class="w-full lg:max-w-11/12 2xl:max-w-9/12 mx-auto px-3 sm:px-4 flex justify-center items-center gap-5 py-3 text-xs sm:text-base 3xl:text-xl font-semibold text-white overflow-x-auto no-scrollbar">`);
       _push(ssrRenderComponent(unref(Link), {
         href: _ctx.route("sales.index"),
         class: "flex items-center gap-1.5 shrink-0 hover:text-white/80 transition-colors"
       }, {
         default: withCtx((_2, _push2, _parent2, _scopeId) => {
           if (_push2) {
-            _push2(`<i class="pi pi-percentage text-xs"${_scopeId}></i> ფასდაკლებები `);
+            _push2(`<i class="pi pi-percentage"${_scopeId}></i> ფასდაკლებები `);
           } else {
             return [
-              createVNode("i", { class: "pi pi-percentage text-xs" }),
+              createVNode("i", { class: "pi pi-percentage" }),
               createTextVNode(" ფასდაკლებები ")
             ];
           }
