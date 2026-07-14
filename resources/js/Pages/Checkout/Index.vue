@@ -102,9 +102,61 @@ const selectedRegionOption = ref(null)
 const selectedOnwayBranch = ref(null)
 const selectedZone = ref(null)
 const selectedTbilisiZone = ref(null)
+const selectedOfficeBranch = ref(null)
 const zones = ref([])
 const zoneSuggestions = ref([])
 const zonesLoading = ref(false)
+
+const officeBranches = [
+    {
+        key: 'avchala',
+        label: 'ავჭალის ფილიალი',
+        address: 'შუშის ქუჩა 38 — ორშაბათი-პარასკევი 09:00-18:00',
+        mapUrl: 'https://maps.app.goo.gl/3YwH55CnhUUfJoYQ9',
+    },
+    {
+        key: 'didube',
+        label: 'დიდუბის ფილიალი',
+        address: 'ზაირა კიკვიძის 6 — ორშაბათი-პარასკევი 09:00-18:00',
+        mapUrl: 'https://maps.app.goo.gl/mUedJ9Jf9j1tR9nt6',
+    },
+]
+
+const officeInventoryChecking = ref(false)
+const officeInventoryShortages = ref([])
+const showOfficeInventoryDialog = ref(false)
+
+const hasOfficeInventoryIssue = computed(() =>
+    selectedDelivery.value?.key === 'office' && officeInventoryShortages.value.length > 0
+)
+
+async function checkOfficeInventory() {
+    if (selectedDelivery.value?.key !== 'office' || !selectedOfficeBranch.value || !items.value.length) {
+        officeInventoryShortages.value = []
+        return
+    }
+
+    officeInventoryChecking.value = true
+    try {
+        const res = await axios.post(route('checkout.office-inventory'), {
+            office: selectedOfficeBranch.value,
+            items: items.value.map(c => ({ no: c.item.no, name: c.item.name, qty: c.qty })),
+        })
+        officeInventoryShortages.value = res.data.shortages ?? []
+        if (officeInventoryShortages.value.length) {
+            showOfficeInventoryDialog.value = true
+        }
+    } catch {
+        toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'მარაგის შემოწმება ვერ მოხერხდა', life: 4000 })
+    } finally {
+        officeInventoryChecking.value = false
+    }
+}
+
+watch(
+    [selectedOfficeBranch, () => items.value.map(c => `${c.item_id}:${c.qty}`).join('|')],
+    checkOfficeInventory
+)
 
 const TBILISI_FREE_THRESHOLD = 500
 
@@ -164,6 +216,8 @@ function selectDelivery(type) {
     selectedOnwayBranch.value = null
     selectedZone.value = null
     selectedTbilisiZone.value = null
+    selectedOfficeBranch.value = null
+    officeInventoryShortages.value = []
 }
 
 async function fetchZones() {
@@ -271,7 +325,9 @@ const canPayWithLimit = computed(() => {
 })
 
 const payButtonDisabled = computed(() =>
-    loading.value || (selectedProvider.value?.code === 'limit' && !canPayWithLimit.value)
+    loading.value ||
+    (selectedProvider.value?.code === 'limit' && !canPayWithLimit.value) ||
+    hasOfficeInventoryIssue.value
 )
 
 // ─── Form ─────────────────────────────────────────────────────────────────
@@ -293,6 +349,7 @@ const errors = reactive({
     regionOption: null,
     onwayBranch: null,
     regionZone: null,
+    officeBranch: null,
     address: null,
     provider: null,
     agreement: null,
@@ -307,6 +364,7 @@ watch(selectedTbilisiZone, () => { errors.tbilisiZone = null })
 watch(selectedRegionOption, () => { errors.regionOption = null })
 watch(selectedOnwayBranch, () => { errors.onwayBranch = null })
 watch(selectedZone, () => { errors.regionZone = null })
+watch(selectedOfficeBranch, () => { errors.officeBranch = null })
 watch(() => form.address, () => { errors.address = null })
 watch(selectedProvider, () => { errors.provider = null })
 watch(() => form.agreement, () => { errors.agreement = null })
@@ -335,6 +393,10 @@ function validate() {
     }
     if (selectedRegionOption.value === 'address' && !selectedZone.value) {
         errors.regionZone = 'გთხოვთ აირჩიოთ ქალაქი/სოფელი'
+        valid = false
+    }
+    if (selectedDelivery.value?.key === 'office' && !selectedOfficeBranch.value) {
+        errors.officeBranch = 'გთხოვთ აირჩიოთ ფილიალი'
         valid = false
     }
     if (showAddressField.value && !form.address) {
@@ -371,7 +433,7 @@ function initiatePayment() {
 
     const deliveryKey = selectedDelivery.value.key
     const branch = deliveryKey === 'office'
-        ? 'sonniva'
+        ? selectedOfficeBranch.value
         : (deliveryKey === 'regions' && selectedRegionOption.value === 'onway_office' ? 'onway' : null)
 
     const data = {
@@ -626,23 +688,58 @@ function initiatePayment() {
                     <!-- Office pickup info -->
                     <div
                         v-if="selectedDelivery?.key === 'office'"
-                        class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
+                        class="bg-white rounded-2xl border shadow-sm p-6"
+                        :class="errors.officeBranch ? 'border-red-300' : 'border-gray-100'"
                     >
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-building text-brand-500"></i>
-                            გატანის წერტილები
+                            გატანის წერტილი
+                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
                         </h2>
-                        <div class="space-y-2 text-sm text-gray-600">
-                            <div class="flex flex-col gap-1.5">
-                                <div class="flex items-center gap-1">
-                                    <i class="pi pi-map-marker text-brand-500 mt-0.5 shrink-0"></i>
-                                    <span>ავჭალა, შუშის ქუჩა 38 — ორშაბათი-პარასკევი 09:00-18:00</span>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button
+                                v-for="branch in officeBranches"
+                                :key="branch.key"
+                                type="button"
+                                @click="selectedOfficeBranch = branch.key"
+                                class="flex flex-col items-start gap-1.5 p-4 rounded-2xl border-2 cursor-pointer transition-all duration-150 text-left"
+                                :class="selectedOfficeBranch === branch.key
+                                    ? 'border-brand-500 bg-brand-50/50'
+                                    : 'border-gray-100 hover:border-gray-200 bg-white'"
+                            >
+                                <div class="flex items-center justify-between w-full">
+                                    <span class="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                                        <i class="pi pi-map-marker text-brand-500"></i>
+                                        {{ branch.label }}
+                                    </span>
+                                    <div
+                                        class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0"
+                                        :class="selectedOfficeBranch === branch.key ? 'border-brand-500' : 'border-gray-300'"
+                                    >
+                                        <div v-if="selectedOfficeBranch === branch.key" class="w-2 h-2 rounded-full bg-brand-500"></div>
+                                    </div>
                                 </div>
-                                <a href="https://maps.app.goo.gl/3YwH55CnhUUfJoYQ9" target="_blank" class="text-brand-500 underline">
+                                <p v-if="branch.address" class="text-xs text-gray-500">{{ branch.address }}</p>
+                                <a :href="branch.mapUrl" target="_blank" @click.stop class="text-xs text-brand-500 underline">
                                     დააჭირეთ ლინკზე მისამართის სანახავად
                                 </a>
-                            </div>
+                            </button>
                         </div>
+
+                        <p v-if="errors.officeBranch" class="mt-3 text-sm text-red-500 flex items-center gap-1.5">
+                            <i class="pi pi-exclamation-circle shrink-0"></i>
+                            {{ errors.officeBranch }}
+                        </p>
+
+                        <div v-if="officeInventoryChecking" class="mt-4 flex items-center gap-2 text-sm text-gray-400 bg-gray-50 px-3 py-3 rounded-xl">
+                            <i class="pi pi-spinner pi-spin"></i>
+                            მიმდინარეობს მარაგის შემოწმება არჩეულ ფილიალში...
+                        </div>
+
+                        <Message v-else-if="hasOfficeInventoryIssue" severity="error" :closable="false" class="mt-4">
+                            პროდუქტის არასაკმარისი რაოდენობა არჩეულ ფილიალში
+                        </Message>
                     </div>
 
                     <!-- Comment -->
@@ -890,4 +987,35 @@ function initiatePayment() {
             </div>
         </div>
     </div>
+
+    <!-- Office inventory shortage popup -->
+    <Dialog
+        v-model:visible="showOfficeInventoryDialog"
+        modal
+        header="არასაკმარისი მარაგი არჩეულ ფილიალში"
+        class="w-[95%] lg:w-[35%]"
+    >
+        <p class="text-sm text-gray-600 mb-4">
+            შემდეგი პროდუცქიის მარაგი არჩეულ ფილიალში საკმარისი არ არის. გთხოვთ შეცვალოთ ფილიალი ან რაოდენობა:
+        </p>
+        <ul class="space-y-2">
+            <li
+                v-for="shortage in officeInventoryShortages"
+                :key="shortage.no"
+                class="flex items-center justify-between gap-3 text-sm bg-red-50 rounded-xl px-3 py-2"
+            >
+                <span class="font-medium text-gray-800">{{ shortage.name }}</span>
+                <span class="text-red-600 text-right shrink-0">მარაგშია: {{ shortage.available }} / სასურველი: {{ shortage.requested }}</span>
+            </li>
+        </ul>
+        <template #footer>
+            <button
+                type="button"
+                @click="showOfficeInventoryDialog = false"
+                class="w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-white text-sm font-semibold cursor-pointer"
+            >
+                გასაგებია
+            </button>
+        </template>
+    </Dialog>
 </template>

@@ -144,6 +144,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::get('/checkout/onway-regions', [CheckoutController::class, 'onwayRegions'])->name('checkout.onway-regions');
     Route::get('/checkout/credit-info', [CheckoutController::class, 'creditInfo'])->name('checkout.credit-info');
+    Route::post('/checkout/office-inventory', [CheckoutController::class, 'officeInventory'])->name('checkout.office-inventory');
 
     /*******************************************************************************************************************
      * Payment Route

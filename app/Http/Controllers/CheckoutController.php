@@ -71,4 +71,37 @@ class CheckoutController extends Controller
             return response()->json(['error' => 'ლიმიტის ინფორმაცია ვერ ჩაიტვირთა'], 500);
         }
     }
+
+    public function officeInventory(Request $request, BusinessCentralService $bc): JsonResponse
+    {
+        $validated = $request->validate([
+            'office' => 'required|in:avchala,didube',
+            'items' => 'required|array|min:1',
+            'items.*.no' => 'required|string',
+            'items.*.name' => 'required|string',
+            'items.*.qty' => 'required|numeric|min:0.01',
+        ]);
+
+        $shortages = [];
+
+        try {
+            foreach ($validated['items'] as $item) {
+                $inventory = $bc->calcInventory($item['no']);
+                $available = $validated['office'] === 'avchala' ? $inventory['shop2Total'] : $inventory['shop1Total'];
+
+                if ($available < $item['qty']) {
+                    $shortages[] = [
+                        'no' => $item['no'],
+                        'name' => $item['name'],
+                        'requested' => $item['qty'],
+                        'available' => $available,
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'მარაგის შემოწმება ვერ მოხერხდა'], 500);
+        }
+
+        return response()->json(['shortages' => $shortages]);
+    }
 }
