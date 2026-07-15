@@ -56,7 +56,7 @@ const categoryIcons = {
                 :class="activeCategory?.name === category.name ? 'bg-gray-50' : 'hover:bg-gray-300'"
             >
                 <p class="flex items-center gap-3">
-                    <img :src="`categories-icons/${category.code}.png?v=${CATEGORY_ICON_VERSION}`" :alt="category.name" class="w-12 h-12 object-cover rounded-lg" />
+                    <img :src="`categories-icons/${category.code}-${CATEGORY_ICON_VERSION}.png`" :alt="category.name" class="w-12 h-12 object-cover rounded-lg" />
 <!--                    <i :class="[categoryIcons[category.code] ?? 'pi pi-tag', 'text-base', activeCategory?.name === category.name ? 'text-brand-400' : 'text-gray-400']"></i>-->
                     <span
                         class="text-sm font-medium"
