@@ -737,7 +737,7 @@ function initiatePayment() {
                             მიმდინარეობს მარაგის შემოწმება არჩეულ ფილიალში...
                         </div>
 
-                        <Message v-else-if="hasOfficeInventoryIssue" severity="error" :closable="false" class="mt-4">
+                        <Message v-else-if="hasOfficeInventoryIssue" severity="error" icon="pi pi-exclamation-circle" :closable="false" class="mt-4">
                             პროდუქტის არასაკმარისი რაოდენობა არჩეულ ფილიალში
                         </Message>
                     </div>
