@@ -8,6 +8,9 @@ export default {
     darkMode: ['class', '.my-app-dark'],
     theme: {
         extend: {
+            screens: {
+                '3xl': '1920px',
+            },
             colors: {
                 brand: {
                     50:  '#fffbeb',
