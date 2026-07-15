@@ -4,6 +4,7 @@ import { Link } from '@inertiajs/vue3'
 import { onClickOutside } from '@vueuse/core'
 import LogoutButton from '@/Shared/components/LogoutButton.vue';
 import WeglotSwitcher from '@/Shared/components/WeglotSwitcher.vue';
+import { CATEGORY_ICON_VERSION } from '@/constants/categoryIcons.js';
 
 const props = defineProps({
     categories: Array,
@@ -164,7 +165,7 @@ defineExpose({ openDrawer })
                                         class="w-full flex items-center justify-between cursor-pointer text-left"
                                     >
                                         <div class="flex items-center gap-x-3">
-                                            <img :src="`/categories-icons/${item.code}.png?v=1`" :alt="item.name" class="w-10 h-10 object-cover rounded-lg" />
+                                            <img :src="`/categories-icons/${item.code}.png?v=${CATEGORY_ICON_VERSION}`" :alt="item.name" class="w-10 h-10 object-cover rounded-lg" />
                                             <span class="text-sm font-medium text-inherit">{{ item.name }}</span>
                                         </div>
                                         <i class="pi pi-chevron-right text-xs text-inherit"></i>
