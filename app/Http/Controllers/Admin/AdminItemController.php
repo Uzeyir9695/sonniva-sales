@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SyncItemCategoryJob;
+use App\Models\Category;
 use App\Models\Item;
+use App\Services\BusinessCentralService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -65,5 +68,46 @@ class AdminItemController extends Controller
         ]);
 
         return redirect()->back()->with('message', 'Item updated.');
+    }
+
+    public function searchCategories(Request $request): JsonResponse
+    {
+        $q = $request->input('q', '');
+
+        if (strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        $categories = Category::where('name', 'like', "%{$q}%")
+            ->orWhere('code', 'like', "%{$q}%")
+            ->orderBy('name')
+            ->limit(30)
+            ->get(['id', 'code', 'name', 'image']);
+
+        return response()->json($categories);
+    }
+
+    public function updateCategoryImage(Category $category, BusinessCentralService $bc): RedirectResponse
+    {
+        try {
+            $bcCategory = $bc->getItemCategoryByCode($category->code);
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['message' => 'Failed to reach Business Central: '.$e->getMessage()]);
+        }
+
+        if (empty($bcCategory['imageBase64'])) {
+            return redirect()->back()->withErrors(['message' => 'Business Central has no image for this category.']);
+        }
+
+        $oldImage = $category->image;
+        $fileName = Category::storeImageFromBase64($bcCategory['imageBase64']);
+
+        $category->update(['image' => $fileName]);
+
+        if ($oldImage && $oldImage !== $fileName) {
+            Storage::disk('public')->delete("categories/{$oldImage}");
+        }
+
+        return redirect()->back()->with('message', 'Category image updated from Business Central.');
     }
 }

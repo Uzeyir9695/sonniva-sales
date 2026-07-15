@@ -8,7 +8,6 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use Spatie\Image\Image;
 
 class CategorySeeder extends Seeder
 {
@@ -86,7 +85,7 @@ class CategorySeeder extends Seeder
             );
 
             if (! empty($item['imageBase64'])) {
-                $fileName = $this->storeImage($item['imageBase64']);
+                $fileName = Category::storeImageFromBase64($item['imageBase64']);
                 if ($fileName) {
                     $category->update(['image' => $fileName]);
                 }
@@ -106,29 +105,5 @@ class CategorySeeder extends Seeder
         $text = preg_replace('/\s+/u', '-', $text);
 
         return mb_strtolower($text);
-    }
-
-    private function storeImage(string $base64): ?string
-    {
-        if (empty($base64)) {
-            return null;
-        }
-
-        $imageData = base64_decode($base64);
-        $hash = md5($imageData);
-        $fileName = $hash.'.jpg';
-        $path = "categories/{$fileName}";
-
-        if (! \Storage::disk('public')->exists($path)) {
-            \Storage::disk('public')->put($path, $imageData);
-
-            $fullPath = storage_path("app/public/{$path}");
-
-            Image::load($fullPath)
-                ->optimize()
-                ->save($fullPath);
-        }
-
-        return $fileName;
     }
 }

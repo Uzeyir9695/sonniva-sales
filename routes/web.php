@@ -92,6 +92,8 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::post('/items/sync-category', [AdminItemController::class, 'syncCategory'])->name('items.sync-category');
         Route::get('/items/search', [AdminItemController::class, 'search'])->name('items.search');
         Route::put('/items/{item}', [AdminItemController::class, 'update'])->name('items.update');
+        Route::get('/categories/search', [AdminItemController::class, 'searchCategories'])->name('categories.search');
+        Route::post('/categories/{category}/fetch-image', [AdminItemController::class, 'updateCategoryImage'])->name('categories.fetch-image');
 
         // ******** Admin Payments ********//
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');

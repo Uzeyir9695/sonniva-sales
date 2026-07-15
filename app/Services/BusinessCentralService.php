@@ -118,6 +118,24 @@ class BusinessCentralService
         return $response->json();
     }
 
+    public function getItemCategoryByCode(string $code): ?array
+    {
+        $token = $this->getAccessToken();
+
+        $baseUrl = $this->baseUrl.'Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemCategories';
+
+        $response = Http::withToken($token)->get($baseUrl, [
+            '$filter' => "code eq '{$code}'",
+            '$select' => 'code,imageBase64',
+        ]);
+
+        if ($response->failed()) {
+            throw new \Exception('Item Category API GET failed: '.$response->body());
+        }
+
+        return $response->json()['value'][0] ?? null;
+    }
+
     public function calcInventory($itemNo)
     {
         $fields = [

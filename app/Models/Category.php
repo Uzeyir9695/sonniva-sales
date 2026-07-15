@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
+use Spatie\Image\Image;
 
 class Category extends Model
 {
     use HasUuids;
+
     protected $fillable = [
         'name',
         'slug',
@@ -20,9 +23,10 @@ class Category extends Model
     ];
 
     protected $appends = ['storage_path'];
+
     public function getStoragePathAttribute()
     {
-        return "/storage/categories";
+        return '/storage/categories';
     }
 
     public function parent(): BelongsTo
@@ -44,5 +48,29 @@ class Category extends Model
     public function items(): HasMany
     {
         return $this->hasMany(Item::class, 'category_code', 'code');
+    }
+
+    public static function storeImageFromBase64(string $base64): ?string
+    {
+        if (empty($base64)) {
+            return null;
+        }
+
+        $imageData = base64_decode($base64);
+        $hash = md5($imageData);
+        $fileName = $hash.'.jpg';
+        $path = "categories/{$fileName}";
+
+        if (! Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->put($path, $imageData);
+
+            $fullPath = storage_path("app/public/{$path}");
+
+            Image::load($fullPath)
+                ->optimize()
+                ->save($fullPath);
+        }
+
+        return $fileName;
     }
 }
