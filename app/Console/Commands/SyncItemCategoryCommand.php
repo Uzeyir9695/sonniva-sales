@@ -23,7 +23,10 @@ class SyncItemCategoryCommand extends Command
         $startedAt = now();
 
         $this->info('Syncing categories...');
-        $this->call('db:seed', ['--class' => 'CategorySeeder']);
+        // --force is required here: db:seed asks for confirmation in production,
+        // and when this command runs inside a queued job there's no TTY to answer
+        // it, so it silently no-ops and the categories table never gets updated.
+        $this->call('db:seed', ['--class' => 'CategorySeeder', '--force' => true]);
 
         $this->info('Starting item category sync...');
 
