@@ -46,7 +46,7 @@ class SyncItemCategoryCommand extends Command
             }
 
             $response = Http::withToken($token)
-                ->timeout(60)
+                ->timeout(120)
                 ->retry(3, 2000)
                 ->get($url);
 
