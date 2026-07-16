@@ -34,7 +34,7 @@ class AdminBannerController extends Controller
     {
         $request->validate([
             'slot' => ['required', 'in:main,doors,frames'],
-            'item_id' => ['required_if:slot,main', 'nullable', 'exists:items,id'],
+            'item_id' => ['nullable', 'exists:items,id'],
             'images' => ['required', 'array', 'min:1'],
             'images.*' => ['required', 'image', 'max:4096'],
         ]);

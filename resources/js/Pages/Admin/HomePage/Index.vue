@@ -122,9 +122,27 @@ function onMainFileChange(item, event) {
 
         <!-- Main Banner: search item, then attach a banner image -->
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
-            <div>
-                <p class="font-semibold text-gray-800">Main Banner (large left)</p>
-                <p class="text-xs text-gray-400 mt-0.5">Each slide links to an item — search for it, then upload its banner image.</p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="font-semibold text-gray-800">Main Banner (large left)</p>
+                    <p class="text-xs text-gray-400 mt-0.5">Link a slide to an item by searching below, or upload one with no item link.</p>
+                </div>
+                <label
+                    for="upload-main"
+                    class="flex items-center gap-2 cursor-pointer bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shrink-0"
+                    :class="uploading.main ? 'opacity-60 pointer-events-none' : ''"
+                >
+                    <i class="pi pi-upload text-xs"></i>
+                    {{ uploading.main ? 'Uploading...' : 'Upload without item' }}
+                </label>
+                <input
+                    id="upload-main"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    class="hidden"
+                    @change="onFileChange('main', $event)"
+                />
             </div>
 
             <span class="relative inline-block w-full sm:w-96">
