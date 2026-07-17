@@ -31,6 +31,24 @@ function syncCategories() {
     })
 }
 
+const syncingAttributes = ref(false)
+
+function syncAttributes() {
+    syncingAttributes.value = true
+    router.post(route('admin.items.sync-attributes'), {}, {
+        preserveScroll: true,
+        onSuccess: (res) => {
+            toast.add({ severity: 'success', summary: 'Started', detail: res.props.flash.message, life: 4000 })
+        },
+        onError: () => {
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Could not start the sync, please try again.', life: 4000 })
+        },
+        onFinish: () => {
+            syncingAttributes.value = false
+        },
+    })
+}
+
 /* ---------------- Item video links ---------------- */
 const query = ref('')
 const results = ref([])
@@ -251,6 +269,19 @@ function fetchCategoryImage(category) {
                             />
                         </li>
                     </ul>
+
+                    <hr class="my-6 border-gray-100" />
+
+                    <h2 class="text-base font-bold text-gray-900 mb-1">Item Attributes</h2>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Updates item attribute values (e.g. size, color) from Business Central.
+                    </p>
+                    <Button
+                        :loading="syncingAttributes"
+                        @click="syncAttributes"
+                        :label="syncingAttributes ? 'Updating...' : 'Update Attributes'"
+                        icon="pi pi-refresh"
+                    />
                 </TabPanel>
 
                 <!-- Item Video Links -->

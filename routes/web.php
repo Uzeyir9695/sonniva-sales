@@ -90,6 +90,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         // ******** Admin Items ********//
         Route::get('/items', [AdminItemController::class, 'index'])->name('items.index');
         Route::post('/items/sync-category', [AdminItemController::class, 'syncCategory'])->name('items.sync-category');
+        Route::post('/items/sync-attributes', [AdminItemController::class, 'syncAttributes'])->name('items.sync-attributes');
         Route::get('/items/search', [AdminItemController::class, 'search'])->name('items.search');
         Route::put('/items/{item}', [AdminItemController::class, 'update'])->name('items.update');
         Route::get('/categories/search', [AdminItemController::class, 'searchCategories'])->name('categories.search');

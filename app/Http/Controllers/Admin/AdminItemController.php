@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SyncItemAttributesJob;
 use App\Jobs\SyncItemCategoryJob;
 use App\Models\Category;
 use App\Models\Item;
@@ -26,6 +27,13 @@ class AdminItemController extends Controller
         SyncItemCategoryJob::dispatch();
 
         return redirect()->back()->with('message', 'Category sync started in the background. It may take a minute to finish.');
+    }
+
+    public function syncAttributes(): RedirectResponse
+    {
+        SyncItemAttributesJob::dispatch();
+
+        return redirect()->back()->with('message', 'Attribute sync started in the background. It may take a minute to finish.');
     }
 
     public function search(Request $request): JsonResponse
