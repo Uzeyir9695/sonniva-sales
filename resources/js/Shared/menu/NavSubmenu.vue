@@ -10,7 +10,7 @@ import { Link } from '@inertiajs/vue3'
                 ფასდაკლებები
             </Link>
 
-            <a href="tel:+995591047372" class="flex items-center gap-1.5 shrink-0 hover:text-white/80 transition-colors">
+            <a href="tel:+9950322693699" class="flex items-center gap-1.5 shrink-0 hover:text-white/80 transition-colors">
                 <i class="pi pi-phone text-xs"></i>
                 032 269 36 99
             </a>
