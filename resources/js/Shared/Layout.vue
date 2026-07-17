@@ -4,6 +4,7 @@ import {router, usePage} from "@inertiajs/vue3";
 import {computed, onMounted} from "vue";
 import Navbar from '@/Shared/menu/Navbar.vue';
 import NavSubmenu from '@/Shared/menu/NavSubmenu.vue';
+import ContactButtons from '../Pages/Contact/ContactButtons.vue';
 
 const page = usePage();
 const isAuthenticated = computed(() => page.props.isLoggedIn);
@@ -19,7 +20,8 @@ const isAuthenticated = computed(() => page.props.isLoggedIn);
             <slot />
         </main>
 
-<!--        <ContactButtons />-->
+        <ContactButtons />
+
         <Toast position="top-right" />
 
         <Footer />

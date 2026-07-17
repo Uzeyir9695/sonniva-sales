@@ -15,14 +15,6 @@ const items = ref([
         }
     },
     {
-        label: 'Phone Call',
-        icon: 'fa-solid fa-phone-volume',
-        bg: 'bg-sky-500',
-        command: () => {
-            window.open(`tel:${companyPhone}`, 'callPhone');
-        }
-    },
-    {
         label: 'Viber Chat',
         icon: 'fa-brands fa-viber',
         bg: 'bg-[#7b68ee]',
@@ -36,7 +28,7 @@ const items = ref([
 
 <template>
     <div>
-        <SpeedDial :model="items" direction="up" class="fixed right-[0.5rem] lg:right-[1rem] bottom-[2rem] lg:bottom-[4rem]" :tooltipOptions="{ position: 'left' }">
+        <SpeedDial :model="items" direction="up" class="fixed right-[2.5rem] lg:right-[2.5rem] bottom-[5.5rem] lg:bottom-[6rem] z-10" :tooltipOptions="{ position: 'left' }">
             <template #button="{ toggleCallback }">
                 <Button class="bg-brand-500 border-none hover:-rotate-10" rounded icon="pi pi-phone" @click="toggleCallback" />
             </template>
