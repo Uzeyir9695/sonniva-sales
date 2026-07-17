@@ -33,7 +33,7 @@ const items = ref([
                 <Button class="bg-brand-500 border-none hover:-rotate-10" rounded icon="pi pi-phone" @click="toggleCallback" />
             </template>
             <template #item="{ item, toggleCallback }">
-                <Button  severity="success" size="medium" variant="outlined" pt:icon:class="text-white" :class="item.bg" v-tooltip="item.label" rounded :icon="item.icon" :aria-label="item.label" @click="() => { item.command(); }" />
+                <Button  severity="success" size="medium" variant="outlined" pt:icon:class="text-white" :class="item.bg" v-tooltip.top="item.label" rounded :icon="item.icon" :aria-label="item.label" @click="() => { item.command(); }" />
             </template>
         </SpeedDial>
     </div>
