@@ -33,7 +33,7 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
                 :modules="modules"
                 :slides-per-view="1"
                 :loop="mainSrc.length > 1"
-                :autoplay="mainSrc.length > 1 ? { delay: 5000, disableOnInteraction: false } : false"
+                :autoplay="mainSrc.length > 1 ? { delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true } : false"
                 class="h-full w-full"
             >
                 <SwiperSlide v-for="(slide, i) in mainSrc" :key="i" class="h-full!">
