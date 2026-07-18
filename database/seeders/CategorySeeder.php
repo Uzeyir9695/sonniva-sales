@@ -7,10 +7,13 @@ use App\Services\BusinessCentralService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class CategorySeeder extends Seeder
 {
+    protected Collection $touchedCodes;
+
     public function __construct(protected BusinessCentralService $bc) {}
 
     public function run(): void
@@ -21,9 +24,30 @@ class CategorySeeder extends Seeder
         $items = $this->fetchAllCategories($token);
         $this->command->info("Fetched {$items->count()} categories.");
 
+        if ($items->isEmpty()) {
+            throw new \RuntimeException('Business Central returned zero categories; aborting sync to avoid wiping the categories table.');
+        }
+
         Cache::forget('nav_categories');
 
-        $this->insertLevel($items, null, 1);
+        $this->touchedCodes = collect();
+
+        DB::transaction(function () use ($items) {
+            $this->insertLevel($items, null, 1);
+
+            // Categories BC still lists but that never got placed in the tree
+            // (e.g. their parentCategory doesn't resolve, or they're deeper
+            // than the 3 levels the app supports) are left alone, not deleted.
+            $skipped = $items->pluck('code')->diff($this->touchedCodes);
+            if ($skipped->isNotEmpty()) {
+                $this->command->warn('Skipped categories (broken parent chain or deeper than 3 levels): '.$skipped->implode(', '));
+            }
+
+            // Only remove categories that are genuinely gone from Business Central.
+            // A category that simply moved to a different parent is still in
+            // $items, so it's excluded here and just gets re-parented above.
+            Category::whereNotIn('code', $items->pluck('code'))->delete();
+        });
 
         $this->command->info('Categories seeded successfully.');
     }
@@ -83,6 +107,8 @@ class CategorySeeder extends Seeder
                     'sort_order' => $index,
                 ]
             );
+
+            $this->touchedCodes->push($item['code']);
 
             if (! empty($item['imageBase64'])) {
                 $fileName = Category::storeImageFromBase64($item['imageBase64']);

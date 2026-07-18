@@ -65,9 +65,11 @@ class SyncItemCategoryCommand extends Command
         $this->info("Fetched {$items->count()} items. Updating category_code...");
 
         foreach ($items as $item) {
+            $categoryCode = isset($item['itemCategoryCode']) ? trim($item['itemCategoryCode']) : null;
+
             DB::table('items')
                 ->where('no', $item['no'])
-                ->update(['category_code' => $item['itemCategoryCode'] ?? null]);
+                ->update(['category_code' => $categoryCode]);
         }
 
         $seconds = $startedAt->diffInSeconds(now());
