@@ -11,15 +11,15 @@ class OrderCalculatorService
     const FREE_DELIVERY_THRESHOLD = 500;
 
     const TBILISI_ZONE_RATES = [
-        // I ზონა – 40 ₾
+        // I ზონა – 5-40 ₾
         'გლდანი' => 40, 'გლდანულა' => 40, 'სოფელი გლდანი' => 40, 'ზაჰესი' => 40, 'ავჭალა' => 40,
-        'თემქა' => 40, 'მუხიანი' => 40, 'დიღომი 7' => 40, 'დიღმის მასივი' => 40, 'დიდი დიღომი' => 40, 'სოფელი დიღომი' => 40,
-        // II ზონა – 50 ₾
+        'თემქა' => 40, 'მუხიანი' => 40, 'დიღომი' => 40, 'დიღმის მასივი' => 40, 'დიდი დიღომი' => 40, 'სოფელი დიღომი' => 40,
+        // II ზონა – 5-50 ₾
         'ვაკე' => 50, 'საბურთალო' => 50, 'ბაგები' => 50, 'ლისი' => 50, 'ვაშლიჯვარი' => 50, 'ორთაჭალა' => 50,
         'მთაწმინდა' => 50, 'სოლოლაკი' => 50, 'ვერა' => 50, 'დიდუბე' => 50, 'ჩუღურეთი' => 50, 'ნაძალადევი' => 50,
-        // III ზონა – 60 ₾
+        // III ზონა – 5-60 ₾
         'ისანი' => 60, 'სამგორი' => 60, 'ლილო' => 60, 'ორხევი' => 60, 'აეროპორტის დასახლება' => 60,
-        'ქვემო ფონიჭალა' => 60, 'ზემო ფონიჭალა' => 60, 'რუსთავი' => 60, 'ვარკეთილი' => 60, 'წყნეთი' => 60,
+        'ქვემო ფონიჭალა' => 60, 'ზემო ფონიჭალა' => 60, 'ვარკეთილი' => 60, 'წყნეთი' => 60,
         'კოჯორი' => 60, 'ტაბახმელა' => 60, 'წავკისი' => 60, 'შინდისი' => 60, 'ოქროყანა' => 60, 'ნაფეტვრები' => 60,
     ];
 
@@ -167,9 +167,18 @@ class OrderCalculatorService
         }
 
         if ($priceType === 'tbilisi') {
-            return (float) (self::TBILISI_ZONE_RATES[$city] ?? 0);
+            if ($weightKg >= 50) {
+                return (float) (self::TBILISI_ZONE_RATES[$city] ?? 0);
+            }
+
+            return $this->weightBasedRate($weightKg, 'tbilisi');
         }
 
+        return $this->weightBasedRate($weightKg, $priceType);
+    }
+
+    private function weightBasedRate(float $weightKg, string $priceType): float
+    {
         $rate = collect(self::DELIVERY_RATES)->first(fn ($r) => $weightKg <= $r['maxKg'])
             ?? collect(self::DELIVERY_RATES)->last();
 

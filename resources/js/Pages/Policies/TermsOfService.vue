@@ -62,7 +62,7 @@ import { Head } from '@inertiajs/vue3'
                         <h3 class="font-semibold text-gray-800 mb-3">მიწოდების ღირებულება თბილისის მასშტაბით ფილიალიდან</h3>
                         <div class="space-y-3">
                             <div class="rounded-xl border border-gray-200 p-4">
-                                <p class="font-semibold text-gray-800 mb-2">I ზონა – 40 ლარი</p>
+                                <p class="font-semibold text-gray-800 mb-2">I ზონა – 5-40 ლარი</p>
                                 <ul class="space-y-1 text-sm">
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>გლდანი</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>გლდანულა</li>
@@ -71,7 +71,7 @@ import { Head } from '@inertiajs/vue3'
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ავჭალა</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>თემქა</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>მუხიანი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>დიღომი 7</li>
+                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>დიღომი</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>დიღმის მასივი</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>დიდი დიღომი</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>სოფელი დიღომი</li>
@@ -79,7 +79,7 @@ import { Head } from '@inertiajs/vue3'
                             </div>
 
                             <div class="rounded-xl border border-gray-200 p-4">
-                                <p class="font-semibold text-gray-800 mb-2">II ზონა – 50 ლარი</p>
+                                <p class="font-semibold text-gray-800 mb-2">II ზონა – 5-50 ლარი</p>
                                 <ul class="space-y-1 text-sm">
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ვაკე</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>საბურთალო</li>
@@ -97,7 +97,7 @@ import { Head } from '@inertiajs/vue3'
                             </div>
 
                             <div class="rounded-xl border border-gray-200 p-4">
-                                <p class="font-semibold text-gray-800 mb-2">III ზონა – 60 ლარი</p>
+                                <p class="font-semibold text-gray-800 mb-2">III ზონა – 5-60 ლარი</p>
                                 <ul class="space-y-1 text-sm">
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ისანი</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>სამგორი</li>
@@ -106,7 +106,6 @@ import { Head } from '@inertiajs/vue3'
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>აეროპორტის დასახლება</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ქვემო ფონიჭალა</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ზემო ფონიჭალა</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>რუსთავი</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ვარკეთილი</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>წყნეთი</li>
                                     <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>კოჯორი</li>
