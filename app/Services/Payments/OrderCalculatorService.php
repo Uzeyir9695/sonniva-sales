@@ -70,7 +70,7 @@ class OrderCalculatorService
 
         foreach ($cartRows as $cartRow) {
             $qty = $cartRow->quantity;
-            $unitPrice = $this->tierPrice($cartRow->item, $qty, $cartRow->selected_uom, $isVip);
+            [$unitPrice, $appliedDiscountPercent, $bcDiscountPercent] = $this->tierPrice($cartRow->item, $qty, $cartRow->selected_uom, $isVip);
             $rowTotal = $unitPrice * $qty;
             $subtotal += $rowTotal;
 
@@ -88,8 +88,10 @@ class OrderCalculatorService
                 'subtotal' => $rowTotal,
                 'unit_of_measure_code' => $cartRow->selected_uom,
                 'unit_weight' => $unitWeightKg,
-                'discount' => $cartRow->item->discount,
+                'discount' => $appliedDiscountPercent,
+                'bc_discount' => $bcDiscountPercent,
                 'wholesale_discount' => $rowWholesaleDiscount,
+                'fake_price' => $cartRow->item->fake_price,
             ];
         }
 
@@ -104,6 +106,10 @@ class OrderCalculatorService
         ];
     }
 
+    /**
+     * Reference "retail" price used only to display wholesale/VIP savings - the price the
+     * customer would pay for the same item at the Retail tier, discount included.
+     */
     private function retailPrice(Item $item, ?string $uom): ?float
     {
         if ($item->unit_price > 0) {
@@ -114,42 +120,97 @@ class OrderCalculatorService
             return null;
         }
 
-        $entry = collect($item->prices)
-            ->first(fn ($p) => $p['UOM'] === $uom && $p['priceGroup'] === 'Retail');
+        $retailTier = collect($item->prices)
+            ->first(fn ($tier) => $tier['UOM'] === $uom && ($tier['priceGroup'] ?? 'Retail') === 'Retail');
 
-        return $entry ? (float) $entry['price'] : null;
+        if (! $retailTier) {
+            return null;
+        }
+
+        [$price] = $this->discountedTierPrice($item, $retailTier);
+
+        return $price;
     }
 
-    private function tierPrice(Item $item, int $qty, ?string $uom = null, bool $isVip = false): float
+    /**
+     * Resolves the price actually charged for a quantity/UOM, the discount percent that produced
+     * it, and the (possibly different) percent to report to Business Central for that same line.
+     * Package items (unit_price = 0) are always priced from their matched UOM tier; normal items
+     * use their own unit_price/discount unless a Wholesale/VIP tier applies.
+     *
+     * @return array{0: float, 1: float, 2: float} unit price, discount percent applied, and the Business Central discount percent
+     */
+    private function tierPrice(Item $item, int $qty, ?string $uom = null, bool $isVip = false): array
     {
         if (empty($item->prices)) {
-            return (float) ($item->discounted_price ?? $item->unit_price);
+            return $this->discountedRetailPrice($item);
         }
 
-        $prices = collect($item->prices)
-            ->when(! $isVip, fn ($c) => $c->filter(fn ($p) => ($p['priceGroup'] ?? '') !== 'VIP'));
+        $isPackageItem = $item->unit_price == 0 && $uom;
 
-        // Package item: price determined by selected UOM, with optional quantity-based wholesale
-        if ($item->unit_price == 0 && $uom) {
-            $entry = $prices
-                ->filter(fn ($p) => $p['UOM'] === $uom)
-                ->sortByDesc('custMinQuantity')
-                ->first(fn ($p) => $qty >= $p['custMinQuantity']);
+        $tiers = collect($item->prices)
+            ->when(! $isVip, fn ($tiers) => $tiers->filter(fn ($tier) => ($tier['priceGroup'] ?? '') !== 'VIP'));
 
-            return $entry ? (float) $entry['price'] : 0;
+        $matchedTier = $isPackageItem
+            ? $tiers->filter(fn ($tier) => $tier['UOM'] === $uom)->sortByDesc('custMinQuantity')->first(fn ($tier) => $qty >= $tier['custMinQuantity'])
+            : $tiers->sortByDesc('custMinQuantity')->first(fn ($tier) => $qty >= $tier['custMinQuantity']);
+
+        // Normal items: a Retail tier (or no match) is a plain retail purchase - the item's own
+        // unit_price/discount is authoritative, any Retail tier entry is not used as the price.
+        if (! $isPackageItem && (! $matchedTier || ($matchedTier['priceGroup'] ?? null) === 'Retail')) {
+            return $this->discountedRetailPrice($item);
         }
 
-        $tier = $prices
-            ->sortByDesc('custMinQuantity')
-            ->first(fn ($p) => $qty >= $p['custMinQuantity']);
-
-        // Retail-tier (or no tier matched) is a plain retail purchase, so the discount applies.
-        // Wholesale/VIP tiers are already preferential pricing and keep their raw price.
-        if (! $tier || ($tier['priceGroup'] ?? null) === 'Retail') {
-            return (float) ($item->discounted_price ?? $item->unit_price);
+        // Package items have no standalone price - nothing matched means nothing to sell at.
+        if (! $matchedTier) {
+            return [0.0, 0.0, 0.0];
         }
 
-        return (float) $tier['price'];
+        return $this->discountedTierPrice($item, $matchedTier);
+    }
+
+    /**
+     * Prices a normal item off its own unit_price/fake_price/discount. This is the only pricing
+     * path where the Business Central discount can differ from the web-facing one: `fake_price`
+     * is a purely local, admin-set display price with no Business Central equivalent, so a
+     * discount computed against it doesn't line up with the plain unit_price Business Central
+     * prices from - hence the separate `bc_discount_percent` override.
+     *
+     * @return array{0: float, 1: float, 2: float} unit_price/discounted_price, the discount percent applied, and the Business Central discount percent
+     */
+    private function discountedRetailPrice(Item $item): array
+    {
+        $price = (float) ($item->discounted_price ?? $item->unit_price);
+        $discountPercent = (float) ($item->discount ?? 0);
+        $bcDiscountPercent = (float) ($item->bc_discount_percent ?? 0);
+
+        return [$price, $discountPercent, $bcDiscountPercent];
+    }
+
+    /**
+     * Applies the discount matching a price tier's group: Retail uses the item's own discount,
+     * Wholesale and VIP each use their own dedicated discount field instead. Every tier price
+     * here (Retail-per-package, Wholesale, VIP) is sourced from Business Central to begin with,
+     * so the same percent charged locally is also safe to report to Business Central as-is.
+     *
+     * @param  array{price: float|string, priceGroup?: string}  $tier
+     * @return array{0: float, 1: float, 2: float} the discounted tier price, the discount percent applied, and the Business Central discount percent
+     */
+    private function discountedTierPrice(Item $item, array $tier): array
+    {
+        $discountPercent = match ($tier['priceGroup'] ?? 'Retail') {
+            'Retail' => (float) ($item->discount ?? 0),
+            'VIP' => (float) ($item->vip_discount_percent ?? 0),
+            default => (float) ($item->wholesale_discount_percent ?? 0),
+        };
+
+        $tierPrice = (float) $tier['price'];
+
+        if ($discountPercent <= 0) {
+            return [$tierPrice, 0.0, 0.0];
+        }
+
+        return [$tierPrice * (1 - $discountPercent / 100), $discountPercent, $discountPercent];
     }
 
     private function deliveryCost(string $deliveryType, float $subtotal, ?string $priceType, float $weightKg, ?string $city = null): float

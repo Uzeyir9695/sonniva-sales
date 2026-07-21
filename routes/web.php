@@ -13,6 +13,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CashierController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
@@ -116,6 +117,11 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::get('/user/{user}', [AdminUserController::class, 'edit'])->name('users.get-user');
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.delete');
+    });
+
+    Route::prefix('cashier')->name('cashier.')->group(function () {
+        Route::get('/customers', [CashierController::class, 'getCustomers'])->name('customers.index');
+        Route::post('/customers', [CashierController::class, 'registerCustomer'])->name('customers.register');
     });
 
     /*******************************************************************************************************************

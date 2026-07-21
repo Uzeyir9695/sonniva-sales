@@ -9,7 +9,7 @@ import WishlistButton from '@/Shared/components/WishlistButton.vue';
 import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue';
 import WhatsappOrderDialog from '@/Shared/components/WhatsappOrderDialog.vue';
 import { useCart } from '@/composables/useCart.js';
-import { usePricing } from '@/composables/usePricing.js';
+import { usePricing, discountedTierPrice } from '@/composables/usePricing.js';
 import { formatDiscount } from '@/utils/numberFormat.js';
 import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
@@ -95,7 +95,7 @@ const ogImage = computed(() => {
             <div class="grid grid-cols-1 lg:grid-cols-7 gap-6">
 
                 <!-- ========== LEFT: GALLERY ========== -->
-                <div class="lg:col-span-4 lg:row-start-1 lg:row-end-2 order-1">
+                <div class="relative lg:col-span-4 lg:row-start-1 lg:row-end-2 order-1">
                     <ItemGallery :images="images" :item-name="item.name" :image-path="item.storage_path" :video-url="item.video_url">
                         <template v-if="hasDiscount" #badge>
                             <span class="absolute top-3 right-3 z-10 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full bg-red-500 text-white shadow-md">
@@ -103,6 +103,10 @@ const ogImage = computed(() => {
                             </span>
                         </template>
                     </ItemGallery>
+<!--                    <Link  class="absolute bottom-4 right-4 flex items-center gap-x-2 bg-blue-500 text-sm sm:text-base text-white px-3 sm:px-5 py-1.5 rounded-lg shadow-md hover:bg-blue-600 transition-colors z-10">-->
+<!--                        <i class="pi pi-external-link text-sm sm:text-base"></i>-->
+<!--                        <span>მინდა დაჭრა</span>-->
+<!--                    </Link>-->
                 </div>
 
                 <!-- ========== RIGHT: DETAILS ========== -->
@@ -166,11 +170,11 @@ const ogImage = computed(() => {
 
                     <!-- Price -->
                     <div class="flex items-center gap-3 mb-8 flex-wrap">
-                        <span v-if="hasDiscount" class="text-base sm:text-lg text-red-500 line-through">
+                        <span v-if="originalPrice" class="text-base sm:text-lg text-red-500 line-through">
                             {{ originalPrice }} ₾
                         </span>
                         <span class="text-lg sm:text-2xl font-bold text-brand-500 tracking-tight">
-                            {{ isPackageItem ? selectedEntry?.price : displayPrice }} ₾
+                            {{ isPackageItem ? (selectedEntry ? Number(discountedTierPrice(item, selectedEntry)).toFixed(2) : null) : displayPrice }} ₾
                         </span>
                         <span v-if="isPackageItem && selectedEntry?.UOM" class="text-sm text-gray-400">
                             / {{ selectedEntry.UOM }}
@@ -226,7 +230,7 @@ const ogImage = computed(() => {
                                 <p class="text-xs text-gray-400 mb-0.5">{{ item.unit_price === '0.00' ? 'შეკვრის ფასი' : 'ცალის ფასი'}}</p>
                                 <div class="flex items-center gap-2">
                                     <p class="text-brand-500 font-bold text-xl">
-                                        {{ price.price }}<span class="text-sm ml-0.5">₾</span>
+                                        {{ Number(discountedTierPrice(item, price)).toFixed(2) }}<span class="text-sm ml-0.5">₾</span>
                                     </p>
                                     <div v-if="price.UOM">
                                         <i class="pi pi-box text-gray-400 text-xs"></i>
@@ -248,13 +252,21 @@ const ogImage = computed(() => {
                                 v-for="entry in prices"
                                 :key="entry.UOM"
                                 @click="selectedEntry = entry"
-                                class="flex flex-col items-center px-3 py-2 rounded-xl border font-medium transition-all duration-150 cursor-pointer"
+                                class="relative flex flex-col items-center px-3 py-2 rounded-xl border font-medium transition-all duration-150 cursor-pointer"
                                 :class="selectedEntry?.UOM === entry.UOM
                                     ? 'border-brand-500 bg-brand-50 text-brand-600'
                                     : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'"
                             >
+                                <span
+                                    v-if="hasDiscount"
+                                    class="absolute -top-2 -right-2 text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-red-500 text-white shadow-md"
+                                >-{{ formatDiscount(item.discount) }}%</span>
+
                                 <span class="max-sm:text-sm mt-0.5" :class="selectedEntry?.UOM === entry.UOM ? 'text-brand-500' : 'text-gray-400'">
-                                    {{ entry.price }} ₾
+                                    {{ Number(discountedTierPrice(item, entry)).toFixed(2) }} ₾
+                                </span>
+                                <span v-if="hasDiscount" class="text-sm text-red-500 line-through">
+                                    {{ Number(entry.price).toFixed(2) }} ₾
                                 </span>
                                 <span class="text-xs sm:text-sm font-semibold">{{ entry.UOM }}</span>
                             </button>

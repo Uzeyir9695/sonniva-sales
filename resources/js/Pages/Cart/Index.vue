@@ -5,7 +5,7 @@ import { useCart } from '@/composables/useCart'
 import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue'
 import InputNumber from 'primevue/inputnumber'
 import { STORAGE_KEYS } from '@/constants/storageKeys'
-import { calculateTierPrice, hasDiscount } from '@/composables/usePricing.js'
+import { calculateTierPrice, getOriginalPrice, getRetailPrice, activeDiscountType } from '@/composables/usePricing.js'
 import { formatDiscount } from '@/utils/numberFormat.js'
 
 const props = defineProps({
@@ -49,15 +49,51 @@ async function handleRemove(cartItem) {
 
 const formatted = (val) => Number(val).toFixed(2)
 
-function getRetailPrice(item, selectedUOM = null) {
-    if (item.unit_price > 0) return item.unit_price
-    if (!selectedUOM || !item.prices?.length) return null
-    return item.prices.find(p => p.UOM === selectedUOM && p.priceGroup === 'Retail')?.price ?? null
-}
-
 function isVipPriceActive(item, qty, selectedUOM = null) {
     if (!isVip.value) return false
     return calculateTierPrice(item, qty, selectedUOM, true) < calculateTierPrice(item, qty, selectedUOM, false)
+}
+
+// fake_price/discount only ever apply to normal (non-package) items - takes priority over the
+// plain retail-vs-tier savings strike-through when present.
+function rowStrikePrice(item, qty, selectedUOM) {
+    if (item.unit_price > 0) {
+        const p = getOriginalPrice(item)
+        if (p) return p
+    }
+    const retail = getRetailPrice(item, selectedUOM)
+    if (retail !== null && calculateTierPrice(item, qty, selectedUOM, isVip.value) < retail) return retail
+    return null
+}
+
+function rowBoldPrice(item, qty, selectedUOM) {
+    return calculateTierPrice(item, qty, selectedUOM, isVip.value)
+}
+
+const DISCOUNT_TYPE_LABELS = {
+    wholesale: 'საბითუმო ფასდაკლება',
+    vip: 'VIP ფასდაკლება',
+}
+
+const DISCOUNT_TYPE_BADGE_CLASS = {
+    retail: 'bg-red-500 text-white',
+    wholesale: 'bg-emerald-500 text-white',
+    vip: 'bg-purple-500 text-white',
+}
+
+// Which discount badge to show for a cart row, and its percent - switches between the item's
+// own web discount, its wholesale discount, or its VIP discount depending on which one is
+// actually active for the row's current quantity (see activeDiscountType).
+function rowDiscountBadge(cartItem) {
+    const qty = getQuantity(cartItem.item_id, cartItem.selected_uom)
+    const type = activeDiscountType(cartItem.item, qty, cartItem.selected_uom, isVip.value)
+    if (!type) return null
+
+    const percent = type === 'wholesale' ? cartItem.item.wholesale_discount_percent
+        : type === 'vip' ? cartItem.item.vip_discount_percent
+            : cartItem.item.discount
+
+    return { type, percent, label: DISCOUNT_TYPE_LABELS[type] ?? null, badgeClass: DISCOUNT_TYPE_BADGE_CLASS[type] }
 }
 
 
@@ -218,9 +254,12 @@ function goToCheckout() {
                                     : 'border-gray-100'"
                         >
                         <span
-                            v-if="hasDiscount(cartItem.item)"
-                            class="absolute top-2 left-3 z-10 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500 text-white shadow-md"
-                        >-{{ formatDiscount(cartItem.item.discount) }}%</span>
+                            v-if="rowDiscountBadge(cartItem)"
+                            class="absolute top-2 left-3 z-10 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md"
+                            :class="rowDiscountBadge(cartItem).badgeClass"
+                        >
+                            -{{ formatDiscount(rowDiscountBadge(cartItem).percent) }}%
+                        </span>
                         <div class="flex items-center gap-4">
                             <!-- Checkbox -->
                             <Checkbox
@@ -267,15 +306,15 @@ function goToCheckout() {
 
                                 <div class="flex items-center gap-2 mt-1">
                                     <span
-                                        v-if="getRetailPrice(cartItem.item, cartItem.selected_uom) !== null && calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip) < getRetailPrice(cartItem.item, cartItem.selected_uom)"
-                                        class="text-sm text-gray-400 line-through"
+                                        v-if="rowStrikePrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom)"
+                                        class="text-sm text-red-500 line-through"
                                     >
-                                        {{ formatted(getRetailPrice(cartItem.item, cartItem.selected_uom)) }} ₾
+                                        {{ formatted(rowStrikePrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom)) }} ₾
                                     </span>
                                     <p class="text-brand-500 font-bold text-base"
                                        :class="cartItem.item.inventory <= 0 ? ' opacity-60' : ''"
                                     >
-                                        {{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id), cartItem.selected_uom, isVip)) }} ₾
+                                        {{ formatted(rowBoldPrice(cartItem.item, getQuantity(cartItem.item_id), cartItem.selected_uom)) }} ₾
                                         <span v-if="cartItem.selected_uom" class="text-xs font-normal text-gray-400">/ {{ cartItem.selected_uom }}</span>
                                     </p>
                                     <span
@@ -335,6 +374,16 @@ function goToCheckout() {
                                         </template>
                                     </span>
 
+                                    <span
+                                        v-if="rowDiscountBadge(cartItem)?.label"
+                                        class="text-xs font-medium px-2 py-0.5 rounded-full"
+                                        :class="rowDiscountBadge(cartItem).type === 'vip'
+                                            ? 'text-purple-600 bg-purple-50 border border-purple-200'
+                                            : 'text-emerald-600 bg-emerald-50'"
+                                    >
+                                        {{ rowDiscountBadge(cartItem).label }}: -{{ formatDiscount(rowDiscountBadge(cartItem).percent) }}%
+                                    </span>
+
                                     <p v-if="overLimit(cartItem)" class="text-xs text-red-600">
                                         ხელმისაწვდომი რაოდენობაა {{ cartItem.item.inventory }}
                                     </p>
@@ -383,7 +432,7 @@ function goToCheckout() {
                             <div class="flex justify-between text-gray-500">
                                 <span>{{ selectedItems.length }} პროდუქტი</span>
                                 <span class="font-medium text-gray-700">
-                                    <span v-if="totalSavings > 0" class="line-through text-gray-400 mr-1">{{ formatted(subtotal + totalSavings) }} ₾</span>
+                                    <span v-if="totalSavings > 0" class="line-through text-red-500 mr-1">{{ formatted(subtotal + totalSavings) }} ₾</span>
                                     <span>{{ formatted(subtotal) }} ₾</span>
                                 </span>
                             </div>

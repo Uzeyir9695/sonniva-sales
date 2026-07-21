@@ -93,7 +93,7 @@ const { displayPrice, displayUOM, hasDiscount, originalPrice } = usePricing(() =
                     <div class="border-t border-gray-100 pt-5 mt-2">
                         <div class="mb-4">
                             <template v-if="displayPrice">
-                                <span v-if="hasDiscount" class="text-base text-red-500 line-through mr-2">{{ originalPrice }} ₾</span>
+                                <span v-if="originalPrice" class="text-base text-red-500 line-through mr-2">{{ originalPrice }} ₾</span>
                                 <span class="text-2xl font-bold text-gray-900">
                                     {{ displayPrice }} ₾
                                     <span v-if="displayUOM" class="text-sm font-normal text-gray-400">/ {{ displayUOM }}</span>

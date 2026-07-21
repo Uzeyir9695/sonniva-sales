@@ -8,7 +8,6 @@ use App\Models\StockNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
 
@@ -43,6 +42,7 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $isAdmin = auth()?->user()?->role === 'admin';
+        $isCashier = in_array(auth()?->user()?->role, ['cashier']);
 
         // Cache::forget('nav_categories');
 
@@ -96,6 +96,7 @@ class HandleInertiaRequests extends Middleware
 
             'isLoggedIn' => Auth::check(),
             'isAdmin' => $isAdmin,
+            'isCashier' => $isCashier,
             'user' => Auth::user(),
 
             // ── Wishlist IDs shared to every page ──────────────────────────

@@ -16,6 +16,8 @@ class OrderItem extends Model
     protected $casts = [
         'discount' => 'decimal:2',
         'wholesale_discount' => 'decimal:2',
+        'bc_discount' => 'decimal:2',
+        'fake_price' => 'decimal:2',
     ];
 
     public function order(): BelongsTo

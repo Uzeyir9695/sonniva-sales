@@ -19,6 +19,10 @@ class Item extends Model
         'prices' => 'array',
         'weights' => 'array',
         'discount' => 'decimal:4',
+        'wholesale_discount_percent' => 'decimal:4',
+        'vip_discount_percent' => 'decimal:4',
+        'bc_discount_percent' => 'decimal:4',
+        'fake_price' => 'decimal:2',
     ];
 
     public function getStoragePathAttribute()
@@ -28,11 +32,13 @@ class Item extends Model
 
     public function getDiscountedPriceAttribute(): ?string
     {
-        if ((float) $this->discount <= 0 || (float) $this->unit_price <= 0) {
+        $base = (float) ($this->fake_price ?? 0) > 0 ? (float) $this->fake_price : (float) $this->unit_price;
+
+        if ((float) $this->discount <= 0 || $base <= 0) {
             return null;
         }
 
-        return number_format($this->unit_price * (1 - $this->discount / 100), 2, '.', '');
+        return number_format($base * (1 - $this->discount / 100), 2, '.', '');
     }
 
     public function attributes(): HasMany

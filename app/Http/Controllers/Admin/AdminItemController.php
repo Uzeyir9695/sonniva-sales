@@ -48,7 +48,7 @@ class AdminItemController extends Controller
             ->orWhere('name', 'like', "%{$q}%")
             ->orderBy('name')
             ->limit(30)
-            ->get(['id', 'no', 'name', 'slug', 'images', 'video_url', 'unit_price', 'discount']);
+            ->get(['id', 'no', 'name', 'slug', 'images', 'video_url', 'unit_price', 'discount', 'wholesale_discount_percent', 'vip_discount_percent', 'bc_discount_percent', 'fake_price']);
 
         return response()->json($items);
     }
@@ -59,8 +59,13 @@ class AdminItemController extends Controller
             'video_url' => ['nullable', 'url', 'regex:/^https?:\/\/youtu\.be\/[a-zA-Z0-9_-]{11}/'],
             'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'discount_amount' => ['nullable', 'numeric', 'min:0', 'max:'.$item->unit_price],
+            'wholesale_discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'vip_discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'bc_discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'fake_price' => ['nullable', 'numeric', 'gt:'.$item->unit_price],
         ], [
             'video_url.regex' => 'Paste the link from YouTube\'s Share button (youtu.be/...).',
+            'fake_price.gt' => 'The fake price must be higher than the unit price ('.$item->unit_price.').',
         ]);
 
         // A ₾ amount off takes priority over the raw percentage - convert it
@@ -73,6 +78,10 @@ class AdminItemController extends Controller
         $item->update([
             'video_url' => $request->input('video_url') ?: null,
             'discount' => $discount,
+            'wholesale_discount_percent' => $validated['wholesale_discount_percent'] ?? null,
+            'vip_discount_percent' => $validated['vip_discount_percent'] ?? null,
+            'bc_discount_percent' => $validated['bc_discount_percent'] ?? null,
+            'fake_price' => $validated['fake_price'] ?? null,
         ]);
 
         return redirect()->back()->with('message', 'Item updated.');

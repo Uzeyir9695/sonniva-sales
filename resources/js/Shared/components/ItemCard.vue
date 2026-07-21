@@ -93,7 +93,7 @@ const viewItemDetails = (item) => {
                     <template v-if="displayPrice">
                         <div class="flex flex-col gap-1">
                             <span v-if="displayUOM" class="text-xs text-blue-400">შეკვრა</span>
-                            <span v-if="hasDiscount" class="text-xs text-red-500 line-through">{{ originalPrice }} ₾</span>
+                            <span v-if="originalPrice" class="text-xs text-red-500 line-through">{{ originalPrice }} ₾</span>
                                 <div class="flex items-center gap-1 5">
                                 <span class="text-base font-semibold text-gray-900">{{ displayPrice }} ₾</span>
                                 <span v-if="displayUOM" class="text-xs text-gray-400">/ {{ displayUOM }}</span>

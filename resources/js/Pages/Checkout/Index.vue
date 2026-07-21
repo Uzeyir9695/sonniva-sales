@@ -3,7 +3,7 @@ import { ref, computed, reactive, watch } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'primevue/usetoast'
 import { useCart } from '@/composables/useCart'
-import { calculateTierPrice, hasDiscount } from '@/composables/usePricing.js'
+import { calculateTierPrice, getOriginalPrice } from '@/composables/usePricing.js'
 import PlacesAutocomplete from '@/Shared/components/PlacesAutocomplete.vue'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 import AutoComplete from 'primevue/autocomplete'
@@ -54,6 +54,19 @@ const totalSavings = computed(() =>
         return sum + Math.max(0, originalTotal - c.rowTotal)
     }, 0)
 )
+
+// cartItem.unitPrice is the real chargeable amount (never changes) - always shown bold.
+function checkoutDisplayPrice(cartItem) {
+    return cartItem.unitPrice
+}
+
+// Struck-through reference price: fake_price when the item has one, otherwise unit_price
+// when a real discount applies. Non-package items only.
+function checkoutStrikePrice(cartItem) {
+    const item = cartItem.item
+    if (item.unit_price <= 0) return null
+    return getOriginalPrice(item)
+}
 
 // ─── Delivery ─────────────────────────────────────────────────────────────
 
@@ -895,8 +908,8 @@ function initiatePayment() {
                                     <p v-tooltip.top="cartItem.item.name" class="text-xs text-gray-700 font-medium line-clamp-1">{{ cartItem.item.name }}</p>
                                     <p class="text-xs text-gray-400 mt-0.5">
                                         {{ cartItem.qty }} ×
-                                        <span v-if="hasDiscount(cartItem.item) && cartItem.unitPrice == cartItem.item.discounted_price" class="line-through mr-1">{{ formatted(cartItem.item.unit_price) }} ₾</span>
-                                        {{ formatted(cartItem.unitPrice) }} ₾
+                                        {{ formatted(checkoutDisplayPrice(cartItem)) }} ₾
+                                        <span v-if="checkoutStrikePrice(cartItem)" class="line-through text-red-500 mr-1">{{ formatted(checkoutStrikePrice(cartItem)) }} ₾</span>
                                     </p>
                                 </div>
                                 <span class="text-sm font-semibold text-gray-800 shrink-0">{{ formatted(cartItem.rowTotal) }} ₾</span>
@@ -918,7 +931,7 @@ function initiatePayment() {
                             <div class="flex justify-between text-gray-500">
                                 <span>{{ items.length }} პროდუქტი</span>
                                 <span class="font-medium text-gray-700">
-                                    <span v-if="totalSavings > 0" class="line-through text-gray-400 mr-1">{{ formatted(subtotal + totalSavings) }} ₾</span>
+                                    <span v-if="totalSavings > 0" class="line-through text-red-500 mr-1">{{ formatted(subtotal + totalSavings) }} ₾</span>
                                     <span>{{ formatted(subtotal) }} ₾</span>
                                 </span>
                             </div>

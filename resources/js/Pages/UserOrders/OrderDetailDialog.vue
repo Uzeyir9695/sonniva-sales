@@ -163,6 +163,10 @@ const providerLabel = {
                                 </div>
                                 <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 font-semibold w-fit">-{{ formatDiscount(data.discount) }}%</span>
                             </div>
+                            <div v-else-if="data.fake_price > 0" class="flex items-center gap-1.5">
+                                <span class="line-through text-gray-400 text-xs">{{ Number(data.fake_price).toFixed(2) }} ₾</span>
+                                <span class="font-medium text-red-600">{{ data.unit_price }} ₾</span>
+                            </div>
                             <span v-else>{{ data.unit_price }} ₾</span>
                         </template>
                     </Column>

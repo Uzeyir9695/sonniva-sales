@@ -6,7 +6,7 @@ import axios from 'axios'
 import AdminLayout from '../AdminLayout.vue'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 import InputNumber from 'primevue/inputnumber'
-import { hasDiscount } from '@/composables/usePricing.js'
+import { getOriginalPrice, getDisplayPrice } from '@/composables/usePricing.js'
 import { formatDiscount } from '@/utils/numberFormat.js'
 
 defineOptions({ layout: AdminLayout })
@@ -89,6 +89,10 @@ const manageForm = useForm({
     video_url: '',
     discount: null,
     discount_amount: null,
+    wholesale_discount_percent: null,
+    vip_discount_percent: null,
+    bc_discount_percent: null,
+    fake_price: null,
 })
 
 function openManageDialog(item) {
@@ -97,6 +101,10 @@ function openManageDialog(item) {
     manageForm.video_url = item.video_url ?? ''
     manageForm.discount = item.discount ?? null
     manageForm.discount_amount = null
+    manageForm.wholesale_discount_percent = item.wholesale_discount_percent ?? null
+    manageForm.vip_discount_percent = item.vip_discount_percent ?? null
+    manageForm.bc_discount_percent = item.bc_discount_percent ?? null
+    manageForm.fake_price = item.fake_price ?? null
     manageDialogVisible.value = true
 }
 
@@ -106,11 +114,16 @@ function saveItem() {
             video_url: data.video_url.trim() || null,
             discount: data.discount || null,
             discount_amount: data.discount_amount || null,
+            wholesale_discount_percent: data.wholesale_discount_percent || null,
+            vip_discount_percent: data.vip_discount_percent || null,
+            bc_discount_percent: data.bc_discount_percent || null,
+            fake_price: data.fake_price || null,
         }))
         .put(route('admin.items.update', editingItem.value.id), {
             preserveScroll: true,
             onSuccess: (res) => {
                 editingItem.value.video_url = manageForm.video_url.trim() || null
+                editingItem.value.fake_price = manageForm.fake_price || null
                 manageDialogVisible.value = false
                 toast.add({ severity: 'success', summary: 'Saved', detail: res.props.flash.message, life: 3000 })
                 // Discount may have been derived server-side from the ₾ amount -
@@ -231,8 +244,8 @@ function fetchCategoryImage(category) {
                                 <p class="text-sm font-medium text-gray-800 truncate">{{ item.name }}</p>
                                 <p class="text-xs text-gray-400 font-mono">{{ item.no }}</p>
                                 <p class="text-sm mt-0.5">
-                                    <span v-if="hasDiscount(item)" class="text-red-500 line-through mr-1.5">{{ Number(item.unit_price).toFixed(2) }} ₾</span>
-                                    <span class="font-semibold text-gray-700">{{ Number(hasDiscount(item) ? item.discounted_price : item.unit_price).toFixed(2) }} ₾</span>
+                                    <span v-if="getOriginalPrice(item)" class="text-red-500 line-through mr-1.5">{{ Number(getOriginalPrice(item)).toFixed(2) }} ₾</span>
+                                    <span class="font-semibold text-gray-700">{{ Number(getDisplayPrice(item)).toFixed(2) }} ₾</span>
                                 </p>
                             </div>
 
@@ -369,7 +382,7 @@ function fetchCategoryImage(category) {
                 </div>
 
                 <div>
-                    <label class="text-xs font-medium text-gray-500 mb-1 block">Video Link</label>
+                    <label class="text-sm font-semibold text-gray-500 mb-1 block">Video Link</label>
                     <PrimeInputText
                         v-model="manageForm.video_url"
                         placeholder="https://youtu.be/..."
@@ -382,7 +395,23 @@ function fetchCategoryImage(category) {
                 </div>
 
                 <div>
-                    <label class="text-xs font-medium text-gray-500 mb-1 block">Discount (in %)</label>
+                    <label class="text-sm font-semibold text-gray-500 mb-1 block">Increased Price (₾)</label>
+                    <InputNumber
+                        v-model="manageForm.fake_price"
+                        :min="0"
+                        :min-fraction-digits="0"
+                        :max-fraction-digits="2"
+                        suffix=" ₾"
+                        placeholder="0"
+                        :invalid="!!manageForm.errors.fake_price"
+                        fluid
+                    />
+                    <p v-if="manageForm.errors.fake_price" class="text-xs text-red-500 mt-1">{{ manageForm.errors.fake_price }}</p>
+                    <p v-else class="text-xs text-gray-400 mt-1">Must be higher than the unit price ({{ Number(editingItem.unit_price).toFixed(2) }} ₾). Shown to customers in place of the unit price; leave empty to disable.</p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-semibold text-gray-500 mb-1 block">Web Discount (in %)</label>
                     <InputNumber
                         v-model="manageForm.discount"
                         :min="0"
@@ -399,7 +428,58 @@ function fetchCategoryImage(category) {
                 </div>
 
                 <div>
-                    <label class="text-xs font-medium text-gray-500 mb-1 block">Amount Off (₾)</label>
+                    <label class="text-sm font-semibold text-gray-500 mb-1 block">BC Discount (in %)</label>
+                    <InputNumber
+                        v-model="manageForm.bc_discount_percent"
+                        :min="0"
+                        :max="100"
+                        :min-fraction-digits="0"
+                        :max-fraction-digits="2"
+                        suffix="%"
+                        placeholder="0"
+                        :invalid="!!manageForm.errors.bc_discount_percent"
+                        fluid
+                    />
+                    <p v-if="manageForm.errors.bc_discount_percent" class="text-xs text-red-500 mt-1">{{ manageForm.errors.bc_discount_percent }}</p>
+                    <p v-else class="text-xs text-gray-400 mt-1">Percentage sent to Business Central on regular (non-wholesale/VIP) orders. Independent of the Web Discount above; leave empty to send no discount to BC.</p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-semibold text-gray-500 mb-1 block">Wholesale Discount (in %)</label>
+                    <InputNumber
+                        v-model="manageForm.wholesale_discount_percent"
+                        :min="0"
+                        :max="100"
+                        :min-fraction-digits="0"
+                        :max-fraction-digits="2"
+                        suffix="%"
+                        placeholder="0"
+                        :invalid="!!manageForm.errors.wholesale_discount_percent"
+                        fluid
+                    />
+                    <p v-if="manageForm.errors.wholesale_discount_percent" class="text-xs text-red-500 mt-1">{{ manageForm.errors.wholesale_discount_percent }}</p>
+                    <p v-else class="text-xs text-gray-400 mt-1">Percentage off the Wholesale tier price. Leave empty for no extra discount.</p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-semibold text-gray-500 mb-1 block">VIP Discount (in %)</label>
+                    <InputNumber
+                        v-model="manageForm.vip_discount_percent"
+                        :min="0"
+                        :max="100"
+                        :min-fraction-digits="0"
+                        :max-fraction-digits="2"
+                        suffix="%"
+                        placeholder="0"
+                        :invalid="!!manageForm.errors.vip_discount_percent"
+                        fluid
+                    />
+                    <p v-if="manageForm.errors.vip_discount_percent" class="text-xs text-red-500 mt-1">{{ manageForm.errors.vip_discount_percent }}</p>
+                    <p v-else class="text-xs text-gray-400 mt-1">Percentage off the VIP tier price. Leave empty for no extra discount.</p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-semibold text-gray-500 mb-1 block">Amount Off (₾)</label>
                     <InputNumber
                         v-model="manageForm.discount_amount"
                         :min="0"

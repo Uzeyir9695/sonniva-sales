@@ -331,7 +331,7 @@ class BusinessCentralService
             $salesOrderLines[] = [
                 'Document_Type' => 'Order',
                 'Document_No' => $orderNo,
-                'Line_Discount_Percent' => (float) ($orderItem->discount ?? 0),
+                'Line_Discount_Percent' => (float) ($orderItem->bc_discount ?? 0),
                 'Type' => 'Item',
                 'No' => $orderItem->item->no,
                 'Quantity' => $orderItem->quantity,

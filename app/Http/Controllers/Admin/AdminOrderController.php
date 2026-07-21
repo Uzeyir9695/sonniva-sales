@@ -119,6 +119,7 @@ class AdminOrderController extends Controller
                     'subtotal' => $oi->subtotal,
                     'discount' => $oi->discount,
                     'wholesale_discount' => $oi->wholesale_discount,
+                    'fake_price' => $oi->fake_price,
                 ]),
             ],
         ]);
