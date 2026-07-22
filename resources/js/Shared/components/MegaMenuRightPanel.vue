@@ -98,29 +98,29 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
         </div>
 
         <!-- Feature cards -->
-        <div class="col-span-5 grid grid-cols-1 xl:grid-cols-3 gap-3">
-            <div class="flex items-center gap-3 bg-blue-50 rounded-2xl px-4 py-3">
-                <span class="text-2xl shrink-0">🚚</span>
-                <div>
-                    <p class="text-xs font-semibold text-gray-800">უფასო მიწოდება თბილისში</p>
-                    <p class="text-xs text-gray-400">500₾+</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3 bg-pink-50 rounded-2xl px-4 py-3">
-                <span class="text-2xl shrink-0">💎</span>
-                <div>
-                    <p class="text-xs font-semibold text-gray-800">ტოპ ბრენდები</p>
-                    <p class="text-xs text-gray-400">პრემიუმ ხარისხი</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3 bg-amber-50 rounded-2xl px-4 py-3">
-                <span class="text-2xl shrink-0">⭐</span>
-                <div>
-                    <p class="text-xs font-semibold text-gray-800">ტოპ სელერი</p>
-                    <p class="text-xs text-gray-400">პოპულარული</p>
-                </div>
-            </div>
-        </div>
+<!--        <div class="col-span-5 grid grid-cols-1 xl:grid-cols-3 gap-3">-->
+<!--            <div class="flex items-center gap-3 bg-blue-50 rounded-2xl px-4 py-3">-->
+<!--                <span class="text-2xl shrink-0">🚚</span>-->
+<!--                <div>-->
+<!--                    <p class="text-xs font-semibold text-gray-800">უფასო მიწოდება თბილისში</p>-->
+<!--                    <p class="text-xs text-gray-400">500₾+</p>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="flex items-center gap-3 bg-pink-50 rounded-2xl px-4 py-3">-->
+<!--                <span class="text-2xl shrink-0">💎</span>-->
+<!--                <div>-->
+<!--                    <p class="text-xs font-semibold text-gray-800">ტოპ ბრენდები</p>-->
+<!--                    <p class="text-xs text-gray-400">პრემიუმ ხარისხი</p>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="flex items-center gap-3 bg-amber-50 rounded-2xl px-4 py-3">-->
+<!--                <span class="text-2xl shrink-0">⭐</span>-->
+<!--                <div>-->
+<!--                    <p class="text-xs font-semibold text-gray-800">ტოპ სელერი</p>-->
+<!--                    <p class="text-xs text-gray-400">პოპულარული</p>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
     </div>
 </template>
