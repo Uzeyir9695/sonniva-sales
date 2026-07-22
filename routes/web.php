@@ -83,6 +83,8 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::put('/orders/{order}/approve', [AdminOrderController::class, 'approve'])->name('orders.approve');
         Route::put('/orders/{order}/ready', [AdminOrderController::class, 'markAsReady'])->name('orders.ready');
+        Route::put('/orders/{order}/dispatch', [AdminOrderController::class, 'markAsDispatched'])->name('orders.dispatch');
+        Route::put('/orders/{order}/deliver', [AdminOrderController::class, 'markAsDelivered'])->name('orders.deliver');
         Route::put('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('orders.cancel');
         Route::post('/orders/{order}/send-pdf', [AdminOrderController::class, 'sendPdf'])->name('orders.send-pdf');
         Route::post('/orders/{order}/send-onway', [AdminOrderController::class, 'sendToOnway'])->name('orders.send-onway');

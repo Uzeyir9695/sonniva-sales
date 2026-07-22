@@ -11,18 +11,22 @@ defineProps({
 const detailDialog = ref(null);
 
 const statusSeverity = {
-    pending:   'warn',
-    paid:      'info',
-    ready:     'success',
-    cancelled: 'danger',
+    pending:    'warn',
+    paid:       'info',
+    ready:      'success',
+    dispatched: 'info',
+    delivered:  'success',
+    cancelled:  'danger',
 };
 
 const statusLabel = {
-    pending:   'დაუდასტურებელი',
-    paid:      'გადახდილი',
-    ready:     'მზადაა',
-    cancelled: 'უარყოფილი',
-    limit: 'ლიმიტი',
+    pending:    'დაუდასტურებელი',
+    paid:       'გადახდილი',
+    ready:      'მზადაა',
+    dispatched: 'გაგზავნილია',
+    delivered:  'მიწოდებულია',
+    cancelled:  'უარყოფილი',
+    limit:      'ლიმიტი',
 };
 
 const deliveryLabel = {
@@ -52,6 +56,17 @@ const providerLabel = {
                 <TableSkeleton />
             </template>
 
+            <div
+                v-if="orders?.data?.some((o) => o.tracking_number)"
+                class="flex items-center gap-2 bg-blue-50 text-blue-700 text-sm px-4 py-3 mb-4 rounded-xl"
+            >
+                <i class="pi pi-info-circle"></i>
+                <span>შეკვეთის სტატუსის სანახავად დააკოპირეთ თრექინგის ნომერი და მოძებნეთ Onway-ის საიტზე:</span>
+                <a href="https://onway.ge/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 font-semibold underline shrink-0">
+                    ვებგვერდზე გადასვლა <i class="pi pi-external-link text-xs"></i>
+                </a>
+            </div>
+
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 <DataTable
                     :value="orders?.data ?? []"
@@ -76,6 +91,12 @@ const providerLabel = {
                     <Column field="invoice_no" header="ინვოისი">
                         <template #body="{ data }">
                             <span class="font-mono text-xs">{{ data.invoice_no ?? '—' }}</span>
+                        </template>
+                    </Column>
+
+                    <Column field="tracking_number" header="თრექინგის ნომერი">
+                        <template #body="{ data }">
+                            <span class="font-mono text-xs">{{ data.tracking_number ?? '—' }}</span>
                         </template>
                     </Column>
 

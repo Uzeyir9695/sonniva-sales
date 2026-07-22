@@ -31,6 +31,8 @@ const statusSeverity = {
     pending:          'warn',
     paid:             'info',
     ready:            'success',
+    dispatched:       'info',
+    delivered:        'success',
     cancelled:        'danger',
 };
 
@@ -39,6 +41,8 @@ const statusLabel = {
     pending:          'დაუდასტურებელი',
     paid:             'გადახდილი',
     ready:            'მზადაა',
+    dispatched:       'გაგზავნილია',
+    delivered:        'მიწოდებულია',
     cancelled:        'გაუქმებული',
     limit:            'ლიმიტი',
 };
@@ -98,6 +102,10 @@ const providerLabel = {
                         <p class="flex items-center gap-1.5 text-gray-500">
                             <i class="pi pi-tag text-xs text-brand-400"></i>
                             მიწოდება: <span class="font-medium text-gray-700 ml-1">{{ order.delivery_cost }} ₾</span>
+                        </p>
+                        <p v-if="order.tracking_number" class="flex items-center gap-1.5 text-gray-500">
+                            <i class="pi pi-hashtag text-xs text-brand-400"></i>
+                            თრექინგის ნომერი: <span class="font-medium text-gray-700 ml-1">{{ order.tracking_number }}</span>
                         </p>
                     </div>
                 </div>

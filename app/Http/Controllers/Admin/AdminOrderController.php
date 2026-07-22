@@ -50,6 +50,9 @@ class AdminOrderController extends Controller
                 'invoiced_at' => $order->invoiced_at,
                 'approved_at' => $order->approved_at,
                 'ready_at' => $order->ready_at,
+                'tracking_number' => $order->tracking_number,
+                'dispatched_at' => $order->dispatched_at,
+                'delivered_at' => $order->delivered_at,
                 'user' => $order->user ? [
                     'name' => trim($order->user->name.' '.$order->user->lastname),
                     'phone' => $order->user->phone,
@@ -107,6 +110,9 @@ class AdminOrderController extends Controller
                 'created_at' => $order->created_at,
                 'approved_at' => $order->approved_at,
                 'ready_at' => $order->ready_at,
+                'tracking_number' => $order->tracking_number,
+                'dispatched_at' => $order->dispatched_at,
+                'delivered_at' => $order->delivered_at,
                 'user' => $order->user,
                 'payment' => $order->payment,
                 'items' => $order->items->map(fn ($oi) => [
@@ -167,6 +173,31 @@ class AdminOrderController extends Controller
         }
 
         return redirect()->back()->with('message', 'Order marked as ready.');
+    }
+
+    public function markAsDispatched(Request $request, Order $order): RedirectResponse
+    {
+        $request->validate([
+            'tracking_number' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $order->update([
+            'status' => 'dispatched',
+            'dispatched_at' => now(),
+            'tracking_number' => $request->input('tracking_number') ?: null,
+        ]);
+
+        return redirect()->back()->with('message', 'Order marked as dispatched.');
+    }
+
+    public function markAsDelivered(Order $order): RedirectResponse
+    {
+        $order->update([
+            'status' => 'delivered',
+            'delivered_at' => now(),
+        ]);
+
+        return redirect()->back()->with('message', 'Order marked as delivered.');
     }
 
     public function cancel(Order $order): RedirectResponse

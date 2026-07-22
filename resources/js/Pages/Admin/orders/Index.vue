@@ -100,11 +100,13 @@ function resetApprovedAtReady() {
 }
 
 const tabs = [
-    { label: 'Invoiced',  value: 'pending',   badge: true,  icon: 'pi-clock' },
-    { label: 'Limit',     value: 'limit',     badge: true,  icon: 'pi-credit-card' },
-    { label: 'Paid',      value: 'paid',      badge: true,  icon: 'pi-check-circle' },
-    { label: 'Ready',     value: 'ready',     badge: false, icon: 'pi-box' },
-    { label: 'Cancelled', value: 'cancelled', badge: false, icon: 'pi-times-circle' },
+    { label: 'Invoiced',   value: 'pending',    badge: true,  icon: 'pi-clock' },
+    { label: 'Limit',      value: 'limit',      badge: true,  icon: 'pi-credit-card' },
+    { label: 'Paid',       value: 'paid',       badge: true,  icon: 'pi-check-circle' },
+    // { label: 'Ready',   value: 'ready',      badge: false, icon: 'pi-box' },
+    { label: 'Dispatched', value: 'dispatched', badge: false, icon: 'pi-truck' },
+    { label: 'Delivered',  value: 'delivered',  badge: false, icon: 'pi-verified' },
+    { label: 'Cancelled',  value: 'cancelled',  badge: false, icon: 'pi-times-circle' },
 ];
 
 function switchTab(value) {
@@ -125,6 +127,8 @@ const statusSeverity = {
     limit:            'info',
     paid:             'info',
     ready:            'success',
+    dispatched:       'info',
+    delivered:        'success',
     cancelled:        'danger',
 };
 
@@ -173,13 +177,13 @@ function getMenuItems(order) {
         });
     }
 
-    if (order.status === 'paid') {
-        items.push({
-            label:   'Mark Ready (no notify)',
-            icon:    'pi pi-box',
-            command: () => confirmMarkReady(order, false),
-        });
-    }
+    // if (order.status === 'paid') {
+    //     items.push({
+    //         label:   'Mark Ready (no notify)',
+    //         icon:    'pi pi-box',
+    //         command: () => confirmMarkReady(order, false),
+    //     });
+    // }
 
     items.push({
         label:   'Delete',
@@ -292,6 +296,45 @@ function confirmMarkReady(order, informUser) {
         },
     });
 }
+
+// Mark Dispatched dialog (confirm + optional tracking number)
+const dispatchVisible       = ref(false);
+const dispatchTrackingNumber = ref('');
+const selectedDispatchOrder = ref(null);
+
+function openDispatchDialog(order) {
+    selectedDispatchOrder.value  = order;
+    dispatchTrackingNumber.value = '';
+    dispatchVisible.value        = true;
+}
+
+function submitDispatch() {
+    dispatchVisible.value = false;
+    router.put(route('admin.orders.dispatch', selectedDispatchOrder.value.id), {
+        tracking_number: dispatchTrackingNumber.value || null,
+    }, {
+        preserveScroll: true,
+        onSuccess: () => toast.add({ severity: 'success', summary: 'Updated', detail: 'Order marked as dispatched.', life: 3000 }),
+        onError:   () => toast.add({ severity: 'error',   summary: 'Error',   detail: 'Failed to update status.', life: 3000 }),
+    });
+}
+
+function confirmMarkDelivered(order) {
+    confirm.require({
+        message: `Mark order ${order.invoice_no ?? order.id.slice(0, 8)} as delivered?`,
+        header: 'Confirm',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: { label: 'No', severity: 'secondary', outlined: true },
+        acceptProps: { label: 'Mark Delivered', severity: 'success' },
+        accept: () => {
+            router.put(route('admin.orders.deliver', order.id), {}, {
+                preserveScroll: true,
+                onSuccess: () => toast.add({ severity: 'success', summary: 'Updated', detail: 'Order marked as delivered.', life: 3000 }),
+                onError:   () => toast.add({ severity: 'error',   summary: 'Error',   detail: 'Failed to update status.', life: 3000 }),
+            });
+        },
+    });
+}
 </script>
 
 <template>
@@ -310,6 +353,23 @@ function confirmMarkReady(order, informUser) {
         <template #footer>
             <Button label="Cancel" size="small" severity="secondary" variant="text" @click="sendPdfVisible = false" />
             <Button label="Send" size="small" class="bg-brand-500 border-none" icon="pi pi-send" @click="submitSendPdf" />
+        </template>
+    </Dialog>
+
+    <!-- Mark as Dispatched Dialog -->
+    <Dialog v-model:visible="dispatchVisible" header="Mark as Dispatched" modal :style="{ width: '24rem' }">
+        <div class="flex flex-col gap-3 py-2">
+            <p class="text-sm text-gray-600">
+                Mark order {{ selectedDispatchOrder?.invoice_no ?? selectedDispatchOrder?.id?.slice(0, 8) }} as dispatched?
+            </p>
+            <div class="flex flex-col gap-1.5">
+                <label for="trackingNumber" class="text-xs font-medium text-gray-500">Tracking number (optional)</label>
+                <PrimeInputText id="trackingNumber" v-model="dispatchTrackingNumber" placeholder="e.g. ON123456789" />
+            </div>
+        </div>
+        <template #footer>
+            <Button label="Cancel" size="small" severity="secondary" variant="text" @click="dispatchVisible = false" />
+            <Button label="Mark Dispatched" size="small" class="bg-brand-500 border-none" icon="pi pi-truck" @click="submitDispatch" />
         </template>
     </Dialog>
 
@@ -363,6 +423,12 @@ function confirmMarkReady(order, informUser) {
                     <Column header="#" headerStyle="width:3rem">
                         <template #body="{ index }">
                             {{ index + 1 }}
+                        </template>
+                    </Column>
+
+                    <Column v-if="status === 'dispatched' || status === 'delivered'" field="tracking_number" header="Tracking #" style="min-width: 10rem">
+                        <template #body="{ data }">
+                            <span class="font-mono text-xs">{{ data.tracking_number ?? '—' }}</span>
                         </template>
                     </Column>
 
@@ -544,7 +610,7 @@ function confirmMarkReady(order, informUser) {
                                     @click="confirmStatusChange(data, 'paid')"
                                     v-tooltip.top="'Mark Paid'"
                                 />
-                                <Button
+                                <!-- <Button
                                     v-if="data.status === 'paid' || data.status === 'limit'"
                                     icon="pi pi-box"
                                     size="small"
@@ -554,6 +620,28 @@ function confirmMarkReady(order, informUser) {
                                     severity="success"
                                     @click="confirmMarkReady(data, true)"
                                     v-tooltip.top="'Mark Ready'"
+                                /> -->
+                                <Button
+                                    v-if="data.status === 'paid' || data.status === 'limit'"
+                                    icon="pi pi-truck"
+                                    size="small"
+                                    variant="text"
+                                    raised
+                                    rounded
+                                    severity="success"
+                                    @click="openDispatchDialog(data)"
+                                    v-tooltip.top="'Mark as Dispatched'"
+                                />
+                                <Button
+                                    v-if="data.status === 'dispatched'"
+                                    icon="pi pi-verified"
+                                    size="small"
+                                    variant="text"
+                                    raised
+                                    rounded
+                                    severity="success"
+                                    @click="confirmMarkDelivered(data)"
+                                    v-tooltip.top="'Mark as Delivered'"
                                 />
                                 <Button
                                     v-if="data.status === 'pending'"

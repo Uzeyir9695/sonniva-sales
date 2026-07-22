@@ -14,32 +14,49 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
-    use HasUuids, SoftDeletes, HasFactory;
+    use HasFactory, HasUuids, SoftDeletes;
+
     protected $guarded = ['created_at', 'updated_at'];
 
     protected function createdAt(): Attribute
     {
         return Attribute::make(
-            get: fn(string $value) => Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y')
+            get: fn (string $value) => Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y')
         );
     }
+
     protected function approvedAt(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null
+            get: fn ($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null
         );
     }
+
     protected function invoicedAt(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null
+            get: fn ($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null
         );
     }
 
     protected function readyAt(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null
+            get: fn ($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null
+        );
+    }
+
+    protected function dispatchedAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null
+        );
+    }
+
+    protected function deliveredAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value ? Carbon::parse($value)->timezone('Asia/Tbilisi')->format('d-m-Y') : null
         );
     }
 

@@ -26,6 +26,7 @@ class UserOrderController extends Controller
                 'delivery_type' => $order->delivery_type,
                 'total' => $order->total,
                 'created_at' => $order->created_at,
+                'tracking_number' => $order->tracking_number,
                 'payment' => $order->payment ? [
                     'provider' => $order->payment->provider,
                     'invoice_no' => $order->payment->invoice_no,
@@ -62,6 +63,7 @@ class UserOrderController extends Controller
                 'created_at' => $order->created_at,
                 'approved_at' => $order->approved_at,
                 'ready_at' => $order->ready_at,
+                'tracking_number' => $order->tracking_number,
                 'payment' => $order->payment,
                 'items' => $order->items->map(fn ($oi) => [
                     'id' => $oi->id,

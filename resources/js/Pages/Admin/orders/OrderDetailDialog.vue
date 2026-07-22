@@ -4,6 +4,7 @@ import { router } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { formatDiscount } from '@/utils/numberFormat.js';
+import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue';
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -30,8 +31,8 @@ async function open(id) {
 defineExpose({ open });
 
 function confirmStatusChange(newStatus) {
-    const labels     = { paid: 'Mark Paid', ready: 'Mark Ready', cancelled: 'Cancel' };
-    const severities = { paid: 'info',      ready: 'success',    cancelled: 'danger' };
+    const labels     = { paid: 'Mark Paid', ready: 'Mark Ready', delivered: 'Mark Delivered', cancelled: 'Cancel' };
+    const severities = { paid: 'info',      ready: 'success',    delivered: 'success',         cancelled: 'danger' };
 
     confirm.require({
         message: `Change order ${order.value.invoice_no ?? order.value.id.slice(0, 8)} status to "${newStatus}"?`,
@@ -47,6 +48,7 @@ function updateStatus(newStatus) {
     const routeMap = {
         paid:      { name: 'admin.orders.approve', params: {} },
         ready:     { name: 'admin.orders.ready',   params: { inform_user: true } },
+        delivered: { name: 'admin.orders.deliver', params: {} },
         cancelled: { name: 'admin.orders.cancel',  params: {} },
     };
 
@@ -64,11 +66,38 @@ function updateStatus(newStatus) {
     });
 }
 
+// Mark Dispatched dialog (confirm + optional tracking number)
+const dispatchDialogVisible  = ref(false);
+const dispatchTrackingNumber = ref('');
+
+function openDispatchDialog() {
+    dispatchTrackingNumber.value = '';
+    dispatchDialogVisible.value  = true;
+}
+
+function submitDispatch() {
+    dispatchDialogVisible.value = false;
+    router.put(route('admin.orders.dispatch', order.value.id), {
+        tracking_number: dispatchTrackingNumber.value || null,
+    }, {
+        preserveScroll: true,
+        onSuccess: () => {
+            toast.add({ severity: 'success', summary: 'Updated', detail: 'Order marked as dispatched.', life: 3000 });
+            visible.value = false;
+        },
+        onError: () => {
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to update status.', life: 3000 });
+        },
+    });
+}
+
 const statusSeverity = {
     awaiting_payment: 'secondary',
     pending:          'warn',
     paid:             'info',
     ready:            'success',
+    dispatched:       'info',
+    delivered:        'success',
     cancelled:        'danger',
 };
 
@@ -160,6 +189,10 @@ const providerLabel = {
                         <p class="flex items-center gap-1.5 text-gray-500">
                             <i class="pi pi-tag text-xs text-brand-400"></i>
                             Delivery: <span class="font-medium text-gray-700 ml-1">{{ order.delivery_cost }} ₾</span>
+                        </p>
+                        <p v-if="order.tracking_number" class="flex items-center gap-1.5 text-gray-500">
+                            <i class="pi pi-hashtag text-xs text-brand-400"></i>
+                            Tracking #: <span class="font-mono font-medium text-gray-700 ml-1">{{ order.tracking_number }}</span>
                         </p>
                     </div>
                 </div>
@@ -295,16 +328,32 @@ const providerLabel = {
                     size="small"
                     @click="confirmStatusChange('paid')"
                 />
-                <Button
+                <!-- <Button
                     v-if="order.status === 'paid'"
                     label="Mark Ready"
                     icon="pi pi-box"
                     severity="success"
                     size="small"
                     @click="confirmStatusChange('ready')"
+                /> -->
+                <Button
+                    v-if="order.status === 'paid'"
+                    label="Mark Dispatched"
+                    icon="pi pi-truck"
+                    severity="success"
+                    size="small"
+                    @click="openDispatchDialog"
                 />
                 <Button
-                    v-if="!['cancelled', 'ready'].includes(order.status)"
+                    v-if="order.status === 'dispatched'"
+                    label="Mark Delivered"
+                    icon="pi pi-verified"
+                    severity="success"
+                    size="small"
+                    @click="confirmStatusChange('delivered')"
+                />
+                <Button
+                    v-if="!['cancelled', 'ready', 'delivered'].includes(order.status)"
                     label="Cancel Order"
                     icon="pi pi-times"
                     severity="danger"
@@ -321,5 +370,22 @@ const providerLabel = {
                 </a>
             </div>
         </div>
+    </Dialog>
+
+    <!-- Mark as Dispatched Dialog -->
+    <Dialog v-model:visible="dispatchDialogVisible" header="Mark as Dispatched" modal :style="{ width: '24rem' }">
+        <div class="flex flex-col gap-3 py-2">
+            <p class="text-sm text-gray-600">
+                Mark order {{ order?.invoice_no ?? order?.id?.slice(0, 8) }} as dispatched?
+            </p>
+            <div class="flex flex-col gap-1.5">
+                <label for="detailTrackingNumber" class="text-xs font-medium text-gray-500">Tracking number (optional)</label>
+                <PrimeInputText id="detailTrackingNumber" v-model="dispatchTrackingNumber" placeholder="e.g. ON123456789" />
+            </div>
+        </div>
+        <template #footer>
+            <Button label="Cancel" size="small" severity="secondary" variant="text" @click="dispatchDialogVisible = false" />
+            <Button label="Mark Dispatched" size="small" class="bg-brand-500 border-none" icon="pi pi-truck" @click="submitDispatch" />
+        </template>
     </Dialog>
 </template>
