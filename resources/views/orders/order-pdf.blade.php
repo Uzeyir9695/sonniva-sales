@@ -156,7 +156,7 @@
     <div class="bg-white rounded-2xl border border-gray-200 p-6">
         <div class="flex flex-col items-end gap-2 text-sm">
             <div class="flex justify-between w-72 text-gray-500">
-                <span>ჯამი</span>
+                <span>ჯამი დღგ-ს ჩათვლით</span>
                 <span>
                     @if($order->wholesale_discount > 0)
                         <span class="line-through text-gray-400 mr-2">{{ number_format($order->subtotal + $order->wholesale_discount, 2) }} ლარი</span>
