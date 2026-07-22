@@ -49,6 +49,24 @@ function syncAttributes() {
     })
 }
 
+const fetchingMissingImages = ref(false)
+
+function fetchMissingImages() {
+    fetchingMissingImages.value = true
+    router.post(route('admin.items.fetch-missing-images'), {}, {
+        preserveScroll: true,
+        onSuccess: (res) => {
+            toast.add({ severity: 'success', summary: 'Started', detail: res.props.flash.message, life: 4000 })
+        },
+        onError: () => {
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Could not start the job, please try again.', life: 4000 })
+        },
+        onFinish: () => {
+            fetchingMissingImages.value = false
+        },
+    })
+}
+
 /* ---------------- Item video links ---------------- */
 const query = ref('')
 const results = ref([])
@@ -294,6 +312,19 @@ function fetchCategoryImage(category) {
                         @click="syncAttributes"
                         :label="syncingAttributes ? 'Updating...' : 'Update Attributes'"
                         icon="pi pi-refresh"
+                    />
+
+                    <hr class="my-6 border-gray-100" />
+
+                    <h2 class="text-base font-bold text-gray-900 mb-1">Missing Item Images</h2>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Fetches images from Business Central for in-stock items (inventory &gt; 0) that don't have any yet. Runs in the background.
+                    </p>
+                    <Button
+                        :loading="fetchingMissingImages"
+                        @click="fetchMissingImages"
+                        :label="fetchingMissingImages ? 'Starting...' : 'Fetch Missing Images'"
+                        icon="pi pi-images"
                     />
                 </TabPanel>
 

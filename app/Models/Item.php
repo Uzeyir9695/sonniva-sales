@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
+use Spatie\Image\Image;
 
 class Item extends Model
 {
-    use HasUuids;
+    use HasUuids, SoftDeletes;
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
@@ -54,5 +57,29 @@ class Item extends Model
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public static function storeImageFromBase64(string $base64): ?string
+    {
+        if (empty($base64)) {
+            return null;
+        }
+
+        $imageData = base64_decode($base64);
+        $hash = md5($imageData);
+        $fileName = $hash.'.jpg';
+        $path = "items/{$fileName}";
+
+        if (! Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->put($path, $imageData);
+
+            $fullPath = storage_path("app/public/{$path}");
+
+            Image::load($fullPath)
+                ->optimize()
+                ->save($fullPath);
+        }
+
+        return $fileName;
     }
 }

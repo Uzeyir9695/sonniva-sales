@@ -9,7 +9,6 @@ use App\Services\BusinessCentralService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Spatie\Image\Image;
 
 class ItemSeeder extends Seeder
 {
@@ -17,10 +16,10 @@ class ItemSeeder extends Seeder
 
     public function run(): void
     {
-//        DB::statement('SET FOREIGN_KEY_CHECKS=0');
-//        Attribute::truncate();
-//        Item::truncate();
-//        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        //        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        //        Attribute::truncate();
+        //        Item::truncate();
+        //        DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         $startedAt = now();
 
@@ -34,10 +33,10 @@ class ItemSeeder extends Seeder
 
         /*** For testing: start from a specific category ***/
 
-//        $startFromCategory = '2201-03';
-//        $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
-//
-//        $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
+        //        $startFromCategory = '2201-03';
+        //        $categories = $categories->skipUntil(fn ($c) => $c->code === $startFromCategory);
+        //
+        //        $this->command->info("Resuming from category: {$startFromCategory} ({$categories->count()} remaining).");
 
         foreach ($categories as $category) {
             $this->command->info("Fetching items for category: {$category->code}");
@@ -77,7 +76,7 @@ class ItemSeeder extends Seeder
                 $images = [];
                 foreach (['image1', 'image2', 'image3', 'image4', 'image5'] as $imageKey) {
                     $base64 = $detailed[$imageKey] ?? '';
-                    $fileName = $this->storeImage($base64);
+                    $fileName = Item::storeImageFromBase64($base64);
                     if ($fileName && ! in_array($fileName, $images)) {
                         $images[] = $fileName;
                     }
@@ -165,30 +164,5 @@ class ItemSeeder extends Seeder
         }
 
         return $base.'-'.mb_strtolower($no);
-    }
-
-    private function storeImage(string $base64): ?string
-    {
-        if (empty($base64)) {
-            return null;
-        }
-
-        $imageData = base64_decode($base64);
-        $hash = md5($imageData);
-
-        $fileName = $hash.'.jpg';
-        $path = "items/$fileName";
-
-        if (! \Storage::disk('public')->exists($path)) {
-            \Storage::disk('public')->put($path, $imageData);
-
-            $fullPath = storage_path("app/public/{$path}");
-
-            Image::load($fullPath)
-                ->optimize()
-                ->save($fullPath);
-        }
-
-        return $fileName;
     }
 }
