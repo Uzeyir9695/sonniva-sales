@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Item;
 use App\Services\BusinessCentralService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
@@ -72,9 +74,26 @@ class SyncItemCategoryCommand extends Command
                 ->update(['category_code' => $categoryCode]);
         }
 
+        // $items is the full, current item list straight from Business Central,
+        // so it doubles as the source of truth for "which items still exist".
+        // Anything in our DB whose `no` isn't in this list was removed on the
+        // BC side and should be pruned here too.
+        $prunedCount = $this->pruneItemsNotIn($items->pluck('no'));
+
         $seconds = $startedAt->diffInSeconds(now());
-        $this->info("Done. Updated {$items->count()} items in {$seconds}s.");
+        $this->info("Done. Updated {$items->count()} items, pruned $prunedCount in {$seconds}s.");
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Soft-delete local items whose `no` is not in the given list of item
+     * numbers that Business Central currently knows about. Soft-deleting
+     * (instead of a hard delete) keeps past orders intact, since order_items
+     * rows reference items with a cascading foreign key.
+     */
+    private function pruneItemsNotIn(Collection $bcItemNos): int
+    {
+        return Item::whereNotIn('no', $bcItemNos)->delete();
     }
 }
