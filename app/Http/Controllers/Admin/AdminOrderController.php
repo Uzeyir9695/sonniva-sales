@@ -248,7 +248,7 @@ class AdminOrderController extends Controller
             'payment' => 3,
             'payer' => 3,
             'weight' => max($order->items->sum(fn ($i) => $i->unit_weight * $i->quantity), 0.1),
-            'quantity' => $order->items->sum('quantity'),
+            'quantity' => 1,
             'service_level' => 1,
             'order_number' => $order->invoice_no,
         ];
