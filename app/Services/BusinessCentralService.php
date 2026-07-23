@@ -202,7 +202,7 @@ class BusinessCentralService
             'Address' => $user?->address,
             'Address_2' => '',
             'Credit_Limit_LCY' => 0.01,
-            'Salesperson_Code' => '6002',
+            'Salesperson_Code' => 'WEB SHOP',
             'Phone_No' => $user?->phone,
             'E_Mail' => $user?->email ?? 'Email not provided',
             'VAT_Registration_No' => $user?->tax_id,
