@@ -6,8 +6,8 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('sonniva_favicon_192.png') }}">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('sonniva_favicon_192.png') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('favicon.png') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon.png') }}">
         <meta name="theme-color" content="#6777ef"/>
 {{--        <link rel="manifest" href="{{ asset('/manifest.json') }}">--}}
 
