@@ -8,7 +8,7 @@ return [
     'from' => [
         'city' => 'თბილისი',
         'name' => 'Sonniva',
-        'phone' => '+995555371651',
+        'phone' => '+995511551134',
         'address' => 'ავჭალა, შუშის ქუჩა 38',
         'company' => 'Sonniva Georgia',
     ],
