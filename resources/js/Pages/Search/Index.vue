@@ -1,6 +1,6 @@
 <script setup>
 import { Deferred, Head, router } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { computed, inject, ref, watch } from 'vue';
 import debounce from 'lodash/debounce';
 import GridSkeletonLoader from '@/Shared/skeletonLoaders/GridSkeletonLoader.vue';
 import ItemsGrid from '@/Shared/components/ItemsGrid.vue';
@@ -18,6 +18,7 @@ const stockOptions = [
     { label: 'მარაგში არ არის', value: 'out' },
 ];
 
+const route = inject('route');
 const params = route().params;
 
 const priceMin = ref(params.price_min ? Number(params.price_min) : null);
