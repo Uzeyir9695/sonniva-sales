@@ -34,7 +34,7 @@ export default defineConfig({
         tailwindcss(),
     ],
     ssr: {
-        noExternal: ['primevue', 'swiper'],
+        noExternal: ['primevue'],
     },
     resolve: {
         alias: {
