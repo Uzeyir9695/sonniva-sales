@@ -1,9 +1,7 @@
 import { mergeProps, useSSRContext } from "vue";
 import { ssrRenderComponent } from "vue/server-renderer";
-import { _ as _sfc_main$1 } from "./SwiperCarousel-D86I5_7L.js";
-import "swiper/vue";
-import "swiper/modules";
-/* empty css                    */
+import { _ as _sfc_main$1 } from "./SwiperCarousel-CZezlq3t.js";
+import "./navigation-CfyUjEFs.js";
 import "./ItemCard-sQ2o_7aA.js";
 import "./index-C3Ts-4IM.js";
 import "@primeuix/utils/dom";
@@ -68,4 +66,4 @@ _sfc_main.setup = (props, ctx) => {
 export {
   _sfc_main as default
 };
-//# sourceMappingURL=SimilarItems-DE5EoaKD.js.map
+//# sourceMappingURL=SimilarItems-DRZnda4U.js.map

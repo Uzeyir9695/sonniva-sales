@@ -6,8 +6,8 @@ import { ref, onMounted, computed, watch, unref, withCtx, createVNode, openBlock
 import { ssrRenderComponent, ssrRenderAttr, ssrInterpolate, ssrRenderClass, ssrRenderAttrs, ssrGetDirectiveProps, ssrRenderList, ssrIncludeBooleanAttr } from "vue/server-renderer";
 import { usePage, Head, Deferred, Link } from "@inertiajs/vue3";
 import { useClipboard } from "@vueuse/core";
-import _sfc_main$6 from "./SimilarItems-DE5EoaKD.js";
-import _sfc_main$2 from "./ItemGallery-DPazEfKP.js";
+import _sfc_main$6 from "./SimilarItems-DRZnda4U.js";
+import _sfc_main$2 from "./ItemGallery-CLu-y7Vz.js";
 import { b as _sfc_main$3, _ as _sfc_main$4 } from "./QuickViewDialog-7zTQs1NP.js";
 import { _ as _sfc_main$5 } from "./StockNotifyButton-CruZHgqL.js";
 import { _ as _sfc_main$7 } from "./ItemCard-sQ2o_7aA.js";
@@ -36,10 +36,8 @@ import "@primeuix/styles/tabs";
 import "@primevue/icons/minus";
 import "@primevue/icons/plus";
 import "@primeuix/styles/panel";
-import "./SwiperCarousel-D86I5_7L.js";
-import "swiper/vue";
-import "swiper/modules";
-/* empty css                    */
+import "./SwiperCarousel-CZezlq3t.js";
+import "./navigation-CfyUjEFs.js";
 import "./index-D46B4f3g.js";
 import "@primevue/icons/times";
 import "@primevue/icons/windowmaximize";
@@ -789,4 +787,4 @@ _sfc_main.setup = (props, ctx) => {
 export {
   _sfc_main as default
 };
-//# sourceMappingURL=Show-qV4Ic8J-.js.map
+//# sourceMappingURL=Show-CdQL-25i.js.map

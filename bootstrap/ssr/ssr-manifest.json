@@ -323,9 +323,71 @@
   "node_modules/primevue/virtualscroller/style/index.mjs": [
     "/build/assets/index--B3DAMqV.js"
   ],
+  "node_modules/swiper/modules/autoplay.mjs": [
+    "/build/assets/Index-BnTFaePB.js"
+  ],
+  "node_modules/swiper/modules/keyboard.mjs": [
+    "/build/assets/SwiperCarousel-CZezlq3t.js",
+    "/build/assets/SwiperCarousel-CUmCiON9.css"
+  ],
+  "node_modules/swiper/modules/mousewheel.mjs": [
+    "/build/assets/SwiperCarousel-CZezlq3t.js",
+    "/build/assets/SwiperCarousel-CUmCiON9.css"
+  ],
+  "node_modules/swiper/modules/navigation.css": [
+    "/build/assets/navigation-CfyUjEFs.js",
+    "/build/assets/navigation-C0WW7OKH.css"
+  ],
+  "node_modules/swiper/modules/navigation.mjs": [
+    "/build/assets/navigation-CfyUjEFs.js",
+    "/build/assets/navigation-C0WW7OKH.css"
+  ],
+  "node_modules/swiper/modules/pagination.mjs": [
+    "/build/assets/SwiperCarousel-CZezlq3t.js",
+    "/build/assets/SwiperCarousel-CUmCiON9.css"
+  ],
   "node_modules/swiper/modules/thumbs.css": [
-    "/build/assets/ItemGallery-DPazEfKP.js",
-    "/build/assets/ItemGallery-DuzW8mb2.css",
+    "/build/assets/ItemGallery-CLu-y7Vz.js",
+    "/build/assets/ItemGallery-DuzW8mb2.css"
+  ],
+  "node_modules/swiper/modules/thumbs.mjs": [
+    "/build/assets/ItemGallery-CLu-y7Vz.js",
+    "/build/assets/ItemGallery-DuzW8mb2.css"
+  ],
+  "node_modules/swiper/shared/classes-to-selector.mjs": [
+    "/build/assets/SwiperCarousel-CZezlq3t.js",
+    "/build/assets/SwiperCarousel-CUmCiON9.css"
+  ],
+  "node_modules/swiper/shared/create-element-if-not-defined.mjs": [
+    "/build/assets/navigation-CfyUjEFs.js",
+    "/build/assets/navigation-C0WW7OKH.css"
+  ],
+  "node_modules/swiper/shared/ssr-window.esm.mjs": [
+    "/build/assets/navigation-CfyUjEFs.js",
+    "/build/assets/navigation-C0WW7OKH.css"
+  ],
+  "node_modules/swiper/shared/swiper-core.mjs": [
+    "/build/assets/navigation-CfyUjEFs.js",
+    "/build/assets/navigation-C0WW7OKH.css"
+  ],
+  "node_modules/swiper/shared/update-on-virtual-data.mjs": [
+    "/build/assets/navigation-CfyUjEFs.js",
+    "/build/assets/navigation-C0WW7OKH.css"
+  ],
+  "node_modules/swiper/shared/update-swiper.mjs": [
+    "/build/assets/navigation-CfyUjEFs.js",
+    "/build/assets/navigation-C0WW7OKH.css"
+  ],
+  "node_modules/swiper/shared/utils.mjs": [
+    "/build/assets/navigation-CfyUjEFs.js",
+    "/build/assets/navigation-C0WW7OKH.css"
+  ],
+  "node_modules/swiper/swiper-vue.mjs": [
+    "/build/assets/navigation-CfyUjEFs.js",
+    "/build/assets/navigation-C0WW7OKH.css"
+  ],
+  "node_modules/swiper/swiper.css": [
+    "/build/assets/navigation-CfyUjEFs.js",
     "/build/assets/navigation-C0WW7OKH.css"
   ],
   "resources/css/app.css": [
@@ -433,8 +495,7 @@
     "/build/assets/Error-DA2GFQKK.js"
   ],
   "resources/js/Pages/Home/Index.vue": [
-    "/build/assets/Index-CKs9U0m9.js",
-    "/build/assets/navigation-C0WW7OKH.css"
+    "/build/assets/Index-BnTFaePB.js"
   ],
   "resources/js/Pages/Home/ReadMore.vue": [
     "/build/assets/ReadMore-BtrKOEqj.js"
@@ -451,22 +512,18 @@
     "/build/assets/Index-BvbZ5noW.css"
   ],
   "resources/js/Pages/Items/ItemGallery.vue": [
-    "/build/assets/ItemGallery-DPazEfKP.js",
-    "/build/assets/ItemGallery-DuzW8mb2.css",
-    "/build/assets/navigation-C0WW7OKH.css"
+    "/build/assets/ItemGallery-CLu-y7Vz.js",
+    "/build/assets/ItemGallery-DuzW8mb2.css"
   ],
   "resources/js/Pages/Items/ItemGallery.vue?vue&type=style&index=0&lang.css": [
-    "/build/assets/ItemGallery-DPazEfKP.js",
-    "/build/assets/ItemGallery-DuzW8mb2.css",
-    "/build/assets/navigation-C0WW7OKH.css"
+    "/build/assets/ItemGallery-CLu-y7Vz.js",
+    "/build/assets/ItemGallery-DuzW8mb2.css"
   ],
   "resources/js/Pages/Items/Show.vue": [
-    "/build/assets/Show-qV4Ic8J-.js",
-    "/build/assets/navigation-C0WW7OKH.css"
+    "/build/assets/Show-CdQL-25i.js"
   ],
   "resources/js/Pages/Items/SimilarItems.vue": [
-    "/build/assets/SimilarItems-DE5EoaKD.js",
-    "/build/assets/navigation-C0WW7OKH.css"
+    "/build/assets/SimilarItems-DRZnda4U.js"
   ],
   "resources/js/Pages/Items/SubcategoryStrip.vue": [
     "/build/assets/SubcategoryStrip-BsI0AUf3.js"
@@ -578,8 +635,7 @@
     "/build/assets/index-DCKg218Y.css"
   ],
   "resources/js/Shared/components/MegaMenuRightPanel.vue": [
-    "/build/assets/Index-CKs9U0m9.js",
-    "/build/assets/navigation-C0WW7OKH.css"
+    "/build/assets/Index-BnTFaePB.js"
   ],
   "resources/js/Shared/components/Paginate.vue": [
     "/build/assets/ItemsGrid-WJllbGMW.js"
@@ -606,14 +662,12 @@
     "/build/assets/StockNotifyDialog-BIX42gC9.js"
   ],
   "resources/js/Shared/components/SwiperCarousel.vue": [
-    "/build/assets/SwiperCarousel-D86I5_7L.js",
-    "/build/assets/SwiperCarousel-CUmCiON9.css",
-    "/build/assets/navigation-C0WW7OKH.css"
+    "/build/assets/SwiperCarousel-CZezlq3t.js",
+    "/build/assets/SwiperCarousel-CUmCiON9.css"
   ],
   "resources/js/Shared/components/SwiperCarousel.vue?vue&type=style&index=0&lang.css": [
-    "/build/assets/SwiperCarousel-D86I5_7L.js",
-    "/build/assets/SwiperCarousel-CUmCiON9.css",
-    "/build/assets/navigation-C0WW7OKH.css"
+    "/build/assets/SwiperCarousel-CZezlq3t.js",
+    "/build/assets/SwiperCarousel-CUmCiON9.css"
   ],
   "resources/js/Shared/components/TableSkeleton.vue": [
     "/build/assets/TableSkeleton-jtC7qFHK.js"
@@ -638,8 +692,7 @@
     "/build/assets/index-DCKg218Y.css"
   ],
   "resources/js/Shared/menu/LargeDeviceMegaMenu.vue": [
-    "/build/assets/Index-CKs9U0m9.js",
-    "/build/assets/navigation-C0WW7OKH.css"
+    "/build/assets/Index-BnTFaePB.js"
   ],
   "resources/js/Shared/menu/NavSubmenu.vue": [
     "/build/assets/primeicons-DMOk5skT.eot",
@@ -681,8 +734,7 @@
     "/build/assets/useCart-CIcsIaQl.js"
   ],
   "resources/js/composables/useGtag.js": [
-    "/build/assets/Show-qV4Ic8J-.js",
-    "/build/assets/navigation-C0WW7OKH.css"
+    "/build/assets/Show-CdQL-25i.js"
   ],
   "resources/js/composables/usePricing.js": [
     "/build/assets/usePricing-ssZPWxiP.js"
