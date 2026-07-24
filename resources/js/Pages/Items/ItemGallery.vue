@@ -5,7 +5,6 @@ import { Thumbs, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/thumbs';
-import { ZoomImg } from 'vue3-zoomer';
 
 const props = defineProps({
     images: Array,
