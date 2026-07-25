@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Item;
 use App\Models\StockNotification;
 use App\Services\BusinessCentralService;
+use App\Services\DeepLTranslationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Inertia\Inertia;
@@ -294,16 +295,25 @@ class ItemController extends Controller
         };
     }
 
-    public function search(Request $request)
+    public function search(Request $request, DeepLTranslationService $translator)
     {
         $q = $request->input('q', '');
+        $lang = $request->input('lang', 'ka');
 
         if (strlen($q) < 2) {
             return response()->json([]);
         }
 
-        $items = Item::where('name', 'like', "%{$q}%")
-            ->orWhere('no', 'like', "%{$q}%")
+        $translated = $translator->translate($q, $lang, 'ka');
+
+        $items = Item::where(function ($query) use ($q, $translated) {
+            $query->where('name', 'like', "%{$q}%")
+                ->orWhere('no', 'like', "%{$q}%");
+
+            if ($translated && $translated !== $q) {
+                $query->orWhere('name', 'like', "%{$translated}%");
+            }
+        })
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
             ->get(['id', 'no', 'name', 'slug', 'unit_price', 'discount', 'fake_price', 'prices', 'images', 'inventory']);
 

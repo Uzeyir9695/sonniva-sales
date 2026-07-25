@@ -25,6 +25,7 @@ const priceMin = ref(params.price_min ? Number(params.price_min) : null);
 const priceMax = ref(params.price_max ? Number(params.price_max) : null);
 const stockFilter = ref(stockOptions.find(o => o.value === (params.stock ?? '')) ?? stockOptions[0]);
 const sidebarOpen = ref(false);
+const lang = params.lang ?? (typeof Weglot !== 'undefined' && Weglot.getCurrentLang ? Weglot.getCurrentLang() : 'ka');
 
 const activeChips = computed(() => {
     const chips = [];
@@ -42,6 +43,7 @@ const applyFilters = debounce(() => {
 
     router.get(route('search.index'), {
         q: props.query,
+        lang,
         price_min: priceMin.value || undefined,
         price_max: priceMax.value || undefined,
         stock: stockFilter.value?.value || undefined,
