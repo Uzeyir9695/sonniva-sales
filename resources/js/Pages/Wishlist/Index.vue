@@ -19,7 +19,7 @@ const filteredItems = computed(() => ({
 </script>
 
 <template>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="px-4 sm:px-6 lg:px-8 py-10">
 
         <div v-if="filteredItems?.data.length" class="flex items-center justify-between mb-8">
             <div>

@@ -16,7 +16,7 @@ const isAuthenticated = computed(() => page.props.isLoggedIn);
         <Navbar />
         <NavSubmenu />
 
-        <main class="flex-1 w-full lg:max-w-11/12 2xl:max-w-9/12 mx-auto space-y-4 mb-4">
+        <main class="flex-1 w-full lg:max-w-10/12 mx-auto space-y-4 mb-4">
             <slot />
         </main>
 

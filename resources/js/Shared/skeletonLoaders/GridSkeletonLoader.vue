@@ -15,7 +15,7 @@ defineProps({
 
             <!-- Image area -->
             <div class="relative w-full aspect-square">
-                <Skeleton class="!absolute !inset-0 !w-full !h-full" borderRadius="0" />
+                <Skeleton class="absolute! inset-0! w-full! h-full!" borderRadius="0" />
             </div>
 
             <!-- Indicator lines -->

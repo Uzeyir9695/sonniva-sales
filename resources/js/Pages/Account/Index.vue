@@ -97,7 +97,7 @@ watch(() => props.user, (user) => {
   <Head>
     <title>Settings</title>
   </Head>
-    <div class="w-full max-w-6xl mx-auto mt-6">
+    <div class="mt-6">
         <Tabs v-model:value="activeTab">
             <TabList>
                 <Tab value="0">პროფილი</Tab>
@@ -120,7 +120,7 @@ watch(() => props.user, (user) => {
                     </div>
 
                     <form @submit.prevent="updateAccount" class="w-full space-y-6 py-6">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 w-full max-w-md mx-auto gap-y-6">
                             <FloatLabel variant="on" class="w-full">
                                 <InputText class="w-full"
                                     id="name"
@@ -191,42 +191,44 @@ watch(() => props.user, (user) => {
                                 </Select>
                                 <label for="user_type">მომხმარებელი</label>
                             </FloatLabel>
+
+
+                            <div v-if="selectedUserType?.key === 'individual' && editingByAdmin" class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <Checkbox v-model="form.is_handyman" binary />
+                                    <label for="ingredient1"> არის ხელოსანი </label>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <Checkbox v-model="form.is_entrepreneur" binary />
+                                    <label for="ingredient1"> არის მცირე მეწარმე </label>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <Checkbox v-model="form.can_view_wholesales" binary />
+                                    <label for="ingredient1"> შეძლოს საბითუმო ფასების ნახვა </label>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <Checkbox v-model="form.can_view_vip" binary />
+                                    <label for="ingredient1"> შეძლოს VIP ფასების ნახვა </label>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <Checkbox v-model="form.can_view_inventory" binary />
+                                    <label for="ingredient1"> შეძლოს მაღაზებში ნაშთის ნახვა </label>
+                                </div>
+                            </div>
+
+                            <Button :disabled="form.processing"
+                                    type="submit"
+                                    class="bg-brand-500 border-none"
+                                    :label="form.processing ? 'გთხოვთ დაელოდოთ...' : 'შენახვა'"
+                                    size="small"
+                                    :icon="form.processing ? 'pi pi-spin pi-spinner' :'pi pi-check'"
+                            />
                         </div>
 
-                        <div v-if="selectedUserType?.key === 'individual' && editingByAdmin" class="space-y-2">
-                            <div class="flex items-center gap-2">
-                                <Checkbox v-model="form.is_handyman" binary />
-                                <label for="ingredient1"> არის ხელოსანი </label>
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <Checkbox v-model="form.is_entrepreneur" binary />
-                                <label for="ingredient1"> არის მცირე მეწარმე </label>
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <Checkbox v-model="form.can_view_wholesales" binary />
-                                <label for="ingredient1"> შეძლოს საბითუმო ფასების ნახვა </label>
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <Checkbox v-model="form.can_view_vip" binary />
-                                <label for="ingredient1"> შეძლოს VIP ფასების ნახვა </label>
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <Checkbox v-model="form.can_view_inventory" binary />
-                                <label for="ingredient1"> შეძლოს მაღაზებში ნაშთის ნახვა </label>
-                            </div>
-                        </div>
-
-                        <Button :disabled="form.processing"
-                                type="submit"
-                                class="bg-brand-500 border-none"
-                                :label="form.processing ? 'გთხოვთ დაელოდოთ...' : 'შენახვა'"
-                                size="small"
-                                :icon="form.processing ? 'pi pi-spin pi-spinner' :'pi pi-save'"
-                        />
                     </form>
                 </TabPanel>
 

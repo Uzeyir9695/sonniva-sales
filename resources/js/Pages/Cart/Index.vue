@@ -187,7 +187,7 @@ function goToCheckout() {
 
 <template>
     <div class="min-h-screen bg-gray-50 sm:my-4 sm:rounded-2xl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div class="px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 
             <!-- Header -->
             <div class="mb-8">

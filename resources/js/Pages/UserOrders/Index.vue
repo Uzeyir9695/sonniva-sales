@@ -48,7 +48,7 @@ const providerLabel = {
 
     <OrderDetailDialog ref="detailDialog" />
 
-    <div class="max-w-5xl mx-auto py-8 px-4">
+    <div class="py-8 px-4">
         <h1 class="text-xl font-semibold text-gray-800 mb-6">ჩემი შეკვეთები</h1>
 
         <Deferred data="orders">
