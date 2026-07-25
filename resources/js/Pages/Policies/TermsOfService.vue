@@ -49,7 +49,7 @@ import { Head } from '@inertiajs/vue3'
                     <div class="rounded-xl border border-gray-200 p-4">
                         <h3 class="font-semibold text-gray-800 mb-2">უფასო მიწოდება</h3>
                         <p>500 ლარის ან მეტი ღირებულების შეკვეთებზე თბილისში მოქმედებს უფასო მიწოდების სერვისი.</p>
-                        <p class="mt-2">თუ შეკვეთა გაფორმდება 13:00 საათამდე, მიწოდება განხორციელდება იმავე სამუშაო დღეს.</p>
+<!--                        <p class="mt-2">თუ შეკვეთა გაფორმდება 13:00 საათამდე, მიწოდება განხორციელდება იმავე სამუშაო დღეს.</p>-->
                     </div>
 
                     <div class="rounded-xl border border-gray-200 p-4">

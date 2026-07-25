@@ -389,7 +389,7 @@ const ogImage = computed(() => {
                                         <Link :href="route('delivery-rates')" class="text-blue-500 hover:underline">იხილეთ მიწოდების ტარიფები</Link>
                                     </span>
                                 </li>
-                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>13:00-მდე გაფორმებულ შეკვეთებს თბილისში გაწვდით იმავე დღეს!</span></li>
+<!--                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>13:00 საათამდე გაფორმებულ შეკვეთებს თბილისში გაწვდით იმავე დღეს!</span></li>-->
                                 <li class="flex gap-2"><span class="text-brand-500">→</span> <span>მიტანის სერვისის ფარგლებში პროდუქციის მანქანიდან ჩამოტვირთვა და სართულზე ატანა არ შედის მომსახურებაში.</span></li>
                             </ul>
                         </Panel>
