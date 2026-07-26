@@ -1,5 +1,5 @@
 import axios from "axios";
-import { mergeProps, unref, withCtx, createVNode, createTextVNode, useSSRContext, computed, createApp, h as h$1 } from "vue";
+import { mergeProps, unref, withCtx, createTextVNode, useSSRContext, createVNode, computed, createApp, h as h$1 } from "vue";
 import { Link, usePage, router, createInertiaApp, Head } from "@inertiajs/vue3";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
@@ -451,24 +451,7 @@ const _sfc_main$2 = {
   __ssrInlineRender: true,
   setup(__props) {
     return (_ctx, _push, _parent, _attrs) => {
-      _push(`<footer${ssrRenderAttrs(mergeProps({ class: "flex flex-col lg:flex-row items-center justify-around gap-6 px-6 py-5 sm:py-10 bg-white border-t border-slate-200" }, _attrs))}><div class="flex flex-col items-center gap-3"><div class="flex items-center gap-3"><i class="pi pi-linkedin text-lg lg:text-2xl text-[#c80a1d]"></i><i class="pi pi-facebook text-lg lg:text-2xl text-[#c80a1d]"></i><i class="pi pi-instagram text-lg lg:text-2xl text-[#c80a1d]"></i></div>`);
-      _push(ssrRenderComponent(unref(Link), {
-        href: _ctx.route("faq.index"),
-        class: "flex items-center text-sm hover:text-brand-500 border-t border-gray-200 pt-1.5"
-      }, {
-        default: withCtx((_2, _push2, _parent2, _scopeId) => {
-          if (_push2) {
-            _push2(`<i class="pi pi-question-circle text-sm mr-2"${_scopeId}></i> ხშირად დასმული კითხვები `);
-          } else {
-            return [
-              createVNode("i", { class: "pi pi-question-circle text-sm mr-2" }),
-              createTextVNode(" ხშირად დასმული კითხვები ")
-            ];
-          }
-        }),
-        _: 1
-      }, _parent));
-      _push(`</div><div class="flex flex-col items-center space-y-3 order-3 sm:order-2"><div><p class="text-center text-sm text-gray-500"> © 2025, <span class="text-[#c80a1d]">Sonniva Georgia</span> - ყველა უფლება დაცულია. </p></div><div class="flex flex-col lg:flex-row items-center justify-center gap-2 text-xs text-gray-500">`);
+      _push(`<footer${ssrRenderAttrs(mergeProps({ class: "flex flex-col lg:flex-row items-center justify-around gap-6 px-6 py-5 sm:py-10 bg-white border-t border-slate-200" }, _attrs))}><div class="flex flex-col items-center gap-3"><div class="flex items-center gap-3"><i class="pi pi-linkedin text-lg lg:text-2xl text-[#c80a1d]"></i><i class="pi pi-facebook text-lg lg:text-2xl text-[#c80a1d]"></i><i class="pi pi-instagram text-lg lg:text-2xl text-[#c80a1d]"></i></div></div><div class="flex flex-col items-center space-y-3 order-3 sm:order-2"><div><p class="text-center text-sm text-gray-500"> © 2025, <span class="text-[#c80a1d]">Sonniva Georgia</span> - ყველა უფლება დაცულია. </p></div><div class="flex flex-col lg:flex-row items-center justify-center gap-2 text-xs text-gray-500">`);
       _push(ssrRenderComponent(unref(Link), {
         href: _ctx.route("terms-of-service"),
         class: "hover:text-brand-500"
