@@ -2,20 +2,25 @@
 import { ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { formatDiscount } from '@/utils/numberFormat.js';
+import { useReorder } from '@/composables/useReorder';
 
 const toast = useToast();
+const { reorder, processing: reorderProcessing } = useReorder();
 
 const visible = ref(false);
 const loading = ref(false);
 const order = ref(null);
+const selectedItems = ref([]);
 
 async function open(id) {
     loading.value = true;
     visible.value = true;
     order.value = null;
+    selectedItems.value = [];
     try {
         const res = await axios.get(route('user-orders.show', id));
         order.value = res.data.order;
+        selectedItems.value = [...order.value.items];
     } catch {
         toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'შეკვეთის ჩატვირთვა ვერ მოხერხდა.', life: 3000 });
         visible.value = false;
@@ -36,7 +41,7 @@ const statusSeverity = {
     cancelled:        'danger',
 };
 
-const statusLabel = {
+const orderStatusLabel = {
     awaiting_payment: 'გადახდის მოლოდინში',
     pending:          'დაუდასტურებელი',
     paid:             'გადახდილი',
@@ -45,6 +50,15 @@ const statusLabel = {
     delivered:        'მიწოდებულია',
     cancelled:        'გაუქმებული',
     limit:            'ლიმიტი',
+};
+
+// Payment.status has its own vocabulary, distinct from Order.status above.
+const paymentStatusLabel = {
+    pending:    'მოლოდინში',
+    processing: 'მუშავდება',
+    completed:  'დასრულებული',
+    failed:     'ვერ შესრულდა',
+    cancelled:  'გაუქმებული',
 };
 
 const deliveryLabel = {
@@ -66,7 +80,7 @@ const providerLabel = {
         v-model:visible="visible"
         modal
         :header="order ? `შეკვეთა #${order.invoice_no ?? order.id?.slice(0, 8)}` : 'შეკვეთის დეტალები'"
-        class="w-[95%] sm:w-[75%] lg:w-[65%]"
+        class="w-[95%] sm:w-[75%] lg:w-[68%]"
         pt:header:class="border-b border-gray-100"
     >
         <!-- Loading -->
@@ -83,7 +97,7 @@ const providerLabel = {
                     <i class="pi pi-calendar text-xs"></i>
                     <span class="text-xs">{{ order.created_at }}</span>
                 </div>
-                <Tag :value="statusLabel[order.status] ?? order.status" :severity="statusSeverity[order.status]" />
+                <Tag :value="orderStatusLabel[order.status] ?? order.status" :severity="statusSeverity[order.status]" />
             </div>
 
             <!-- Delivery & Payment -->
@@ -117,13 +131,13 @@ const providerLabel = {
                     </div>
                     <div class="px-3 py-3 flex flex-wrap gap-5 text-gray-600">
                         <div>
-                            <p class="text-xs text-gray-400 mb-0.5">პროვაიდერი</p>
+                            <p class="text-xs text-gray-400 mb-0.5">გადახდის მეთოდი</p>
                             <p class="font-semibold text-gray-800">{{ providerLabel[order.payment.provider] ?? order.payment.provider }}</p>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-400 mb-0.5">სტატუსი</p>
+                            <p class="text-xs text-gray-400 mb-0.5">გადახდის სტატუსი</p>
                             <Tag
-                                :value="order.payment.status === 'completed' ? 'დასრულებული' : order.payment.status"
+                                :value="paymentStatusLabel[order.payment.status] ?? order.payment.status"
                                 :severity="order.payment.status === 'completed' ? 'success' : 'warn'"
                                 class="text-xs"
                             />
@@ -148,10 +162,11 @@ const providerLabel = {
             <!-- Items -->
             <div class="border border-gray-200 rounded-xl overflow-hidden mb-4">
                 <div class="flex items-center gap-2 bg-gray-50 border-b border-gray-200 px-3 py-2">
-                    <i class="pi pi-shopping-bag text-brand-500 text-xs"></i>
+                    <i class="pi pi-shopping-cart text-brand-500 text-xs"></i>
                     <span class="font-semibold text-gray-700 text-xs uppercase tracking-wide">პროდუქცია</span>
                 </div>
-                <DataTable :value="order.items" size="small" class="text-sm">
+                <DataTable v-model:selection="selectedItems" :value="order.items" dataKey="id" size="small" class="text-sm">
+                    <Column selectionMode="multiple" headerStyle="width: 3rem" />
                     <Column field="item_no" header="კოდი" style="min-width: 10rem" />
                     <Column field="item_name" header="დასახელება" style="min-width: 16rem" />
                     <Column field="quantity" header="რაოდ." />
@@ -212,11 +227,19 @@ const providerLabel = {
                 </div>
             </div>
 
-            <!-- Download invoice -->
-            <div v-if="order.payment?.provider === 'invoice' && order.payment?.invoice_no" class="flex justify-end">
-                <a :href="route('download.file', order.payment.invoice_no)" target="_blank">
+            <!-- Actions -->
+            <div class="flex justify-end gap-2">
+                <a v-if="order.payment?.provider === 'invoice' && order.payment?.invoice_no" :href="route('download.file', order.payment.invoice_no)" target="_blank">
                     <Button label="ინვოისის ჩამოტვირთვა" icon="pi pi-download" severity="secondary" size="small" outlined />
                 </a>
+                <Button
+                    :label="`თავიდან შეკვეთა (${selectedItems.length})`"
+                    icon="pi pi-refresh"
+                    size="small"
+                    :disabled="selectedItems.length === 0"
+                    :loading="reorderProcessing"
+                    @click="reorder(order.id, selectedItems.map((i) => i.id))"
+                />
             </div>
         </div>
     </Dialog>

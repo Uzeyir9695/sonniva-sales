@@ -3,12 +3,14 @@ import { ref } from 'vue';
 import { Head, Deferred } from '@inertiajs/vue3';
 import TableSkeleton from '@/Shared/components/TableSkeleton.vue';
 import OrderDetailDialog from './OrderDetailDialog.vue';
+import { useReorder } from '@/composables/useReorder';
 
 defineProps({
     orders: Object,
 });
 
 const detailDialog = ref(null);
+const { reorder, processing: reorderProcessing } = useReorder();
 
 const statusSeverity = {
     pending:    'warn',
@@ -58,12 +60,15 @@ const providerLabel = {
 
             <div
                 v-if="orders?.data?.some((o) => o.tracking_number)"
-                class="flex items-center gap-2 bg-blue-50 text-blue-700 text-sm px-4 py-3 mb-4 rounded-xl"
+                class="flex flex-col sm:flex-row sm:items-center gap-2 bg-blue-50 text-blue-700 text-sm px-4 py-3 mb-4 rounded-xl"
             >
-                <i class="pi pi-info-circle"></i>
-                <span>შეკვეთის სტატუსის სანახავად დააკოპირეთ თრექინგის ნომერი და მოძებნეთ Onway-ის საიტზე:</span>
-                <a href="https://onway.ge/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 font-semibold underline shrink-0">
-                    ვებგვერდზე გადასვლა <i class="pi pi-external-link text-xs"></i>
+                <div class="flex items-start gap-2">
+                    <i class="pi pi-info-circle mt-0.5 shrink-0"></i>
+                    <span>შეკვეთის სტატუსის სანახავად დააკოპირეთ თრექინგის ნომერი და მოძებნეთ Onway-ის საიტზე:</span>
+                </div>
+                <a href="https://onway.ge/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 font-semibold underline underline-offset-5 shrink-0">
+                    <i class="pi pi-external-link text-xs"></i>
+                    <span>ვებგვერდზე გადასვლა</span>
                 </a>
             </div>
 
@@ -100,7 +105,7 @@ const providerLabel = {
                         </template>
                     </Column>
 
-                    <Column header="სულ">
+                    <Column header="სულ" style="min-width: 7rem">
                         <template #body="{ data }">
                             <span class="font-semibold">{{ data.total }} ₾</span>
                         </template>
@@ -127,20 +132,27 @@ const providerLabel = {
                         </template>
                     </Column>
 
-                    <Column field="created_at" header="თარიღი" />
+                    <Column field="created_at" header="თარიღი" style="min-width: 7rem" />
 
-                    <Column header="">
+                    <Column header="" style="min-width: 22rem">
                         <template #body="{ data }">
-                            <Button
-                                icon="pi pi-eye"
-                                size="small"
-                                variant="text"
-                                raised
-                                rounded
-                                severity="secondary"
-                                @click="detailDialog.open(data.id)"
-                                v-tooltip.top="'დეტალები'"
-                            />
+                            <div class="flex items-center gap-3">
+                                <Button
+                                    label="დეტალები"
+                                    icon="pi pi-eye"
+                                    size="small"
+                                    severity="info"
+                                    @click="detailDialog.open(data.id)"
+                                />
+                                <Button
+                                    label="თავიდან შეკვეთა"
+                                    icon="pi pi-refresh"
+                                    size="small"
+                                    severity="success"
+                                    :loading="reorderProcessing"
+                                    @click="reorder(data.id)"
+                                />
+                            </div>
                         </template>
                     </Column>
 

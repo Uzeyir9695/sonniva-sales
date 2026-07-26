@@ -139,6 +139,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
     Route::name('user-orders.')->prefix('user-orders')->group(function () {
         Route::get('/', [UserOrderController::class, 'index'])->name('index');
         Route::get('/{order}', [UserOrderController::class, 'show'])->name('show');
+        Route::post('/{order}/reorder', [UserOrderController::class, 'reorder'])->name('reorder');
     });
 });
 
@@ -191,9 +192,9 @@ Route::get('/order/download/{filename}', [InvoiceController::class, 'download'])
 /*******************************************************************************************************************
      * FAQ Route
      * *****************************************************************************************************************/
-//Route::get('/frequently-asked-questions', function () {
+// Route::get('/frequently-asked-questions', function () {
 //    return Inertia::render('faq/Index');
-//})->name('faq.index');
+// })->name('faq.index');
 
 /*******************************************************************************************************************
  * Policies Routes

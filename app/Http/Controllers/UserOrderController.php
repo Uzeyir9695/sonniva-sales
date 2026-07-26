@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -35,6 +36,53 @@ class UserOrderController extends Controller
 
         return Inertia::render('UserOrders/Index', [
             'orders' => Inertia::defer(fn () => $orders),
+        ]);
+    }
+
+    public function reorder(Order $order, Request $request): JsonResponse
+    {
+        abort_if($order->user_id !== Auth::id(), 403);
+
+        $request->validate([
+            'order_item_ids' => ['sometimes', 'array'],
+            'order_item_ids.*' => ['uuid'],
+        ]);
+
+        $orderItemsQuery = $order->items()->with('item');
+
+        if ($request->filled('order_item_ids')) {
+            $orderItemsQuery->whereIn('id', $request->input('order_item_ids'));
+        }
+
+        $orderItems = $orderItemsQuery->get();
+
+        $added = 0;
+        $skippedNames = [];
+
+        foreach ($orderItems as $orderItem) {
+            $item = $orderItem->item;
+
+            if (! $item || $item->inventory <= 0) {
+                if ($item?->name) {
+                    $skippedNames[] = $item->name;
+                }
+
+                continue;
+            }
+
+            $cart = Auth::user()->carts()->firstOrCreate(
+                ['item_id' => $item->id, 'selected_uom' => $orderItem->unit_of_measure_code],
+                ['quantity' => 0]
+            );
+
+            $cart->increment('quantity', $orderItem->quantity);
+            $added++;
+        }
+
+        return response()->json([
+            'added' => $added,
+            'skipped_count' => $orderItems->count() - $added,
+            'skipped_names' => $skippedNames,
         ]);
     }
 

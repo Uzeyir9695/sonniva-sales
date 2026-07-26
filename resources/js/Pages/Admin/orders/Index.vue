@@ -121,17 +121,6 @@ function switchTab(value) {
 }
 
 
-const statusSeverity = {
-    awaiting_payment: 'secondary',
-    pending:          'warn',
-    limit:            'info',
-    paid:             'info',
-    ready:            'success',
-    dispatched:       'info',
-    delivered:        'success',
-    cancelled:        'danger',
-};
-
 const deliveryLabel = {
     office:  'Office Pickup',
     tbilisi: 'Tbilisi',

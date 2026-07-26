@@ -210,7 +210,7 @@ const providerLabel = {
                         <p class="font-semibold text-gray-800">{{ providerLabel[order.payment.provider] ?? order.payment.provider }}</p>
                     </div>
                     <div>
-                        <p class="text-xs text-gray-400 mb-0.5">Status</p>
+                        <p class="text-xs text-gray-400 mb-0.5">Payment Status</p>
                         <Tag :value="order.payment.status" class="capitalize text-xs" :severity="order.payment.status === 'completed' ? 'success' : 'warn'" />
                     </div>
                     <div v-if="order.payment.transaction_id">
