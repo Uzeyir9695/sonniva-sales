@@ -191,9 +191,9 @@ Route::get('/order/download/{filename}', [InvoiceController::class, 'download'])
 /*******************************************************************************************************************
      * FAQ Route
      * *****************************************************************************************************************/
-Route::get('/frequently-asked-questions', function () {
-    return Inertia::render('faq/Index');
-})->name('faq.index');
+//Route::get('/frequently-asked-questions', function () {
+//    return Inertia::render('faq/Index');
+//})->name('faq.index');
 
 /*******************************************************************************************************************
  * Policies Routes
