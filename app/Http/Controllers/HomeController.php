@@ -33,7 +33,8 @@ class HomeController extends Controller
                         'image_url' => Storage::disk('public')->url($b->image_path),
                         'item_slug' => $b->item?->slug,
                     ])->values()
-                    : $group->map(fn ($b) => Storage::disk('public')->url($b->image_path))->values());
+                    : $group->map(fn ($b) => Storage::disk('public')->url($b->image_path))->values())
+                ->toArray();
         });
 
         return Inertia::render('Home/Index', [
@@ -52,7 +53,8 @@ class HomeController extends Controller
                 ->withSum('orderItems', 'quantity')
                 ->orderByDesc('order_items_sum_quantity')
                 ->take($limit)
-                ->get();
+                ->get()
+                ->toArray();
         });
 
         return [
