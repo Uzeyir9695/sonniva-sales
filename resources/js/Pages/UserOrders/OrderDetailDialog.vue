@@ -47,7 +47,7 @@ const orderStatusLabel = {
     paid:             'გადახდილი',
     ready:            'მზადაა',
     dispatched:       'გაგზავნილია',
-    delivered:        'მიწოდებულია',
+    delivered:        'ჩაბარებულია',
     cancelled:        'გაუქმებული',
     limit:            'ლიმიტი',
 };

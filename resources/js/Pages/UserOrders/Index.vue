@@ -26,7 +26,7 @@ const statusLabel = {
     paid:       'გადახდილი',
     ready:      'მზადაა',
     dispatched: 'გაგზავნილია',
-    delivered:  'მიწოდებულია',
+    delivered:  'ჩაბარებულია',
     cancelled:  'უარყოფილი',
     limit:      'ლიმიტი',
 };

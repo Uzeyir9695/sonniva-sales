@@ -472,7 +472,6 @@ function confirmMarkDelivered(order) {
                         </template>
                     </Column>
 
-
                     <Column v-if="status === 'cancelled'" field="created_at" header="Date" style="min-width: 7rem" />
 
                     <Column v-if="status === 'pending'" header="Invoiced At" style="min-width: 14rem">
