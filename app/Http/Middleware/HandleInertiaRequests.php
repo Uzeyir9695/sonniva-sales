@@ -44,8 +44,6 @@ class HandleInertiaRequests extends Middleware
         $isAdmin = auth()?->user()?->role === 'admin';
         $isCashier = in_array(auth()?->user()?->role, ['cashier']);
 
-        // Cache::forget('nav_categories');
-
         $categories = fn () => Cache::rememberForever('nav_categories', function () {
             return Category::whereNull('parent_id')
                 ->whereIn('code', ['1100', '1200', '1300', '1400', '1500', '1600', '1700', '1800', '1900', '2000', '2100', '2200', '2300'])

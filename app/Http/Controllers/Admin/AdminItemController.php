@@ -12,6 +12,7 @@ use App\Services\BusinessCentralService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -128,6 +129,8 @@ class AdminItemController extends Controller
         $fileName = Category::storeImageFromBase64($bcCategory['imageBase64']);
 
         $category->update(['image' => $fileName]);
+
+        Cache::forget('nav_categories');
 
         if ($oldImage && $oldImage !== $fileName) {
             Storage::disk('public')->delete("categories/{$oldImage}");
