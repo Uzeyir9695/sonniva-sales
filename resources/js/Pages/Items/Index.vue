@@ -255,10 +255,10 @@ function removeChip(chip) {
                             v-for="cat in relatedCategories"
                             :key="cat.slug"
                             :href="route('items.index', [cat.slug])"
-                            class="flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-colors"
+                            class="flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-colors mb-1.5"
                             :class="cat.slug === currentCategorySlug
                             ? 'bg-brand-50 text-brand-500 font-semibold'
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'"
+                            : 'border border-brand-500/40 text-gray-600 hover:bg-brand-50 hover:text-gray-900'"
                         >
                             <span>{{ cat.name }}</span>
                             <i v-if="cat.slug === currentCategorySlug" class="pi pi-check text-xs text-brand-400"></i>
