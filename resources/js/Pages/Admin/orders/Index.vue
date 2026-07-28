@@ -3,6 +3,7 @@ import AdminLayout from '../AdminLayout.vue';
 import TableSkeleton from '@/Shared/components/TableSkeleton.vue';
 import OrderDetailDialog from './OrderDetailDialog.vue';
 import { ref } from 'vue';
+import { useMediaQuery } from '@vueuse/core';
 import { Deferred, router, usePoll } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
@@ -24,6 +25,8 @@ usePoll(10000, {
     only: ['unseenCounts'],
     preserveScroll: true, preserveState: true
 });
+
+const isMobile = useMediaQuery('(max-width: 639px)');
 
 const invoicedAtDates  = ref(null);
 const approvedAtDates  = ref(null);
@@ -415,13 +418,13 @@ function confirmMarkDelivered(order) {
                         </template>
                     </Column>
 
-                    <Column v-if="status === 'dispatched' || status === 'delivered'" field="tracking_number" header="Tracking #" style="min-width: 10rem">
+                    <Column v-if="status === 'dispatched' || status === 'delivered'" field="tracking_number" header="Tracking #">
                         <template #body="{ data }">
                             <span class="font-mono text-xs">{{ data.tracking_number ?? '—' }}</span>
                         </template>
                     </Column>
 
-                    <Column field="invoice_no" header="Invoice" frozen style="min-width: 10rem">
+                    <Column field="invoice_no" header="Invoice" :frozen="!isMobile" style="min-width: 12rem">
                         <template #body="{ data }">
                             <span class="font-mono text-xs">{{ data.invoice_no ?? '—' }}</span>
                         </template>
@@ -574,7 +577,7 @@ function confirmMarkDelivered(order) {
                         <template #filtericon />
                     </Column>
 
-                    <Column header="Actions" frozen alignFrozen="right">
+                    <Column header="Actions" :frozen="!isMobile" alignFrozen="right">
                         <template #body="{ data }">
                             <div class="flex items-center gap-1">
                                 <Button
@@ -587,6 +590,21 @@ function confirmMarkDelivered(order) {
                                     @click="detailDialog.open(data.id)"
                                     v-tooltip.top="'View'"
                                 />
+                                <a
+                                    v-if="data.status !== 'cancelled'"
+                                    :href="route('download.file', data.invoice_no)"
+                                    target="_blank"
+                                >
+                                    <Button
+                                        icon="pi pi-file-pdf"
+                                        size="small"
+                                        variant="text"
+                                        raised
+                                        rounded
+                                        severity="secondary"
+                                        v-tooltip.top="'Download PDF'"
+                                    />
+                                </a>
                                 <Button
                                     v-if="data.status === 'pending'"
                                     icon="pi pi-check"
