@@ -1,9 +1,11 @@
 <script setup>
 import { ref } from 'vue';
+import { useHttp } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
 import { formatDiscount } from '@/utils/numberFormat.js';
 
 const toast = useToast();
+const http = useHttp();
 
 const visible = ref(false);
 const loading = ref(false);
@@ -14,8 +16,8 @@ async function open(id) {
     visible.value = true;
     order.value = null;
     try {
-        const res = await axios.get(route('user-orders.show', id));
-        order.value = res.data.order;
+        const res = await http.get(route('user-orders.show', id));
+        order.value = res.order;
     } catch {
         toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'შეკვეთის ჩატვირთვა ვერ მოხერხდა.', life: 3000 });
         visible.value = false;

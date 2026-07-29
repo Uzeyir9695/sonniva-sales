@@ -1,10 +1,12 @@
 <script setup>
 import { ref } from 'vue';
+import { useHttp } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
 import { formatDiscount } from '@/utils/numberFormat.js';
 import { useReorder } from '@/composables/useReorder';
 
 const toast = useToast();
+const http = useHttp();
 const { reorder, processing: reorderProcessing } = useReorder();
 
 const visible = ref(false);
@@ -18,8 +20,8 @@ async function open(id) {
     order.value = null;
     selectedItems.value = [];
     try {
-        const res = await axios.get(route('user-orders.show', id));
-        order.value = res.data.order;
+        const res = await http.get(route('user-orders.show', id));
+        order.value = res.order;
         selectedItems.value = [...order.value.items];
     } catch {
         toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'შეკვეთის ჩატვირთვა ვერ მოხერხდა.', life: 3000 });

@@ -6,6 +6,7 @@ import { useClipboard } from '@vueuse/core';
 import SimilarItems from '@/Pages/Items/SimilarItems.vue';
 import ItemGallery from '@/Pages/Items/ItemGallery.vue';
 import WishlistButton from '@/Shared/components/WishlistButton.vue';
+import ShareButton from '@/Shared/components/ShareButton.vue';
 import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue';
 import WhatsappOrderDialog from '@/Shared/components/WhatsappOrderDialog.vue';
 import { useCart } from '@/composables/useCart.js';
@@ -126,12 +127,19 @@ const ogImage = computed(() => {
                         </div>
 
                         <div class="flex items-center gap-3">
+                            <!-- Share -->
+                            <ShareButton
+                                :title="item.name"
+                                size="sm"
+                                class="shrink-0"
+                            />
+
                             <!-- Wishlist -->
                             <WishlistButton
                                 :item-id="item.id"
                                 size="sm"
                                 variant="pill"
-                                class="border border-gray-100 rounded-lg! shrink-0"
+                                class="border border-gray-100 rounded-full shrink-0"
                             />
 
                         </div>
