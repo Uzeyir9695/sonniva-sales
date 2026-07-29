@@ -76,8 +76,8 @@ class HandleInertiaRequests extends Middleware
                             'name' => $item->name,
                             'slug' => $item->slug,
                             'items_count' => $item->items_count, // 3rd level count of items
-                        ])->values()->all(),
-                    ])->values()->all(),
+                        ])->values(),
+                    ])->values(),
                 ])
                 ->toArray();
         });
