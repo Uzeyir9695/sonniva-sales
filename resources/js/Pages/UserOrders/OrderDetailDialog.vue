@@ -2,25 +2,20 @@
 import { ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { formatDiscount } from '@/utils/numberFormat.js';
-import { useReorder } from '@/composables/useReorder';
 
 const toast = useToast();
-const { reorder, processing: reorderProcessing } = useReorder();
 
 const visible = ref(false);
 const loading = ref(false);
 const order = ref(null);
-const selectedItems = ref([]);
 
 async function open(id) {
     loading.value = true;
     visible.value = true;
     order.value = null;
-    selectedItems.value = [];
     try {
         const res = await axios.get(route('user-orders.show', id));
         order.value = res.data.order;
-        selectedItems.value = [...order.value.items];
     } catch {
         toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'შეკვეთის ჩატვირთვა ვერ მოხერხდა.', life: 3000 });
         visible.value = false;
@@ -165,8 +160,7 @@ const providerLabel = {
                     <i class="pi pi-shopping-cart text-brand-500 text-xs"></i>
                     <span class="font-semibold text-gray-700 text-xs uppercase tracking-wide">პროდუქცია</span>
                 </div>
-                <DataTable v-model:selection="selectedItems" :value="order.items" dataKey="id" size="small" class="text-sm">
-                    <Column selectionMode="multiple" headerStyle="width: 3rem" />
+                <DataTable :value="order.items" dataKey="id" size="small" class="text-sm">
                     <Column field="item_no" header="კოდი" style="min-width: 10rem" />
                     <Column field="item_name" header="დასახელება" style="min-width: 16rem" />
                     <Column field="quantity" header="რაოდ." />
@@ -228,18 +222,10 @@ const providerLabel = {
             </div>
 
             <!-- Actions -->
-            <div class="flex justify-end gap-2">
-                <a v-if="order.payment?.provider === 'invoice' && order.payment?.invoice_no" :href="route('download.file', order.payment.invoice_no)" target="_blank">
+            <div v-if="order.payment?.provider === 'invoice' && order.payment?.invoice_no" class="flex justify-end gap-2">
+                <a :href="route('download.file', order.payment.invoice_no)" target="_blank">
                     <Button label="ინვოისის ჩამოტვირთვა" icon="pi pi-download" severity="secondary" size="small" outlined />
                 </a>
-                <Button
-                    :label="`თავიდან შეკვეთა (${selectedItems.length})`"
-                    icon="pi pi-refresh"
-                    size="small"
-                    :disabled="selectedItems.length === 0"
-                    :loading="reorderProcessing"
-                    @click="reorder(order.id, selectedItems.map((i) => i.id))"
-                />
             </div>
         </div>
     </Dialog>

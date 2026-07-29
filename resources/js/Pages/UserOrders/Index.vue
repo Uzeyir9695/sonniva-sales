@@ -3,14 +3,14 @@ import { ref } from 'vue';
 import { Head, Deferred } from '@inertiajs/vue3';
 import TableSkeleton from '@/Shared/components/TableSkeleton.vue';
 import OrderDetailDialog from './OrderDetailDialog.vue';
-import { useReorder } from '@/composables/useReorder';
+import ReorderDialog from './ReorderDialog.vue';
 
 defineProps({
     orders: Object,
 });
 
 const detailDialog = ref(null);
-const { reorder, processing: reorderProcessing } = useReorder();
+const reorderDialog = ref(null);
 
 const statusSeverity = {
     pending:    'warn',
@@ -49,6 +49,7 @@ const providerLabel = {
     <Head title="ჩემი შეკვეთები" />
 
     <OrderDetailDialog ref="detailDialog" />
+    <ReorderDialog ref="reorderDialog" />
 
     <div class="py-8 px-4">
         <h1 class="text-xl font-semibold text-gray-800 mb-6">ჩემი შეკვეთები</h1>
@@ -64,11 +65,11 @@ const providerLabel = {
             >
                 <div class="flex items-start gap-2">
                     <i class="pi pi-info-circle mt-0.5 shrink-0"></i>
-                    <span>შეკვეთის სტატუსის სანახავად დააკოპირეთ თრექინგის ნომერი და მოძებნეთ Onway-ის საიტზე:</span>
+                    <span>შეკვეთის სტატუსის სანახავად დააკოპირეთ თრექინგის ნომერი და მოძებნეთ ჩვენი საკურიერო კომპანიის ვებგვერდზე:</span>
                 </div>
                 <a href="https://onway.ge/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 font-semibold underline underline-offset-5 shrink-0">
                     <i class="pi pi-external-link text-xs"></i>
-                    <span>ვებგვერდზე გადასვლა</span>
+                    <span>გადასვლა</span>
                 </a>
             </div>
 
@@ -149,8 +150,7 @@ const providerLabel = {
                                     icon="pi pi-refresh"
                                     size="small"
                                     severity="success"
-                                    :loading="reorderProcessing"
-                                    @click="reorder(data.id)"
+                                    @click="reorderDialog.open(data.id)"
                                 />
                             </div>
                         </template>
