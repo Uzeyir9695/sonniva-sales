@@ -65,11 +65,11 @@ const providerLabel = {
             >
                 <div class="flex items-start gap-2">
                     <i class="pi pi-info-circle mt-0.5 shrink-0"></i>
-                    <span>შეკვეთის სტატუსის სანახავად დააკოპირეთ თრექინგის ნომერი და მოძებნეთ ჩვენი საკურიერო კომპანიის ვებგვერდზე:</span>
+                    <span>შეკვეთის სტატუსისა და მიწოდების ინფორმაციის სანახავად გადადით ვებგვერდზე და შეიყვანეთ თრექინგის ნომერი.</span>
                 </div>
                 <a href="https://onway.ge/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 font-semibold underline underline-offset-5 shrink-0">
                     <i class="pi pi-external-link text-xs"></i>
-                    <span>გადასვლა</span>
+                    <span>სტატუსის შემოწმება</span>
                 </a>
             </div>
 
