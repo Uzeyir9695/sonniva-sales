@@ -33,6 +33,21 @@ const deliveryMethods = [
     },
 ]
 
+const officeBranches = [
+    {
+        key: 'avchala',
+        address: 'ავჭალა, შუშის ქუჩა 38',
+        hours: 'ორშაბათი–პარასკევი, 09:00–18:00',
+        mapUrl: 'https://maps.app.goo.gl/3YwH55CnhUUfJoYQ9',
+    },
+    {
+        key: 'didube',
+        address: 'დიდუბე, ზაირა კიკვიძის 6',
+        hours: 'ორშაბათი–პარასკევი, 09:00–18:00',
+        mapUrl: 'https://maps.app.goo.gl/mUedJ9Jf9j1tR9nt6',
+    },
+]
+
 const tbilisiZones = [
     {
         label: 'I ზონა',
@@ -138,14 +153,20 @@ function weightLabel(rate, index) {
                     </div>
                     <span class="ml-auto text-xl font-bold text-emerald-600">0 ₾</span>
                 </div>
-                <div class="px-6 py-4 flex items-start gap-2 text-sm text-gray-600">
-                    <i class="pi pi-map-marker text-brand-500 mt-0.5 shrink-0"></i>
-                    <div class="space-y-1">
-                        <p class="font-medium text-gray-800">ავჭალა, შუშის ქუჩა 38</p>
-                        <p class="text-xs text-gray-400 mt-0.5">ორშაბათი–პარასკევი, 09:00–18:00</p>
-                        <a href="https://maps.app.goo.gl/3YwH55CnhUUfJoYQ9" target="_blank" class="text-brand-500 underline">
-                            მისამართის სანახავად დააჭირეთ ლინკს
-                        </a>
+                <div class="p-6 grid sm:grid-cols-2 gap-4">
+                    <div
+                        v-for="branch in officeBranches"
+                        :key="branch.key"
+                        class="flex items-start gap-2 text-sm text-gray-600 rounded-xl border border-gray-200 ring-1 ring-gray-100 p-4"
+                    >
+                        <i class="pi pi-map-marker text-brand-500 mt-0.5 shrink-0"></i>
+                        <div class="space-y-1">
+                            <p class="font-medium text-gray-800">{{ branch.address }}</p>
+                            <p class="text-xs text-gray-400 mt-0.5">{{ branch.hours }}</p>
+                            <a :href="branch.mapUrl" target="_blank" class="text-brand-500 underline">
+                                მისამართის სანახავად დააჭირეთ ლინკს
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
