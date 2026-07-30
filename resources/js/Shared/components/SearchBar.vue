@@ -64,11 +64,14 @@ function goToItem(item) {
     router.get(route('items.show', item.slug));
 }
 
-function goToSearch() {
-    if (!query.value.trim()) return;
-    track('search', { search_term: query.value.trim() })
+function goToSearch(e) {
+    // Read the live DOM value (not the `query` ref) - Weglot's "translate back"
+    // mutates the input directly on form submit, before this handler runs.
+    const q = (e?.target?.elements?.q?.value ?? query.value).trim();
+    if (!q) return;
+    track('search', { search_term: q })
     showDropdown.value = false;
-    router.get(route('search.index', { q: query.value, lang: currentLang() }));
+    router.get(route('search.index', { q, lang: currentLang() }));
 }
 
 function imageUrl(img) {
@@ -111,30 +114,34 @@ defineExpose({ inputRef });
 
     <div ref="wrapperRef" class="relative w-full">
         <!-- Input -->
-        <div
+        <form
+            @submit.prevent="goToSearch"
             class="flex items-center rounded-xl px-4 h-11 gap-3 transition-all focus-within:border-2 border border-brand-400"
             :class="showDropdown ? 'rounded-b-none border-2 border-brand-400' : ''"
         >
-            <i v-if="!loading" class="pi pi-search text-gray-400 text-sm shrink-0"></i>
-            <i v-else class="pi pi-spinner pi-spin text-brand-400 text-sm shrink-0"></i>
+            <button type="submit" aria-label="ძებნა" class="shrink-0 flex items-center justify-center cursor-pointer">
+                <i v-if="!loading" class="pi pi-search text-gray-400 text-sm"></i>
+                <i v-else class="pi pi-spinner pi-spin text-brand-400 text-sm"></i>
+            </button>
 
             <input
                 ref="inputRef"
                 v-model="query"
+                name="q"
                 :placeholder="placeholder"
-                @keydown.enter="goToSearch"
                 @keydown.escape="showDropdown = false"
                 class="w-full bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400"
             />
 
             <button
                 v-if="query"
+                type="button"
                 @click="query = ''; results = []; showDropdown = false"
                 class="text-gray-400 hover:text-gray-600 shrink-0 cursor-pointer"
             >
                 <i class="pi pi-times text-xs"></i>
             </button>
-        </div>
+        </form>
 
         <!-- Dropdown -->
         <div
