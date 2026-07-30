@@ -33,6 +33,9 @@
                 api_key: 'wg_7ace44a8c1f484cdedc879984406c4cb5',
                 hide_switcher: true,
                 cache: true,
+                translate_search: true,
+                search_forms: "#app > div > div.flex-col.sticky.top-0.z-50 > nav > div > template > div.hidden.lg\:flex.flex-4 > div > form",
+                search_parameter: "q"
             });
         </script>
 
