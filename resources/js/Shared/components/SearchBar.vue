@@ -30,10 +30,6 @@ const quickViewItem = ref(null);
 
 let debounceTimer = null;
 
-function currentLang() {
-    return typeof Weglot !== 'undefined' && Weglot.getCurrentLang ? Weglot.getCurrentLang() : 'ka';
-}
-
 watch(query, (val) => {
     clearTimeout(debounceTimer);
     if (val.trim().length < 2) {
@@ -45,7 +41,7 @@ watch(query, (val) => {
     loading.value = true;
     debounceTimer = setTimeout(async () => {
         try {
-            const res = await axios.get('/api/v1/search', { params: { q: val, lang: currentLang() } });
+            const res = await axios.get('/api/v1/search', { params: { q: val } });
             results.value = res.data;
             visibleCount.value = 20;
             showDropdown.value = true;
@@ -71,7 +67,7 @@ function goToSearch(e) {
     if (!q) return;
     track('search', { search_term: q })
     showDropdown.value = false;
-    router.get(route('search.index', { q, lang: currentLang() }));
+    router.get(route('search.index', { q }));
 }
 
 function imageUrl(img) {

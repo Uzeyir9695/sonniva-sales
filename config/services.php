@@ -51,8 +51,4 @@ return [
         'api_key' => env('WEGLOT_API_KEY'),
     ],
 
-    'deepl' => [
-        'api_key' => env('DEEPL_API_KEY'),
-    ],
-
 ];
