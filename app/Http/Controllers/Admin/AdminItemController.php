@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\FetchMissingItemImagesJob;
+use App\Jobs\SyncInventoryJob;
 use App\Jobs\SyncItemAttributesJob;
 use App\Jobs\SyncItemCategoryJob;
 use App\Models\Category;
@@ -43,6 +44,13 @@ class AdminItemController extends Controller
         FetchMissingItemImagesJob::dispatch();
 
         return redirect()->back()->with('message', 'Fetching missing item images in the background. It may take a while depending on how many items are missing images.');
+    }
+
+    public function syncInventory(): RedirectResponse
+    {
+        SyncInventoryJob::dispatch();
+
+        return redirect()->back()->with('message', 'Inventory sync started in the background. It may take a minute to finish.');
     }
 
     public function search(Request $request): JsonResponse

@@ -95,6 +95,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::post('/items/sync-category', [AdminItemController::class, 'syncCategory'])->name('items.sync-category');
         Route::post('/items/sync-attributes', [AdminItemController::class, 'syncAttributes'])->name('items.sync-attributes');
         Route::post('/items/fetch-missing-images', [AdminItemController::class, 'fetchMissingImages'])->name('items.fetch-missing-images');
+        Route::post('/items/sync-inventory', [AdminItemController::class, 'syncInventory'])->name('items.sync-inventory');
         Route::get('/items/search', [AdminItemController::class, 'search'])->name('items.search');
         Route::put('/items/{item}', [AdminItemController::class, 'update'])->name('items.update');
         Route::get('/categories/search', [AdminItemController::class, 'searchCategories'])->name('categories.search');
