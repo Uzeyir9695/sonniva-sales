@@ -43,19 +43,23 @@ function onMouseLeave() {
         @mouseleave="onMouseLeave"
     >
         <!-- Image area -->
-        <div class="relative overflow-hidden aspect-square cursor-pointer">
-            <template v-if="displayImages.length">
-                <img
-                    v-for="(img, i) in displayImages"
-                    :key="i"
-                    :src="`${item.storage_path}/${img}`"
-                    :alt="item?.name"
-                    class="absolute inset-0 w-full h-full object-cover transition-opacity duration-200"
-                    :class="i === activeIndex ? 'opacity-100' : 'opacity-0'"
-                />
-            </template>
-            <div v-else class="w-full h-full flex items-center justify-center bg-gray-100">
-                <i class="pi pi-image text-3xl text-gray-300"></i>
+        <div class="relative aspect-square cursor-pointer">
+            <!-- Clipped to the rounded corners; kept separate from the slot below so
+                 absolutely-positioned hover actions (e.g. the share dropdown) aren't cut off -->
+            <div class="absolute inset-0 overflow-hidden rounded-t-2xl">
+                <template v-if="displayImages.length">
+                    <img
+                        v-for="(img, i) in displayImages"
+                        :key="i"
+                        :src="`${item.storage_path}/${img}`"
+                        :alt="item?.name"
+                        class="absolute inset-0 w-full h-full object-cover transition-opacity duration-200"
+                        :class="i === activeIndex ? 'opacity-100' : 'opacity-0'"
+                    />
+                </template>
+                <div v-else class="w-full h-full flex items-center justify-center bg-gray-100">
+                    <i class="pi pi-image text-3xl text-gray-300"></i>
+                </div>
             </div>
 
             <!-- Slot for badges / hover actions passed from parent -->

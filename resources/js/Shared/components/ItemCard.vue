@@ -8,6 +8,7 @@ import WhatsappOrderDialog from '@/Shared/components/WhatsappOrderDialog.vue'
 import StockNotifyDialog from '@/Shared/components/StockNotifyDialog.vue'
 import { usePricing } from '@/composables/usePricing.js'
 import { formatDiscount } from '@/utils/numberFormat.js'
+import ShareButton from '@/Shared/components/ShareButton.vue';
 
 const props = defineProps({
     item: { type: Object, required: true },
@@ -27,7 +28,7 @@ const viewItemDetails = (item) => {
 </script>
 
 <template>
-    <div @click="viewItemDetails(item)" class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 flex flex-col cursor-pointer h-full">
+    <div @click="viewItemDetails(item)" class="group relative hover:z-10 bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5 flex flex-col cursor-pointer h-full">
         <ItemImageSwitcher :item="item">
             <div class="absolute top-2.5 left-2.5">
                 <span
@@ -60,6 +61,12 @@ const viewItemDetails = (item) => {
                 >
                     <i class="pi pi-eye text-xs"></i>
                 </button>
+
+                <ShareButton
+                    :url="route('items.show', item.slug)"
+                    :title="item.name"
+                    size="sm"
+                />
 
                 <!--  Require Order -->
 <!--                <button-->

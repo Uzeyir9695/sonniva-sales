@@ -98,16 +98,26 @@ const ogImage = computed(() => {
                 <!-- ========== LEFT: GALLERY ========== -->
                 <div class="relative lg:col-span-4 lg:row-start-1 lg:row-end-2 order-1">
                     <ItemGallery :images="images" :item-name="item.name" :image-path="item.storage_path" :video-url="item.video_url">
-                        <template v-if="hasDiscount" #badge>
-                            <span class="absolute top-3 right-3 z-10 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full bg-red-500 text-white shadow-md">
+                        <template #badge>
+                            <span
+                                v-if="hasDiscount"
+                                class="absolute top-3 right-14 z-10 text-xs sm:text-sm font-bold px-3 py-1.5 rounded-full bg-red-500 text-white shadow-md"
+                            >
                                 -{{ formatDiscount(item.discount) }}%
                             </span>
+
+                            <ShareButton
+                                :title="item.name"
+                                size="md"
+                                class="absolute top-3 right-3 z-10"
+                            />
                         </template>
                     </ItemGallery>
 <!--                    <Link  class="absolute bottom-4 right-4 flex items-center gap-x-2 bg-blue-500 text-sm sm:text-base text-white px-3 sm:px-5 py-1.5 rounded-lg shadow-md hover:bg-blue-600 transition-colors z-10">-->
 <!--                        <i class="pi pi-external-link text-sm sm:text-base"></i>-->
 <!--                        <span>მინდა დაჭრა</span>-->
 <!--                    </Link>-->
+
                 </div>
 
                 <!-- ========== RIGHT: DETAILS ========== -->
@@ -127,13 +137,6 @@ const ogImage = computed(() => {
                         </div>
 
                         <div class="flex items-center gap-3">
-                            <!-- Share -->
-                            <ShareButton
-                                :title="item.name"
-                                size="sm"
-                                class="shrink-0"
-                            />
-
                             <!-- Wishlist -->
                             <WishlistButton
                                 :item-id="item.id"
