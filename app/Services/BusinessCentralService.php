@@ -276,7 +276,7 @@ class BusinessCentralService
             'Document_Type' => 'Order',
             'Sell_to_Customer_No' => $user->bc_customer_no,
             'External_Document_No' => $order->invoice_no,
-            'Salesperson_Code' => '6002',
+            'Salesperson_Code' => 'WEB ALU',
             'ShippingOptions' => 'Custom Address',
             'Ship_to_Name' => $user->name,
             'Ship_to_Address' => $order->address.
