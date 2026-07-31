@@ -1,10 +1,11 @@
 import axios from "axios";
-import { mergeProps, unref, withCtx, createTextVNode, useSSRContext, createVNode, computed, createApp, h as h$1 } from "vue";
+import { mergeProps, unref, withCtx, createVNode, createTextVNode, useSSRContext, computed, createApp, h as h$1 } from "vue";
 import { Link, usePage, router, createInertiaApp, Head } from "@inertiajs/vue3";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import { _ as _sfc_main$3, s as script, C as ConfirmationEventBus, T as ToastEventBus } from "./assets/index-Ud5m7IAe.js";
 import { ssrRenderAttrs, ssrRenderComponent, ssrRenderStyle, ssrRenderSlot, renderToString } from "vue/server-renderer";
+import { _ as _export_sfc } from "./assets/_plugin-vue_export-helper-1tPrXgE0.js";
 import _sfc_main$4 from "./assets/ContactButtons-DEj4wxBE.js";
 import mitt from "mitt";
 import { definePreset } from "@primeuix/themes";
@@ -35,7 +36,6 @@ import "@primevue/icons/times";
 import "@primevue/icons/timescircle";
 import "@vueuse/core";
 import "./assets/categoryIcons-dDFpexsr.js";
-import "./assets/_plugin-vue_export-helper-1tPrXgE0.js";
 import "./assets/QuickViewDialog-D3Np2Bmz.js";
 import "./assets/index-D46B4f3g.js";
 import "@primevue/icons/windowmaximize";
@@ -475,7 +475,56 @@ const _sfc_main$2 = {
   __ssrInlineRender: true,
   setup(__props) {
     return (_ctx, _push, _parent, _attrs) => {
-      _push(`<footer${ssrRenderAttrs(mergeProps({ class: "flex flex-col lg:flex-row items-center justify-around gap-6 px-6 py-5 sm:py-10 bg-white border-t border-slate-200" }, _attrs))}><div class="flex flex-col items-center gap-3"><div class="flex items-center gap-3"><i class="pi pi-linkedin text-lg lg:text-2xl text-[#c80a1d]"></i><i class="pi pi-facebook text-lg lg:text-2xl text-[#c80a1d]"></i><i class="pi pi-instagram text-lg lg:text-2xl text-[#c80a1d]"></i></div></div><div class="flex flex-col items-center space-y-3 order-3 sm:order-2"><div><p class="text-center text-sm text-gray-500"> © 2025, <span class="text-[#c80a1d]">Sonniva Georgia</span> - ყველა უფლება დაცულია. </p></div><div class="flex flex-col lg:flex-row items-center justify-center gap-2 text-xs text-gray-500">`);
+      _push(`<footer${ssrRenderAttrs(mergeProps({ class: "flex flex-col lg:flex-row items-center justify-around gap-6 px-6 py-5 sm:py-10 bg-white border-t border-slate-200" }, _attrs))} data-v-fbe5a4e7><div class="flex flex-col items-center gap-3" data-v-fbe5a4e7><div class="flex items-center gap-3" data-v-fbe5a4e7>`);
+      _push(ssrRenderComponent(unref(Link), {
+        href: "#",
+        target: "_blank",
+        rel: "noopener noreferrer"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`<i class="pi pi-linkedin text-lg lg:text-2xl text-[#0A66C2] inline-block scale-95" data-v-fbe5a4e7${_scopeId}></i>`);
+          } else {
+            return [
+              createVNode("i", { class: "pi pi-linkedin text-lg lg:text-2xl text-[#0A66C2] inline-block scale-95" })
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(ssrRenderComponent(unref(Link), {
+        href: "https://www.facebook.com/FurnituraSonniva",
+        target: "_blank",
+        rel: "noopener noreferrer"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`<i class="pi pi-facebook text-lg lg:text-2xl text-[#1877F2]" data-v-fbe5a4e7${_scopeId}></i>`);
+          } else {
+            return [
+              createVNode("i", { class: "pi pi-facebook text-lg lg:text-2xl text-[#1877F2]" })
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(ssrRenderComponent(unref(Link), {
+        href: "https://www.instagram.com/sonnivageorgia/",
+        target: "_blank",
+        rel: "noopener noreferrer"
+      }, {
+        default: withCtx((_2, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`<i class="pi pi-instagram text-lg lg:text-2xl instagram-icon" data-v-fbe5a4e7${_scopeId}></i>`);
+          } else {
+            return [
+              createVNode("i", { class: "pi pi-instagram text-lg lg:text-2xl instagram-icon" })
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</div></div><div class="flex flex-col items-center space-y-3 order-3 sm:order-2" data-v-fbe5a4e7><div data-v-fbe5a4e7><p class="text-center text-sm text-gray-500" data-v-fbe5a4e7> © 2025, <span class="text-[#c80a1d]" data-v-fbe5a4e7>Sonniva Georgia</span> - ყველა უფლება დაცულია. </p></div><div class="flex flex-col lg:flex-row items-center justify-center gap-2 text-xs text-gray-500" data-v-fbe5a4e7>`);
       _push(ssrRenderComponent(unref(Link), {
         href: _ctx.route("terms-of-service"),
         class: "hover:text-brand-500"
@@ -521,7 +570,7 @@ const _sfc_main$2 = {
         }),
         _: 1
       }, _parent));
-      _push(`</div></div><div class="flex flex-col items-center gap-2 order-2 sm:order-3"><div class="flex items-center gap-2 text-sm text-gray-500"><i class="pi pi-clock text-gray-500"></i><span>ორშაბათი–პარასკევი, 09:00–18:00</span></div><a href="tel:032-269-36-99" class="flex items-center gap-2 text-sm text-gray-500 hover:text-brand-500 transition-colors"><i class="pi pi-phone text-[#c80a1d]"></i><span class="font-medium">032 269 36 99</span></a></div></footer>`);
+      _push(`</div></div><div class="flex flex-col items-center gap-2 order-2 sm:order-3" data-v-fbe5a4e7><div class="flex items-center gap-2 text-sm text-gray-500" data-v-fbe5a4e7><i class="pi pi-clock text-gray-500" data-v-fbe5a4e7></i><span data-v-fbe5a4e7>ორშაბათი–პარასკევი, 09:00–18:00</span></div><a href="tel:032-269-36-99" class="flex items-center gap-2 text-sm text-gray-500 hover:text-brand-500 transition-colors" data-v-fbe5a4e7><i class="pi pi-phone text-[#c80a1d]" data-v-fbe5a4e7></i><span class="font-medium" data-v-fbe5a4e7>032 269 36 99</span></a></div></footer>`);
     };
   }
 };
@@ -531,6 +580,7 @@ _sfc_main$2.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Shared/Footer.vue");
   return _sfc_setup$2 ? _sfc_setup$2(props, ctx) : void 0;
 };
+const Footer = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__scopeId", "data-v-fbe5a4e7"]]);
 const _sfc_main$1 = {
   __name: "NavSubmenu",
   __ssrInlineRender: true,
@@ -581,7 +631,7 @@ const _sfc_main = {
       _push(`</main>`);
       _push(ssrRenderComponent(_sfc_main$4, null, null, _parent));
       _push(ssrRenderComponent(_component_Toast, { position: "top-right" }, null, _parent));
-      _push(ssrRenderComponent(_sfc_main$2, null, null, _parent));
+      _push(ssrRenderComponent(Footer, null, null, _parent));
       _push(`</div>`);
     };
   }
