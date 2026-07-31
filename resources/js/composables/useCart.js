@@ -7,6 +7,7 @@ import { STORAGE_KEYS } from '@/constants/storageKeys'
 const state = reactive({
     items:   {},  // { [cartKey]: quantity } — cartKey = itemId or "itemId__uom"
     uoms:    {},  // { [cartKey]: selectedUOM }
+    services: {}, // { [cartKey]: true } — only present when the setup service is active
     loading: {},
     ready:   false,
 })
@@ -60,6 +61,9 @@ export function useCart() {
             const serverUoms = Object.fromEntries(
                 Object.entries(page.props.cart?.uoms ?? {}).map(([k, v]) => [String(k), v])
             )
+            const serverServices = Object.fromEntries(
+                Object.entries(page.props.cart?.services ?? {}).map(([k, v]) => [String(k), v])
+            )
 
             // Only sync localStorage → server when the user just logged in from a guest session.
             // On a full page reload (e.g. after a payment redirect) lastSetupLoginState was null,
@@ -73,13 +77,15 @@ export function useCart() {
             if (unsyncedKeys.length) {
                 const items = unsyncedKeys.map(key => {
                     const [id, uom] = key.split('__')
-                    return { id, quantity: storage.items[key], uom: uom ?? null }
+                    return { id, quantity: storage.items[key], uom: uom ?? null, with_service: storage.services[key] ?? false }
                 })
                 axios.post(route('api.cart.sync'), { items }).then(({ data }) => {
                     Object.keys(state.items).forEach(k => delete state.items[k])
                     Object.keys(state.uoms).forEach(k => delete state.uoms[k])
+                    Object.keys(state.services).forEach(k => delete state.services[k])
                     Object.assign(state.items, data.items ?? {})
                     Object.assign(state.uoms, data.uoms ?? {})
+                    Object.assign(state.services, data.services ?? {})
                     localStorage.removeItem(STORAGE_KEYS.guestCart)
                     if (page.component === 'Cart/Index') router.reload({ only: ['cartItems'] })
                 }).catch(() => {})
@@ -89,12 +95,15 @@ export function useCart() {
             unsyncedKeys.forEach(k => {
                 state.items[k] = storage.items[k]
                 if (storage.uoms[k]) state.uoms[k] = storage.uoms[k]
+                if (storage.services[k]) state.services[k] = true
             })
             Object.assign(state.uoms, serverUoms)
+            Object.assign(state.services, serverServices)
         } else {
             const storage = loadFromStorage()
             Object.assign(state.items, storage.items)
             Object.assign(state.uoms, storage.uoms)
+            Object.assign(state.services, storage.services)
         }
 
         state.ready = true
@@ -102,7 +111,7 @@ export function useCart() {
 
     // ─── Add to cart ──────────────────────────────────────────────────────────
 
-    async function addToCart(itemId, quantity = 1, selectedUOM = null) {
+    async function addToCart(itemId, quantity = 1, selectedUOM = null, withService = false) {
         const key = cartKey(itemId, selectedUOM)
         const qty = parseInt(quantity) || 1
 
@@ -113,12 +122,16 @@ export function useCart() {
         state.items[key] = previous + qty  // optimistic
 
         if (selectedUOM) state.uoms[key] = selectedUOM
+        // Only ever set true here - never clear an existing line's service flag when
+        // quick-adding more quantity via a caller that doesn't know about it.
+        if (withService) state.services[key] = true
 
         try {
             if (isLoggedIn.value) {
                 const { data } = await axios.post(route('api.cart.add', String(itemId)), {
                     quantity: qty,
                     selected_uom: selectedUOM ?? null,
+                    with_service: withService,
                 })
                 state.items[key] = data.quantity
             } else {
@@ -184,13 +197,35 @@ export function useCart() {
         }
     }
 
+    // ─── Setup service toggle ─────────────────────────────────────────────────
+
+    async function toggleService(itemId, selectedUOM = null) {
+        const key = cartKey(itemId, selectedUOM)
+        const previous = !!state.services[key]
+        state.services[key] = !previous  // optimistic
+
+        try {
+            if (isLoggedIn.value) {
+                const { data } = await axios.post(route('api.cart.toggle-service', String(itemId)), {
+                    selected_uom: selectedUOM ?? null,
+                })
+                state.services[key] = data.with_service
+            } else {
+                saveToStorage()
+            }
+        } catch (error) {
+            state.services[key] = previous
+            console.error('[Cart] toggle service failed', error)
+        }
+    }
+
     // ─── Buy Now ──────────────────────────────────────────────────────────────
 
-    async function buyNow(itemId, quantity = 1, selectedUOM = null) {
+    async function buyNow(itemId, quantity = 1, selectedUOM = null, withService = false) {
         if (isInCart(itemId, selectedUOM)) {
             await updateQuantity(itemId, quantity, selectedUOM)
         } else {
-            await addToCart(itemId, quantity, selectedUOM)
+            await addToCart(itemId, quantity, selectedUOM, withService)
         }
         const params = { item_ids: [itemId] }
         if (selectedUOM) params.uom = selectedUOM
@@ -222,6 +257,10 @@ export function useCart() {
         return state.uoms[cartKey(itemId, uom)] ?? null
     }
 
+    function hasService(itemId, uom = null) {
+        return !!state.services[cartKey(itemId, uom)]
+    }
+
     function isLoading(itemId, uom = null) {
         return !!state.loading[cartKey(itemId, uom)]
     }
@@ -234,10 +273,15 @@ export function useCart() {
         const serverUoms = Object.fromEntries(
             Object.entries(page.props.cart?.uoms ?? {}).map(([k, v]) => [String(k), v])
         )
+        const serverServices = Object.fromEntries(
+            Object.entries(page.props.cart?.services ?? {}).map(([k, v]) => [String(k), v])
+        )
         Object.keys(state.items).forEach(k => delete state.items[k])
         Object.keys(state.uoms).forEach(k => delete state.uoms[k])
+        Object.keys(state.services).forEach(k => delete state.services[k])
         Object.assign(state.items, serverItems)
         Object.assign(state.uoms, serverUoms)
+        Object.assign(state.services, serverServices)
     }
 
     const uniqueCount = computed(() =>
@@ -253,6 +297,7 @@ export function useCart() {
     function clearState() {
         Object.keys(state.items).forEach(k => delete state.items[k])
         Object.keys(state.uoms).forEach(k => delete state.uoms[k])
+        Object.keys(state.services).forEach(k => delete state.services[k])
         Object.keys(state.loading).forEach(k => delete state.loading[k])
         state.ready = false
     }
@@ -262,12 +307,12 @@ export function useCart() {
     function loadFromStorage() {
         try {
             const saved = localStorage.getItem(STORAGE_KEYS.guestCart)
-            if (!saved) return { items: {}, uoms: {} }
+            if (!saved) return { items: {}, uoms: {}, services: {} }
             const parsed = JSON.parse(saved)
-            if (!parsed.items) return { items: parsed, uoms: {} }
-            return { items: parsed.items ?? {}, uoms: parsed.uoms ?? {} }
+            if (!parsed.items) return { items: parsed, uoms: {}, services: {} }
+            return { items: parsed.items ?? {}, uoms: parsed.uoms ?? {}, services: parsed.services ?? {} }
         } catch {
-            return { items: {}, uoms: {} }
+            return { items: {}, uoms: {}, services: {} }
         }
     }
 
@@ -276,6 +321,7 @@ export function useCart() {
             localStorage.setItem(STORAGE_KEYS.guestCart, JSON.stringify({
                 items: state.items,
                 uoms:  state.uoms,
+                services: state.services,
             }))
         } catch {}
     }
@@ -288,5 +334,5 @@ export function useCart() {
         { deep: true }
     )
 
-    return { addToCart, buyNow, updateQuantity, removeFromCart, isInCart, getQuantity, getSelectedUOM, isLoading, uniqueCount, count, syncFromServer }
+    return { addToCart, buyNow, updateQuantity, removeFromCart, toggleService, isInCart, getQuantity, getSelectedUOM, hasService, isLoading, uniqueCount, count, syncFromServer }
 }

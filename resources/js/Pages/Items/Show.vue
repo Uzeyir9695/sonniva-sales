@@ -56,6 +56,9 @@ watch(prices, (val) => { selectedEntry.value = val[0] ?? null }, { immediate: tr
 /* ---------------- Quantity ---------------- */
 const quantity = ref(1)
 
+/* ---------------- Setup service ---------------- */
+const withService = ref(false)
+
 const inStock = computed(() => props.item?.inventory > 0)
 const atMax = computed(() => quantity.value >= props.item?.inventory)
 const overLimit = computed(() => props.item?.inventory > 0 && quantity.value > props.item?.inventory)
@@ -284,6 +287,19 @@ const ogImage = computed(() => {
                         </div>
                     </div>
 
+                    <!-- Setup service -->
+                    <div
+                        v-if="item.has_setup_service"
+                        class="flex items-center justify-between gap-3 bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 mb-6"
+                    >
+                        <div class="flex items-center gap-2">
+                            <i class="pi pi-wrench text-brand-500"></i>
+                            <span class="text-sm font-medium text-gray-800">მონტაჟის სერვისი</span>
+                            <span class="text-sm text-gray-400">+{{ item.setup_service_price }} ₾</span>
+                        </div>
+                        <ToggleSwitch v-model="withService" />
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="space-y-3">
 
@@ -326,7 +342,7 @@ const ogImage = computed(() => {
                             <!-- Add to Cart -->
                             <button
                                 :disabled="overLimit || (!inStock && isInCart(item.id))"
-                                @click="addToCart(item.id, quantity, selectedEntry?.UOM ?? null).then(() => quantity = 1)"
+                                @click="addToCart(item.id, quantity, selectedEntry?.UOM ?? null, withService).then(() => quantity = 1)"
                                 class="relative w-full max-sm:px-2 max-sm:text-sm py-2.5 rounded-2xl cursor-pointer bg-brand-500 text-white font-semibold
                                 hover:bg-brand-400 disabled:cursor-not-allowed active:scale-[0.98] transition-all shadow-md"
                             >
@@ -344,7 +360,7 @@ const ogImage = computed(() => {
 
                         <div class="mt-8 space-y-3">
                             <!-- Buy Now -->
-                            <button v-if="inStock" @click="buyNow(item.id, quantity, selectedEntry?.UOM ?? null)" class="w-full py-2.5 rounded-2xl max-sm:text-sm cursor-pointer border border-gray-500 text-gray-900 font-semibold hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all" >
+                            <button v-if="inStock" @click="buyNow(item.id, quantity, selectedEntry?.UOM ?? null, withService)" class="w-full py-2.5 rounded-2xl max-sm:text-sm cursor-pointer border border-gray-500 text-gray-900 font-semibold hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all" >
                                 <i class="pi pi-bolt mr-2"></i>
                                 ახლავე შეძენა
                             </button>

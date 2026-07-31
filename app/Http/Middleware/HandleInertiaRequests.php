@@ -108,7 +108,7 @@ class HandleInertiaRequests extends Middleware
 
             'cart' => function () use ($request) {
                 $carts = $request->user()
-                    ? $request->user()->carts()->get(['id', 'item_id', 'quantity', 'selected_uom'])
+                    ? $request->user()->carts()->get(['id', 'item_id', 'quantity', 'selected_uom', 'with_service'])
                     : collect();
 
                 // Use composite key "itemId__uom" for package items so same item with
@@ -121,6 +121,8 @@ class HandleInertiaRequests extends Middleware
                     'items' => $carts->mapWithKeys(fn ($c) => [$key($c) => $c->quantity]),
                     'uoms' => $carts->filter(fn ($c) => $c->selected_uom)
                         ->mapWithKeys(fn ($c) => [$key($c) => $c->selected_uom]),
+                    'services' => $carts->filter(fn ($c) => $c->with_service)
+                        ->mapWithKeys(fn ($c) => [$key($c) => true]),
                 ];
             },
 

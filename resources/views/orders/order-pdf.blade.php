@@ -125,7 +125,12 @@
                 @foreach($order->items as $orderItem)
                     <tr class="{{ $loop->even ? 'bg-gray-50' : 'bg-white' }} border-b border-gray-50">
                         <td class="px-6 py-4 font-mono text-xs text-gray-400">{{ $orderItem->item->no }}</td>
-                        <td class="px-6 py-4 font-medium text-gray-800">{{ $orderItem->item->name }}</td>
+                        <td class="px-6 py-4 font-medium text-gray-800">
+                            {{ $orderItem->item->name }}
+                            @if($orderItem->with_service)
+                                <div class="text-xs text-gray-500 mt-0.5">+ მონტაჟის სერვისი — {{ number_format($orderItem->service_price, 2) }} ლარი</div>
+                            @endif
+                        </td>
                         <td class="px-4 py-4 text-center text-gray-700">
                             {{ $orderItem->quantity }}
                             @if($orderItem->item->base_uom_desc)
@@ -156,7 +161,7 @@
     <div class="bg-white rounded-2xl border border-gray-200 p-6">
         <div class="flex flex-col items-end gap-2 text-sm">
             <div class="flex justify-between w-72 text-gray-500">
-                <span>ჯამი დღგ-ს ჩათვლით</span>
+                <span class="font-semibold">ჯამი დღგ-ს ჩათვლით</span>
                 <span>
                     @if($order->wholesale_discount > 0)
                         <span class="line-through text-gray-400 mr-2">{{ number_format($order->subtotal + $order->wholesale_discount, 2) }} ლარი</span>
@@ -171,7 +176,7 @@
                 </div>
             @endif
             <div class="flex justify-between w-72 text-gray-500">
-                <span>მიწოდება</span>
+                <span class="font-semibold">მიწოდება</span>
                 <span>{{ $order->delivery_cost > 0 ? number_format($order->delivery_cost, 2) . ' ლარი' : 'უფასო' }}</span>
             </div>
             <div class="h-px w-72 bg-gray-200 my-2"></div>

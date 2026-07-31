@@ -15,7 +15,7 @@ class Item extends Model
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
-    protected $appends = ['storage_path', 'discounted_price'];
+    protected $appends = ['storage_path', 'discounted_price', 'has_setup_service', 'setup_service_price'];
 
     protected $casts = [
         'images' => 'array',
@@ -28,9 +28,28 @@ class Item extends Model
         'fake_price' => 'decimal:2',
     ];
 
+    const SETUP_SERVICE_CATEGORY_CODE = '2300-02';
+
+    const SETUP_SERVICE_PRICE = 130.00;
+
     public function getStoragePathAttribute()
     {
         return '/storage/items';
+    }
+
+    public function hasSetupService(): bool
+    {
+        return $this->category_code === self::SETUP_SERVICE_CATEGORY_CODE;
+    }
+
+    public function getHasSetupServiceAttribute(): bool
+    {
+        return $this->hasSetupService();
+    }
+
+    public function getSetupServicePriceAttribute(): ?float
+    {
+        return $this->hasSetupService() ? self::SETUP_SERVICE_PRICE : null;
     }
 
     public function getDiscountedPriceAttribute(): ?string

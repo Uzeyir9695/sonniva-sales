@@ -164,7 +164,20 @@ const providerLabel = {
                 </div>
                 <DataTable :value="order.items" dataKey="id" size="small" class="text-sm">
                     <Column field="item_no" header="კოდი" style="min-width: 10rem" />
-                    <Column field="item_name" header="დასახელება" style="min-width: 16rem" />
+                    <Column field="item_name" header="დასახელება" style="min-width: 16rem">
+                        <template #body="{ data }">
+                            <div class="flex flex-col gap-0.5">
+                                <span>{{ data.item_name }}</span>
+                                <span
+                                    v-if="data.with_service"
+                                    class="inline-flex items-center gap-1 text-xs font-medium text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded-full w-fit"
+                                >
+                                    <i class="pi pi-wrench text-xs"></i>
+                                    მონტაჟის სერვისი — {{ data.service_price }} ₾
+                                </span>
+                            </div>
+                        </template>
+                    </Column>
                     <Column field="quantity" header="რაოდ." />
                     <Column field="unit_price" header="ერთ. ფასი" style="min-width: 7rem">
                         <template #body="{ data }">

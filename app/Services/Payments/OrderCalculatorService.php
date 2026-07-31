@@ -71,7 +71,8 @@ class OrderCalculatorService
         foreach ($cartRows as $cartRow) {
             $qty = $cartRow->quantity;
             [$unitPrice, $appliedDiscountPercent, $bcDiscountPercent] = $this->tierPrice($cartRow->item, $qty, $cartRow->selected_uom, $isVip);
-            $rowTotal = $unitPrice * $qty;
+            $serviceUnitPrice = $cartRow->with_service ? (float) Item::SETUP_SERVICE_PRICE : 0.0;
+            $rowTotal = ($unitPrice + $serviceUnitPrice) * $qty;
             $subtotal += $rowTotal;
 
             $retailPrice = $this->retailPrice($cartRow->item, $cartRow->selected_uom);
@@ -92,6 +93,8 @@ class OrderCalculatorService
                 'bc_discount' => $bcDiscountPercent,
                 'wholesale_discount' => $rowWholesaleDiscount,
                 'fake_price' => $cartRow->item->fake_price,
+                'with_service' => (bool) $cartRow->with_service,
+                'service_price' => $serviceUnitPrice ?: null,
             ];
         }
 

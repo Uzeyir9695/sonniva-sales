@@ -237,7 +237,20 @@ const providerLabel = {
                 </div>
                 <DataTable :value="order.items" size="small" class="text-sm">
                     <Column field="item_no" header="No" />
-                    <Column field="item_name" header="Name" />
+                    <Column field="item_name" header="Name">
+                        <template #body="{ data }">
+                            <div class="flex flex-col gap-0.5">
+                                <span>{{ data.item_name }}</span>
+                                <span
+                                    v-if="data.with_service"
+                                    class="inline-flex items-center gap-1 text-xs font-medium text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded-full w-fit"
+                                >
+                                    <i class="pi pi-wrench text-xs"></i>
+                                    Setup service — {{ data.service_price }} ₾
+                                </span>
+                            </div>
+                        </template>
+                    </Column>
                     <Column field="quantity" header="Qty" />
                     <Column header="Weight" style="min-width: 8rem">
                         <template #body="{ data }">

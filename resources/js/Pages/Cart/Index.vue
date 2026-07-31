@@ -13,7 +13,7 @@ const props = defineProps({
     subscribedItemIds: { type: Array, default: () => [] },
 })
 
-const { removeFromCart, updateQuantity, isLoading, getQuantity, count, syncFromServer } = useCart()
+const { removeFromCart, updateQuantity, isLoading, getQuantity, count, syncFromServer, toggleService, hasService } = useCart()
 const page = usePage()
 const isVip = computed(() => page.props.user?.can_view_vip ?? false)
 
@@ -162,7 +162,8 @@ const selectedItems = computed(() =>
 const subtotal = computed(() =>
     selectedItems.value.reduce((sum, c) => {
         const qty = getQuantity(c.item_id, c.selected_uom)
-        return sum + (calculateTierPrice(c.item, qty, c.selected_uom, isVip.value) * qty)
+        const serviceTotal = hasService(c.item_id, c.selected_uom) ? c.item.setup_service_price * qty : 0
+        return sum + (calculateTierPrice(c.item, qty, c.selected_uom, isVip.value) * qty) + serviceTotal
     }, 0)
 )
 
@@ -355,7 +356,7 @@ function goToCheckout() {
 
                                     <!-- Row total -->
                                     <span class="text-sm text-gray-400">
-                                        სულ: <span class="font-semibold text-gray-700">{{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾</span>
+                                        სულ: <span class="font-semibold text-gray-700">{{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip) * getQuantity(cartItem.item_id, cartItem.selected_uom) + (hasService(cartItem.item_id, cartItem.selected_uom) ? cartItem.item.setup_service_price * getQuantity(cartItem.item_id, cartItem.selected_uom) : 0)) }} ₾</span>
                                     </span>
 
                                     <!-- Savings badge -->
@@ -387,6 +388,22 @@ function goToCheckout() {
                                     <p v-if="overLimit(cartItem)" class="text-xs text-red-600">
                                         ხელმისაწვდომი რაოდენობაა {{ cartItem.item.inventory }}
                                     </p>
+                                </div>
+
+                                <!-- Setup service -->
+                                <div
+                                    v-if="cartItem.item.has_setup_service && cartItem.item.inventory > 0"
+                                    class="flex items-center justify-between gap-3 mt-3 bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 max-w-80"
+                                >
+                                    <div class="flex items-center gap-2">
+                                        <i class="pi pi-wrench text-brand-500 text-sm"></i>
+                                        <span class="text-xs font-medium text-gray-700">დამონტაჟების სერვისი</span>
+                                        <span class="text-xs text-gray-400">+{{ formatted(cartItem.item.setup_service_price) }} ₾</span>
+                                    </div>
+                                    <ToggleSwitch
+                                        :model-value="hasService(cartItem.item_id, cartItem.selected_uom)"
+                                        @update:model-value="toggleService(cartItem.item_id, cartItem.selected_uom)"
+                                    />
                                 </div>
 
                             </div>

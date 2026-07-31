@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Http;
 
 class BusinessCentralService
 {
+    const SETUP_SERVICE_ITEM_NO = 'NONINV331';
+
     protected string $clientId;
 
     protected string $clientSecret;
@@ -337,6 +339,18 @@ class BusinessCentralService
                 'Quantity' => $orderItem->quantity,
                 'Unit_of_Measure_Code' => $orderItem->unit_of_measure_code ?? $orderItem->item->base_uom_desc,
             ];
+
+            if ($orderItem->with_service) {
+                $salesOrderLines[] = [
+                    'Document_Type' => 'Order',
+                    'Document_No' => $orderNo,
+                    'Line_Discount_Percent' => 0.0,
+                    'Type' => 'Item',
+                    'No' => self::SETUP_SERVICE_ITEM_NO,
+                    'Quantity' => $orderItem->quantity,
+                    'Unit_of_Measure_Code' => 'ცალი/UNIT',
+                ];
+            }
         }
 
         foreach ($salesOrderLines as $data) {

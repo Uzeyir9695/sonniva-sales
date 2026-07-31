@@ -14,7 +14,7 @@ const props = defineProps({
 
 const page = usePage()
 const toast = useToast()
-const { getQuantity } = useCart()
+const { getQuantity, hasService } = useCart()
 
 const isVip = computed(() => page.props.user?.can_view_vip ?? false)
 
@@ -29,12 +29,20 @@ function removeFromCheckout(cartId) {
 const items = computed(() =>
     props.cartItems
         .filter(c => !removedCartIds.value.includes(c.id))
-        .map(c => ({
-            ...c,
-            qty: getQuantity(c.item_id, c.selected_uom) || c.quantity,
-            unitPrice: calculateTierPrice(c.item, getQuantity(c.item_id, c.selected_uom) || c.quantity, c.selected_uom, isVip.value),
-            rowTotal: calculateTierPrice(c.item, getQuantity(c.item_id, c.selected_uom) || c.quantity, c.selected_uom, isVip.value) * (getQuantity(c.item_id, c.selected_uom) || c.quantity),
-        }))
+        .map(c => {
+            const qty = getQuantity(c.item_id, c.selected_uom) || c.quantity
+            const unitPrice = calculateTierPrice(c.item, qty, c.selected_uom, isVip.value)
+            const withService = hasService(c.item_id, c.selected_uom)
+            const serviceTotal = withService ? c.item.setup_service_price * qty : 0
+
+            return {
+                ...c,
+                qty,
+                unitPrice,
+                withService,
+                rowTotal: (unitPrice * qty) + serviceTotal,
+            }
+        })
 )
 
 watch(() => items.value.length, (len) => {
@@ -911,6 +919,13 @@ function initiatePayment() {
                                         {{ formatted(checkoutDisplayPrice(cartItem)) }} ₾
                                         <span v-if="checkoutStrikePrice(cartItem)" class="line-through text-red-500 mr-1">{{ formatted(checkoutStrikePrice(cartItem)) }} ₾</span>
                                     </p>
+                                    <span
+                                        v-if="cartItem.withService"
+                                        class="inline-flex items-center gap-1 text-[10px] font-medium text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded-full mt-0.5"
+                                    >
+                                        <i class="pi pi-wrench text-[9px]"></i>
+                                        მონტაჟის სერვისი
+                                    </span>
                                 </div>
                                 <span class="text-sm font-semibold text-gray-800 shrink-0">{{ formatted(cartItem.rowTotal) }} ₾</span>
                                 <button

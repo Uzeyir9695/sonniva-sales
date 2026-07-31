@@ -106,6 +106,8 @@ class InvoiceController extends Controller
                     'bc_discount' => $item['bc_discount'],
                     'wholesale_discount' => $item['wholesale_discount'],
                     'fake_price' => $item['fake_price'],
+                    'with_service' => $item['with_service'],
+                    'service_price' => $item['service_price'],
                 ]);
             }
 

@@ -8,9 +8,9 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
-//Route::get('/user', function (Request $request) {
+// Route::get('/user', function (Request $request) {
 //    return $request->user();
-//})->middleware('auth:sanctum');
+// })->middleware('auth:sanctum');
 
 // ============================================================================
 // api.php — for NativePHP Mobile
@@ -36,16 +36,17 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         // ── Wishlist ─────────────────────────────────────────────────────
-        Route::get('wishlist/ids',       [WishlistController::class, 'ids'])->name('api.wishlist.ids');
-        Route::post('wishlist/sync',     [WishlistController::class, 'syncGuest'])->name('api.wishlist.sync');
-        Route::post('wishlist/{item}',   [WishlistController::class, 'toggle'])->name('api.wishlist.toggle');
+        Route::get('wishlist/ids', [WishlistController::class, 'ids'])->name('api.wishlist.ids');
+        Route::post('wishlist/sync', [WishlistController::class, 'syncGuest'])->name('api.wishlist.sync');
+        Route::post('wishlist/{item}', [WishlistController::class, 'toggle'])->name('api.wishlist.toggle');
         Route::delete('wishlist/{item}', [WishlistController::class, 'destroy'])->name('api.wishlist.destroy');
 
         // ── Cart ─────────────────────────────────────────────────────────
-        Route::post('cart/sync',     [CartController::class, 'syncGuest'])->name('api.cart.sync');
-        Route::post('cart/{item}',   [CartController::class, 'add'])->name('api.cart.add');
-        Route::put('cart/{item}',    [CartController::class, 'update'])->name('api.cart.update');
+        Route::post('cart/sync', [CartController::class, 'syncGuest'])->name('api.cart.sync');
+        Route::post('cart/{item}', [CartController::class, 'add'])->name('api.cart.add');
+        Route::put('cart/{item}', [CartController::class, 'update'])->name('api.cart.update');
         Route::delete('cart/{item}', [CartController::class, 'remove'])->name('api.cart.remove');
+        Route::post('cart/{item}/toggle-service', [CartController::class, 'toggleService'])->name('api.cart.toggle-service');
 
     });
 });

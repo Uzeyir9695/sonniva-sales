@@ -20,6 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class PaymentController extends Controller
 {
@@ -118,6 +119,8 @@ class PaymentController extends Controller
                     'bc_discount' => $item['bc_discount'],
                     'wholesale_discount' => $item['wholesale_discount'],
                     'fake_price' => $item['fake_price'],
+                    'with_service' => $item['with_service'],
+                    'service_price' => $item['service_price'],
                 ]);
             }
 
@@ -362,7 +365,7 @@ class PaymentController extends Controller
     /**
      * Handle successful payment redirect
      */
-    public function success(): \Inertia\Response
+    public function success(): Response
     {
         $invoiceNumber = session()->pull('invoice_no');
 

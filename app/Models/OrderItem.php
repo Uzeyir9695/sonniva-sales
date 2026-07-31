@@ -18,6 +18,8 @@ class OrderItem extends Model
         'wholesale_discount' => 'decimal:2',
         'bc_discount' => 'decimal:2',
         'fake_price' => 'decimal:2',
+        'with_service' => 'boolean',
+        'service_price' => 'decimal:2',
     ];
 
     public function order(): BelongsTo

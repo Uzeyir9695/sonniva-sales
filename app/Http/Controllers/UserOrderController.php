@@ -123,6 +123,8 @@ class UserOrderController extends Controller
                     'discount' => $oi->discount,
                     'wholesale_discount' => $oi->wholesale_discount,
                     'fake_price' => $oi->fake_price,
+                    'with_service' => $oi->with_service,
+                    'service_price' => $oi->service_price,
                 ]),
             ],
         ]);
