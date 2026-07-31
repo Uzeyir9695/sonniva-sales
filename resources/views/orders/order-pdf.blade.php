@@ -117,6 +117,7 @@
                     <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">კოდი</th>
                     <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">დასახელება</th>
                     <th class="text-center px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">რაოდ.</th>
+                    <th class="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">სერვისი</th>
                     <th class="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap w-32">ერთ. ფასი</th>
                     <th class="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap w-32">ჯამი</th>
                 </tr>
@@ -127,14 +128,17 @@
                         <td class="px-6 py-4 font-mono text-xs text-gray-400">{{ $orderItem->item->no }}</td>
                         <td class="px-6 py-4 font-medium text-gray-800">
                             {{ $orderItem->item->name }}
-                            @if($orderItem->with_service)
-                                <div class="text-xs text-gray-500 mt-0.5">+ მონტაჟის სერვისი — {{ number_format($orderItem->service_price, 2) }} ლარი</div>
-                            @endif
                         </td>
                         <td class="px-4 py-4 text-center text-gray-700">
                             {{ $orderItem->quantity }}
                             @if($orderItem->item->base_uom_desc)
                                 <span class="text-xs text-gray-400">{{ $orderItem->item->base_uom_desc }}</span>
+                            @endif
+                        </td>
+                        <td class="px-6 py-4 text-gray-600">
+                            @if($orderItem->with_service)
+                                <div class="text-xs">მონტაჟის სერვისი</div>
+                                <div class="text-xs text-gray-400">{{ number_format($orderItem->service_price, 2) }} ლარი</div>
                             @endif
                         </td>
                         <td class="px-6 py-4 text-right text-gray-600 whitespace-nowrap">
