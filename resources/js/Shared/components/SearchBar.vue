@@ -112,7 +112,7 @@ defineExpose({ inputRef });
         <!-- Input -->
         <form
             @submit.prevent="goToSearch"
-            class="flex items-center rounded-xl px-4 h-11 gap-3 transition-all focus-within:border-2 border border-brand-400"
+            class="weglot-search-form flex items-center rounded-xl px-4 h-11 gap-3 transition-all focus-within:border-2 border border-brand-400"
             :class="showDropdown ? 'rounded-b-none border-2 border-brand-400' : ''"
         >
             <button type="submit" aria-label="ძებნა" class="shrink-0 flex items-center justify-center cursor-pointer">

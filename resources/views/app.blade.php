@@ -34,7 +34,7 @@
                 hide_switcher: true,
                 cache: true,
                 translate_search: true,
-                search_forms: "#app > div > div.flex-col.sticky.top-0.z-50 > nav > div > template > div.hidden.lg\:flex.flex-4 > div > form",
+                search_forms: ".weglot-search-form",
                 search_parameter: "q"
             });
         </script>
