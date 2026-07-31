@@ -8,9 +8,17 @@ import { Link } from '@inertiajs/vue3';
         <!-- Social + FAQ -->
         <div class="flex flex-col items-center gap-3">
             <div class="flex items-center gap-3">
-                <i class="pi pi-linkedin text-lg lg:text-2xl text-[#c80a1d]"></i>
-                <i class="pi pi-facebook text-lg lg:text-2xl text-[#c80a1d]"></i>
-                <i class="pi pi-instagram text-lg lg:text-2xl text-[#c80a1d]"></i>
+                <Link href="#" target="_blank" rel="noopener noreferrer">
+                    <i class="pi pi-linkedin text-lg lg:text-2xl text-[#0A66C2] inline-block scale-95"></i>
+                </Link>
+
+                <Link href="https://www.facebook.com/FurnituraSonniva" target="_blank" rel="noopener noreferrer">
+                    <i class="pi pi-facebook text-lg lg:text-2xl text-[#1877F2]"></i>
+                </Link>
+
+                <Link href="https://www.instagram.com/sonnivageorgia/" target="_blank" rel="noopener noreferrer">
+                    <i class="pi pi-instagram text-lg lg:text-2xl instagram-icon"></i>
+                </Link>
             </div>
 
             <!--
@@ -52,5 +60,10 @@ import { Link } from '@inertiajs/vue3';
 </template>
 
 <style scoped>
-
+.instagram-icon {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 </style>
