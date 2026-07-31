@@ -177,7 +177,9 @@ class OrderCalculatorService
      * path where the Business Central discount can differ from the web-facing one: `fake_price`
      * is a purely local, admin-set display price with no Business Central equivalent, so a
      * discount computed against it doesn't line up with the plain unit_price Business Central
-     * prices from - hence the separate `bc_discount_percent` override.
+     * prices from - hence the separate `bc_discount_percent` override. When there's no
+     * `fake_price`, `discount` is applied directly against `unit_price` - the same basis
+     * Business Central prices from - so it's safe to report as-is if no override was set.
      *
      * @return array{0: float, 1: float, 2: float} unit_price/discounted_price, the discount percent applied, and the Business Central discount percent
      */
@@ -185,7 +187,11 @@ class OrderCalculatorService
     {
         $price = (float) ($item->discounted_price ?? $item->unit_price);
         $discountPercent = (float) ($item->discount ?? 0);
+
         $bcDiscountPercent = (float) ($item->bc_discount_percent ?? 0);
+        if ($bcDiscountPercent <= 0 && (float) ($item->fake_price ?? 0) <= 0) {
+            $bcDiscountPercent = $discountPercent;
+        }
 
         return [$price, $discountPercent, $bcDiscountPercent];
     }
