@@ -7,6 +7,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers'
 import { Head } from '@inertiajs/vue3'
 import { ZiggyVue } from 'ziggy-js'
+import { Ziggy as staticZiggy } from './ziggy.js'
 import Layout from "./Shared/Layout.vue"
 import mitt from "mitt"
 
@@ -174,7 +175,19 @@ createInertiaApp({
         return page;
     },
     setup({ el, App, props, plugin }) {
-        const ziggy = props.initialPage.props.ziggy || {};
+        // staticZiggy (baked in at build time from `php artisan ziggy:generate`, wired
+        // via the `prebuild` npm script) is a fallback for the routes list only - it
+        // stops SSR from crashing if the real per-request ziggy prop is ever missing,
+        // instead of Ziggy reading `.routes` off an empty config object. The build
+        // always runs on a local machine, so its baked-in `url`/`port` reflect the
+        // local dev environment - override those here so the fallback still points at
+        // production. The live ziggy prop always wins over all of this when present.
+        const ziggy = {
+            ...staticZiggy,
+            url: 'https://www.sonniva.ge',
+            port: null,
+            ...(props.initialPage.props.ziggy || {}),
+        };
         // Client: strip location so route().current() uses window.location (always up-to-date after navigation)
         // SSR: keep location since window is unavailable
         const { location: _ziggyLoc, ...ziggyConfig } = typeof window !== 'undefined' ? ziggy : {};

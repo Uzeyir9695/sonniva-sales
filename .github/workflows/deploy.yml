@@ -27,6 +27,7 @@ jobs:
           git pull &&
           composer install --no-dev --prefer-dist --optimize-autoloader &&
           php artisan migrate --force &&
+          php artisan ziggy:generate &&
           php artisan optimize:clear &&
           php artisan optimize &&
           php artisan horizon:terminate &&
