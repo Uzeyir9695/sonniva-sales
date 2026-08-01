@@ -424,12 +424,12 @@ function confirmMarkDelivered(order) {
                         </template>
                     </Column>
 
-                    <Column field="invoice_no" header="Invoice" :frozen="!isMobile" style="min-width: 12rem">
+                    <Column field="invoice_no" header="Order №" :frozen="!isMobile" style="min-width: 12rem">
                         <template #body="{ data }">
                             <span class="font-mono text-xs">{{ data.invoice_no ?? '—' }}</span>
                         </template>
                         <template #filter="{ filterModel, filterCallback }">
-                            <PrimeInputText v-model="filterModel.value" size="small" class="text-xs w-36" @input="filterCallback()" placeholder="Search invoice" />
+                            <PrimeInputText v-model="filterModel.value" size="small" class="text-xs w-36" @input="filterCallback()" placeholder="Search order #" />
                         </template>
                     </Column>
 

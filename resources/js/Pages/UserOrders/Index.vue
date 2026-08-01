@@ -94,7 +94,7 @@ const providerLabel = {
                         <template #body="{ index }">{{ index + 1 }}</template>
                     </Column>
 
-                    <Column field="invoice_no" header="ინვოისი">
+                    <Column field="invoice_no" header="შეკვეთის №">
                         <template #body="{ data }">
                             <span class="font-mono text-xs">{{ data.invoice_no ?? '—' }}</span>
                         </template>

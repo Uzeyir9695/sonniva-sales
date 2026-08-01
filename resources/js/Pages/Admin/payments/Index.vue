@@ -111,12 +111,12 @@ const exportCSV = () => dt.value.exportCSV();
                     </div>
                 </template>
 
-                <Column field="invoice_no" header="Invoice No" filterField="invoice_no" style="min-width: 10rem">
+                <Column field="invoice_no" header="Order №" filterField="invoice_no" style="min-width: 10rem">
                     <template #body="{ data }">
                         <span class="font-mono ">{{ data.invoice_no ?? '—' }}</span>
                     </template>
                     <template #filter="{ filterModel, filterCallback }">
-                        <PrimeInputText v-model="filterModel.value" @input="filterCallback()" placeholder="Search INV" />
+                        <PrimeInputText v-model="filterModel.value" @input="filterCallback()" placeholder="Search order #" />
                     </template>
                 </Column>
 
