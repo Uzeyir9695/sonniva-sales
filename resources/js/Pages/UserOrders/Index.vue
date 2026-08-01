@@ -61,22 +61,22 @@ function imageUrl(img) {
                     <div
                         v-for="n in 6"
                         :key="n"
-                        class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col gap-4"
+                        class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-4"
                     >
                         <div class="flex items-start justify-between gap-2">
-                            <Skeleton height="0.8rem" width="40%" class="bg-gray-200!" borderRadius="4px" />
-                            <Skeleton height="1.4rem" width="5rem" class="bg-gray-200!" borderRadius="999px" />
+                            <Skeleton height="0.8rem" width="40%" class="bg-slate-200!" borderRadius="4px" />
+                            <Skeleton height="1.4rem" width="5rem" class="bg-slate-200!" borderRadius="999px" />
                         </div>
                         <div class="flex items-center gap-2">
-                            <Skeleton v-for="i in 4" :key="i" height="3rem" width="3rem" class="bg-gray-100!" borderRadius="8px" />
+                            <Skeleton v-for="i in 4" :key="i" height="3rem" width="3rem" class="bg-slate-100!" borderRadius="8px" />
                         </div>
-                        <div class="grid grid-cols-2 gap-3 border-t border-gray-100 pt-3">
-                            <Skeleton height="0.7rem" width="70%" class="bg-gray-100!" borderRadius="4px" />
-                            <Skeleton height="0.7rem" width="60%" class="bg-gray-100!" borderRadius="4px" />
+                        <div class="grid grid-cols-2 gap-3 border-t border-slate-100 pt-3">
+                            <Skeleton height="0.7rem" width="70%" class="bg-slate-100!" borderRadius="4px" />
+                            <Skeleton height="0.7rem" width="60%" class="bg-slate-100!" borderRadius="4px" />
                         </div>
                         <div class="flex gap-2 pt-1">
-                            <Skeleton height="2.2rem" class="flex-1 bg-gray-100!" borderRadius="8px" />
-                            <Skeleton height="2.2rem" class="flex-1 bg-gray-100!" borderRadius="8px" />
+                            <Skeleton height="2.2rem" class="flex-1 bg-slate-100!" borderRadius="8px" />
+                            <Skeleton height="2.2rem" class="flex-1 bg-slate-100!" borderRadius="8px" />
                         </div>
                     </div>
                 </div>
