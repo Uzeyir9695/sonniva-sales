@@ -36,6 +36,19 @@ defineExpose({ open });
 function submitReorder() {
     reorder(order.value.id, selectedItems.value.map((i) => i.id));
 }
+
+function isSelected(item) {
+    return selectedItems.value.some((i) => i.id === item.id);
+}
+
+function toggleItem(item) {
+    const idx = selectedItems.value.findIndex((i) => i.id === item.id);
+    if (idx === -1) {
+        selectedItems.value.push(item);
+    } else {
+        selectedItems.value.splice(idx, 1);
+    }
+}
 </script>
 
 <template>
@@ -53,14 +66,28 @@ function submitReorder() {
         </div>
 
         <div v-else-if="order" class="text-sm">
-            <div class="border border-gray-200 rounded-xl overflow-hidden mb-4">
-                <DataTable v-model:selection="selectedItems" :value="order.items" dataKey="id" size="small" class="text-sm">
-                    <Column selectionMode="multiple" headerStyle="width: 3rem" />
-                    <Column field="item_no" header="კოდი" style="min-width: 10rem" />
-                    <Column field="item_name" header="დასახელება" style="min-width: 16rem" />
-                    <Column field="quantity" header="რაოდ." />
-                    <Column field="unit_price" header="ერთ. ფასი" style="min-width: 7rem">
-                        <template #body="{ data }">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <div
+                    v-for="data in order.items"
+                    :key="data.id"
+                    class="border rounded-xl p-3 flex flex-col gap-2 cursor-pointer transition-colors"
+                    :class="isSelected(data) ? 'border-brand-300 bg-brand-50/40' : 'border-gray-200 hover:border-gray-300'"
+                    @click="toggleItem(data)"
+                >
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-start gap-2 min-w-0">
+                            <Checkbox v-model="selectedItems" :value="data" @click.stop />
+                            <div class="flex flex-col gap-0.5 min-w-0">
+                                <span class="font-semibold text-gray-800">{{ data.item_name }}</span>
+                                <span class="text-xs text-gray-400 font-mono">{{ data.item_no }}</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full shrink-0">x{{ data.quantity }}</span>
+                    </div>
+
+                    <div class="flex items-end justify-between border-t border-gray-100 pt-2 mt-auto">
+                        <div>
+                            <p class="text-xs text-gray-400 mb-0.5">ერთ. ფასი</p>
                             <div v-if="data.wholesale_discount > 0" class="flex flex-col gap-0.5">
                                 <div class="flex items-center gap-1.5">
                                     <span class="line-through text-gray-400 text-xs">{{ (Number(data.unit_price) + Number(data.wholesale_discount) / data.quantity).toFixed(2) }} ₾</span>
@@ -79,15 +106,15 @@ function submitReorder() {
                                 <span class="line-through text-gray-400 text-xs">{{ Number(data.fake_price).toFixed(2) }} ₾</span>
                                 <span class="font-medium text-red-600">{{ data.unit_price }} ₾</span>
                             </div>
-                            <span v-else>{{ data.unit_price }} ₾</span>
-                        </template>
-                    </Column>
-                    <Column field="subtotal" header="სულ" style="min-width: 7rem">
-                        <template #body="{ data }">
+                            <span v-else class="text-gray-700">{{ data.unit_price }} ₾</span>
+                        </div>
+
+                        <div class="text-right">
+                            <p class="text-xs text-gray-400 mb-0.5">სულ</p>
                             <span class="font-semibold text-gray-800">{{ data.subtotal }} ₾</span>
-                        </template>
-                    </Column>
-                </DataTable>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Actions -->

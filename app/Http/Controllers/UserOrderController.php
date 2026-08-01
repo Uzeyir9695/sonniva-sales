@@ -15,6 +15,7 @@ class UserOrderController extends Controller
     {
         $orders = Order::with([
             'payment:id,order_id,provider,invoice_no',
+            'items.item:id,name,images',
         ])
             ->where('user_id', Auth::id())
             ->whereNot('status', 'awaiting_payment')
@@ -32,6 +33,12 @@ class UserOrderController extends Controller
                     'provider' => $order->payment->provider,
                     'invoice_no' => $order->payment->invoice_no,
                 ] : null,
+                'items' => $order->items->map(fn ($orderItem) => [
+                    'id' => $orderItem->id,
+                    'name' => $orderItem->item?->name,
+                    'image' => $orderItem->item?->images[0] ?? null,
+                    'quantity' => $orderItem->quantity,
+                ]),
             ]);
 
         return Inertia::render('UserOrders/Index', [

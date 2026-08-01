@@ -162,52 +162,59 @@ const providerLabel = {
                     <i class="pi pi-shopping-cart text-brand-500 text-xs"></i>
                     <span class="font-semibold text-gray-700 text-xs uppercase tracking-wide">პროდუქცია</span>
                 </div>
-                <DataTable :value="order.items" dataKey="id" size="small" class="text-sm">
-                    <Column field="item_no" header="კოდი" style="min-width: 10rem" />
-                    <Column field="item_name" header="დასახელება" style="min-width: 16rem">
-                        <template #body="{ data }">
-                            <div class="flex flex-col gap-0.5">
-                                <span>{{ data.item_name }}</span>
-                                <span
-                                    v-if="data.with_service"
-                                    class="inline-flex items-center gap-1 text-xs font-medium text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded-full w-fit"
-                                >
-                                    <i class="pi pi-wrench text-xs"></i>
-                                    მონტაჟის სერვისი — {{ data.service_price }} ₾
-                                </span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3">
+                    <div
+                        v-for="data in order.items"
+                        :key="data.id"
+                        class="border border-gray-200 rounded-xl p-3 flex flex-col gap-2"
+                    >
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex flex-col gap-0.5 min-w-0">
+                                <span class="font-semibold text-gray-800">{{ data.item_name }}</span>
+                                <span class="text-xs text-gray-400 font-mono">{{ data.item_no }}</span>
                             </div>
-                        </template>
-                    </Column>
-                    <Column field="quantity" header="რაოდ." />
-                    <Column field="unit_price" header="ერთ. ფასი" style="min-width: 7rem">
-                        <template #body="{ data }">
-                            <div v-if="data.wholesale_discount > 0" class="flex flex-col gap-0.5">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="line-through text-gray-400 text-xs">{{ (Number(data.unit_price) + Number(data.wholesale_discount) / data.quantity).toFixed(2) }} ₾</span>
-                                    <span class="font-medium text-emerald-600">{{ data.unit_price }} ₾</span>
+                            <span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full shrink-0">x{{ data.quantity }}</span>
+                        </div>
+
+                        <span
+                            v-if="data.with_service"
+                            class="inline-flex items-center gap-1 text-xs font-medium text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded-full w-fit"
+                        >
+                            <i class="pi pi-wrench text-xs"></i>
+                            მონტაჟის სერვისი — {{ data.service_price }} ₾
+                        </span>
+
+                        <div class="flex items-end justify-between border-t border-gray-100 pt-2 mt-auto">
+                            <div>
+                                <p class="text-xs text-gray-400 mb-0.5">ერთეულის ფასი</p>
+                                <div v-if="data.wholesale_discount > 0" class="flex flex-col gap-0.5">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="line-through text-gray-400 text-xs">{{ (Number(data.unit_price) + Number(data.wholesale_discount) / data.quantity).toFixed(2) }} ₾</span>
+                                        <span class="font-medium text-emerald-600">{{ data.unit_price }} ₾</span>
+                                    </div>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold w-fit">საბითუმო</span>
                                 </div>
-                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold w-fit">საბითუმო</span>
-                            </div>
-                            <div v-else-if="data.discount > 0" class="flex flex-col gap-0.5">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="line-through text-gray-400 text-xs">{{ (Number(data.unit_price) / (1 - Number(data.discount) / 100)).toFixed(2) }} ₾</span>
+                                <div v-else-if="data.discount > 0" class="flex flex-col gap-0.5">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="line-through text-gray-400 text-xs">{{ (Number(data.unit_price) / (1 - Number(data.discount) / 100)).toFixed(2) }} ₾</span>
+                                        <span class="font-medium text-red-600">{{ data.unit_price }} ₾</span>
+                                    </div>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 font-semibold w-fit">-{{ formatDiscount(data.discount) }}%</span>
+                                </div>
+                                <div v-else-if="data.fake_price > 0" class="flex items-center gap-1.5">
+                                    <span class="line-through text-gray-400 text-xs">{{ Number(data.fake_price).toFixed(2) }} ₾</span>
                                     <span class="font-medium text-red-600">{{ data.unit_price }} ₾</span>
                                 </div>
-                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 text-red-600 font-semibold w-fit">-{{ formatDiscount(data.discount) }}%</span>
+                                <span v-else class="text-gray-700">{{ data.unit_price }} ₾</span>
                             </div>
-                            <div v-else-if="data.fake_price > 0" class="flex items-center gap-1.5">
-                                <span class="line-through text-gray-400 text-xs">{{ Number(data.fake_price).toFixed(2) }} ₾</span>
-                                <span class="font-medium text-red-600">{{ data.unit_price }} ₾</span>
+
+                            <div class="text-right">
+                                <p class="text-xs text-gray-400 mb-0.5">სულ</p>
+                                <span class="font-semibold text-gray-800">{{ data.subtotal }} ₾</span>
                             </div>
-                            <span v-else>{{ data.unit_price }} ₾</span>
-                        </template>
-                    </Column>
-                    <Column field="subtotal" header="სულ" style="min-width: 7rem">
-                        <template #body="{ data }">
-                            <span class="font-semibold text-gray-800">{{ data.subtotal }} ₾</span>
-                        </template>
-                    </Column>
-                </DataTable>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 space-y-1.5">
                     <div v-if="order.wholesale_discount > 0" class="flex justify-between text-sm text-gray-500">
