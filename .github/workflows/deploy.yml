@@ -24,11 +24,9 @@ jobs:
         run: |
           ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} "
           cd ${{ secrets.PROJECT_PATH }} &&
-          git checkout -- package.json package-lock.json &&
           git pull &&
           composer install --no-dev --prefer-dist --optimize-autoloader &&
           php artisan migrate --force &&
-          php artisan ziggy:generate &&
           php artisan optimize:clear &&
           php artisan optimize &&
           php artisan horizon:terminate &&
