@@ -153,7 +153,7 @@ const rowMenus = ref({});
 function getMenuItems(order) {
     const items = [];
 
-    if (order.status === 'paid' || order.status === 'ready') {
+    if (['paid', 'ready', 'dispatched', 'delivered'].includes(order.status)) {
         items.push({
             label:   'Send PDF',
             icon:    'pi pi-file-pdf',
