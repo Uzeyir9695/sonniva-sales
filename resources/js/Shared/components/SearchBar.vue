@@ -111,6 +111,8 @@ defineExpose({ inputRef });
     <div ref="wrapperRef" class="relative w-full">
         <!-- Input -->
         <form
+            action="/search"
+            method="get"
             @submit.prevent="goToSearch"
             class="weglot-search-form flex items-center rounded-xl px-4 h-11 gap-3 transition-all focus-within:border-2 border border-brand-400"
             :class="showDropdown ? 'rounded-b-none border-2 border-brand-400' : ''"
@@ -123,6 +125,7 @@ defineExpose({ inputRef });
             <input
                 ref="inputRef"
                 v-model="query"
+                type="search"
                 name="q"
                 :placeholder="placeholder"
                 @keydown.escape="showDropdown = false"
