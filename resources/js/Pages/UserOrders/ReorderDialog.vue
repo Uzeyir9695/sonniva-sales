@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useHttp } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
 import { formatDiscount } from '@/utils/numberFormat.js';
@@ -49,6 +49,10 @@ function toggleItem(item) {
         selectedItems.value.splice(idx, 1);
     }
 }
+
+const selectedTotal = computed(() =>
+    selectedItems.value.reduce((sum, i) => sum + Number(i.subtotal), 0)
+);
 </script>
 
 <template>
@@ -118,7 +122,12 @@ function toggleItem(item) {
             </div>
 
             <!-- Actions -->
-            <div class="flex justify-end gap-2">
+            <div class="flex items-center justify-between gap-3">
+                <div v-if="selectedItems.length">
+                    <p class="text-sm text-gray-500 mb-0.5">ჯამი</p>
+                    <span class="font-semibold text-gray-800">{{ selectedTotal.toFixed(2) }} ₾</span>
+                </div>
+                <div v-else></div>
                 <Button
                     :label="`თავიდან შეკვეთა (${selectedItems.length})`"
                     icon="pi pi-refresh"

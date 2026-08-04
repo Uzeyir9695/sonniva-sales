@@ -1,11 +1,15 @@
 <script setup>
 import { ref } from 'vue';
-import { useHttp } from '@inertiajs/vue3';
+import { Link, useHttp } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
 import { formatDiscount } from '@/utils/numberFormat.js';
 
 const toast = useToast();
 const http = useHttp();
+
+function imageUrl(img) {
+    return `/storage/items/${img}`;
+}
 
 const visible = ref(false);
 const loading = ref(false);
@@ -168,12 +172,30 @@ const providerLabel = {
                         :key="data.id"
                         class="border border-gray-200 rounded-xl p-3 flex flex-col gap-2"
                     >
-                        <div class="flex items-start justify-between gap-2">
+                        <div class="flex items-start justify-between gap-3">
+
                             <div class="flex flex-col gap-0.5 min-w-0">
-                                <span class="font-semibold text-gray-800">{{ data.item_name }}</span>
+                                <Link
+                                    :href="route('items.show', data.item_slug)"
+                                    class="font-semibold text-gray-800 hover:text-brand-600"
+                                >
+                                    {{ data.item_name }}
+                                </Link>
                                 <span class="text-xs text-gray-400 font-mono">{{ data.item_no }}</span>
                             </div>
-                            <span class="text-xs font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full shrink-0">x{{ data.quantity }}</span>
+
+                            <div class="relative w-14 h-14 rounded-lg border border-gray-100 bg-gray-50 shrink-0">
+                                <img
+                                    v-if="data.image"
+                                    :src="imageUrl(data.image)"
+                                    :alt="data.item_name"
+                                    class="w-full h-full object-cover rounded-lg"
+                                />
+                                <div v-else class="w-full h-full flex items-center justify-center text-gray-300">
+                                    <i class="pi pi-image text-sm"></i>
+                                </div>
+                                <span class="absolute -top-1.5 -right-1.5 min-w-[1.1rem] h-[1.1rem] px-1 rounded-full bg-red-500 text-white text-[10px] leading-[1.1rem] font-semibold text-center shadow">x{{ data.quantity }}</span>
+                            </div>
                         </div>
 
                         <span

@@ -98,7 +98,7 @@ class UserOrderController extends Controller
         abort_if($order->user_id !== Auth::id(), 403);
 
         $order->load([
-            'items.item:id,no,name',
+            'items.item:id,no,name,slug,images',
             'payment',
         ]);
 
@@ -124,6 +124,8 @@ class UserOrderController extends Controller
                     'id' => $oi->id,
                     'item_no' => $oi->item?->no,
                     'item_name' => $oi->item?->name,
+                    'item_slug' => $oi->item?->slug,
+                    'image' => $oi->item?->images[0] ?? null,
                     'quantity' => $oi->quantity,
                     'unit_price' => $oi->unit_price,
                     'subtotal' => $oi->subtotal,
