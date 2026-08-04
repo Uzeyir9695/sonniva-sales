@@ -14,9 +14,9 @@ class OrderItem extends Model
     protected $guarded = ['created_at', 'updated_at'];
 
     protected $casts = [
-        'discount' => 'decimal:2',
+        'discount' => 'decimal:4',
         'wholesale_discount' => 'decimal:2',
-        'bc_discount' => 'decimal:2',
+        'bc_discount' => 'decimal:4',
         'fake_price' => 'decimal:2',
         'with_service' => 'boolean',
         'service_price' => 'decimal:2',
