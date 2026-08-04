@@ -290,6 +290,11 @@ class BusinessCentralService
             'Ship_to_Country_Region_Code' => 'GE',
             'Ship_to_Phone_No' => $user->phone,
             'Ship_to_Contact' => $user->phone,
+            'Location_Code' => match ($order->branch) {
+                'didube' => 'SHOP1',
+                'avchala' => 'SHOP2',
+                default => '',
+            },
         ];
 
         $response = Http::withToken($token)
