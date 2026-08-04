@@ -80,6 +80,23 @@ class AccountController extends Controller
             ]));
         }
 
+        // BC rejects a customer update outright if the VAT number is already claimed by a
+        // different customer record - check for that up front instead of letting the queued
+        // sync job fail silently after "updated successfully" has already been shown.
+        if ($validated['tax_id'] !== $user->tax_id && $user->bc_customer_no) {
+            try {
+                $vatCheckEndpoint = "Customers?\$filter=VAT_Registration_No eq '".$validated['tax_id']."'";
+                $bcCustomer = $this->bcService->getCustomer($vatCheckEndpoint);
+
+                if (! empty($bcCustomer['value']) && $bcCustomer['value'][0]['No'] !== $user->bc_customer_no) {
+                    return back()->withErrors(['tax_id' => __('This tax ID is already registered to another customer.')]);
+                }
+            } catch (\Exception) {
+                // BC unreachable - don't block the local profile update over a transient
+                // failure, the queued sync job below will retry and log as before.
+            }
+        }
+
         $user->update($validated);
         $user->refresh();
 
