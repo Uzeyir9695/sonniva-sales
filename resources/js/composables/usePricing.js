@@ -27,9 +27,8 @@ export function hasDiscount(item) {
 // discount also exists, the backend already computes discounted_price off fake_price instead
 // of unit_price (see Item::getDiscountedPriceAttribute), so effectiveUnitPrice/calculateTierPrice
 // pick that up automatically with no change here - that combined case is genuinely chargeable,
-// not fake. Only the fake-price-with-no-discount case is display-only: shown price is fake_price,
-// but the real charge stays unit_price (effectiveUnitPrice falls through to unit_price since
-// there's no discounted_price to prefer).
+// not fake. The fake-price-with-no-discount case is a discount illusion: fake_price is struck
+// through as the inflated "was" price, unit_price is bold as the real charge.
 export function hasFakePrice(item) {
     return item?.fake_price != null && Number(item.fake_price) > 0
 }
@@ -133,7 +132,6 @@ export function getRetailPrice(item, selectedUOM = null) {
 
 export function getDisplayPrice(item) {
     if (item?.unit_price != 0) {
-        if (hasFakePrice(item) && !hasDiscount(item)) return item.fake_price
         return effectiveUnitPrice(item)
     }
     const cheapest = visiblePrices(item)[0]
@@ -157,17 +155,15 @@ export function usePricing(item) {
 
     const prices = computed(() => visiblePrices(get()))
 
-    // Fake-only (no real discount) shows fake_price as the current price; every other case
-    // (real discount with or without fake_price, or neither) is already correct via
-    // effectiveUnitPrice, since discounted_price itself is fake-price-aware on the backend.
+    // Bold/current price is always the real chargeable amount: unit_price (or discounted_price
+    // when a real discount exists - discounted_price itself is fake-price-aware on the backend).
+    // fake_price only ever appears struck-through via originalPrice below, never here.
     const displayPrice = computed(() => {
         if (isPackageItem.value) {
             const cheapest = prices.value[0]
             return cheapest ? discountedTierPrice(get(), cheapest) : null
         }
-        const i = get()
-        if (hasFakePrice(i) && !hasDiscount(i)) return i.fake_price
-        return effectiveUnitPrice(i)
+        return effectiveUnitPrice(get())
     })
 
     const displayUOM = computed(() =>

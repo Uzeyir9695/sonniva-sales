@@ -144,6 +144,14 @@ function openManageDialog(item) {
     manageDialogVisible.value = true
 }
 
+function calcDiscountFromFakePrice() {
+    const fakePrice = Number(manageForm.fake_price)
+    const unitPrice = Number(editingItem.value?.unit_price)
+    if (!fakePrice || !unitPrice) return
+
+    manageForm.discount = Math.round(((fakePrice - unitPrice) / fakePrice) * 100 * 10000) / 10000
+}
+
 function saveItem() {
     manageForm
         .transform(data => ({
@@ -500,7 +508,7 @@ function fetchCategoryImage(category) {
                 </div>
 
                 <div>
-                    <label class="text-sm font-semibold text-gray-500 mb-1 block">Increased Price (₾)</label>
+                    <label class="text-sm font-semibold text-gray-500 mb-1 block">Fake "Was" Price (₾)</label>
                     <InputNumber
                         v-model="manageForm.fake_price"
                         :min="0"
@@ -512,24 +520,34 @@ function fetchCategoryImage(category) {
                         fluid
                     />
                     <p v-if="manageForm.errors.fake_price" class="text-xs text-red-500 mt-1">{{ manageForm.errors.fake_price }}</p>
-                    <p v-else class="text-xs text-gray-400 mt-1">Must be higher than the unit price ({{ Number(editingItem.unit_price).toFixed(2) }} ₾). Shown to customers in place of the unit price; leave empty to disable.</p>
+                    <p v-else class="text-xs text-gray-400 mt-1">Must be higher than the unit price ({{ Number(editingItem.unit_price).toFixed(2) }} ₾). Shown struck-through as the "was" price; the unit price stays the real charge. Leave empty to disable.</p>
                 </div>
 
                 <div>
-                    <label class="text-sm font-semibold text-gray-500 mb-1 block">Web Discount (in %)</label>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-sm font-semibold text-gray-500">Web Discount (in %)</label>
+                        <button
+                            type="button"
+                            class="text-xs font-medium text-blue-600 bg-blue-100 hover:bg-blue-100 px-2.5 py-1 rounded-full transition-colors disabled:text-gray-300 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                            :disabled="!manageForm.fake_price"
+                            @click="calcDiscountFromFakePrice"
+                        >
+                            Calc from fake price
+                        </button>
+                    </div>
                     <InputNumber
                         v-model="manageForm.discount"
                         :min="0"
                         :max="100"
                         :min-fraction-digits="0"
-                        :max-fraction-digits="2"
+                        :max-fraction-digits="4"
                         suffix="%"
                         placeholder="0"
                         :invalid="!!manageForm.errors.discount"
                         fluid
                     />
                     <p v-if="manageForm.errors.discount" class="text-xs text-red-500 mt-1">{{ manageForm.errors.discount }}</p>
-                    <p v-else class="text-xs text-gray-400 mt-1">Percentage off unit price. Leave empty for no discount.</p>
+                    <p v-else class="text-xs text-gray-400 mt-1">Percentage off unit price (off the fake price instead, if one is set). Leave empty for no discount.</p>
                 </div>
 
                 <div>
@@ -588,7 +606,7 @@ function fetchCategoryImage(category) {
                     <InputNumber
                         v-model="manageForm.discount_amount"
                         :min="0"
-                        :max="editingItem.unit_price"
+                        :max="Number(editingItem.unit_price)"
                         :min-fraction-digits="0"
                         :max-fraction-digits="2"
                         suffix=" ₾"
