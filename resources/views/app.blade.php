@@ -32,10 +32,6 @@
             Weglot.initialize({
                 api_key: 'wg_7ace44a8c1f484cdedc879984406c4cb5',
                 hide_switcher: true,
-                cache: true,
-                translate_search: true,
-                search_forms: ".weglot-search-form",
-                search_parameter: "q"
             });
         </script>
 
