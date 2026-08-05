@@ -31,6 +31,7 @@ const isMobile = useMediaQuery('(max-width: 639px)');
 const invoicedAtDates  = ref(null);
 const approvedAtDates  = ref(null);
 const readyAtDates     = ref(null);
+const deliveredAtDates = ref(null);
 
 const fmt = (d) => d.toLocaleDateString('en-CA');
 
@@ -102,6 +103,48 @@ function resetApprovedAtReady() {
     }, { preserveState: true, preserveScroll: true });
 }
 
+function filterByApprovedAtDelivered() {
+    const start = approvedAtDates.value?.[0];
+    const end   = approvedAtDates.value?.[1];
+    if (start && end) {
+        router.get(route('admin.orders.index'), {
+            status:         props.status,
+            approved_start: fmt(start),
+            approved_end:   fmt(end),
+            ...(deliveredAtDates.value?.[0] && deliveredAtDates.value?.[1] ? { delivered_start: fmt(deliveredAtDates.value[0]), delivered_end: fmt(deliveredAtDates.value[1]) } : {}),
+        }, { preserveState: true, preserveScroll: true });
+    }
+}
+
+function resetApprovedAtDelivered() {
+    approvedAtDates.value = null;
+    router.get(route('admin.orders.index'), {
+        status: props.status,
+        ...(deliveredAtDates.value?.[0] && deliveredAtDates.value?.[1] ? { delivered_start: fmt(deliveredAtDates.value[0]), delivered_end: fmt(deliveredAtDates.value[1]) } : {}),
+    }, { preserveState: true, preserveScroll: true });
+}
+
+function filterByDeliveredAt() {
+    const start = deliveredAtDates.value?.[0];
+    const end   = deliveredAtDates.value?.[1];
+    if (start && end) {
+        router.get(route('admin.orders.index'), {
+            status:          props.status,
+            delivered_start: fmt(start),
+            delivered_end:   fmt(end),
+            ...(approvedAtDates.value?.[0] && approvedAtDates.value?.[1] ? { approved_start: fmt(approvedAtDates.value[0]), approved_end: fmt(approvedAtDates.value[1]) } : {}),
+        }, { preserveState: true, preserveScroll: true });
+    }
+}
+
+function resetDeliveredAt() {
+    deliveredAtDates.value = null;
+    router.get(route('admin.orders.index'), {
+        status: props.status,
+        ...(approvedAtDates.value?.[0] && approvedAtDates.value?.[1] ? { approved_start: fmt(approvedAtDates.value[0]), approved_end: fmt(approvedAtDates.value[1]) } : {}),
+    }, { preserveState: true, preserveScroll: true });
+}
+
 const tabs = [
     { label: 'Invoiced',   value: 'pending',    badge: true,  icon: 'pi-clock' },
     { label: 'Limit',      value: 'limit',      badge: true,  icon: 'pi-credit-card' },
@@ -116,6 +159,7 @@ function switchTab(value) {
     invoicedAtDates.value  = null;
     approvedAtDates.value  = null;
     readyAtDates.value     = null;
+    deliveredAtDates.value = null;
     router.get(route('admin.orders.index'), { status: value }, {
         only: ['orders', 'status'],
         preserveState: true,
@@ -476,6 +520,46 @@ function confirmMarkDelivered(order) {
                     </Column>
 
                     <Column v-if="status === 'cancelled'" field="created_at" header="Date" style="min-width: 7rem" />
+
+                    <Column v-if="status === 'delivered'" header="Paid At" style="min-width: 14rem">
+                        <template #body="{ data }">{{ data.approved_at ?? '—' }}</template>
+                        <template #filter>
+                            <DatePicker
+                                v-model="approvedAtDates"
+                                showIcon showButtonBar
+                                @clear-click="resetApprovedAtDelivered"
+                                @update:modelValue="filterByApprovedAtDelivered"
+                                placeholder="DD/MM/YY"
+                                selectionMode="range"
+                                hideOnRangeSelection
+                                size="small"
+                                :maxDate="new Date()"
+                                :manualInput="false"
+                                inputClass="py-0.5 text-xs"
+                            />
+                        </template>
+                        <template #filtericon />
+                    </Column>
+
+                    <Column v-if="status === 'delivered'" header="Delivered At" style="min-width: 14rem">
+                        <template #body="{ data }">{{ data.delivered_at ?? '—' }}</template>
+                        <template #filter>
+                            <DatePicker
+                                v-model="deliveredAtDates"
+                                showIcon showButtonBar
+                                @clear-click="resetDeliveredAt"
+                                @update:modelValue="filterByDeliveredAt"
+                                placeholder="DD/MM/YY"
+                                selectionMode="range"
+                                hideOnRangeSelection
+                                size="small"
+                                :maxDate="new Date()"
+                                :manualInput="false"
+                                inputClass="py-0.5 text-xs"
+                            />
+                        </template>
+                        <template #filtericon />
+                    </Column>
 
                     <Column v-if="status === 'pending'" header="Invoiced At" style="min-width: 14rem">
                         <template #body="{ data }">{{ data.invoiced_at ?? '—' }}</template>
