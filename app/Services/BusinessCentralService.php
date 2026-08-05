@@ -291,8 +291,8 @@ class BusinessCentralService
             'Ship_to_Phone_No' => $user->phone,
             'Ship_to_Contact' => $user->phone,
             'Location_Code' => match ($order->branch) {
-                'didube' => 'SHOP1',
-                'avchala' => 'SHOP2',
+                'didube' => 'SHOP01',
+                'avchala' => 'SHOP02',
                 default => '',
             },
         ];
