@@ -7,6 +7,7 @@ use App\Jobs\FetchMissingItemImagesJob;
 use App\Jobs\SyncInventoryJob;
 use App\Jobs\SyncItemAttributesJob;
 use App\Jobs\SyncItemCategoryJob;
+use App\Jobs\SyncItemFromBcJob;
 use App\Models\Category;
 use App\Models\Item;
 use App\Services\BusinessCentralService;
@@ -23,6 +24,19 @@ class AdminItemController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/items/Index');
+    }
+
+    public function syncItems(Request $request): RedirectResponse
+    {
+        $no = $request->input('no') ?: null;
+
+        SyncItemFromBcJob::dispatch($no);
+
+        $message = $no
+            ? "Fetching item {$no} from Business Central. It should appear in the shop within a minute."
+            : 'Fetching new items from Business Central in the background. This checks the full catalog and can take a few minutes.';
+
+        return redirect()->back()->with('message', $message);
     }
 
     public function syncCategory(): RedirectResponse

@@ -92,6 +92,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
 
         // ******** Admin Items ********//
         Route::get('/items', [AdminItemController::class, 'index'])->name('items.index');
+        Route::post('/items/sync', [AdminItemController::class, 'syncItems'])->name('items.sync');
         Route::post('/items/sync-category', [AdminItemController::class, 'syncCategory'])->name('items.sync-category');
         Route::post('/items/sync-attributes', [AdminItemController::class, 'syncAttributes'])->name('items.sync-attributes');
         Route::post('/items/fetch-missing-images', [AdminItemController::class, 'fetchMissingImages'])->name('items.fetch-missing-images');

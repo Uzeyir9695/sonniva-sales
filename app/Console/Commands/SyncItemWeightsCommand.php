@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Http;
 
 class SyncItemWeightsCommand extends Command
 {
-    protected $signature = 'items:sync-weights';
+    protected $signature = 'items:sync-weights {no? : Only sync this specific Business Central item number}';
 
     protected $description = 'Sync item weights from Business Central ItemUnitOfMeasureAPI';
 
@@ -27,8 +27,11 @@ class SyncItemWeightsCommand extends Command
         $token = $this->bc->getAccessToken();
         $tokenFetchedAt = now();
 
+        $no = $this->argument('no');
+
         $items = DB::table('items')
             ->select('no', 'unit_price', 'prices')
+            ->when($no, fn ($q) => $q->where('no', $no))
             ->get();
 
         $this->info("Processing {$items->count()} items in parallel chunks...");

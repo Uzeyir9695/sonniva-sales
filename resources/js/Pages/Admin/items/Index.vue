@@ -31,6 +31,26 @@ function syncCategories() {
     })
 }
 
+const syncingItems = ref(false)
+const itemNoToSync = ref('')
+
+function syncItems() {
+    syncingItems.value = true
+    router.post(route('admin.items.sync'), { no: itemNoToSync.value || null }, {
+        preserveScroll: true,
+        onSuccess: (res) => {
+            toast.add({ severity: 'success', summary: 'Started', detail: res.props.flash.message, life: 4000 })
+            itemNoToSync.value = ''
+        },
+        onError: () => {
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Could not start the sync, please try again.', life: 4000 })
+        },
+        onFinish: () => {
+            syncingItems.value = false
+        },
+    })
+}
+
 const syncingAttributes = ref(false)
 
 function syncAttributes() {
@@ -330,6 +350,33 @@ function fetchCategoryImage(category) {
                     <hr class="my-6 border-gray-100" />
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="flex flex-col rounded-2xl border-2 border-emerald-200 bg-emerald-50/50 p-5">
+                            <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3">
+                                <i class="pi pi-cloud-download"></i>
+                            </div>
+                            <h2 class="text-base font-bold text-gray-900 mb-1">Fetch New Items</h2>
+                            <p class="text-sm text-gray-500 mb-4">
+                                Fetches new items added in Business Central and adds them to the shop, with their category, images, prices and attributes. Existing items are left untouched. Leave the item number empty to check the full catalog, or enter one to fetch just that item.
+                            </p>
+                            <PrimeInputText
+                                v-model="itemNoToSync"
+                                size="small"
+                                class="text-xs mb-3"
+                                placeholder="Item No. (optional)"
+                            />
+                            <Button
+                                :loading="syncingItems"
+                                @click="syncItems"
+                                :label="syncingItems ? 'Fetching...' : (itemNoToSync ? 'Fetch Item' : 'Fetch New Items')"
+                                icon="pi pi-cloud-download"
+                                severity="success"
+                                class="mt-auto self-start"
+                            />
+                            <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
+                                <i class="pi pi-clock"></i>Seconds for a single item, about 4 minutes for the full catalog.
+                            </p>
+                        </div>
+
                         <div class="flex flex-col rounded-2xl border-2 border-amber-200 bg-amber-50/50 p-5">
                             <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-3">
                                 <i class="pi pi-tags"></i>

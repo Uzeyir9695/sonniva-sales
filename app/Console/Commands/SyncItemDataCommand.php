@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Http;
 
 class SyncItemDataCommand extends Command
 {
-    protected $signature = 'items:sync-data';
+    protected $signature = 'items:sync-data {no? : Only sync this specific Business Central item number}';
 
     protected $description = 'Sync item name, unit_price and wholesale prices from Business Central';
 
@@ -26,11 +26,14 @@ class SyncItemDataCommand extends Command
         $token = $this->bc->getAccessToken();
         $tokenFetchedAt = now();
 
+        $no = $this->argument('no');
+
         // ── Phase 1: fetch name + prices from items endpoint (paginated) ──────────
 
         $url = config('bc.api_base_url')
             .'Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items'
-            .'?$select=no,description,unitPrice';
+            .'?$select=no,description,unitPrice'
+            .($no ? "&\$filter=no eq '{$no}'" : '');
 
         $items = collect();
 
@@ -78,7 +81,8 @@ class SyncItemDataCommand extends Command
         $phase2Start = now();
         $detailedUrl = config('bc.api_base_url')
             .'Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed'
-            .'?$select=no&$expand=itemUnitPrices';
+            .'?$select=no&$expand=itemUnitPrices'
+            .($no ? "&\$filter=no eq '{$no}'" : '');
 
         $updatedCount = 0;
 
