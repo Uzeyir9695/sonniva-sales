@@ -131,9 +131,9 @@ function fetchMissingImages() {
 
 <template>
     <div>
-        <h2 class="text-base font-bold text-gray-900 mb-1">Item Video Links</h2>
+        <h2 class="text-base font-bold text-gray-900 mb-1">Manage Item</h2>
         <p class="text-sm text-gray-500 mb-4">
-            Search for an item by No. or name and attach a YouTube link. It will show up as the last slide in the item's image gallery.
+            Search for an item by No. or name to manage its video link, pricing and discounts. The video link shows up as the last slide in the item's image gallery.
         </p>
 
         <span class="relative inline-block w-full sm:w-96">
