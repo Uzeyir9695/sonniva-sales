@@ -302,10 +302,7 @@ class ItemController extends Controller
             return response()->json([]);
         }
 
-        $items = Item::where(function ($query) use ($q) {
-            $query->where('name', 'like', "%{$q}%")
-                ->orWhere('no', 'like', "%{$q}%");
-        })
+        $items = Item::search($q)
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
             ->get(['id', 'no', 'name', 'slug', 'unit_price', 'discount', 'fake_price', 'prices', 'images', 'inventory']);
 

@@ -115,7 +115,7 @@ function fetchCategoryImage(category) {
                     v-model="categoryQuery"
                     @input="onCategorySearchInput"
                     placeholder="Search by category name or code..."
-                    class="w-full pl-9!"
+                    class="w-full pl-9!  rounded-lg!"
                 />
             </span>
 

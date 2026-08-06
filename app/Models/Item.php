@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,6 +15,8 @@ class Item extends Model
     use HasUuids, SoftDeletes;
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
+
+    protected $hidden = ['en_keywords', 'ru_keywords', 'tr_keywords'];
 
     protected $appends = ['storage_path', 'discounted_price', 'has_setup_service', 'setup_service_price'];
 
@@ -61,6 +64,17 @@ class Item extends Model
         }
 
         return number_format($base * (1 - $this->discount / 100), 2, '.', '');
+    }
+
+    public function scopeSearch(Builder $query, string $q): Builder
+    {
+        return $query->where(function (Builder $query) use ($q) {
+            $query->where('name', 'like', "%{$q}%")
+                ->orWhere('no', 'like', "%{$q}%")
+                ->orWhere('en_keywords', 'like', "%{$q}%")
+                ->orWhere('ru_keywords', 'like', "%{$q}%")
+                ->orWhere('tr_keywords', 'like', "%{$q}%");
+        });
     }
 
     public function attributes(): HasMany

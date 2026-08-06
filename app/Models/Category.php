@@ -45,6 +45,19 @@ class Category extends Model
         return $this->children()->with('childrenRecursive');
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public function descendantCodes(): array
+    {
+        $this->loadMissing('childrenRecursive');
+
+        return array_merge(
+            [$this->code],
+            $this->childrenRecursive->flatMap(fn (Category $child) => $child->descendantCodes())->all()
+        );
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(Item::class, 'category_code', 'code');

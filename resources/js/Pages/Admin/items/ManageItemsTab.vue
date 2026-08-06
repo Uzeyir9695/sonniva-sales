@@ -142,7 +142,7 @@ function fetchMissingImages() {
                 v-model="query"
                 @input="onSearchInput"
                 placeholder="Search by item No. or name..."
-                class="w-full pl-9!"
+                class="w-full pl-9! rounded-lg! py-1.5!"
             />
         </span>
 
@@ -229,7 +229,7 @@ function fetchMissingImages() {
                 <PrimeInputText
                     v-model="itemNoToSync"
                     size="small"
-                    class="text-xs mb-3"
+                    class="text-sm mb-3 rounded-lg! py-1.5!"
                     placeholder="Item No. (optional)"
                 />
                 <Button

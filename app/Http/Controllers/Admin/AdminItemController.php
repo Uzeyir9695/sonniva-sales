@@ -157,6 +157,34 @@ class AdminItemController extends Controller
         return response()->json($categories);
     }
 
+    public function getCategoryKeywords(Category $category): JsonResponse
+    {
+        $item = Item::whereIn('category_code', $category->descendantCodes())->first(['en_keywords', 'ru_keywords', 'tr_keywords']);
+
+        return response()->json([
+            'en_keywords' => $item->en_keywords ?? '',
+            'ru_keywords' => $item->ru_keywords ?? '',
+            'tr_keywords' => $item->tr_keywords ?? '',
+        ]);
+    }
+
+    public function updateCategoryKeywords(Request $request, Category $category): RedirectResponse
+    {
+        $validated = $request->validate([
+            'en_keywords' => ['nullable', 'string'],
+            'ru_keywords' => ['nullable', 'string'],
+            'tr_keywords' => ['nullable', 'string'],
+        ]);
+
+        $updated = Item::whereIn('category_code', $category->descendantCodes())->update([
+            'en_keywords' => $validated['en_keywords'] ?: null,
+            'ru_keywords' => $validated['ru_keywords'] ?: null,
+            'tr_keywords' => $validated['tr_keywords'] ?: null,
+        ]);
+
+        return redirect()->back()->with('message', "Keywords assigned to {$updated} item(s) in \"{$category->name}\" and its sub-categories.");
+    }
+
     public function updateCategoryImage(Category $category, BusinessCentralService $bc): RedirectResponse
     {
         try {

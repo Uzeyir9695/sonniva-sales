@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import AdminLayout from '../AdminLayout.vue'
 import ManageItemsTab from './ManageItemsTab.vue'
 import SyncCategoriesTab from './SyncCategoriesTab.vue'
+import ManageItemKeywordsTab from './ManageItemKeywordsTab.vue'
 
 defineOptions({ layout: AdminLayout })
 
@@ -17,6 +18,7 @@ const activeTab = ref('0')
             <TabList>
                 <Tab value="0">Manage Items</Tab>
                 <Tab value="1">Sync Categories</Tab>
+                <Tab value="2">Manage Item Keywords</Tab>
             </TabList>
 
             <TabPanels>
@@ -26,6 +28,10 @@ const activeTab = ref('0')
 
                 <TabPanel value="1">
                     <SyncCategoriesTab />
+                </TabPanel>
+
+                <TabPanel value="2">
+                    <ManageItemKeywordsTab />
                 </TabPanel>
             </TabPanels>
         </Tabs>

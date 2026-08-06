@@ -24,10 +24,7 @@ class SearchController extends Controller
 
     private function fetchItems(string $q, ?string $priceMin, ?string $priceMax, ?string $stock): mixed
     {
-        return Item::where(function ($query) use ($q) {
-            $query->where('name', 'like', "%{$q}%")
-                ->orWhere('no', 'like', "%{$q}%");
-        })
+        return Item::search($q)
             ->when($priceMin !== null && $priceMin !== '', fn ($query) => $query->where('unit_price', '>=', $priceMin))
             ->when($priceMax !== null && $priceMax !== '', fn ($query) => $query->where('unit_price', '<=', $priceMax))
             ->when($stock === 'in', fn ($query) => $query->where('inventory', '>', 0))
