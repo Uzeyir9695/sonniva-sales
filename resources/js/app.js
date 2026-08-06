@@ -269,6 +269,16 @@ createInertiaApp({
                     })
                 },
 
+                // PrimeVue force-focuses the header close button when a dialog opens
+                // (no other autofocus target exists in header/footer/content), using
+                // focus({ focusVisible: true }) - which paints the focus-visible ring
+                // even though nothing was actually pressed. Suppress it there only.
+                dialog: {
+                    pcCloseButton: {
+                        root: { class: 'focus-visible:outline-none focus-visible:shadow-none' },
+                    },
+                },
+
                 panel: {
                     root: { class: 'border-none !m-0' },
                     header: {
