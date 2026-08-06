@@ -1,0 +1,314 @@
+<script setup>
+import { ref } from 'vue'
+import { router } from '@inertiajs/vue3'
+import { useToast } from 'primevue/usetoast'
+import axios from 'axios'
+import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
+import ManageItemDialog from './ManageItemDialog.vue'
+import { getOriginalPrice, getDisplayPrice } from '@/composables/usePricing.js'
+import { formatDiscount } from '@/utils/numberFormat.js'
+
+const toast = useToast()
+
+/* ---------------- Item video links ---------------- */
+const query = ref('')
+const results = ref([])
+const searching = ref(false)
+let debounceTimer = null
+
+function imageUrl(img) {
+    return `/storage/items/${img}`
+}
+
+async function runSearch(q) {
+    searching.value = true
+    try {
+        const res = await axios.get(route('admin.items.search'), { params: { q } })
+        results.value = res.data
+    } catch {
+        results.value = []
+    } finally {
+        searching.value = false
+    }
+}
+
+function onSearchInput() {
+    clearTimeout(debounceTimer)
+    const q = query.value.trim()
+    if (q.length < 2) {
+        results.value = []
+        searching.value = false
+        return
+    }
+    debounceTimer = setTimeout(() => runSearch(q), 400)
+}
+
+const dialogRef = ref(null)
+
+function openManageDialog(item) {
+    dialogRef.value.open(item)
+}
+
+function onSaved() {
+    if (query.value.trim().length >= 2) runSearch(query.value.trim())
+}
+
+/* ---------------- Sync jobs ---------------- */
+const syncingItems = ref(false)
+const itemNoToSync = ref('')
+
+function syncItems() {
+    syncingItems.value = true
+    router.post(route('admin.items.sync'), { no: itemNoToSync.value || null }, {
+        preserveScroll: true,
+        onSuccess: (res) => {
+            toast.add({ severity: 'success', summary: 'Started', detail: res.props.flash.message, life: 4000 })
+            itemNoToSync.value = ''
+        },
+        onError: () => {
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Could not start the sync, please try again.', life: 4000 })
+        },
+        onFinish: () => {
+            syncingItems.value = false
+        },
+    })
+}
+
+const syncingAttributes = ref(false)
+
+function syncAttributes() {
+    syncingAttributes.value = true
+    router.post(route('admin.items.sync-attributes'), {}, {
+        preserveScroll: true,
+        onSuccess: (res) => {
+            toast.add({ severity: 'success', summary: 'Started', detail: res.props.flash.message, life: 4000 })
+        },
+        onError: () => {
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Could not start the sync, please try again.', life: 4000 })
+        },
+        onFinish: () => {
+            syncingAttributes.value = false
+        },
+    })
+}
+
+const syncingInventory = ref(false)
+
+function syncInventory() {
+    syncingInventory.value = true
+    router.post(route('admin.items.sync-inventory'), {}, {
+        preserveScroll: true,
+        onSuccess: (res) => {
+            toast.add({ severity: 'success', summary: 'Started', detail: res.props.flash.message, life: 4000 })
+        },
+        onError: () => {
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Could not start the sync, please try again.', life: 4000 })
+        },
+        onFinish: () => {
+            syncingInventory.value = false
+        },
+    })
+}
+
+const fetchingMissingImages = ref(false)
+
+function fetchMissingImages() {
+    fetchingMissingImages.value = true
+    router.post(route('admin.items.fetch-missing-images'), {}, {
+        preserveScroll: true,
+        onSuccess: (res) => {
+            toast.add({ severity: 'success', summary: 'Started', detail: res.props.flash.message, life: 4000 })
+        },
+        onError: () => {
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Could not start the job, please try again.', life: 4000 })
+        },
+        onFinish: () => {
+            fetchingMissingImages.value = false
+        },
+    })
+}
+</script>
+
+<template>
+    <div>
+        <h2 class="text-base font-bold text-gray-900 mb-1">Item Video Links</h2>
+        <p class="text-sm text-gray-500 mb-4">
+            Search for an item by No. or name and attach a YouTube link. It will show up as the last slide in the item's image gallery.
+        </p>
+
+        <span class="relative inline-block w-full sm:w-96">
+            <i class="pi pi-search text-gray-400 text-sm absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            <PrimeInputText
+                v-model="query"
+                @input="onSearchInput"
+                placeholder="Search by item No. or name..."
+                class="w-full pl-9!"
+            />
+        </span>
+
+        <div v-if="searching" class="flex items-center gap-2 text-sm text-gray-400 mt-4">
+            <i class="pi pi-spinner pi-spin"></i> Searching...
+        </div>
+
+        <div v-else-if="query.trim().length >= 2 && results.length === 0" class="text-sm text-gray-400 mt-4">
+            No items found for "{{ query }}".
+        </div>
+
+        <ul v-else-if="results.length" class="divide-y divide-gray-100 mt-4">
+            <li
+                v-for="item in results"
+                :key="item.id"
+                class="flex items-center gap-3 py-3"
+            >
+                <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                    <img
+                        v-if="item.images?.length"
+                        :src="imageUrl(item.images[0])"
+                        :alt="item.name"
+                        class="w-full h-full object-cover"
+                    />
+                    <div v-else class="w-full h-full flex items-center justify-center">
+                        <i class="pi pi-image text-gray-300 text-sm"></i>
+                    </div>
+                </div>
+
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800 truncate">{{ item.name }}</p>
+                    <p class="text-xs text-gray-400 font-mono">{{ item.no }}</p>
+                    <p class="text-sm mt-0.5">
+                        <span v-if="getOriginalPrice(item)" class="text-red-500 line-through mr-1.5">{{ Number(getOriginalPrice(item)).toFixed(2) }} ₾</span>
+                        <span class="font-semibold text-gray-700">{{ Number(getDisplayPrice(item)).toFixed(2) }} ₾</span>
+                    </p>
+                </div>
+
+                <span
+                    v-if="item.discount > 0"
+                    class="text-xs px-2 py-0.5 rounded-full font-semibold shrink-0 bg-red-100 text-red-600"
+                >
+                    -{{ formatDiscount(item.discount) }}%
+                </span>
+
+                <span
+                    class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
+                    :class="item.video_url ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'"
+                >
+                    {{ item.video_url ? 'Video set' : 'No video' }}
+                </span>
+
+                <a
+                    :href="route('items.show', item.slug)"
+                    target="_blank"
+                    v-tooltip.top="'View item page'"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg shrink-0 text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                    <i class="pi pi-external-link text-sm"></i>
+                </a>
+
+                <Button
+                    label="Manage"
+                    icon="pi pi-cog"
+                    size="small"
+                    severity="secondary"
+                    outlined
+                    @click="openManageDialog(item)"
+                />
+            </li>
+        </ul>
+
+        <hr class="my-6 border-gray-100" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flex flex-col rounded-2xl border-2 border-emerald-200 bg-emerald-50/50 p-5">
+                <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3">
+                    <i class="pi pi-cloud-download"></i>
+                </div>
+                <h2 class="text-base font-bold text-gray-900 mb-1">Fetch New Items</h2>
+                <p class="text-sm text-gray-500 mb-4">
+                    Fetches new items added in Business Central and adds them to the shop, with their category, images, prices and attributes. Existing items are left untouched. Leave the item number empty to check the full catalog, or enter one to fetch just that item.
+                </p>
+                <PrimeInputText
+                    v-model="itemNoToSync"
+                    size="small"
+                    class="text-xs mb-3"
+                    placeholder="Item No. (optional)"
+                />
+                <Button
+                    :loading="syncingItems"
+                    @click="syncItems"
+                    :label="syncingItems ? 'Fetching...' : (itemNoToSync ? 'Fetch Item' : 'Fetch New Items')"
+                    icon="pi pi-cloud-download"
+                    severity="success"
+                    class="mt-auto self-start"
+                />
+                <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
+                    <i class="pi pi-clock"></i>Seconds for a single item, about 4 minutes for the full catalog.
+                </p>
+            </div>
+
+            <div class="flex flex-col rounded-2xl border-2 border-amber-200 bg-amber-50/50 p-5">
+                <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-3">
+                    <i class="pi pi-tags"></i>
+                </div>
+                <h2 class="text-base font-bold text-gray-900 mb-1">Item Attributes</h2>
+                <p class="text-sm text-gray-500 mb-4">
+                    Updates item attribute values (e.g. size, color) from Business Central.
+                </p>
+                <Button
+                    :loading="syncingAttributes"
+                    @click="syncAttributes"
+                    :label="syncingAttributes ? 'Updating...' : 'Update Attributes'"
+                    icon="pi pi-refresh"
+                    severity="warn"
+                    class="mt-auto self-start"
+                />
+                <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
+                    <i class="pi pi-clock"></i>Takes about 1-2 minutes to finish.
+                </p>
+            </div>
+
+            <div class="flex flex-col rounded-2xl border-2 border-blue-200 bg-blue-50/50 p-5">
+                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3">
+                    <i class="pi pi-box"></i>
+                </div>
+                <h2 class="text-base font-bold text-gray-900 mb-1">Inventory</h2>
+                <p class="text-sm text-gray-500 mb-4">
+                    Updates item stock levels from Business Central and notifies users waiting on restocked items.
+                </p>
+                <Button
+                    :loading="syncingInventory"
+                    @click="syncInventory"
+                    :label="syncingInventory ? 'Updating...' : 'Sync Inventory'"
+                    icon="pi pi-box"
+                    severity="info"
+                    class="mt-auto self-start"
+                />
+                <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
+                    <i class="pi pi-clock"></i>Takes about 1-2 minutes to finish.
+                </p>
+            </div>
+
+            <div class="flex flex-col rounded-2xl border-2 border-purple-200 bg-purple-50/50 p-5">
+                <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mb-3">
+                    <i class="pi pi-images"></i>
+                </div>
+                <h2 class="text-base font-bold text-gray-900 mb-1">Missing Item Images</h2>
+                <p class="text-sm text-gray-500 mb-4">
+                    Fetches images from Business Central for in-stock items (inventory &gt; 0) that don't have any yet. Runs in the background.
+                </p>
+                <Button
+                    :loading="fetchingMissingImages"
+                    @click="fetchMissingImages"
+                    :label="fetchingMissingImages ? 'Starting...' : 'Fetch Missing Images'"
+                    icon="pi pi-images"
+                    severity="help"
+                    class="mt-auto self-start"
+                />
+                <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
+                    <i class="pi pi-clock"></i>Takes about 1-2 minutes to finish.
+                </p>
+            </div>
+        </div>
+
+        <ManageItemDialog ref="dialogRef" @saved="onSaved" />
+    </div>
+</template>

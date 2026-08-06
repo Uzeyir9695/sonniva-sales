@@ -99,11 +99,27 @@ class AdminItemController extends Controller
             'fake_price.gt' => 'The fake price must be higher than the unit price ('.$item->unit_price.').',
         ]);
 
-        // A ₾ amount off takes priority over the raw percentage - convert it
-        // relative to the item's current unit_price before saving.
+        $unitPrice = (float) $item->unit_price;
+        $fakePrice = $validated['fake_price'] ?? null;
+
         $discount = $validated['discount'] ?? null;
-        if (! empty($validated['discount_amount']) && $item->unit_price > 0) {
-            $discount = round($validated['discount_amount'] / $item->unit_price * 100, 4);
+        $bcDiscountPercent = $validated['bc_discount_percent'] ?? null;
+
+        // A ₾ amount off, or a BC discount alongside a fake price, both imply a
+        // target "real" sale price - resolve that first, then work out what web
+        // discount percentage reaches it off the price the web discount is
+        // actually applied to (the fake price when one is set, else unit_price).
+        $targetPrice = null;
+        if (! empty($validated['discount_amount']) && $unitPrice > 0) {
+            $bcDiscountPercent = round($validated['discount_amount'] / $unitPrice * 100, 4);
+            $targetPrice = $unitPrice - $validated['discount_amount'];
+        } elseif ($fakePrice > 0 && ! empty($bcDiscountPercent) && $unitPrice > 0) {
+            $targetPrice = $unitPrice * (1 - $bcDiscountPercent / 100);
+        }
+
+        if ($targetPrice !== null) {
+            $priceBase = $fakePrice > 0 ? (float) $fakePrice : $unitPrice;
+            $discount = $priceBase > 0 ? round(($priceBase - $targetPrice) / $priceBase * 100, 4) : $discount;
         }
 
         $item->update([
@@ -111,8 +127,8 @@ class AdminItemController extends Controller
             'discount' => $discount,
             'wholesale_discount_percent' => $validated['wholesale_discount_percent'] ?? null,
             'vip_discount_percent' => $validated['vip_discount_percent'] ?? null,
-            'bc_discount_percent' => $validated['bc_discount_percent'] ?? null,
-            'fake_price' => $validated['fake_price'] ?? null,
+            'bc_discount_percent' => $bcDiscountPercent,
+            'fake_price' => $fakePrice,
         ]);
 
         return redirect()->back()->with('message', 'Item updated.');
