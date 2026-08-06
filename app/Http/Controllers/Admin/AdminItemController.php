@@ -115,6 +115,12 @@ class AdminItemController extends Controller
             $targetPrice = $unitPrice - $validated['discount_amount'];
         } elseif ($fakePrice > 0 && ! empty($bcDiscountPercent) && $unitPrice > 0) {
             $targetPrice = $unitPrice * (1 - $bcDiscountPercent / 100);
+        } elseif ($fakePrice > 0 && ! empty($discount) && $unitPrice > 0) {
+            // Fake price + a web discount with no BC override - the target is
+            // just unit_price, so the percentage is always recalculated to land
+            // on the real sale price rather than trusting a stale percentage
+            // left over from a previously-set BC discount / amount off.
+            $targetPrice = $unitPrice;
         }
 
         if ($targetPrice !== null) {

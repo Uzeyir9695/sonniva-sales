@@ -36,22 +36,6 @@ function open(item) {
 
 defineExpose({ open })
 
-function calcDiscountFromFakePrice() {
-    const fakePrice = Number(manageForm.fake_price)
-    const unitPrice = Number(editingItem.value?.unit_price)
-    if (!fakePrice || !unitPrice) return
-
-    // When a BC discount is also set, the item's real charged price is the
-    // BC-discounted price, not the plain unit price - target that instead so
-    // the web discount actually lands on the correct final price.
-    const bcDiscountPercent = Number(manageForm.bc_discount_percent) || 0
-    const targetPrice = bcDiscountPercent > 0
-        ? unitPrice * (1 - bcDiscountPercent / 100)
-        : unitPrice
-
-    manageForm.discount = Math.round(((fakePrice - targetPrice) / fakePrice) * 100 * 10000) / 10000
-}
-
 function saveItem() {
     manageForm
         .transform(data => ({
@@ -109,6 +93,7 @@ function saveItem() {
                     suffix=" ₾"
                     placeholder="0"
                     :invalid="!!manageForm.errors.fake_price"
+                    showClear
                     fluid
                 />
                 <p v-if="manageForm.errors.fake_price" class="text-xs text-red-500 mt-1">{{ manageForm.errors.fake_price }}</p>
@@ -116,17 +101,7 @@ function saveItem() {
             </div>
 
             <div>
-                <div class="flex items-center justify-between mb-1">
-                    <label class="text-sm font-semibold text-gray-500">Web Discount (in %)</label>
-                    <button
-                        type="button"
-                        class="text-xs font-medium text-blue-600 bg-blue-100 hover:bg-blue-100 px-2.5 py-1 rounded-full transition-colors disabled:text-gray-300 disabled:bg-gray-50 disabled:cursor-not-allowed"
-                        :disabled="!manageForm.fake_price"
-                        @click="calcDiscountFromFakePrice"
-                    >
-                        Calc from fake price
-                    </button>
-                </div>
+                <label class="text-sm font-semibold text-gray-500 mb-1 block">Web Discount (in %)</label>
                 <InputNumber
                     v-model="manageForm.discount"
                     :min="0"
@@ -136,6 +111,7 @@ function saveItem() {
                     suffix="%"
                     placeholder="0"
                     :invalid="!!manageForm.errors.discount"
+                    showClear
                     fluid
                 />
                 <p v-if="manageForm.errors.discount" class="text-xs text-red-500 mt-1">{{ manageForm.errors.discount }}</p>
@@ -153,6 +129,7 @@ function saveItem() {
                     suffix="%"
                     placeholder="0"
                     :invalid="!!manageForm.errors.bc_discount_percent"
+                    showClear
                     fluid
                 />
                 <p v-if="manageForm.errors.bc_discount_percent" class="text-xs text-red-500 mt-1">{{ manageForm.errors.bc_discount_percent }}</p>
@@ -170,6 +147,7 @@ function saveItem() {
                     suffix=" ₾"
                     placeholder="0"
                     :invalid="!!manageForm.errors.discount_amount"
+                    showClear
                     fluid
                 />
                 <p v-if="manageForm.errors.discount_amount" class="text-xs text-red-500 mt-1">{{ manageForm.errors.discount_amount }}</p>
@@ -187,6 +165,7 @@ function saveItem() {
                     suffix="%"
                     placeholder="0"
                     :invalid="!!manageForm.errors.wholesale_discount_percent"
+                    showClear
                     fluid
                 />
                 <p v-if="manageForm.errors.wholesale_discount_percent" class="text-xs text-red-500 mt-1">{{ manageForm.errors.wholesale_discount_percent }}</p>
@@ -204,6 +183,7 @@ function saveItem() {
                     suffix="%"
                     placeholder="0"
                     :invalid="!!manageForm.errors.vip_discount_percent"
+                    showClear
                     fluid
                 />
                 <p v-if="manageForm.errors.vip_discount_percent" class="text-xs text-red-500 mt-1">{{ manageForm.errors.vip_discount_percent }}</p>
