@@ -41,7 +41,14 @@ watch(query, (val) => {
     loading.value = true;
     debounceTimer = setTimeout(async () => {
         try {
-            const res = await axios.get('/api/v1/search', { params: { q: val } });
+            // Weglot intercepts this request and rewrites the `q` param's value
+            // in-flight (it translates it back to the site's origin language), so
+            // we also send the untranslated text via a header, which Weglot's
+            // search-parameter translation has no reason to touch.
+            const res = await axios.get('/api/v1/search', {
+                params: { q: val },
+                headers: { 'X-Search-Raw': val },
+            });
             results.value = res.data;
             visibleCount.value = 20;
             showDropdown.value = true;
@@ -60,22 +67,19 @@ function goToItem(item) {
     router.get(route('items.show', item.slug));
 }
 
-function goToSearch(e) {
-    // `query` still holds what the user actually typed. Weglot's "translate back"
-    // mutates the input's DOM value directly on form submit (before this handler
-    // runs) without flowing back through v-model, so we can read both: the raw
-    // text as typed, and the translated value Weglot put in the DOM.
-    const rawQ = query.value.trim();
-    const q = (e?.target?.elements?.q?.value ?? rawQ).trim();
+function goToSearch() {
+    const q = query.value.trim();
     if (!q) return;
     track('search', { search_term: q })
     showDropdown.value = false;
 
-    const params = { q };
-    if (rawQ && rawQ !== q) {
-        params.q_raw = rawQ;
-    }
-    router.get(route('search.index', params));
+    // Weglot rewrites the `q` param of this request in-flight, translating it
+    // back to the site's origin language - that's wanted here, since `name` is
+    // stored in Georgian. The untranslated text goes in a header instead, since
+    // Weglot's search-parameter translation has no reason to touch headers.
+    router.get(route('search.index', { q }), {}, {
+        headers: { 'X-Search-Raw': q },
+    });
 }
 
 function imageUrl(img) {
@@ -143,7 +147,7 @@ defineExpose({ inputRef });
             <button
                 v-if="query"
                 type="button"
-                @click="query = ''; results = []; showDropdown = false"
+                @click="query = ''; rawQuery = ''; results = []; showDropdown = false"
                 class="text-gray-400 hover:text-gray-600 shrink-0 cursor-pointer"
             >
                 <i class="pi pi-times text-xs"></i>

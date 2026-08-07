@@ -297,12 +297,13 @@ class ItemController extends Controller
     public function search(Request $request)
     {
         $q = $request->input('q', '');
+        $rawQ = $request->header('X-Search-Raw', '');
 
         if (strlen($q) < 2) {
             return response()->json([]);
         }
 
-        $items = Item::search($q)
+        $items = Item::search($q, $rawQ)
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
             ->get(['id', 'no', 'name', 'slug', 'unit_price', 'discount', 'fake_price', 'prices', 'images', 'inventory']);
 
