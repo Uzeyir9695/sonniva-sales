@@ -61,13 +61,21 @@ function goToItem(item) {
 }
 
 function goToSearch(e) {
-    // Read the live DOM value (not the `query` ref) - Weglot's "translate back"
-    // mutates the input directly on form submit, before this handler runs.
-    const q = (e?.target?.elements?.q?.value ?? query.value).trim();
+    // `query` still holds what the user actually typed. Weglot's "translate back"
+    // mutates the input's DOM value directly on form submit (before this handler
+    // runs) without flowing back through v-model, so we can read both: the raw
+    // text as typed, and the translated value Weglot put in the DOM.
+    const rawQ = query.value.trim();
+    const q = (e?.target?.elements?.q?.value ?? rawQ).trim();
     if (!q) return;
     track('search', { search_term: q })
     showDropdown.value = false;
-    router.get(route('search.index', { q }));
+
+    const params = { q };
+    if (rawQ && rawQ !== q) {
+        params.q_raw = rawQ;
+    }
+    router.get(route('search.index', params));
 }
 
 function imageUrl(img) {

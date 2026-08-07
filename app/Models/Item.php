@@ -66,14 +66,21 @@ class Item extends Model
         return number_format($base * (1 - $this->discount / 100), 2, '.', '');
     }
 
-    public function scopeSearch(Builder $query, string $q): Builder
+    public function scopeSearch(Builder $query, string $q, ?string $rawQ = null): Builder
     {
-        return $query->where(function (Builder $query) use ($q) {
+        $rawQ = $rawQ !== null && $rawQ !== '' ? $rawQ : $q;
+
+        return $query->where(function (Builder $query) use ($q, $rawQ) {
             $query->where('name', 'like', "%{$q}%")
                 ->orWhere('no', 'like', "%{$q}%")
-                ->orWhere('en_keywords', 'like', "%{$q}%")
-                ->orWhere('ru_keywords', 'like', "%{$q}%")
-                ->orWhere('tr_keywords', 'like', "%{$q}%");
+                ->orWhere('en_keywords', 'like', "%{$rawQ}%")
+                ->orWhere('ru_keywords', 'like', "%{$rawQ}%")
+                ->orWhere('tr_keywords', 'like', "%{$rawQ}%");
+
+            if ($rawQ !== $q) {
+                $query->orWhere('name', 'like', "%{$rawQ}%")
+                    ->orWhere('no', 'like', "%{$rawQ}%");
+            }
         });
     }
 
