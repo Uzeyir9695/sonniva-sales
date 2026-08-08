@@ -84,6 +84,17 @@ class AdminItemController extends Controller
         return response()->json($items);
     }
 
+    public function managed(): Response
+    {
+        $items = Item::where('discount', '>', 0)
+            ->orderBy('name')
+            ->get(['id', 'no', 'name', 'slug', 'images', 'video_url', 'unit_price', 'discount', 'wholesale_discount_percent', 'vip_discount_percent', 'bc_discount_percent', 'fake_price']);
+
+        return Inertia::render('Admin/items/DiscountedItems', [
+            'items' => $items,
+        ]);
+    }
+
     public function update(Request $request, Item $item): RedirectResponse
     {
         $validated = $request->validate([
