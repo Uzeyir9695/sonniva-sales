@@ -37,6 +37,7 @@ class UserOrderController extends Controller
                     'id' => $orderItem->id,
                     'name' => $orderItem->item?->name,
                     'image' => $orderItem->item?->images[0] ?? null,
+                    'storage_path' => $orderItem->item?->storage_path,
                     'quantity' => $orderItem->quantity,
                 ]),
             ]);
@@ -126,6 +127,7 @@ class UserOrderController extends Controller
                     'item_name' => $oi->item?->name,
                     'item_slug' => $oi->item?->slug,
                     'image' => $oi->item?->images[0] ?? null,
+                    'storage_path' => $oi->item?->storage_path,
                     'quantity' => $oi->quantity,
                     'unit_price' => $oi->unit_price,
                     'subtotal' => $oi->subtotal,

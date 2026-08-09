@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminAnalyticsController;
 use App\Http\Controllers\Admin\AdminBannerController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminHomeSectionController;
 use App\Http\Controllers\Admin\AdminItemController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminPaymentController;
@@ -120,6 +121,17 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::get('/home-page', [AdminBannerController::class, 'index'])->name('home-page.index');
         Route::post('/home-page/banners', [AdminBannerController::class, 'store'])->name('home-page.banners.store');
         Route::delete('/home-page/banners/{banner}', [AdminBannerController::class, 'destroy'])->name('home-page.banners.destroy');
+
+        // ******** Admin Home Sections ********//
+        Route::post('/home-page/sections', [AdminHomeSectionController::class, 'store'])->name('home-page.sections.store');
+        Route::put('/home-page/sections/{homeSection}', [AdminHomeSectionController::class, 'update'])->name('home-page.sections.update');
+        Route::patch('/home-page/sections/{homeSection}/toggle-hidden', [AdminHomeSectionController::class, 'toggleHidden'])->name('home-page.sections.toggle-hidden');
+        Route::delete('/home-page/sections/{homeSection}', [AdminHomeSectionController::class, 'destroy'])->name('home-page.sections.destroy');
+        Route::post('/home-page/sections/{homeSection}/items', [AdminHomeSectionController::class, 'attachItem'])->name('home-page.sections.items.store');
+        Route::delete('/home-page/sections/{homeSection}/items/{item}', [AdminHomeSectionController::class, 'detachItem'])->name('home-page.sections.items.destroy');
+        Route::post('/home-page/sections/{homeSection}/images', [AdminHomeSectionController::class, 'storeImage'])->name('home-page.sections.images.store');
+        Route::put('/home-page/sections/{homeSection}/images/{homeSectionImage}', [AdminHomeSectionController::class, 'updateImage'])->name('home-page.sections.images.update');
+        Route::delete('/home-page/sections/{homeSection}/images/{homeSectionImage}', [AdminHomeSectionController::class, 'destroyImage'])->name('home-page.sections.images.destroy');
 
         // ******** Admin Users Controllers ********//
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');

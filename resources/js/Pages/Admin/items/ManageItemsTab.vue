@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { useToast } from 'primevue/usetoast'
+import { useDebounceFn } from '@vueuse/core'
 import axios from 'axios'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 import ManageItemDialog from './ManageItemDialog.vue'
@@ -13,7 +14,6 @@ const toast = useToast()
 const query = ref('')
 const results = ref([])
 const searching = ref(false)
-let debounceTimer = null
 
 async function runSearch(q) {
     searching.value = true
@@ -27,15 +27,16 @@ async function runSearch(q) {
     }
 }
 
+const debouncedSearch = useDebounceFn((q) => runSearch(q), 400)
+
 function onSearchInput() {
-    clearTimeout(debounceTimer)
     const q = query.value.trim()
     if (q.length < 2) {
         results.value = []
         searching.value = false
         return
     }
-    debounceTimer = setTimeout(() => runSearch(q), 400)
+    debouncedSearch(q)
 }
 
 const dialogRef = ref(null)

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BannerImage;
+use App\Models\HomeSection;
+use App\Models\HomeSectionImage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -25,8 +27,26 @@ class AdminBannerController extends Controller
                 'item' => $b->item,
             ]));
 
+        $sections = HomeSection::with(['items:id,no,name,slug,images', 'images'])
+            ->orderBy('created_at')
+            ->get()
+            ->map(fn (HomeSection $s) => [
+                'id' => $s->id,
+                'carousel_title' => $s->carousel_title,
+                'gallery_title' => $s->gallery_title,
+                'is_hidden' => $s->is_hidden,
+                'items' => $s->items,
+                'images' => $s->images->map(fn (HomeSectionImage $img) => [
+                    'id' => $img->id,
+                    'image_url' => Storage::disk('public')->url($img->image_path),
+                    'title' => $img->title,
+                    'link_url' => $img->link_url,
+                ]),
+            ]);
+
         return Inertia::render('Admin/HomePage/Index', [
             'banners' => $banners,
+            'sections' => $sections,
         ]);
     }
 

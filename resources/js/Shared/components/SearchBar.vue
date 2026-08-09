@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
 import QuickViewDialog from '@/Shared/components/QuickViewDialog.vue';
@@ -28,10 +29,27 @@ const wrapperRef  = ref(null);
 const quickViewOpen  = ref(false);
 const quickViewItem = ref(null);
 
-let debounceTimer = null;
+const debouncedSearch = useDebounceFn(async (val) => {
+    try {
+        // Weglot intercepts this request and rewrites the `q` param's value
+        // in-flight (it translates it back to the site's origin language), so
+        // we also send the untranslated text via a header, which Weglot's
+        // search-parameter translation has no reason to touch.
+        const res = await axios.get('/api/v1/search', {
+            params: { q: val },
+            headers: { 'X-Search-Raw': val },
+        });
+        results.value = res.data;
+        visibleCount.value = 20;
+        showDropdown.value = true;
+    } catch {
+        results.value = [];
+    } finally {
+        loading.value = false;
+    }
+}, 450);
 
 watch(query, (val) => {
-    clearTimeout(debounceTimer);
     if (val.trim().length < 2) {
         results.value = [];
         showDropdown.value = false;
@@ -39,25 +57,7 @@ watch(query, (val) => {
         return;
     }
     loading.value = true;
-    debounceTimer = setTimeout(async () => {
-        try {
-            // Weglot intercepts this request and rewrites the `q` param's value
-            // in-flight (it translates it back to the site's origin language), so
-            // we also send the untranslated text via a header, which Weglot's
-            // search-parameter translation has no reason to touch.
-            const res = await axios.get('/api/v1/search', {
-                params: { q: val },
-                headers: { 'X-Search-Raw': val },
-            });
-            results.value = res.data;
-            visibleCount.value = 20;
-            showDropdown.value = true;
-        } catch {
-            results.value = [];
-        } finally {
-            loading.value = false;
-        }
-    }, 450);
+    debouncedSearch(val);
 });
 
 function goToItem(item) {
@@ -82,8 +82,8 @@ function goToSearch() {
     });
 }
 
-function imageUrl(img) {
-    return `/storage/items/${img}`;
+function imageUrl(item) {
+    return `${item.storage_path}/${item.images[0]}`;
 }
 
 // Close dropdown on outside click
@@ -192,7 +192,7 @@ defineExpose({ inputRef });
                     <div class="w-18 h-18 rounded-xl overflow-hidden bg-gray-100 shrink-0">
                         <img
                             v-if="item.images?.length"
-                            :src="imageUrl(item.images[0])"
+                            :src="imageUrl(item)"
                             :alt="item.name"
                             class="w-full h-full object-cover"
                         />

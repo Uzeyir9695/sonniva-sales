@@ -3,6 +3,7 @@ import { Head, usePage } from '@inertiajs/vue3';
 import LargeDeviceMegaMenu from '@/Shared/menu/LargeDeviceMegaMenu.vue';
 import MegaMenuRightPanel from '@/Shared/components/MegaMenuRightPanel.vue';
 import SwiperCarousel from '@/Shared/components/SwiperCarousel.vue';
+import HomeSection from '@/Shared/components/HomeSection.vue';
 
 const page = usePage();
 const categories = page.props.categories ?? [];
@@ -11,6 +12,10 @@ defineProps({
     carouselItems: {
         type: Array,
         default: []
+    },
+    homeSections: {
+        type: Array,
+        default: () => []
     }
 })
 
@@ -35,6 +40,12 @@ defineProps({
     </div>
 
     <div class="flex flex-col">
+        <HomeSection
+            v-for="section in homeSections"
+            :key="section.id"
+            :section="section"
+        />
+
         <SwiperCarousel
             v-for="carousel in carouselItems"
             :key="carousel.title"

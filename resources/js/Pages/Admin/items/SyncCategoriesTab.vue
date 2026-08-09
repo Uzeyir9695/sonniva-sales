@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { useToast } from 'primevue/usetoast'
+import { useDebounceFn } from '@vueuse/core'
 import axios from 'axios'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 
@@ -30,7 +31,6 @@ const categoryQuery = ref('')
 const categoryResults = ref([])
 const searchingCategories = ref(false)
 const fetchingCategoryImageId = ref(null)
-let categoryDebounceTimer = null
 
 function categoryImageUrl(category) {
     return `/storage/categories/${category.image}`
@@ -48,15 +48,16 @@ async function runCategorySearch(q) {
     }
 }
 
+const debouncedCategorySearch = useDebounceFn((q) => runCategorySearch(q), 400)
+
 function onCategorySearchInput() {
-    clearTimeout(categoryDebounceTimer)
     const q = categoryQuery.value.trim()
     if (q.length < 2) {
         categoryResults.value = []
         searchingCategories.value = false
         return
     }
-    categoryDebounceTimer = setTimeout(() => runCategorySearch(q), 400)
+    debouncedCategorySearch(q)
 }
 
 function fetchCategoryImage(category) {

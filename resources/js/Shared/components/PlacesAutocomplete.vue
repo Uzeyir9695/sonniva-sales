@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import { useDebounceFn } from '@vueuse/core';
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue';
 
 const props = defineProps({
@@ -15,15 +16,7 @@ const isConfirmed = ref(false);
 const showWarning = ref(false);
 let lastSeq = 0;
 
-const debounceTimerRef = { t: null };
-function debounce(fn, ms = 100) {
-    return (...args) => {
-        clearTimeout(debounceTimerRef.t);
-        debounceTimerRef.t = setTimeout(() => fn(...args), ms);
-    };
-}
-
-const doFetch = debounce(async (input, seq) => {
+const doFetch = useDebounceFn(async (input, seq) => {
     if (!input) {
         suggestions.value = [];
         return;

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\BannerImage;
+use App\Models\HomeSection;
+use App\Models\HomeSectionImage;
 use App\Models\Item;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -37,9 +39,30 @@ class HomeController extends Controller
                 ->toArray();
         });
 
+        $homeSections = Cache::rememberForever('home_sections', function () {
+            return HomeSection::where('is_hidden', false)
+                ->with(['items', 'images'])
+                ->orderBy('created_at')
+                ->get()
+                ->map(fn (HomeSection $s) => [
+                    'id' => $s->id,
+                    'carousel_title' => $s->carousel_title,
+                    'gallery_title' => $s->gallery_title,
+                    'items' => $s->items,
+                    'images' => $s->images->map(fn (HomeSectionImage $img) => [
+                        'id' => $img->id,
+                        'image_url' => Storage::disk('public')->url($img->image_path),
+                        'title' => $img->title,
+                        'link_url' => $img->link_url,
+                    ]),
+                ])
+                ->toArray();
+        });
+
         return Inertia::render('Home/Index', [
             'carouselItems' => $carouselItems,
             'banners' => $banners,
+            'homeSections' => $homeSections,
         ]);
     }
 

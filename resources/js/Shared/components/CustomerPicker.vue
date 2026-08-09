@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 import axios from 'axios';
 import { usePage } from '@inertiajs/vue3';
 
@@ -16,7 +17,6 @@ const dialogVisible = ref(false);
 const searchQuery       = ref('');
 const searchResults     = ref([]);
 const loadingSearch     = ref(false);
-let   searchTimeout     = null;
 
 const recentCustomers   = ref([]);
 const loadingRecent     = ref(false);
@@ -44,22 +44,23 @@ async function fetchRecent() {
     }
 }
 
+const debouncedSearch = useDebounceFn(async (q) => {
+    loadingSearch.value = true;
+    try {
+        const { data } = await axios.get(route('cashier.customers.index'), { params: { q } });
+        searchResults.value = data.customers ?? [];
+    } finally {
+        loadingSearch.value = false;
+    }
+}, 300);
+
 function onSearchInput() {
-    clearTimeout(searchTimeout);
     const q = searchQuery.value.trim();
     if (!q) {
         searchResults.value = [];
         return;
     }
-    searchTimeout = setTimeout(async () => {
-        loadingSearch.value = true;
-        try {
-            const { data } = await axios.get(route('cashier.customers.index'), { params: { q } });
-            searchResults.value = data.customers ?? [];
-        } finally {
-            loadingSearch.value = false;
-        }
-    }, 300);
+    debouncedSearch(q);
 }
 
 // ── Select ───────────────────────────────────────────────────────────────────

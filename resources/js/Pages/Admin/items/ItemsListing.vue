@@ -8,8 +8,8 @@ defineProps({
 
 defineEmits(['manage'])
 
-function imageUrl(img) {
-    return `/storage/items/${img}`
+function imageUrl(item) {
+    return `${item.storage_path}/${item.images[0]}`
 }
 </script>
 
@@ -18,7 +18,7 @@ function imageUrl(img) {
         <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
             <img
                 v-if="item.images?.length"
-                :src="imageUrl(item.images[0])"
+                :src="imageUrl(item)"
                 :alt="item.name"
                 class="w-full h-full object-cover"
             />

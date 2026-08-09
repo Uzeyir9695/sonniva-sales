@@ -7,8 +7,8 @@ import { formatDiscount } from '@/utils/numberFormat.js';
 const toast = useToast();
 const http = useHttp();
 
-function imageUrl(img) {
-    return `/storage/items/${img}`;
+function imageUrl(orderItem) {
+    return `${orderItem.storage_path}/${orderItem.image}`;
 }
 
 const visible = ref(false);
@@ -187,7 +187,7 @@ const providerLabel = {
                             <div class="relative w-14 h-14 rounded-lg border border-gray-100 bg-gray-50 shrink-0">
                                 <img
                                     v-if="data.image"
-                                    :src="imageUrl(data.image)"
+                                    :src="imageUrl(data)"
                                     :alt="data.item_name"
                                     class="w-full h-full object-cover rounded-lg"
                                 />

@@ -41,8 +41,8 @@ function remainingItemCount(order) {
     return Math.max((order.items?.length ?? 0) - MAX_ITEM_IMAGES, 0);
 }
 
-function imageUrl(img) {
-    return `/storage/items/${img}`;
+function imageUrl(orderItem) {
+    return `${orderItem.storage_path}/${orderItem.image}`;
 }
 </script>
 
@@ -125,7 +125,7 @@ function imageUrl(img) {
                             >
                                 <img
                                     v-if="orderItem.image"
-                                    :src="imageUrl(orderItem.image)"
+                                    :src="imageUrl(orderItem)"
                                     :alt="orderItem.name"
                                     class="w-full h-full object-cover rounded-lg"
                                 />
