@@ -156,9 +156,11 @@ class BusinessCentralService
             '$select' => implode(',', $fields),
         ]);
 
-        $data = $response->json();
+        if ($response->failed()) {
+            throw new \Exception('Item Ledger Entries API GET failed: '.$response->body());
+        }
 
-        $collection = collect($data['value']);
+        $collection = collect($response->json('value', []));
 
         $shop01Total = $collection
             ->where('Location_Code', 'SHOP01')
