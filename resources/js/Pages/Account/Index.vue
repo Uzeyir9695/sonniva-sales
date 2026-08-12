@@ -195,7 +195,8 @@ watch(() => props.user, (user) => {
                             </FloatLabel>
 
 
-                            <div v-if="selectedUserType?.key === 'individual' && editingByAdmin" class="space-y-2">
+                            <div v-if="editingByAdmin" class="space-y-2">
+                                <p class="text-sm sm:text-lg font-bold text-gray-500 mb-1">Permissions</p>
 
                                 <div class="flex items-center gap-2">
                                     <Checkbox v-model="form.can_view_wholesales" binary />
