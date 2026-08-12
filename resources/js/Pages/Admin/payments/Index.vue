@@ -24,10 +24,10 @@ const filters = ref({
     status:     { value: null, matchMode: FilterMatchMode.EQUALS },
 });
 
-const providers = ['tbc', 'bog', 'pcb', 'invoice'];
+const providers = ['tbc', 'bog', 'pcb', 'invoice', 'cash'];
 const statuses  = ['pending', 'completed', 'failed'];
 
-const providerLabel = { tbc: 'TBC', bog: 'BOG', pcb: 'ProCredit', invoice: 'Invoice' };
+const providerLabel = { tbc: 'TBC', bog: 'BOG', pcb: 'ProCredit', invoice: 'Invoice', cash: 'Cash' };
 
 const statusSeverity = {
     completed: 'success',

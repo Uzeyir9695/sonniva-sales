@@ -73,6 +73,7 @@ const providerLabel = {
     tbc:     'TBC',
     pcb:     'ProCredit',
     invoice: 'ინვოისი',
+    cash:    'ქეში',
 };
 </script>
 

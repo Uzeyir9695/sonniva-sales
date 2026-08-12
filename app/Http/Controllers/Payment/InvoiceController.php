@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Payment;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendOrderEmailJob;
+use App\Jobs\SendOrderToBCJob;
 use App\Mail\PaymentInvoiceMail;
 use App\Models\Cart;
 use App\Models\Order;
@@ -49,6 +51,24 @@ class InvoiceController extends Controller
         return to_route('payment.limit.success', ['invoice' => $result['invoiceNo']]);
     }
 
+    public function initiateCash(Request $request): RedirectResponse
+    {
+        if (! auth()->user()->allow_cash_payment) {
+            return back()->withErrors(['message' => __('Cash payment is not available for your account.')]);
+        }
+
+        try {
+            $result = $this->createOrder($request, 'paid', 'cash');
+        } catch (\InvalidArgumentException $e) {
+            return back()->withErrors(['message' => $e->getMessage()]);
+        }
+
+        SendOrderEmailJob::dispatch($result['order']->id, $result['payment']->id, $result['invoiceNo'], auth()->user());
+        SendOrderToBCJob::dispatch($result['order']);
+
+        return to_route('payment.success', ['provider' => 'cash']);
+    }
+
     private function createOrder(Request $request, string $status, string $provider): array
     {
         $calc = $this->calculatorService->calculate(
@@ -89,7 +109,7 @@ class InvoiceController extends Controller
                 'total' => $calc['total'],
             ];
 
-            $orderData[$provider === 'limit' ? 'approved_at' : 'invoiced_at'] = now();
+            $orderData[in_array($provider, ['limit', 'cash']) ? 'approved_at' : 'invoiced_at'] = now();
 
             $order = Order::create($orderData);
 
@@ -117,7 +137,7 @@ class InvoiceController extends Controller
                 'invoice_no' => $invoiceNo,
                 'provider' => $provider,
                 'amount' => $calc['total'],
-                'status' => $provider === 'limit' ? 'completed' : 'pending',
+                'status' => in_array($provider, ['limit', 'cash']) ? 'completed' : 'pending',
             ]);
         });
 

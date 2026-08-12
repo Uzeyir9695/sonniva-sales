@@ -182,6 +182,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
     Route::post('/payment/initiate', [PaymentController::class, 'initiate'])->name('payment.initiate');
     Route::post('/initiate/payment/invoice', [InvoiceController::class, 'initiateInvoice'])->name('initiate.payment.invoice');
     Route::post('/initiate/payment/limit', [InvoiceController::class, 'initiateLimit'])->name('initiate.payment.limit');
+    Route::post('/initiate/payment/cash', [InvoiceController::class, 'initiateCash'])->name('initiate.payment.cash');
 
     Route::get('/payment/success/{provider}', [PaymentController::class, 'success'])->name('payment.success');
 

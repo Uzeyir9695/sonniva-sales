@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Carbon\Carbon;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,7 @@ use Propaganistas\LaravelPhone\Casts\E164PhoneNumberCast;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasUuids, Notifiable;
 
     public $incrementing = false;
@@ -56,6 +57,7 @@ class User extends Authenticatable
             'can_view_wholesales' => 'boolean',
             'can_view_vip' => 'boolean',
             'can_view_inventory' => 'boolean',
+            'allow_cash_payment' => 'boolean',
             'password' => 'hashed',
             'phone' => E164PhoneNumberCast::class.':phone_country',
         ];

@@ -315,13 +315,16 @@ const showAddressField = computed(() =>
 
 // ─── Payment providers ────────────────────────────────────────────────────
 
-const providers = [
+const canPayCash = computed(() => page.props.user?.allow_cash_payment ?? false)
+
+const providers = computed(() => [
     { name: 'PCB ბანკი',         icon: '/payments/pcb.jpeg',         code: 'pcb' },
     { name: 'BOG ბანკი',         icon: '/payments/bog.png',           code: 'bog' },
     { name: 'TBC ბანკი',         icon: '/payments/tbc.png',           code: 'tbc' },
     { name: 'საბანკო გადარიცხვა',  icon: '/payments/invoice-icon.png',  code: 'invoice' },
     { name: 'ლიმიტით გადახდა',   icon: '',  code: 'limit' },
-]
+    ...(canPayCash.value ? [{ name: 'ქეშით გადახდა', icon: '', code: 'cash' }] : []),
+])
 
 const selectedProvider = ref(null)
 
@@ -487,6 +490,14 @@ function initiatePayment() {
         })
     } else if (selectedProvider.value.code === 'limit') {
         router.post(route('initiate.payment.limit'), data, {
+            onSuccess: () => { loading.value = false },
+            onError: (err) => {
+                toast.add({ severity: 'error', summary: 'შეცდომა', detail: err?.message || 'დაფიქსირდა შეცდომა', life: 5000 })
+                loading.value = false
+            },
+        })
+    } else if (selectedProvider.value.code === 'cash') {
+        router.post(route('initiate.payment.cash'), data, {
             onSuccess: () => { loading.value = false },
             onError: (err) => {
                 toast.add({ severity: 'error', summary: 'შეცდომა', detail: err?.message || 'დაფიქსირდა შეცდომა', life: 5000 })
@@ -803,12 +814,13 @@ function initiatePayment() {
                                     : 'border-gray-100 hover:border-gray-200 bg-white'"
                             >
                                 <img
-                                    v-if="provider.code !== 'limit'"
+                                    v-if="provider.icon"
                                     :src="provider.icon"
                                     :alt="provider.name"
                                     class="w-8 h-8 object-contain rounded-lg shrink-0"
                                 />
 
+                                <i v-else-if="provider.code === 'cash'" class="pi pi-money-bill text-2xl"></i>
                                 <i v-else class="pi pi-credit-card text-2xl"></i>
                                 <span class="text-sm font-semibold text-gray-800">{{ provider.name }}</span>
                                 <div class="ml-auto">

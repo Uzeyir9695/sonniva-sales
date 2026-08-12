@@ -77,6 +77,7 @@ class AccountController extends Controller
                 'can_view_wholesales',
                 'can_view_vip',
                 'can_view_inventory',
+                'allow_cash_payment',
             ]));
         }
 

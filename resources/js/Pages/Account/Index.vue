@@ -21,11 +21,12 @@ const form = useForm({
   name: null,
   email: null,
   lastname: null,
-  is_handyman: false,
-  is_entrepreneur: false,
   can_view_wholesales: false,
   can_view_vip: false,
   can_view_inventory: false,
+  allow_cash_payment: false,
+  is_handyman: false,
+  is_entrepreneur: false,
   tax_id: null,
   phone_country: selectedCountryCode.value,
   phone: null,
@@ -86,6 +87,7 @@ watch(() => props.user, (user) => {
     form.can_view_wholesales = user.can_view_wholesales;
     form.can_view_vip = user.can_view_vip;
     form.can_view_inventory = user.can_view_inventory;
+    form.allow_cash_payment = user.allow_cash_payment;
     form.tax_id = user.tax_id;
     form.phone = user.phone;
     form.address = user.address;
@@ -194,29 +196,35 @@ watch(() => props.user, (user) => {
 
 
                             <div v-if="selectedUserType?.key === 'individual' && editingByAdmin" class="space-y-2">
-                                <div class="flex items-center gap-2">
-                                    <Checkbox v-model="form.is_handyman" binary />
-                                    <label for="ingredient1"> არის ხელოსანი </label>
-                                </div>
-
-                                <div class="flex items-center gap-2">
-                                    <Checkbox v-model="form.is_entrepreneur" binary />
-                                    <label for="ingredient1"> არის მცირე მეწარმე </label>
-                                </div>
 
                                 <div class="flex items-center gap-2">
                                     <Checkbox v-model="form.can_view_wholesales" binary />
-                                    <label for="ingredient1"> შეძლოს საბითუმო ფასების ნახვა </label>
+                                    <label for="ingredient1"> Can view wholesales </label>
                                 </div>
 
                                 <div class="flex items-center gap-2">
                                     <Checkbox v-model="form.can_view_vip" binary />
-                                    <label for="ingredient1"> შეძლოს VIP ფასების ნახვა </label>
+                                    <label for="ingredient1"> Can view VIP prices </label>
                                 </div>
 
                                 <div class="flex items-center gap-2">
                                     <Checkbox v-model="form.can_view_inventory" binary />
-                                    <label for="ingredient1"> შეძლოს მაღაზებში ნაშთის ნახვა </label>
+                                    <label for="ingredient1"> Can view inventory </label>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <Checkbox v-model="form.allow_cash_payment" binary />
+                                    <label for="ingredient1"> Allow cash payment </label>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <Checkbox v-model="form.is_entrepreneur" binary />
+                                    <label for="ingredient1"> Is entrepreneur </label>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <Checkbox v-model="form.is_handyman" binary />
+                                    <label for="ingredient1"> Is handyman </label>
                                 </div>
                             </div>
 
