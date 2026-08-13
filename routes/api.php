@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\RegisterController;
@@ -33,6 +34,8 @@ Route::prefix('v1')->group(function () {
     Route::post('/forgot-password/reset', [ForgotPasswordController::class, 'resetPassword']);
 
     Route::get('/search', [ItemController::class, 'search'])->name('items.search');
+
+    Route::get('/categories', [CategoryController::class, 'tree'])->name('api.categories.tree');
 
     Route::middleware('auth:sanctum')->group(function () {
         // ── Wishlist ─────────────────────────────────────────────────────
