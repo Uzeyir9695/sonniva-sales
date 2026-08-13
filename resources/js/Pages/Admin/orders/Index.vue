@@ -2,7 +2,7 @@
 import AdminLayout from '../AdminLayout.vue';
 import TableSkeleton from '@/Shared/components/TableSkeleton.vue';
 import OrderDetailDialog from './OrderDetailDialog.vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useMediaQuery } from '@vueuse/core';
 import { Deferred, router, usePoll } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
@@ -181,6 +181,15 @@ const providerLabel = {
     invoice: 'Invoice',
     limit:   'Limit',
 };
+
+const totalsSummary = computed(() => {
+    const rows = props.orders?.data ?? [];
+
+    const after    = rows.reduce((sum, order) => sum + Number(order.total), 0);
+    const discount = rows.reduce((sum, order) => sum + Number(order.discount_total), 0);
+
+    return { before: after + discount, after, discount };
+});
 
 const filters = ref({
     invoice_no:    { value: null, matchMode: FilterMatchMode.EQUALS },
@@ -500,7 +509,19 @@ function confirmMarkDelivered(order) {
 
                     <Column header="Total" style="min-width: 7rem;">
                         <template #body="{ data }">
-                            <span class="font-semibold">{{ data.total }} ₾</span>
+                            <div v-if="data.discount_total > 0" class="flex flex-col gap-0.5">
+                                <span class="line-through text-gray-400 text-xs">{{ (Number(data.total) + Number(data.discount_total)).toFixed(2) }} ₾</span>
+                                <span class="font-semibold">{{ data.total }} ₾</span>
+                                <span class="text-red-600 text-xs font-medium">-{{ Number(data.discount_total).toFixed(2) }} ₾</span>
+                            </div>
+                            <span v-else class="font-semibold">{{ data.total }} ₾</span>
+                        </template>
+                        <template #footer>
+                            <div class="flex flex-col gap-0.5">
+                                <span class="line-through text-gray-400 text-xs">{{ totalsSummary.before.toFixed(2) }} ₾</span>
+                                <span class="font-semibold text-gray-800">{{ totalsSummary.after.toFixed(2) }} ₾</span>
+                                <span v-if="totalsSummary.discount > 0" class="text-red-600 text-xs font-medium">-{{ totalsSummary.discount.toFixed(2) }} ₾</span>
+                            </div>
                         </template>
                     </Column>
 

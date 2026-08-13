@@ -7,6 +7,7 @@ import ReorderDialog from './ReorderDialog.vue';
 
 defineProps({
     orders: Object,
+    ordersSummary: Object,
 });
 
 const detailDialog = ref(null);
@@ -55,7 +56,7 @@ function imageUrl(orderItem) {
     <div class="py-8 px-4">
         <h1 class="text-xl font-semibold text-gray-800 mb-6">ჩემი შეკვეთები</h1>
 
-        <Deferred data="orders">
+        <Deferred :data="['orders', 'ordersSummary']">
             <template #fallback>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div
@@ -96,10 +97,22 @@ function imageUrl(orderItem) {
                 </a>
             </div>
 
-            <div class="flex items-center gap-2 mb-4">
+            <div class="flex items-center justify-between gap-2 mb-4 flex-wrap">
                 <span class="font-semibold text-gray-700 text-sm">
                     {{ orders.total ?? orders.data.length }} შეკვეთა
                 </span>
+                <div v-if="ordersSummary" class="flex flex-col items-end gap-1.5 text-sm">
+                    <h5 class="font-semibold">ჯამური თანხა</h5>
+                    <div class="flex items-center gap-1.5">
+                        <span v-if="ordersSummary.discount > 0" class="line-through text-gray-400 text-xs">
+                        {{ (ordersSummary.total + ordersSummary.discount).toFixed(2) }} ₾
+                    </span>
+                        <span class="font-semibold text-gray-800">{{ ordersSummary.total.toFixed(2) }} ₾</span>
+                        <span v-if="ordersSummary.discount > 0" class="text-red-600 text-xs font-medium">
+                        -{{ ordersSummary.discount.toFixed(2) }} ₾
+                    </span>
+                    </div>
+                </div>
             </div>
 
             <div v-if="orders.data?.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -154,7 +167,12 @@ function imageUrl(orderItem) {
                         </div>
                         <div>
                             <p class="text-xs text-gray-400">სულ</p>
-                            <p class="font-semibold text-gray-900">{{ order.total }} ₾</p>
+                            <div v-if="order.discount_total > 0" class="flex flex-col gap-0.5">
+                                <span class="line-through text-gray-400 text-xs">{{ (Number(order.total) + Number(order.discount_total)).toFixed(2) }} ₾</span>
+                                <span class="font-semibold text-gray-900">{{ order.total }} ₾</span>
+                                <span class="text-red-600 text-xs font-medium">-{{ Number(order.discount_total).toFixed(2) }} ₾</span>
+                            </div>
+                            <p v-else class="font-semibold text-gray-900">{{ order.total }} ₾</p>
                         </div>
                         <div v-if="order.tracking_number" class="col-span-2">
                             <p class="text-xs text-gray-400">თრექინგის ნომერი</p>

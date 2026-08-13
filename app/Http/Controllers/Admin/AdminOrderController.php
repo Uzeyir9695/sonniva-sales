@@ -26,6 +26,7 @@ class AdminOrderController extends Controller
         $orders = Order::with([
             'user:id,name,lastname,phone,tax_id',
             'payment:id,order_id,provider,status,amount,invoice_no,transaction_id',
+            'items:id,order_id,quantity,unit_price,subtotal,discount,wholesale_discount,fake_price',
         ])
             ->whereNot('status', 'awaiting_payment')
             ->where('status', $status)
@@ -48,6 +49,7 @@ class AdminOrderController extends Controller
                 'delivery_type' => $order->delivery_type,
                 'subtotal' => $order->subtotal,
                 'total' => $order->total,
+                'discount_total' => $order->discountTotal(),
                 'created_at' => $order->created_at,
                 'invoiced_at' => $order->invoiced_at,
                 'approved_at' => $order->approved_at,

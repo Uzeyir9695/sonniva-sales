@@ -27,6 +27,7 @@ class UserOrderController extends Controller
                 'status' => $order->status,
                 'delivery_type' => $order->delivery_type,
                 'total' => $order->total,
+                'discount_total' => $order->discountTotal(),
                 'created_at' => $order->created_at,
                 'tracking_number' => $order->tracking_number,
                 'payment' => $order->payment ? [
@@ -44,7 +45,25 @@ class UserOrderController extends Controller
 
         return Inertia::render('UserOrders/Index', [
             'orders' => Inertia::defer(fn () => $orders),
+            'ordersSummary' => Inertia::defer(fn () => $this->ordersSummary()),
         ]);
+    }
+
+    /**
+     * Aggregate total/discount across all of the user's orders (matching the "X orders" count
+     * shown alongside it), not just the current pagination page.
+     */
+    private function ordersSummary(): array
+    {
+        $orders = Order::with('items:id,order_id,quantity,subtotal,discount,wholesale_discount,fake_price')
+            ->where('user_id', Auth::id())
+            ->whereNot('status', 'awaiting_payment')
+            ->get(['id', 'total', 'wholesale_discount']);
+
+        return [
+            'total' => (float) $orders->sum('total'),
+            'discount' => (float) $orders->sum(fn (Order $order) => $order->discountTotal()),
+        ];
     }
 
     public function reorder(Order $order, Request $request): JsonResponse

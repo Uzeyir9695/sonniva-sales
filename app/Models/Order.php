@@ -70,6 +70,33 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    /**
+     * Combined wholesale + normal (fake_price/discount) savings for this order. The wholesale
+     * portion is read from the order-level column rather than summed from order_items.wholesale_discount:
+     * that per-line column was never persisted for orders placed before ~2026-07-05, while the
+     * order-level aggregate has always been correct.
+     */
+    public function discountTotal(): float
+    {
+        $normalDiscount = (float) $this->items->sum(function (OrderItem $item) {
+            if ($item->wholesale_discount > 0) {
+                return 0.0;
+            }
+
+            if ($item->discount > 0) {
+                return (float) $item->subtotal / (1 - (float) $item->discount / 100) - (float) $item->subtotal;
+            }
+
+            if ($item->fake_price > 0) {
+                return (float) $item->fake_price * $item->quantity - (float) $item->subtotal;
+            }
+
+            return 0.0;
+        });
+
+        return (float) $this->wholesale_discount + $normalDiscount;
+    }
+
     public function payment(): HasOne
     {
         return $this->hasOne(Payment::class);
