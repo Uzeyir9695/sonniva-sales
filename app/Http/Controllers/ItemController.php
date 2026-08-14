@@ -8,6 +8,7 @@ use App\Models\Item;
 use App\Models\StockNotification;
 use App\Services\BusinessCentralService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
 use Inertia\Inertia;
 
@@ -118,7 +119,14 @@ class ItemController extends Controller
 
         $breadcrumbs = $this->buildCategoryBreadcrumbs($category);
 
-        if ($request->wantsJson()) {
+        Log::info('items.index wantsJson check', [
+            'path' => $request->path(),
+            'isApi' => $request->is('api/*'),
+            'wantsJson' => $request->wantsJson(),
+            'accept' => $request->header('Accept'),
+        ]);
+
+        if ($request->is('api/*') || $request->wantsJson()) {
             return response()->json($items);
         }
 
