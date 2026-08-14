@@ -59,8 +59,12 @@ function onBlur() {
     }
 }
 
+function stripGeorgia(address) {
+    return address.replace(/,?\s*Georgia\s*$/i, "").trim();
+}
+
 function selectSuggestion(item) {
-    query.value = item.placePrediction.text.text;
+    query.value = stripGeorgia(item.placePrediction.text.text);
     suggestions.value = [];
     isConfirmed.value = true;
     showWarning.value = false;
