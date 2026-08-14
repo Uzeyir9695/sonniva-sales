@@ -39,8 +39,17 @@ it('returns a JSON paginator for a leaf category when the client wants JSON', fu
     $response = $this->getJson("/{$leaf->slug}");
 
     $response->assertSuccessful();
-    $response->assertJsonStructure(['data', 'current_page', 'last_page', 'per_page', 'total']);
-    $response->assertJsonCount(2, 'data');
+    $response->assertJsonStructure([
+        'attributes',
+        'items' => ['data', 'current_page', 'last_page', 'per_page', 'total'],
+        'breadcrumbs',
+        'relatedCategories',
+        'relatedCategoriesParent',
+        'subcategoryStrip',
+        'currentCategorySlug',
+        'isOrderOnly',
+    ]);
+    $response->assertJsonCount(2, 'items.data');
 });
 
 it('aggregates items from descendant categories for a top-level category JSON request', function () {
@@ -52,8 +61,8 @@ it('aggregates items from descendant categories for a top-level category JSON re
     $response = $this->getJson("/{$top->slug}");
 
     $response->assertSuccessful();
-    $response->assertJsonCount(1, 'data');
-    $response->assertJsonPath('data.0.name', 'Drill');
+    $response->assertJsonCount(1, 'items.data');
+    $response->assertJsonPath('items.data.0.name', 'Drill');
 });
 
 it('returns a JSON paginator via the dedicated mobile /api/v1/items/{slug} route', function () {
@@ -65,8 +74,8 @@ it('returns a JSON paginator via the dedicated mobile /api/v1/items/{slug} route
     $response = $this->getJson("/api/v1/items/{$leaf->slug}");
 
     $response->assertSuccessful();
-    $response->assertJsonCount(1, 'data');
-    $response->assertJsonPath('data.0.name', 'Screwdriver');
+    $response->assertJsonCount(1, 'items.data');
+    $response->assertJsonPath('items.data.0.name', 'Screwdriver');
 });
 
 it('still returns the Inertia page for a normal browser request', function () {

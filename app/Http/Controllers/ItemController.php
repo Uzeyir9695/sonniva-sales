@@ -119,7 +119,16 @@ class ItemController extends Controller
         $breadcrumbs = $this->buildCategoryBreadcrumbs($category);
 
         if ($request->wantsJson()) {
-            return response()->json($items);
+            return response()->json([
+                'attributes' => $attributes,
+                'items' => $items,
+                'breadcrumbs' => $breadcrumbs,
+                'relatedCategories' => $relatedCategories,
+                'relatedCategoriesParent' => $relatedCategoriesParent,
+                'subcategoryStrip' => $subcategoryStrip,
+                'currentCategorySlug' => $category->slug,
+                'isOrderOnly' => $this->isOrderOnlyCategory($category),
+            ]);
         }
 
         View::share('breadcrumb_json_ld', $this->buildBreadcrumbJsonLd($breadcrumbs));
