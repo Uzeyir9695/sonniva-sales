@@ -12,7 +12,7 @@ class SearchController extends Controller
     public function index(Request $request): Response
     {
         $q = trim($request->input('q', ''));
-        $rawQ = trim($request->header('X-Search-Raw', ''));
+        $rawQ = trim(rawurldecode($request->header('X-Search-Raw', '')));
         $priceMin = $request->input('price_min');
         $priceMax = $request->input('price_max');
         $stock = $request->input('stock');

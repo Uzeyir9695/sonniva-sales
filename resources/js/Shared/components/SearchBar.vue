@@ -37,7 +37,7 @@ const debouncedSearch = useDebounceFn(async (val) => {
         // search-parameter translation has no reason to touch.
         const res = await axios.get('/api/v1/search', {
             params: { q: val },
-            headers: { 'X-Search-Raw': val },
+            headers: { 'X-Search-Raw': encodeURIComponent(val) },
         });
         results.value = res.data;
         visibleCount.value = 20;
@@ -78,7 +78,7 @@ function goToSearch() {
     // stored in Georgian. The untranslated text goes in a header instead, since
     // Weglot's search-parameter translation has no reason to touch headers.
     router.get(route('search.index', { q }), {}, {
-        headers: { 'X-Search-Raw': q },
+        headers: { 'X-Search-Raw': encodeURIComponent(q) },
     });
 }
 

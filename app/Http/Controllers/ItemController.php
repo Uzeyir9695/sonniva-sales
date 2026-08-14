@@ -310,7 +310,7 @@ class ItemController extends Controller
     public function search(Request $request)
     {
         $q = $request->input('q', '');
-        $rawQ = $request->header('X-Search-Raw', '');
+        $rawQ = rawurldecode($request->header('X-Search-Raw', ''));
 
         if (strlen($q) < 2) {
             return response()->json([]);
