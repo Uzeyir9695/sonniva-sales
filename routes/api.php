@@ -37,6 +37,12 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/categories', [CategoryController::class, 'tree'])->name('api.categories.tree');
 
+    // Same ItemController::index() the web catalog uses (Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}')
+    // in routes/web.php) — it resolves the category from the last URL segment regardless of how many segments
+    // precede it, and already branches to JSON via $request->wantsJson(). This route just gives mobile its own
+    // path so it never touches the `web` middleware group (session, HandleInertiaRequests, etc.).
+    Route::get('/items/{slug}', [ItemController::class, 'index'])->name('api.items.index');
+
     Route::middleware('auth:sanctum')->group(function () {
         // ── Wishlist ─────────────────────────────────────────────────────
         Route::get('wishlist/ids', [WishlistController::class, 'ids'])->name('api.wishlist.ids');

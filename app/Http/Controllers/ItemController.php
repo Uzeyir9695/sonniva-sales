@@ -118,6 +118,10 @@ class ItemController extends Controller
 
         $breadcrumbs = $this->buildCategoryBreadcrumbs($category);
 
+        if ($request->wantsJson()) {
+            return response()->json($items);
+        }
+
         View::share('breadcrumb_json_ld', $this->buildBreadcrumbJsonLd($breadcrumbs));
 
         return Inertia::render('Items/Index', [
