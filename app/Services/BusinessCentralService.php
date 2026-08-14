@@ -283,7 +283,7 @@ class BusinessCentralService
             'Ship_to_Name' => $user->name,
             'Ship_to_Address' => $order->address.
                 ($order->apartment_number
-                    ? ' - Apartment number: '.$order->apartment_number
+                    ? ' - '.$order->apartment_number
                     : ''),
             'Ship_to_Address_2' => '',
             'Ship_to_City' => '',
