@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\SalesController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,6 +43,8 @@ Route::prefix('v1')->group(function () {
     // precede it, and already branches to JSON via $request->wantsJson(). This route just gives mobile its own
     // path so it never touches the `web` middleware group (session, HandleInertiaRequests, etc.).
     Route::get('/items/{slug}', [ItemController::class, 'index'])->name('api.items.index');
+
+    Route::get('/sales', [SalesController::class, 'index'])->name('api.sales.index');
 
     Route::middleware('auth:sanctum')->group(function () {
         // ── Wishlist ─────────────────────────────────────────────────────
