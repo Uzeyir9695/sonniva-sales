@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\WishlistController;
@@ -37,6 +38,11 @@ Route::prefix('v1')->group(function () {
     Route::get('/search', [ItemController::class, 'search'])->name('items.search');
 
     Route::get('/categories', [CategoryController::class, 'tree'])->name('api.categories.tree');
+
+    // Same HomeController::index() the web homepage uses, already branching
+    // to JSON via $request->wantsJson() — banners, brand carousels, and
+    // admin-curated home sections, all cached the same way for both clients.
+    Route::get('/home', [HomeController::class, 'index'])->name('api.home');
 
     // Same ItemController::index() the web catalog uses (Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}')
     // in routes/web.php) — it resolves the category from the last URL segment regardless of how many segments

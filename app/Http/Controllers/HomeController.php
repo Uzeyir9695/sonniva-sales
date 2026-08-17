@@ -6,6 +6,7 @@ use App\Models\BannerImage;
 use App\Models\HomeSection;
 use App\Models\HomeSectionImage;
 use App\Models\Item;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -14,7 +15,7 @@ class HomeController extends Controller
 {
     private const BRAND_ATTRIBUTE_NAME = 'ბრენდი';
 
-    public function index()
+    public function index(Request $request)
     {
         $carouselItems = [
             $this->getItemsByBrand('HMSFIX'),
@@ -58,6 +59,14 @@ class HomeController extends Controller
                 ])
                 ->toArray();
         });
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'carouselItems' => $carouselItems,
+                'banners' => $banners,
+                'homeSections' => $homeSections,
+            ]);
+        }
 
         return Inertia::render('Home/Index', [
             'carouselItems' => $carouselItems,
