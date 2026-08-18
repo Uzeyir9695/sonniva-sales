@@ -75,11 +75,11 @@ function goToSearch() {
 
     // Weglot rewrites the `q` param of this request in-flight, translating it
     // back to the site's origin language - that's wanted here, since `name` is
-    // stored in Georgian. The untranslated text goes in a header instead, since
-    // Weglot's search-parameter translation has no reason to touch headers.
-    router.get(route('search.index', { q }), {}, {
-        headers: { 'X-Search-Raw': encodeURIComponent(q) },
-    });
+    // stored in Georgian. `raw_q` carries the as-typed text through instead of
+    // a header, since the results are fetched via Inertia's deferred-prop
+    // reload (and filter changes), which don't carry headers set on this call
+    // but do reuse the page's query string.
+    router.get(route('search.index', { q, raw_q: q }));
 }
 
 function imageUrl(item) {

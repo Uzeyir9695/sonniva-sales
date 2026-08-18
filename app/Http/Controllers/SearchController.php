@@ -12,13 +12,14 @@ class SearchController extends Controller
     public function index(Request $request): Response
     {
         $q = trim($request->input('q', ''));
-        $rawQ = trim(rawurldecode($request->header('X-Search-Raw', '')));
+        $rawQ = trim($request->input('raw_q', $q));
         $priceMin = $request->input('price_min');
         $priceMax = $request->input('price_max');
         $stock = $request->input('stock');
 
         return Inertia::render('Search/Index', [
             'query' => $q,
+            'rawQuery' => $rawQ,
             'items' => Inertia::defer(fn () => $this->fetchItems($q, $rawQ, $priceMin, $priceMax, $stock)),
         ]);
     }

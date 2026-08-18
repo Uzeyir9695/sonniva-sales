@@ -7,6 +7,7 @@ import ItemsGrid from '@/Shared/components/ItemsGrid.vue';
 
 const props = defineProps({
     query: String,
+    rawQuery: String,
     items: Object,
 });
 
@@ -42,6 +43,7 @@ const applyFilters = debounce(() => {
 
     router.get(route('search.index'), {
         q: props.query,
+        raw_q: props.rawQuery,
         price_min: priceMin.value || undefined,
         price_max: priceMax.value || undefined,
         stock: stockFilter.value?.value || undefined,
