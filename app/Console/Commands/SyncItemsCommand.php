@@ -90,9 +90,7 @@ class SyncItemsCommand extends Command
             $existing->restore();
             $this->info("  → Restored previously removed item {$item['no']}");
         } elseif ($existing) {
-            $this->info("  → Skipping {$item['no']} (already exists)");
-
-            return;
+            $this->info("  → Refreshing existing item {$item['no']}");
         }
 
         $detailUrl = "https://api.businesscentral.dynamics.com/v2.0/Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/itemsDetailed('{$item['no']}')"
@@ -116,13 +114,20 @@ class SyncItemsCommand extends Command
             }
         }
 
+        // Keep the existing slug when the name hasn't changed, so re-syncing an
+        // already-imported item doesn't rewrite its URL (makeUniqueSlug would
+        // otherwise see the item's own current slug as "taken").
+        $slug = ($existing && $existing->name === ($item['description'] ?? null))
+            ? $existing->slug
+            : $this->makeUniqueSlug($item['description'], $item['no'], $existing?->id);
+
         $created = Item::updateOrCreate(
             ['no' => $item['no']],
             [
                 'category_code' => $item['itemCategoryCode'],
                 'name' => $item['description'] ?? null,
                 'description' => $item['itemReview'] ?? null,
-                'slug' => $this->makeUniqueSlug($item['description'], $item['no']),
+                'slug' => $slug,
                 'inventory' => $item['inventory'] ?? 0,
                 'base_uom_desc' => $item['baseUOMDesc'] ?? null,
                 'unit_price' => $item['unitPrice'] ?? 0,
@@ -131,6 +136,11 @@ class SyncItemsCommand extends Command
                 'images' => $images,
             ]
         );
+
+        // Replace attributes wholesale rather than appending, so re-syncing an
+        // existing item doesn't pile up duplicate rows (there's no unique
+        // constraint on item_id + bc_attribute_id to upsert against).
+        Attribute::where('item_id', $created->id)->delete();
 
         $attrs = $item['itemAttributeValues'] ?? [];
 
@@ -201,11 +211,15 @@ class SyncItemsCommand extends Command
         return mb_strtolower($text);
     }
 
-    private function makeUniqueSlug(string $text, string $no): string
+    private function makeUniqueSlug(string $text, string $no, ?string $excludeId = null): string
     {
         $base = $this->makeSlug($text);
 
-        if (! Item::where('slug', $base)->exists()) {
+        $taken = Item::where('slug', $base)
+            ->when($excludeId, fn ($query) => $query->where('id', '!=', $excludeId))
+            ->exists();
+
+        if (! $taken) {
             return $base;
         }
 
