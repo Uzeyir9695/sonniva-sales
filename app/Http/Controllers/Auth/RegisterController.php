@@ -46,7 +46,7 @@ class RegisterController extends Controller
     {
         $validated = $request->validate([
             'user_type' => 'required|string|max:20',
-            'tax_id' => 'required|string|min:9|max:50',
+            'tax_id' => 'required|string|min:6|max:50',
             'name' => 'required|string|max:30',
             'lastname'  => 'required_if:user_type,individual|max:30',
             'phone_country'  => 'required|string',
