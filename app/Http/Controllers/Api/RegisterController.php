@@ -27,13 +27,16 @@ class RegisterController extends Controller
     public function register(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'user_type'     => 'required|string|max:20',
-            'tax_id'        => 'required|string|min:9|max:50',
-            'name'          => 'required|string|max:30',
+            'user_type' => 'required|string|max:20',
+            'tax_id' => 'required|string|min:9|max:50',
+            'name' => 'required|string|max:30',
+            'lastname' => 'required_if:user_type,individual|max:30',
             'phone_country' => 'required|string',
-            'phone'         => 'required|phone:phone_country',
-            'email'         => 'required|email|unique:users,email|max:255',
-            'password'      => 'required|string|min:6|confirmed',
+            'phone' => 'required|phone:phone_country',
+            'email' => 'required|email|unique:users,email|max:255',
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'lastname.required_if' => __('The lastname field is required when user type is individual.'),
         ]);
 
         $phone = $this->registerService->formatPhone($request->phone, $request->phone_country);
@@ -41,24 +44,25 @@ class RegisterController extends Controller
         if ($this->registerService->phoneExists($phone)) {
             return response()->json([
                 'message' => __('controller-messages.phone_exists'),
-                'errors'  => ['phone' => [__('controller-messages.phone_exists')]],
+                'errors' => ['phone' => [__('controller-messages.phone_exists')]],
             ], 422);
         }
 
         $result = $this->registerService->generateAndSendOtp($phone);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json(['message' => $result['message']], 500);
         }
 
         // API uses DB to hold OTP and registration data between steps (no session)
         $this->registerService->storeOtpInDb($phone, $result['otp'], [
-            'user_type'     => $validated['user_type'],
-            'tax_id'        => $validated['tax_id'],
-            'name'          => $validated['name'],
+            'user_type' => $validated['user_type'],
+            'tax_id' => $validated['tax_id'],
+            'name' => $validated['name'],
+            'lastname' => $validated['lastname'] ?? null,
             'phone_country' => $validated['phone_country'],
-            'email'         => $validated['email'] ?? null,
-            'password'      => Hash::make($validated['password']), // hash before storing in DB
+            'email' => $validated['email'] ?? null,
+            'password' => Hash::make($validated['password']), // hash before storing in DB
         ]);
 
         return response()->json(['message' => $result['message']], 200);
@@ -73,7 +77,7 @@ class RegisterController extends Controller
     public function resendCode(Request $request): JsonResponse
     {
         $request->validate([
-            'phone'         => 'required|string',
+            'phone' => 'required|string',
             'phone_country' => 'required|string',
         ]);
 
@@ -82,7 +86,7 @@ class RegisterController extends Controller
         // Make sure there is a pending registration for this phone
         $pending = OtpVerification::where('phone', $phone->formatE164())->exists();
 
-        if (!$pending) {
+        if (! $pending) {
             return response()->json([
                 'message' => __('controller-messages.session_expired'),
             ], 422);
@@ -90,7 +94,7 @@ class RegisterController extends Controller
 
         $result = $this->registerService->generateAndSendOtp($phone);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json(['message' => $result['message']], 500);
         }
 
@@ -99,7 +103,7 @@ class RegisterController extends Controller
         $record = OtpVerification::where('phone', $phone->formatE164())->first();
 
         $record->update([
-            'otp'        => $result['otp'],
+            'otp' => $result['otp'],
             'expires_at' => now()->addMinutes(15),
         ]);
 
@@ -115,20 +119,20 @@ class RegisterController extends Controller
     public function verifyCode(Request $request): JsonResponse
     {
         $request->validate([
-            'phone'         => 'required|string',
+            'phone' => 'required|string',
             'phone_country' => 'required|string',
-            'otp'           => 'required|string|size:6',
+            'otp' => 'required|string|size:6',
         ]);
 
         $phone = $this->registerService->formatPhone($request->phone, $request->phone_country);
 
         // Verify OTP from DB
         $verification = $this->registerService->verifyOtpFromDb(
-            phoneE164:    $phone->formatE164(),
+            phoneE164: $phone->formatE164(),
             submittedOtp: $request->otp,
         );
 
-        if (!$verification['valid']) {
+        if (! $verification['valid']) {
             return response()->json([
                 'message' => $verification['message'],
             ], 422);
@@ -147,8 +151,8 @@ class RegisterController extends Controller
 
         return response()->json([
             'message' => 'Registration successful',
-            'token'   => $token,
-            'user'    => $user,
+            'token' => $token,
+            'user' => $user,
         ], 201);
     }
 }

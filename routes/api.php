@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\LoginController;
@@ -53,6 +54,11 @@ Route::prefix('v1')->group(function () {
     Route::get('/sales', [SalesController::class, 'index'])->name('api.sales.index');
 
     Route::middleware('auth:sanctum')->group(function () {
+        // ── Account ──────────────────────────────────────────────────────
+        Route::get('account', [AccountController::class, 'show'])->name('api.account.show');
+        Route::put('account', [AccountController::class, 'update'])->name('api.account.update');
+        Route::put('account/change-password', [AccountController::class, 'changePassword'])->name('api.account.change-password');
+
         // ── Wishlist ─────────────────────────────────────────────────────
         Route::get('wishlist/ids', [WishlistController::class, 'ids'])->name('api.wishlist.ids');
         Route::post('wishlist/sync', [WishlistController::class, 'syncGuest'])->name('api.wishlist.sync');
