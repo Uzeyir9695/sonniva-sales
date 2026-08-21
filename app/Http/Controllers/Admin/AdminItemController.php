@@ -79,7 +79,7 @@ class AdminItemController extends Controller
             ->orWhere('name', 'like', "%{$q}%")
             ->orderBy('name')
             ->limit(30)
-            ->get(['id', 'no', 'name', 'slug', 'images', 'video_url', 'unit_price', 'discount', 'wholesale_discount_percent', 'vip_discount_percent', 'bc_discount_percent', 'fake_price']);
+            ->get(['id', 'no', 'name', 'slug', 'images', 'video_url', 'unit_price', 'unit_price_override', 'discount', 'wholesale_discount_percent', 'vip_discount_percent', 'bc_discount_percent', 'fake_price']);
 
         return response()->json($items);
     }
@@ -88,7 +88,7 @@ class AdminItemController extends Controller
     {
         $items = Item::where('discount', '>', 0)
             ->orderBy('name')
-            ->get(['id', 'no', 'name', 'slug', 'images', 'video_url', 'unit_price', 'discount', 'wholesale_discount_percent', 'vip_discount_percent', 'bc_discount_percent', 'fake_price']);
+            ->get(['id', 'no', 'name', 'slug', 'images', 'video_url', 'unit_price', 'unit_price_override', 'discount', 'wholesale_discount_percent', 'vip_discount_percent', 'bc_discount_percent', 'fake_price']);
 
         return Inertia::render('Admin/items/DiscountedItems', [
             'items' => $items,
@@ -97,20 +97,32 @@ class AdminItemController extends Controller
 
     public function update(Request $request, Item $item): RedirectResponse
     {
+        $bcUnitPrice = $item->bc_unit_price;
+
+        // The prospective effective price if this request's override is applied - used to
+        // validate/derive fake_price and the discount target against the price that will
+        // actually be in effect once this save completes, not the stale pre-save one.
+        $overrideInput = $request->input('unit_price_override');
+        $prospectiveUnitPrice = $overrideInput !== null && $overrideInput !== ''
+            ? (float) $overrideInput
+            : (float) $item->unit_price;
+
         $validated = $request->validate([
             'video_url' => ['nullable', 'url', 'regex:/^https?:\/\/youtu\.be\/[a-zA-Z0-9_-]{11}/'],
+            'unit_price_override' => ['nullable', 'numeric', 'gt:'.$bcUnitPrice],
             'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'discount_amount' => ['nullable', 'numeric', 'min:0', 'max:'.$item->unit_price],
+            'discount_amount' => ['nullable', 'numeric', 'min:0', 'max:'.$prospectiveUnitPrice],
             'wholesale_discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'vip_discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'bc_discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'fake_price' => ['nullable', 'numeric', 'gt:'.$item->unit_price],
+            'fake_price' => ['nullable', 'numeric', 'gt:'.$prospectiveUnitPrice],
         ], [
             'video_url.regex' => 'Paste the link from YouTube\'s Share button (youtu.be/...).',
-            'fake_price.gt' => 'The fake price must be higher than the unit price ('.$item->unit_price.').',
+            'unit_price_override.gt' => 'The increased price must be higher than the Business Central price ('.$bcUnitPrice.').',
+            'fake_price.gt' => 'The fake price must be higher than the unit price ('.$prospectiveUnitPrice.').',
         ]);
 
-        $unitPrice = (float) $item->unit_price;
+        $unitPrice = $prospectiveUnitPrice;
         $fakePrice = $validated['fake_price'] ?? null;
 
         $discount = $validated['discount'] ?? null;
@@ -141,6 +153,7 @@ class AdminItemController extends Controller
 
         $item->update([
             'video_url' => $request->input('video_url') ?: null,
+            'unit_price_override' => $validated['unit_price_override'] ?? null,
             'discount' => $discount,
             'wholesale_discount_percent' => $validated['wholesale_discount_percent'] ?? null,
             'vip_discount_percent' => $validated['vip_discount_percent'] ?? null,

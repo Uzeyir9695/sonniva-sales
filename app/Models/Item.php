@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute as AttributeCast;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,7 +19,7 @@ class Item extends Model
 
     protected $hidden = ['en_keywords', 'ru_keywords', 'tr_keywords'];
 
-    protected $appends = ['storage_path', 'discounted_price', 'has_setup_service', 'setup_service_price'];
+    protected $appends = ['storage_path', 'discounted_price', 'has_setup_service', 'setup_service_price', 'bc_unit_price'];
 
     protected $casts = [
         'images' => 'array',
@@ -29,7 +30,27 @@ class Item extends Model
         'vip_discount_percent' => 'decimal:4',
         'bc_discount_percent' => 'decimal:4',
         'fake_price' => 'decimal:2',
+        'unit_price_override' => 'decimal:2',
     ];
+
+    /**
+     * `unit_price` is overwritten from Business Central every 30 minutes by
+     * `items:sync-data`. `unit_price_override` lets an admin charge more than
+     * that synced price without it getting wiped out on the next sync - every
+     * read of `unit_price` transparently returns the override when one is
+     * set, so cart/checkout/order/invoice/BC-payment code needs no changes.
+     */
+    protected function unitPrice(): AttributeCast
+    {
+        return AttributeCast::make(
+            get: fn ($value) => $this->attributes['unit_price_override'] ?? $value,
+        );
+    }
+
+    public function getBcUnitPriceAttribute(): float
+    {
+        return (float) $this->attributes['unit_price'];
+    }
 
     const SETUP_SERVICE_CATEGORY_CODE = '2300-02';
 

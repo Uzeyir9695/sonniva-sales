@@ -14,6 +14,7 @@ const editingItem = ref(null)
 
 const manageForm = useForm({
     video_url: '',
+    unit_price_override: null,
     discount: null,
     discount_amount: null,
     wholesale_discount_percent: null,
@@ -26,6 +27,7 @@ function open(item) {
     editingItem.value = item
     manageForm.clearErrors()
     manageForm.video_url = item.video_url ?? ''
+    manageForm.unit_price_override = item.unit_price_override ?? null
     manageForm.discount = item.discount ?? null
     manageForm.wholesale_discount_percent = item.wholesale_discount_percent ?? null
     manageForm.vip_discount_percent = item.vip_discount_percent ?? null
@@ -40,6 +42,7 @@ function saveItem() {
     manageForm
         .transform(data => ({
             video_url: data.video_url.trim() || null,
+            unit_price_override: data.unit_price_override || null,
             discount: data.discount || null,
             discount_amount: data.discount_amount || null,
             wholesale_discount_percent: data.wholesale_discount_percent || null,
@@ -51,6 +54,7 @@ function saveItem() {
             preserveScroll: true,
             onSuccess: (res) => {
                 editingItem.value.video_url = manageForm.video_url.trim() || null
+                editingItem.value.unit_price_override = manageForm.unit_price_override || null
                 editingItem.value.fake_price = manageForm.fake_price || null
                 visible.value = false
                 toast.add({ severity: 'success', summary: 'Saved', detail: res.props.flash.message, life: 3000 })
@@ -81,6 +85,23 @@ function saveItem() {
                 />
                 <p v-if="manageForm.errors.video_url" class="text-xs text-red-500 mt-1">{{ manageForm.errors.video_url }}</p>
                 <p v-else class="text-xs text-gray-400 mt-1">Paste the link from YouTube's Share button. Leave empty to remove the video.</p>
+            </div>
+
+            <div>
+                <label class="text-sm font-semibold text-gray-500 mb-1 block">Increased Real Price (₾)</label>
+                <InputNumber
+                    v-model="manageForm.unit_price_override"
+                    :min="0"
+                    :min-fraction-digits="0"
+                    :max-fraction-digits="2"
+                    suffix=" ₾"
+                    placeholder="0"
+                    :invalid="!!manageForm.errors.unit_price_override"
+                    showClear
+                    fluid
+                />
+                <p v-if="manageForm.errors.unit_price_override" class="text-xs text-red-500 mt-1">{{ manageForm.errors.unit_price_override }}</p>
+                <p v-else class="text-xs text-gray-400 mt-1">Must be higher than the Business Central price ({{ Number(editingItem.bc_unit_price).toFixed(2) }} ₾). Overwrites the real charged price everywhere - cart, checkout, orders, invoices - and survives the automatic BC price sync. Leave empty to keep charging the BC price.</p>
             </div>
 
             <div>

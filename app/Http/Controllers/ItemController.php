@@ -151,7 +151,7 @@ class ItemController extends Controller
             ->where('id', '!=', $item->id)
             ->orderByRaw('CASE WHEN inventory > 0 THEN 0 ELSE 1 END')
             ->limit(10)
-            ->get(['id', 'name', 'slug', 'unit_price', 'discount', 'fake_price', 'images', 'inventory']);
+            ->get(['id', 'name', 'slug', 'unit_price', 'unit_price_override', 'discount', 'fake_price', 'images', 'inventory']);
 
         $inventory = Inertia::defer(fn () => $bcService->calcInventory($item->no));
 
@@ -318,7 +318,7 @@ class ItemController extends Controller
 
         $items = Item::search($q, $rawQ)
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
-            ->get(['id', 'no', 'name', 'slug', 'unit_price', 'discount', 'fake_price', 'prices', 'images', 'inventory']);
+            ->get(['id', 'no', 'name', 'slug', 'unit_price', 'unit_price_override', 'discount', 'fake_price', 'prices', 'images', 'inventory']);
 
         return response()->json($items);
     }
