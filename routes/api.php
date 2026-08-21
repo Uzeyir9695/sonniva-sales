@@ -60,6 +60,7 @@ Route::prefix('v1')->group(function () {
         Route::put('account/change-password', [AccountController::class, 'changePassword'])->name('api.account.change-password');
 
         // ── Wishlist ─────────────────────────────────────────────────────
+        Route::get('wishlist', [WishlistController::class, 'index'])->name('api.wishlist.index');
         Route::get('wishlist/ids', [WishlistController::class, 'ids'])->name('api.wishlist.ids');
         Route::post('wishlist/sync', [WishlistController::class, 'syncGuest'])->name('api.wishlist.sync');
         Route::post('wishlist/{item}', [WishlistController::class, 'toggle'])->name('api.wishlist.toggle');
