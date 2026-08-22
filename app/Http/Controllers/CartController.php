@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\Item;
 use App\Models\StockNotification;
+use App\Services\ItemPricingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -11,7 +13,7 @@ use Inertia\Response;
 
 class CartController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request): Response|JsonResponse
     {
         $cartItems = $request->user()
             ->carts()
@@ -29,6 +31,35 @@ class CartController extends Controller
                 ->whereIn('item_id', $outOfStockItemIds)
                 ->pluck('item_id')
             : collect();
+
+        if ($request->wantsJson()) {
+            $isVip = (bool) $request->user()->can_view_vip;
+
+            return response()->json([
+                // Row id + the raw item alongside a `pricing` block computed
+                // server-side (ItemPricingService — a PHP port of
+                // usePricing.js) rather than shipping tier/discount fields
+                // for a client to interpret itself: mobile has no JS runtime
+                // to run that logic in, and checkout will reuse this same
+                // shape, so the math lives in exactly one place.
+                'cartItems' => $cartItems->map(fn (Cart $cart) => [
+                    'id' => $cart->id,
+                    'item_id' => $cart->item_id,
+                    'quantity' => $cart->quantity,
+                    'selected_uom' => $cart->selected_uom,
+                    'with_service' => $cart->with_service,
+                    'item' => $cart->item,
+                    'pricing' => [
+                        'unit_price' => ItemPricingService::tierPrice($cart->item, $cart->quantity, $cart->selected_uom, $isVip),
+                        'original_price' => ItemPricingService::originalPrice($cart->item),
+                        'retail_price' => ItemPricingService::retailPrice($cart->item, $cart->selected_uom),
+                        'discount_type' => ItemPricingService::activeDiscountType($cart->item, $cart->quantity, $cart->selected_uom, $isVip),
+                    ],
+                ]),
+                'subscribedItemIds' => $subscribedItemIds,
+                'isVip' => $isVip,
+            ]);
+        }
 
         return Inertia::render('Cart/Index', [
             'cartItems' => $cartItems,

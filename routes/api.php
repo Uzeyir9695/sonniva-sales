@@ -67,6 +67,7 @@ Route::prefix('v1')->group(function () {
         Route::delete('wishlist/{item}', [WishlistController::class, 'destroy'])->name('api.wishlist.destroy');
 
         // ── Cart ─────────────────────────────────────────────────────────
+        Route::get('cart', [CartController::class, 'index'])->name('api.cart.index');
         Route::post('cart/sync', [CartController::class, 'syncGuest'])->name('api.cart.sync');
         Route::post('cart/{item}', [CartController::class, 'add'])->name('api.cart.add');
         Route::put('cart/{item}', [CartController::class, 'update'])->name('api.cart.update');
