@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Mail\StockNotificationAdminMail;
 use App\Models\Item;
 use App\Models\StockNotification;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class StockNotificationController extends Controller
 {
-    public function subscribe(Request $request, Item $item): RedirectResponse
+    public function subscribe(Request $request, Item $item): RedirectResponse|JsonResponse
     {
         $user = $request->user();
 
@@ -22,14 +23,22 @@ class StockNotificationController extends Controller
 
         Mail::to(config('mail.from.address'))->queue(new StockNotificationAdminMail($user, $item));
 
+        if ($request->wantsJson()) {
+            return response()->json(['subscribed' => true, 'item_id' => $item->id]);
+        }
+
         return back()->with('success', 'მარაგის შევსებისას შეგატყობინებთ.');
     }
 
-    public function unsubscribe(Request $request, Item $item): RedirectResponse
+    public function unsubscribe(Request $request, Item $item): RedirectResponse|JsonResponse
     {
         StockNotification::where('user_id', $request->user()->id)
             ->where('item_id', $item->id)
             ->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json(['subscribed' => false, 'item_id' => $item->id]);
+        }
 
         return back()->with('success', 'გამოწერა გაუქმდა.');
     }

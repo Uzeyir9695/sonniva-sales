@@ -6,6 +6,7 @@ use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Item;
 use App\Models\StockNotification;
+use App\Models\User;
 use App\Services\BusinessCentralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -145,13 +146,51 @@ class ItemController extends Controller
         ]);
     }
 
-    public function show(Item $item, BusinessCentralService $bcService)
+    public function show(Request $request, Item $item, BusinessCentralService $bcService)
     {
         $similarItems = Item::where('category_code', $item->category_code)
             ->where('id', '!=', $item->id)
             ->orderByRaw('CASE WHEN inventory > 0 THEN 0 ELSE 1 END')
             ->limit(10)
             ->get(['id', 'name', 'slug', 'unit_price', 'unit_price_override', 'discount', 'fake_price', 'images', 'inventory']);
+
+        // This route carries no `auth:sanctum` middleware (item pages are
+        // public, guests included — same as web), so the default 'web'
+        // session guard is what auth()/auth()->user() resolve here. That's
+        // correct for the Inertia path below (session cookie), but mobile
+        // sends a Bearer token instead of a session — resolving the
+        // 'sanctum' guard explicitly (Sanctum's hybrid RequestGuard: session
+        // for stateful/web, Bearer token otherwise) covers both transparently.
+        $authUser = auth('sanctum')->user();
+
+        $isSubscribedToNotification = $authUser
+            ? StockNotification::where('user_id', $authUser->id)
+                ->where('item_id', $item->id)
+                ->whereNull('notified_at')
+                ->exists()
+            : false;
+
+        $itemCategory = Category::where('code', $item->category_code)->first();
+        $isOrderOnly = $itemCategory ? $this->isOrderOnlyCategory($itemCategory) : false;
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'item' => $item,
+                'attributes' => $item->attributes,
+                'similarItems' => $similarItems,
+                // Wholesale/VIP tier rows the item's own `prices` carries —
+                // filtered to the requesting user's admin-set viewing
+                // permission, same visibility rule as Items/Show.vue's
+                // template (`can_view_vip` / `can_view_wholesales`), and
+                // pre-discounted server-side (mirrors
+                // ItemPricingService::discountedTierPrice() — mobile has no
+                // access to that sonniva-sales-only class, so this is
+                // computed once here instead of porting the formula again).
+                'tierPricing' => $this->visibleTierPricing($item, $authUser),
+                'isSubscribedToNotification' => $isSubscribedToNotification,
+                'isOrderOnly' => $isOrderOnly,
+            ]);
+        }
 
         $inventory = Inertia::defer(fn () => $bcService->calcInventory($item->no));
 
@@ -160,15 +199,6 @@ class ItemController extends Controller
         View::share('json_ld', $this->buildJsonLd($item));
         View::share('breadcrumb_json_ld', $this->buildBreadcrumbJsonLd($breadcrumbs, $item));
 
-        $isSubscribedToNotification = auth()->check()
-            ? StockNotification::where('user_id', auth()->id())
-                ->where('item_id', $item->id)
-                ->whereNull('notified_at')
-                ->exists()
-            : false;
-
-        $itemCategory = Category::where('code', $item->category_code)->first();
-
         return Inertia::render('Items/Show', [
             'item' => $item,
             'attributes' => $item->attributes,
@@ -176,8 +206,43 @@ class ItemController extends Controller
             'breadcrumbs' => $breadcrumbs,
             'inventory' => $inventory,
             'isSubscribedToNotification' => $isSubscribedToNotification,
-            'isOrderOnly' => $itemCategory ? $this->isOrderOnlyCategory($itemCategory) : false,
+            'isOrderOnly' => $isOrderOnly,
         ]);
+    }
+
+    /**
+     * @return array<int, array{priceGroup: string, custMinQuantity: ?float, uom: ?string, price: float, rawPrice: float}>
+     */
+    private function visibleTierPricing(Item $item, ?User $user): array
+    {
+        $canViewVip = (bool) $user?->can_view_vip;
+        $canViewWholesales = (bool) $user?->can_view_wholesales;
+
+        return collect($item->prices ?? [])
+            ->filter(function (array $price) use ($canViewVip, $canViewWholesales) {
+                $priceGroup = $price['priceGroup'] ?? 'Retail';
+
+                return $priceGroup === 'VIP' ? $canViewVip : $canViewWholesales;
+            })
+            ->map(function (array $price) use ($item) {
+                $priceGroup = $price['priceGroup'] ?? 'Retail';
+                $percent = (float) match ($priceGroup) {
+                    'VIP' => $item->vip_discount_percent,
+                    'Wholesales' => $item->wholesale_discount_percent,
+                    default => $item->discount,
+                };
+                $rawPrice = (float) ($price['price'] ?? 0);
+
+                return [
+                    'priceGroup' => $priceGroup,
+                    'custMinQuantity' => isset($price['custMinQuantity']) ? (float) $price['custMinQuantity'] : null,
+                    'uom' => $price['UOM'] ?? null,
+                    'price' => $percent > 0 ? round($rawPrice * (1 - $percent / 100), 2) : $rawPrice,
+                    'rawPrice' => $rawPrice,
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     private function buildBreadcrumbs(Item $item): array

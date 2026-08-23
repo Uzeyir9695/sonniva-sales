@@ -9,6 +9,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\StockNotificationController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -51,6 +52,13 @@ Route::prefix('v1')->group(function () {
     // path so it never touches the `web` middleware group (session, HandleInertiaRequests, etc.).
     Route::get('/items/{slug}', [ItemController::class, 'index'])->name('api.items.index');
 
+    // Same ItemController::show() the web item page uses (Route::get('/item/{item:slug}')
+    // in routes/web.php) — already branches to JSON via $request->wantsJson(). Binds by id
+    // (not slug) to match every other mobile item endpoint (wishlist/cart already key by
+    // item id). No auth:sanctum middleware — item pages are public, guests included, same
+    // as web; show() resolves the optional user itself via the 'sanctum' guard directly.
+    Route::get('/item/{item}', [ItemController::class, 'show'])->name('api.items.show');
+
     Route::get('/sales', [SalesController::class, 'index'])->name('api.sales.index');
 
     Route::middleware('auth:sanctum')->group(function () {
@@ -74,5 +82,8 @@ Route::prefix('v1')->group(function () {
         Route::delete('cart/{item}', [CartController::class, 'remove'])->name('api.cart.remove');
         Route::post('cart/{item}/toggle-service', [CartController::class, 'toggleService'])->name('api.cart.toggle-service');
 
+        // ── Stock notifications ─────────────────────────────────────────────
+        Route::post('items/{item}/notify', [StockNotificationController::class, 'subscribe'])->name('api.items.notify.subscribe');
+        Route::delete('items/{item}/notify', [StockNotificationController::class, 'unsubscribe'])->name('api.items.notify.unsubscribe');
     });
 });
