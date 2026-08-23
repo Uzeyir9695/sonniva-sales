@@ -22,6 +22,7 @@ const form = useForm({
     phone_country: selectedCountryCode.value,
     phone: null,
     tax_id: null,
+    is_foreign_resident: false,
     email: null,
     password: null,
     password_confirmation: null,
@@ -72,6 +73,17 @@ async function register(){
 
             <!-- Register Form -->
             <form @submit.prevent="register" class="flex flex-col gap-6">
+                <!-- Foreign Resident Checkbox -->
+                <div class="flex flex-col gap-2">
+                    <p class="text-sm">მონიშნეთ თუ არ ხართ საქართველოს მოქალაქე</p>
+                    <div class="flex items-center gap-2">
+                        <Checkbox v-model="form.is_foreign_resident" size="medium" inputId="is_foreign_resident" binary />
+                        <label for="is_foreign_resident" class="text-sm">
+                            არარეზიდენტი ვარ
+                        </label>
+                    </div>
+                </div>
+
                 <!-- Name Field -->
                 <InputGroup>
                     <InputGroupAddon>

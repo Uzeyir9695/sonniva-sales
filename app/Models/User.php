@@ -54,6 +54,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'is_handyman' => 'boolean',
             'is_entrepreneur' => 'boolean',
+            'is_foreign_resident' => 'boolean',
             'can_view_wholesales' => 'boolean',
             'can_view_vip' => 'boolean',
             'can_view_inventory' => 'boolean',

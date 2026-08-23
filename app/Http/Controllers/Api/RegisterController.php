@@ -26,9 +26,12 @@ class RegisterController extends Controller
 
     public function register(Request $request): JsonResponse
     {
+        $isForeignResident = $request->boolean('is_foreign_resident');
+
         $validated = $request->validate([
             'user_type' => 'required|string|max:20',
-            'tax_id' => 'required|string|min:9|max:50',
+            'is_foreign_resident' => 'sometimes|boolean',
+            'tax_id' => ['required', 'string', 'min:'.($isForeignResident ? 6 : 9), 'max:50'],
             'name' => 'required|string|max:30',
             'lastname' => 'required_if:user_type,individual|max:30',
             'phone_country' => 'required|string',
@@ -58,6 +61,7 @@ class RegisterController extends Controller
         $this->registerService->storeOtpInDb($phone, $result['otp'], [
             'user_type' => $validated['user_type'],
             'tax_id' => $validated['tax_id'],
+            'is_foreign_resident' => $isForeignResident,
             'name' => $validated['name'],
             'lastname' => $validated['lastname'] ?? null,
             'phone_country' => $validated['phone_country'],

@@ -86,6 +86,36 @@ it('rejects verification with the wrong OTP and does not log in', function () {
     $this->assertDatabaseMissing('users', ['email' => 'test@example.com']);
 });
 
+it('rejects a tax_id shorter than 9 characters for residents', function () {
+    mockOtpSms();
+
+    $response = $this->post(route('register'), validRegisterPayload(['tax_id' => '12345']));
+
+    $response->assertSessionHasErrors('tax_id');
+});
+
+it('accepts a tax_id as short as 6 characters when foreign resident is checked', function () {
+    mockOtpSms();
+
+    $response = $this->post(route('register'), validRegisterPayload([
+        'tax_id' => '123456',
+        'is_foreign_resident' => true,
+    ]));
+
+    $response->assertSessionDoesntHaveErrors('tax_id');
+});
+
+it('still rejects a tax_id shorter than 6 characters even when foreign resident is checked', function () {
+    mockOtpSms();
+
+    $response = $this->post(route('register'), validRegisterPayload([
+        'tax_id' => '12345',
+        'is_foreign_resident' => true,
+    ]));
+
+    $response->assertSessionHasErrors('tax_id');
+});
+
 it('resends a fresh OTP', function () {
     mockOtpSms();
 
