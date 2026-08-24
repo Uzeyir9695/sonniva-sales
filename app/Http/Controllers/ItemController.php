@@ -154,13 +154,7 @@ class ItemController extends Controller
             ->limit(10)
             ->get(['id', 'name', 'slug', 'unit_price', 'unit_price_override', 'discount', 'fake_price', 'images', 'inventory']);
 
-        // This route carries no `auth:sanctum` middleware (item pages are
-        // public, guests included — same as web), so the default 'web'
-        // session guard is what auth()/auth()->user() resolve here. That's
-        // correct for the Inertia path below (session cookie), but mobile
-        // sends a Bearer token instead of a session — resolving the
-        // 'sanctum' guard explicitly (Sanctum's hybrid RequestGuard: session
-        // for stateful/web, Bearer token otherwise) covers both transparently.
+        // 'sanctum' guard resolves both session (web) and Bearer token (mobile).
         $authUser = auth('sanctum')->user();
 
         $isSubscribedToNotification = $authUser
@@ -178,14 +172,6 @@ class ItemController extends Controller
                 'item' => $item,
                 'attributes' => $item->attributes,
                 'similarItems' => $similarItems,
-                // Wholesale/VIP tier rows the item's own `prices` carries —
-                // filtered to the requesting user's admin-set viewing
-                // permission, same visibility rule as Items/Show.vue's
-                // template (`can_view_vip` / `can_view_wholesales`), and
-                // pre-discounted server-side (mirrors
-                // ItemPricingService::discountedTierPrice() — mobile has no
-                // access to that sonniva-sales-only class, so this is
-                // computed once here instead of porting the formula again).
                 'tierPricing' => $this->visibleTierPricing($item, $authUser),
                 'isSubscribedToNotification' => $isSubscribedToNotification,
                 'isOrderOnly' => $isOrderOnly,

@@ -2,12 +2,15 @@
 
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CheckoutController as ApiCheckoutController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\StockNotificationController;
 use App\Http\Controllers\WishlistController;
@@ -52,11 +55,7 @@ Route::prefix('v1')->group(function () {
     // path so it never touches the `web` middleware group (session, HandleInertiaRequests, etc.).
     Route::get('/items/{slug}', [ItemController::class, 'index'])->name('api.items.index');
 
-    // Same ItemController::show() the web item page uses (Route::get('/item/{item:slug}')
-    // in routes/web.php) — already branches to JSON via $request->wantsJson(). Binds by id
-    // (not slug) to match every other mobile item endpoint (wishlist/cart already key by
-    // item id). No auth:sanctum middleware — item pages are public, guests included, same
-    // as web; show() resolves the optional user itself via the 'sanctum' guard directly.
+    // Binds by id (not slug), public (no auth:sanctum middleware).
     Route::get('/item/{item}', [ItemController::class, 'show'])->name('api.items.show');
 
     Route::get('/sales', [SalesController::class, 'index'])->name('api.sales.index');
@@ -85,5 +84,20 @@ Route::prefix('v1')->group(function () {
         // ── Stock notifications ─────────────────────────────────────────────
         Route::post('items/{item}/notify', [StockNotificationController::class, 'subscribe'])->name('api.items.notify.subscribe');
         Route::delete('items/{item}/notify', [StockNotificationController::class, 'unsubscribe'])->name('api.items.notify.unsubscribe');
+
+        // ── Checkout ─────────────────────────────────────────────────────
+        // onway-regions/office-inventory/credit-info reuse the existing web
+        // CheckoutController — those methods are already pure JsonResponse,
+        // no Inertia/session coupling, so no new controller code is needed.
+        Route::get('checkout/meta', [ApiCheckoutController::class, 'meta'])->name('api.checkout.meta');
+        Route::post('checkout/preview', [ApiCheckoutController::class, 'preview'])->name('api.checkout.preview');
+        Route::get('checkout/onway-regions', [CheckoutController::class, 'onwayRegions'])->name('api.checkout.onway-regions');
+        Route::post('checkout/office-inventory', [CheckoutController::class, 'officeInventory'])->name('api.checkout.office-inventory');
+        Route::get('checkout/credit-info', [CheckoutController::class, 'creditInfo'])->name('api.checkout.credit-info');
+        Route::post('checkout', [ApiCheckoutController::class, 'place'])->name('api.checkout.place');
+
+        // Card providers (bog/tbc/pcb) — reuses the existing PaymentController,
+        // already a pure JSON endpoint, only reachable via web.php until now.
+        Route::post('payment/initiate', [PaymentController::class, 'initiate'])->name('api.payment.initiate');
     });
 });
