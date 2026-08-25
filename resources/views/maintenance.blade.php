@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sonniva Georgia — ტექნიკური სამუშაოები</title>
     @vite('resources/css/app.css')
-    <script src="https://kit.fontawesome.com/2ba6cc2cc6.js" crossorigin="anonymous"></script>
 </head>
 <body class="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 relative overflow-hidden">
 

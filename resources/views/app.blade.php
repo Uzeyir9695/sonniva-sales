@@ -13,7 +13,6 @@
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-        <script src="https://kit.fontawesome.com/2ba6cc2cc6.js" crossorigin="anonymous"></script>
         <script src="https://www.google.com/recaptcha/enterprise.js?render={{ config('services.google_recaptcha.site_key') }}"></script>
 
         @if(app()->environment('production'))

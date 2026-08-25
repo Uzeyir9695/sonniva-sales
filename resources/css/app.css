@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 @import "tailwindcss-primeui";
+@import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
+@import '@fortawesome/fontawesome-free/css/solid.min.css';
+@import '@fortawesome/fontawesome-free/css/brands.min.css';
 @custom-variant dark (&:where(.my-app-dark, .my-app-dark *));
 
 @theme {
