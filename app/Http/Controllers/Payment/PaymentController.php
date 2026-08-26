@@ -169,6 +169,7 @@ class PaymentController extends Controller
                 $result = $this->pcbService->createPaymentRequest(
                     $order,
                     $calc['total'],
+                    platform: $request->platform === 'mobile' ? 'mobile' : null,
                 );
             } else {
                 return response()->json(['error' => 'Invalid provider'], 400);
@@ -279,10 +280,27 @@ class PaymentController extends Controller
         }
     }
 
-    public function proCreditBankCallback()
+    public function proCreditBankCallback(Request $request)
     {
         $orderId = session()->pull('pcb_order_id');
         $password = session()->pull('pcb_password');
+        $isMobile = $request->query('platform') === 'mobile';
+
+        // Web (unchanged, existing behavior): session carries order_id/password
+        // straight through, since it's the same browser session for the whole
+        // flow. Mobile never reaches this: the browser PCB redirects to shares
+        // no cookies with the Sanctum-authenticated app that called initiate(),
+        // so session() is always empty here. Fall back to the invoice_no
+        // PCBService embedded in the return URL, pulling order_id/password
+        // back out of the already-stored Payment record instead.
+        if ((! $orderId || ! $password) && $request->query('invoice_no')) {
+            $fallbackPayment = Payment::where('invoice_no', $request->query('invoice_no'))
+                ->where('provider', 'pcb')
+                ->first();
+
+            $orderId = $fallbackPayment->response_data['initial_response']['order']['id'] ?? null;
+            $password = $fallbackPayment->response_data['initial_response']['order']['password'] ?? null;
+        }
 
         if (! $orderId || ! $password) {
             Log::channel('payment')->error('PCB callback missing session data');
@@ -290,7 +308,7 @@ class PaymentController extends Controller
             return response()->json(['error' => 'Missing session data'], 400);
         }
 
-        $orderDetails = $this->pcbService->getOrderDetails($orderId, $password);
+        $orderDetails = $this->pcbService->getOrderDetails((int) $orderId, (string) $password);
 
         $payment = Payment::where('response_data->order_id', $orderId)
             ->where('provider', 'pcb')
@@ -317,9 +335,13 @@ class PaymentController extends Controller
             // Send order confirmation email and send data to Business Central
             $this->completePaymentProcess($payment);
 
-            return to_route('payment.success', ['provider' => 'pcb']);
+            return $isMobile
+                ? $this->mobileBridge('payment/success', ['invoice_no' => $payment->invoice_no])
+                : to_route('payment.success', ['provider' => 'pcb']);
         } else {
-            return to_route('payment.cancel', ['provider' => 'pcb']);
+            return $isMobile
+                ? $this->mobileBridge('payment/cancel', ['invoice_no' => $payment->invoice_no, 'provider' => 'pcb'])
+                : to_route('payment.cancel', ['provider' => 'pcb']);
         }
     }
 

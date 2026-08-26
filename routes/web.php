@@ -196,7 +196,9 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
 
     Route::get('/payment/limit/{invoice}', [InvoiceController::class, 'limitSuccess'])->name('payment.limit.success');
 
-    Route::get('/pro-credit-bank/order-details', [PaymentController::class, 'proCreditBankCallback'])->name('payment.pcb.order.details');
+    // Same reasoning as payment.success/cancel above — PCB also redirects
+    // the user's own browser here, unauthenticated for a mobile payment.
+    Route::get('/pro-credit-bank/order-details', [PaymentController::class, 'proCreditBankCallback'])->name('payment.pcb.order.details')->withoutMiddleware('auth');
 
 });
 
