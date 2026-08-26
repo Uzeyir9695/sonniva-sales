@@ -184,9 +184,13 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
     Route::post('/initiate/payment/limit', [InvoiceController::class, 'initiateLimit'])->name('initiate.payment.limit');
     Route::post('/initiate/payment/cash', [InvoiceController::class, 'initiateCash'])->name('initiate.payment.cash');
 
-    Route::get('/payment/success/{provider}', [PaymentController::class, 'success'])->name('payment.success');
+    // Reached by the bank redirecting the user's own browser, which for a
+    // mobile-initiated payment is a fresh system browser (Browser::auth())
+    // carrying no web session cookie at all — auth() must not gate these or
+    // the redirect bounces to /login before the controller ever runs.
+    Route::get('/payment/success/{provider}', [PaymentController::class, 'success'])->name('payment.success')->withoutMiddleware('auth');
 
-    Route::get('/payment/cancel/{provider}', [PaymentController::class, 'cancel'])->name('payment.cancel');
+    Route::get('/payment/cancel/{provider}', [PaymentController::class, 'cancel'])->name('payment.cancel')->withoutMiddleware('auth');
 
     Route::get('/payment/invoice/{invoice}', [InvoiceController::class, 'success'])->name('payment.invoice.success');
 

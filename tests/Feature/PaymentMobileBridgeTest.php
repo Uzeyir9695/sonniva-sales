@@ -5,6 +5,7 @@ use App\Models\Item;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\User;
+use App\Services\Payments\BOGPaymentService;
 use App\Services\Payments\TBCPaymentService;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -27,9 +28,104 @@ function mobileBridgeTestItem(array $overrides = []): Item
     ], $overrides));
 }
 
-function mockTbcSuccess(): void
-{
-    test()->mock(TBCPaymentService::class, function ($mock) {
+/**
+ * initiate() is called by the mobile app over Sanctum (Bearer token, no
+ * cookies); success()/cancel() are later hit by the bank redirecting the
+ * user's OWN browser (Browser::auth() — a completely separate HTTP client
+ * sharing no cookies with the app at all). Laravel's test session (array
+ * driver) would otherwise silently persist across both calls within one
+ * test regardless of cookies, masking exactly this gap — so every mobile
+ * assertion below explicitly flushes the session between the two calls to
+ * simulate the real disconnect.
+ */
+it('bridges a mobile BOG success purely from the return URL, with no session at all', function () {
+    $capturedReturnUrl = null;
+
+    $this->mock(BOGPaymentService::class, function ($mock) use (&$capturedReturnUrl) {
+        $mock->shouldReceive('createPaymentRequest')
+            ->once()
+            ->withArgs(function ($order, $returnUrl, $totalAmount, $language = 'ka', $cancelUrl = null) use (&$capturedReturnUrl) {
+                $capturedReturnUrl = $returnUrl;
+
+                return true;
+            })
+            ->andReturn([
+                'success' => true,
+                'redirect_url' => 'https://bog.example/pay/123',
+                'order_id' => 'bog-order-1',
+                'raw_response' => ['ok' => true],
+            ]);
+    });
+
+    $user = User::factory()->create();
+    $item = mobileBridgeTestItem();
+    $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 1]);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/v1/payment/initiate', [
+        'provider' => 'bog',
+        'delivery_type' => 'office',
+        'cart_ids' => [$cart->id],
+        'platform' => 'mobile',
+    ])->assertOk();
+
+    expect($capturedReturnUrl)
+        ->toContain('platform=mobile')
+        ->toContain('invoice_no=');
+
+    session()->flush();
+
+    $response = $this->get($capturedReturnUrl);
+
+    $response->assertOk()->assertViewIs('payment.mobile-bridge');
+    expect($response->original->getData()['url'])->toStartWith('sonniva://payment/success?invoice_no=');
+});
+
+it('bridges a mobile BOG cancellation purely from the URL, with no session at all', function () {
+    $capturedCancelUrl = null;
+
+    $this->mock(BOGPaymentService::class, function ($mock) use (&$capturedCancelUrl) {
+        $mock->shouldReceive('createPaymentRequest')
+            ->once()
+            ->withArgs(function ($order, $returnUrl, $totalAmount, $language = 'ka', $cancelUrl = null) use (&$capturedCancelUrl) {
+                $capturedCancelUrl = $cancelUrl;
+
+                return true;
+            })
+            ->andReturn([
+                'success' => true,
+                'redirect_url' => 'https://bog.example/pay/123',
+                'order_id' => 'bog-order-1',
+                'raw_response' => ['ok' => true],
+            ]);
+    });
+
+    $user = User::factory()->create();
+    $item = mobileBridgeTestItem();
+    $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 1]);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/v1/payment/initiate', [
+        'provider' => 'bog',
+        'delivery_type' => 'office',
+        'cart_ids' => [$cart->id],
+        'platform' => 'mobile',
+    ])->assertOk();
+
+    expect($capturedCancelUrl)->toContain('platform=mobile')->toContain('invoice_no=');
+
+    session()->flush();
+
+    $response = $this->get($capturedCancelUrl);
+
+    $response->assertOk()->assertViewIs('payment.mobile-bridge');
+    expect($response->original->getData()['url'])->toStartWith('sonniva://payment/cancel?');
+});
+
+it('still renders the Inertia success page for a non-mobile (web) payment', function () {
+    $this->mock(TBCPaymentService::class, function ($mock) {
         $mock->shouldReceive('createPaymentRequest')->once()->andReturn([
             'success' => true,
             'redirect_url' => 'https://tbc.example/pay/123',
@@ -38,33 +134,6 @@ function mockTbcSuccess(): void
             'raw_response' => ['ok' => true],
         ]);
     });
-}
-
-it('bridges success back to the app via deep link when initiated with platform=mobile', function () {
-    mockTbcSuccess();
-
-    $user = User::factory()->create();
-    $item = mobileBridgeTestItem();
-    $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 1]);
-
-    $this->actingAs($user);
-
-    $this->post(route('payment.initiate'), [
-        'provider' => 'tbc',
-        'delivery_type' => 'office',
-        'cart_ids' => [$cart->id],
-        'platform' => 'mobile',
-    ])->assertOk();
-
-    $response = $this->get(route('payment.success', ['provider' => 'tbc']));
-
-    $response->assertOk()->assertViewIs('payment.mobile-bridge');
-    expect($response->original->getData()['url'])
-        ->toStartWith('sonniva://payment/success?invoice_no=');
-});
-
-it('still renders the Inertia success page when initiated without platform=mobile', function () {
-    mockTbcSuccess();
 
     $user = User::factory()->create();
     $item = mobileBridgeTestItem();
@@ -82,29 +151,16 @@ it('still renders the Inertia success page when initiated without platform=mobil
         ->assertInertia(fn (Assert $page) => $page->component('Payment/Success'));
 });
 
-it('bridges a cancellation without consuming invoice_no from session', function () {
-    mockTbcSuccess();
+it('does not require a web session on payment.success/cancel — the bug that sent mobile users to /login', function () {
+    // Fully unauthenticated, no session at all — exactly what the bank's
+    // redirect hits in the real mobile flow.
+    $this->get(route('payment.success', ['provider' => 'bog']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->component('Payment/Success'));
 
-    $user = User::factory()->create();
-    $item = mobileBridgeTestItem();
-    $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 1]);
-
-    $this->actingAs($user);
-
-    $this->post(route('payment.initiate'), [
-        'provider' => 'tbc',
-        'delivery_type' => 'office',
-        'cart_ids' => [$cart->id],
-        'platform' => 'mobile',
-    ])->assertOk();
-
-    $cancel = $this->get(route('payment.cancel', ['provider' => 'tbc']));
-    $cancel->assertOk()->assertViewIs('payment.mobile-bridge');
-    expect($cancel->original->getData()['url'])->toStartWith('sonniva://payment/cancel?');
-
-    // A retried attempt's success() should still be able to pull invoice_no —
-    // cancel() must not have consumed it destructively.
-    expect(session('invoice_no'))->not->toBeNull();
+    $this->get(route('payment.cancel', ['provider' => 'bog']))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page->component('Payment/Cancel'));
 });
 
 it('rejects unauthenticated payment status requests', function () {

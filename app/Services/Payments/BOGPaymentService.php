@@ -12,9 +12,13 @@ use Illuminate\Support\Facades\Log;
 class BOGPaymentService
 {
     protected $apiKey;
+
     protected $secretKey;
+
     protected $apiUrl;
+
     protected $callbackUrl;
+
     protected $accessToken;
 
     public function __construct()
@@ -30,12 +34,11 @@ class BOGPaymentService
     /**
      * Get access token from BOG API
      *
-     * @return string|null
      * @throws Exception
      */
     protected function getAccessToken(): ?string
     {
-        $cacheKey = 'bog_access_token_' . md5($this->apiKey);
+        $cacheKey = 'bog_access_token_'.md5($this->apiKey);
 
         if ($cached = Cache::get($cacheKey)) {
             return $cached;
@@ -43,10 +46,10 @@ class BOGPaymentService
 
         try {
             if ($this->apiKey && $this->secretKey) {
-                $credentials = base64_encode($this->apiKey . ':' . $this->secretKey);
+                $credentials = base64_encode($this->apiKey.':'.$this->secretKey);
                 $response = Http::withHeaders([
-                    'Authorization' => 'Basic ' . $credentials,
-                    'Content-Type'  => 'application/x-www-form-urlencoded',
+                    'Authorization' => 'Basic '.$credentials,
+                    'Content-Type' => 'application/x-www-form-urlencoded',
                 ])
                     ->asForm()
                     ->timeout(15)
@@ -56,14 +59,14 @@ class BOGPaymentService
                     ]);
             }
 
-            if (!$response->successful()) {
-                throw new Exception('Failed to get BOG access token: ' . $response->body());
+            if (! $response->successful()) {
+                throw new Exception('Failed to get BOG access token: '.$response->body());
             }
 
-            $data  = $response->json();
+            $data = $response->json();
             $token = $data['access_token'] ?? null;
 
-            if (!$token) {
+            if (! $token) {
                 throw new Exception('BOG access token missing from response');
             }
 
@@ -82,69 +85,69 @@ class BOGPaymentService
     /**
      * Create payment request with BOG API
      */
-    public function createPaymentRequest(Order $order, string $returnUrl, float $totalAmount, string $language = 'ka'): array
+    public function createPaymentRequest(Order $order, string $returnUrl, float $totalAmount, string $language = 'ka', ?string $cancelUrl = null): array
     {
         try {
             $token = $this->getAccessToken();
 
-            if (!$token) {
+            if (! $token) {
                 throw new Exception('Failed to obtain BOG access token');
             }
 
-            $basket = $order->items->map(fn($item) => [
+            $basket = $order->items->map(fn ($item) => [
                 'product_id' => $item->item_id,
-                'quantity'   => $item->quantity,
+                'quantity' => $item->quantity,
                 'unit_price' => $item->unit_price,
             ])->toArray();
 
             $payload = [
-                'external_order_id' => 'ORDER-' . $order->invoice_no,
-                'callback_url'      => $this->callbackUrl,
-                'capture'           => 'automatic',
-                'purchase_units'    => [
-                    'currency'     => 'GEL',
+                'external_order_id' => 'ORDER-'.$order->invoice_no,
+                'callback_url' => $this->callbackUrl,
+                'capture' => 'automatic',
+                'purchase_units' => [
+                    'currency' => 'GEL',
                     'total_amount' => round($totalAmount, 2),
-                    'basket'       => $basket,
+                    'basket' => $basket,
                 ],
                 'redirect_urls' => [
                     'success' => $returnUrl,
-                    'fail'    => route('payment.cancel', ['provider' => 'bog']),
+                    'fail' => $cancelUrl ?? route('payment.cancel', ['provider' => 'bog']),
                 ],
                 'payment_method' => ['card', 'google_pay', 'apple_pay'],
             ];
 
             $response = Http::withHeaders([
-                'Authorization'   => 'Bearer ' . $token,
-                'Content-Type'    => 'application/json',
+                'Authorization' => 'Bearer '.$token,
+                'Content-Type' => 'application/json',
                 'Accept-Language' => $language,
             ])->post($this->apiUrl, $payload);
 
-            if (!$response->successful()) {
-                throw new Exception('BOG API Unable to Create Payment. Error: ' . $response->body());
+            if (! $response->successful()) {
+                throw new Exception('BOG API Unable to Create Payment. Error: '.$response->body());
             }
 
             $data = $response->json();
 
-            if (!isset($data['id']) || !isset($data['_links']['redirect']['href'])) {
+            if (! isset($data['id']) || ! isset($data['_links']['redirect']['href'])) {
                 throw new Exception('Invalid response structure from BOG API');
             }
 
             return [
-                'success'      => true,
-                'order_id'     => $data['id'],
+                'success' => true,
+                'order_id' => $data['id'],
                 'redirect_url' => $data['_links']['redirect']['href'],
-                'details_url'  => $data['_links']['details']['href'] ?? null,
+                'details_url' => $data['_links']['details']['href'] ?? null,
                 'raw_response' => $data,
             ];
         } catch (Exception $e) {
             Log::channel('payment')->error('BOG Payment Creation Error', [
-                'message'  => $e->getMessage(),
+                'message' => $e->getMessage(),
                 'order_id' => $order->id,
             ]);
 
             return [
                 'success' => false,
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ];
         }
     }
@@ -152,8 +155,6 @@ class BOGPaymentService
     /**
      * Get payment details from BOG API
      *
-     * @param  string  $orderId
-     * @return array
      * @throws Exception
      */
     public function getPaymentDetails(string $orderId): array
@@ -161,7 +162,7 @@ class BOGPaymentService
         try {
             $token = $this->getAccessToken();
 
-            if (!$token) {
+            if (! $token) {
                 throw new Exception('Failed to obtain BOG access token');
             }
 
@@ -169,7 +170,7 @@ class BOGPaymentService
                 'Authorization' => 'Bearer '.$token,
             ])->get('https://api.bog.ge/payments/v1/receipt/'.$orderId);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 throw new Exception('Failed to get payment details: '.$response->body());
             }
 
@@ -186,16 +187,13 @@ class BOGPaymentService
 
     /**
      * Validate callback from BOG
-     *
-     * @param  array  $callbackData
-     * @return array
      */
     public function validateCallback(array $callbackData): array
     {
         try {
             $orderId = $callbackData['body']['order_id'] ?? null;
 
-            if (!$orderId) {
+            if (! $orderId) {
                 return [
                     'valid' => false,
                     'error' => 'Missing order_id in callback',
@@ -209,7 +207,7 @@ class BOGPaymentService
             $finalStatuses = ['completed', 'rejected', 'refunded', 'refunded_partially'];
             $status = $paymentDetails['order_status']['key'] ?? null;
 
-            if (!in_array($status, $finalStatuses)) {
+            if (! in_array($status, $finalStatuses)) {
                 return [
                     'valid' => false,
                     'error' => 'Payment not in final status',
@@ -242,9 +240,6 @@ class BOGPaymentService
 
     /**
      * Find payment by order_id and update status
-     *
-     * @param  string  $orderId
-     * @return Payment|null
      */
     public function findAndUpdatePayment(string $orderId): ?Payment
     {
@@ -282,9 +277,6 @@ class BOGPaymentService
 
     /**
      * Map BOG payment status to our system status
-     *
-     * @param  string  $bogStatus
-     * @return string
      */
     protected function mapBOGStatus(string $bogStatus): string
     {

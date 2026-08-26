@@ -83,14 +83,6 @@ class PaymentController extends Controller
 
         session()->put('invoice_no', $invoiceNumber);
 
-        // Mobile sends `platform: 'mobile'` alongside the usual payload —
-        // success()/cancel() read this back to decide whether the bank's
-        // return-URL redirect should render the normal Inertia page or a
-        // tiny bridge page that hands off to the app via deep link.
-        if ($request->platform === 'mobile') {
-            session()->put('payment_platform', 'mobile');
-        }
-
         // Clean up stale awaiting_payment orders for this user before creating a new one
         Order::where('user_id', auth()->id())
             ->where('status', 'awaiting_payment')
@@ -137,10 +129,23 @@ class PaymentController extends Controller
         });
 
         $order->load('items');
-        $returnUrl = route('payment.success', ['provider' => $provider]);
+
+        // The bank redirects the user's own browser here, which for mobile
+        // is a fresh system browser (Browser::auth()) sharing no cookies at
+        // all with the Sanctum-authenticated app that called this endpoint —
+        // session() can't carry anything across that gap. So platform/invoice
+        // travel in the return URL itself instead; route() appends any extra
+        // params not matched by the route's own {provider} segment as a
+        // query string, so these are absent (unchanged URLs) for web.
+        $mobileParams = $request->platform === 'mobile'
+            ? ['platform' => 'mobile', 'invoice_no' => $invoiceNumber]
+            : [];
+
+        $returnUrl = route('payment.success', ['provider' => $provider, ...$mobileParams]);
+        $cancelUrl = route('payment.cancel', ['provider' => $provider, ...$mobileParams]);
 
         // TEMPORARY mobile testing hack: charge BOG 1 tetri instead of the
-        // real total while verifying the deep-link payment flow, so real
+        // real total while re-verifying the deep-link payment flow, so real
         // money doesn't move on every test run. The order/payment records
         // below still store the real $calc['total'] — only the amount BOG
         // actually charges is overridden. Remove this before launch.
@@ -158,6 +163,7 @@ class PaymentController extends Controller
                     $order,
                     $returnUrl,
                     $bogAmount,
+                    cancelUrl: $cancelUrl,
                 );
             } elseif ($provider === 'pcb') {
                 $result = $this->pcbService->createPaymentRequest(
@@ -381,12 +387,17 @@ class PaymentController extends Controller
     /**
      * Handle successful payment redirect
      */
-    public function success(): Response|View
+    public function success(Request $request): Response|View
     {
         $invoiceNumber = session()->pull('invoice_no');
 
-        if (session()->pull('payment_platform') === 'mobile') {
-            return $this->mobileBridge('payment/success', ['invoice_no' => $invoiceNumber]);
+        // Mobile can't rely on session() here — see the comment in
+        // initiate() on $mobileParams. platform/invoice_no travel in the
+        // return URL itself instead, since this request (the bank
+        // redirecting the user's own browser) shares no session with the
+        // Sanctum-authenticated app that called initiate().
+        if ($request->query('platform') === 'mobile') {
+            return $this->mobileBridge('payment/success', ['invoice_no' => $request->query('invoice_no', $invoiceNumber)]);
         }
 
         return Inertia::render('Payment/Success', [
@@ -399,10 +410,8 @@ class PaymentController extends Controller
      */
     public function cancel(Request $request, $provider): Response|View
     {
-        if (session()->pull('payment_platform') === 'mobile') {
-            // Non-destructive: a cancelled attempt may be retried, and a
-            // subsequent success() should still be able to pull invoice_no.
-            return $this->mobileBridge('payment/cancel', ['invoice_no' => session()->get('invoice_no'), 'provider' => $provider]);
+        if ($request->query('platform') === 'mobile') {
+            return $this->mobileBridge('payment/cancel', ['invoice_no' => $request->query('invoice_no'), 'provider' => $provider]);
         }
 
         return Inertia::render('Payment/Cancel', [
