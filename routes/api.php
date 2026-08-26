@@ -99,5 +99,6 @@ Route::prefix('v1')->group(function () {
         // Card providers (bog/tbc/pcb) — reuses the existing PaymentController,
         // already a pure JSON endpoint, only reachable via web.php until now.
         Route::post('payment/initiate', [PaymentController::class, 'initiate'])->name('api.payment.initiate');
+        Route::get('payment/status', [PaymentController::class, 'status'])->name('api.payment.status');
     });
 });

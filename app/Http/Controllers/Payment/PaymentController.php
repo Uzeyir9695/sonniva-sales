@@ -19,6 +19,7 @@ use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -81,6 +82,14 @@ class PaymentController extends Controller
         } while (Order::where('invoice_no', $invoiceNumber)->exists());
 
         session()->put('invoice_no', $invoiceNumber);
+
+        // Mobile sends `platform: 'mobile'` alongside the usual payload —
+        // success()/cancel() read this back to decide whether the bank's
+        // return-URL redirect should render the normal Inertia page or a
+        // tiny bridge page that hands off to the app via deep link.
+        if ($request->platform === 'mobile') {
+            session()->put('payment_platform', 'mobile');
+        }
 
         // Clean up stale awaiting_payment orders for this user before creating a new one
         Order::where('user_id', auth()->id())
@@ -365,9 +374,13 @@ class PaymentController extends Controller
     /**
      * Handle successful payment redirect
      */
-    public function success(): Response
+    public function success(): Response|View
     {
         $invoiceNumber = session()->pull('invoice_no');
+
+        if (session()->pull('payment_platform') === 'mobile') {
+            return $this->mobileBridge('payment/success', ['invoice_no' => $invoiceNumber]);
+        }
 
         return Inertia::render('Payment/Success', [
             'invoiceNumber' => $invoiceNumber,
@@ -377,16 +390,62 @@ class PaymentController extends Controller
     /**
      * Handle cancelled payment
      */
-    public function cancel(Request $request, $provider)
+    public function cancel(Request $request, $provider): Response|View
     {
+        if (session()->pull('payment_platform') === 'mobile') {
+            // Non-destructive: a cancelled attempt may be retried, and a
+            // subsequent success() should still be able to pull invoice_no.
+            return $this->mobileBridge('payment/cancel', ['invoice_no' => session()->get('invoice_no'), 'provider' => $provider]);
+        }
+
         return Inertia::render('Payment/Cancel', [
             'message' => 'Payment cancelled',
             'provider' => $provider,
         ]);
     }
 
+    /**
+     * Bridge page for the mobile app: the bank's return-URL redirect lands
+     * here (a normal https:// page, which every gateway accepts), and this
+     * hands off to the app itself via its custom URL scheme deep link —
+     * gateways won't accept a `sonniva://` URL as a return URL directly.
+     *
+     * @param  array<string, mixed>  $query
+     */
+    private function mobileBridge(string $path, array $query = []): View
+    {
+        $scheme = config('services.mobile_app.deeplink_scheme');
+        $url = $scheme.'://'.$path.'?'.http_build_query(array_filter($query, fn ($v) => $v !== null));
+
+        return view('payment.mobile-bridge', ['url' => $url]);
+    }
+
     public function sendOrderToBC(Order $order)
     {
         $this->bcService->addSalesOrders($order, $order->items);
+    }
+
+    /**
+     * True payment status for the mobile app to poll after a deep-link
+     * return — the bank's webhook (callback()) is the actual source of
+     * truth for completion, which may race the user's browser redirect, so
+     * the app re-checks here rather than trusting the redirect itself.
+     */
+    public function status(Request $request)
+    {
+        $payment = Payment::where('invoice_no', $request->query('invoice_no'))
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->first();
+
+        if (! $payment) {
+            return response()->json(['error' => 'Payment not found'], 404);
+        }
+
+        return response()->json([
+            'invoice_no' => $payment->invoice_no,
+            'provider' => $payment->provider,
+            'status' => $payment->status,
+        ]);
     }
 }
