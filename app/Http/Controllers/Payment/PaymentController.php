@@ -139,6 +139,13 @@ class PaymentController extends Controller
         $order->load('items');
         $returnUrl = route('payment.success', ['provider' => $provider]);
 
+        // TEMPORARY mobile testing hack: charge BOG 1 tetri instead of the
+        // real total while verifying the deep-link payment flow, so real
+        // money doesn't move on every test run. The order/payment records
+        // below still store the real $calc['total'] — only the amount BOG
+        // actually charges is overridden. Remove this before launch.
+        $bogAmount = ($provider === 'bog' && $request->platform === 'mobile') ? 0.01 : $calc['total'];
+
         try {
             if ($provider === 'tbc') {
                 $result = $this->tbcService->createPaymentRequest(
@@ -150,7 +157,7 @@ class PaymentController extends Controller
                 $result = $this->bogService->createPaymentRequest(
                     $order,
                     $returnUrl,
-                    $calc['total'],
+                    $bogAmount,
                 );
             } elseif ($provider === 'pcb') {
                 $result = $this->pcbService->createPaymentRequest(
