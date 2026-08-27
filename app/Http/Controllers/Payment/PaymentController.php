@@ -144,31 +144,38 @@ class PaymentController extends Controller
         $returnUrl = route('payment.success', ['provider' => $provider, ...$mobileParams]);
         $cancelUrl = route('payment.cancel', ['provider' => $provider, ...$mobileParams]);
 
-        // TEMPORARY mobile testing hack: charge BOG 1 tetri instead of the
-        // real total while re-verifying the deep-link payment flow, so real
-        // money doesn't move on every test run. The order/payment records
-        // below still store the real $calc['total'] — only the amount BOG
-        // actually charges is overridden. Remove this before launch.
-        $bogAmount = ($provider === 'bog' && $request->platform === 'mobile') ? 0.01 : $calc['total'];
+        // TEMPORARY mobile testing hack: charge card providers 1 tetri
+        // instead of the real total while re-verifying the deep-link payment
+        // flow, so real money doesn't move on every test run. BOG/PCB take a
+        // GEL decimal (0.01 GEL = 1 tetri), but TBC's amount is already in
+        // tetri, so 1 there is the equivalent minimal charge. The
+        // order/payment records below still store the real $calc['total'] —
+        // only the amount actually charged is overridden. Remove this before
+        // launch.
+        $chargeAmount = match (true) {
+            $request->platform !== 'mobile' => $calc['total'],
+            $provider === 'tbc' => 1,
+            default => 0.01,
+        };
 
         try {
             if ($provider === 'tbc') {
                 $result = $this->tbcService->createPaymentRequest(
                     $order,
                     $returnUrl,
-                    $calc['total'],
+                    $chargeAmount,
                 );
             } elseif ($provider === 'bog') {
                 $result = $this->bogService->createPaymentRequest(
                     $order,
                     $returnUrl,
-                    $bogAmount,
+                    $chargeAmount,
                     cancelUrl: $cancelUrl,
                 );
             } elseif ($provider === 'pcb') {
                 $result = $this->pcbService->createPaymentRequest(
                     $order,
-                    $calc['total'],
+                    $chargeAmount,
                     platform: $request->platform === 'mobile' ? 'mobile' : null,
                 );
             } else {
