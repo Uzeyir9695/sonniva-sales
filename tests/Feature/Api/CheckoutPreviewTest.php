@@ -48,6 +48,50 @@ it('returns a pricing breakdown without creating an order or touching the cart',
     expect(Order::count())->toBe(0);
 });
 
+it('charges a normal item the weight-based Tbilisi tariff under 50kg', function () {
+    $user = User::factory()->create();
+    $item = checkoutPreviewTestItem(['weights' => [['uom' => 'PCS', 'weight' => 10]]]);
+    $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 1]);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/v1/checkout/preview', [
+        'delivery_type' => 'tbilisi',
+        'delivery_price_type' => 'tbilisi',
+        'city' => 'ვაკე',
+        'cart_ids' => [$cart->id],
+    ])->assertOk()->assertJson(['delivery_cost' => 11]);
+});
+
+it('charges a zone-only item the flat Tbilisi zone rate even under 50kg', function () {
+    $user = User::factory()->create();
+    $item = checkoutPreviewTestItem(['no' => 'ALU00865-011', 'weights' => [['uom' => 'PCS', 'weight' => 10]]]);
+    $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 1]);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/v1/checkout/preview', [
+        'delivery_type' => 'tbilisi',
+        'delivery_price_type' => 'tbilisi',
+        'city' => 'ვაკე',
+        'cart_ids' => [$cart->id],
+    ])->assertOk()->assertJson(['delivery_cost' => 50]);
+});
+
+it('leaves regions delivery on the weight-based tariff for a zone-only item', function () {
+    $user = User::factory()->create();
+    $item = checkoutPreviewTestItem(['no' => 'ALU00865-011', 'weights' => [['uom' => 'PCS', 'weight' => 10]]]);
+    $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 1]);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/v1/checkout/preview', [
+        'delivery_type' => 'regions',
+        'delivery_price_type' => 'region',
+        'cart_ids' => [$cart->id],
+    ])->assertOk()->assertJson(['delivery_cost' => 16]);
+});
+
 it('rejects unknown cart ids with a 422', function () {
     Sanctum::actingAs(User::factory()->create());
 

@@ -10,6 +10,15 @@ class OrderCalculatorService
 {
     const FREE_DELIVERY_THRESHOLD = 500;
 
+    /**
+     * Items that must always use the flat Tbilisi zone rate (40/50/60) for Tbilisi
+     * delivery, never the weight-based tariff - regardless of cart weight.
+     * Regions delivery is unaffected.
+     *
+     * @var list<string>
+     */
+    const TBILISI_ZONE_ONLY_ITEM_NOS = ['ALU00865-010', 'ALU00865-011', 'ALU00865-012'];
+
     const TBILISI_ZONE_RATES = [
         // I ზონა – 5-40 ₾
         'გლდანი' => 40, 'გლდანულა' => 40, 'სოფელი გლდანი' => 40, 'ზაჰესი' => 40, 'ავჭალა' => 40,
@@ -98,7 +107,11 @@ class OrderCalculatorService
             ];
         }
 
-        $deliveryCost = $this->deliveryCost($deliveryType, $subtotal, $deliveryPriceType, $totalWeightKg, $city);
+        $forceTbilisiZoneRate = $cartRows->contains(
+            fn ($row) => in_array($row->item->no, self::TBILISI_ZONE_ONLY_ITEM_NOS, true)
+        );
+
+        $deliveryCost = $this->deliveryCost($deliveryType, $subtotal, $deliveryPriceType, $totalWeightKg, $city, $forceTbilisiZoneRate);
 
         return [
             'subtotal' => $subtotal,
@@ -222,7 +235,7 @@ class OrderCalculatorService
         return [$tierPrice * (1 - $discountPercent / 100), $discountPercent, $discountPercent];
     }
 
-    private function deliveryCost(string $deliveryType, float $subtotal, ?string $priceType, float $weightKg, ?string $city = null): float
+    private function deliveryCost(string $deliveryType, float $subtotal, ?string $priceType, float $weightKg, ?string $city = null, bool $forceTbilisiZoneRate = false): float
     {
         if ($deliveryType === 'office') {
             return 0;
@@ -237,7 +250,7 @@ class OrderCalculatorService
         }
 
         if ($priceType === 'tbilisi') {
-            if ($weightKg >= 50) {
+            if ($weightKg >= 50 || $forceTbilisiZoneRate) {
                 return (float) (self::TBILISI_ZONE_RATES[$city] ?? 0);
             }
 

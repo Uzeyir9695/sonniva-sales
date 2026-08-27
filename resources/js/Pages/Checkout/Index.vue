@@ -101,6 +101,10 @@ function calcDeliveryPrice(weightKg, type) {
     return (rate ?? DELIVERY_RATES[DELIVERY_RATES.length - 1])[type]
 }
 
+// Items that must always use the flat Tbilisi zone rate (40/50/60) for Tbilisi delivery,
+// never the weight-based tariff - regardless of cart weight. Regions delivery is unaffected.
+const TBILISI_ZONE_ONLY_ITEM_NOS = ['ALU00865-010', 'ALU00865-011', 'ALU00865-012']
+
 const deliveryTypes = [
     { key: 'office',   label: 'თვითგატანა სონნივას ფილიალიდან' },
     { key: 'tbilisi',  label: 'მიწოდება თბილისში' },
@@ -290,6 +294,10 @@ const deliveryPriceType = computed(() => {
     return null
 })
 
+const hasTbilisiZoneOnlyItem = computed(() =>
+    items.value.some(c => TBILISI_ZONE_ONLY_ITEM_NOS.includes(c.item.no))
+)
+
 const deliveryCost = computed(() => {
     const key = selectedDelivery.value?.key
     if (!key) return null
@@ -297,7 +305,7 @@ const deliveryCost = computed(() => {
     if (key === 'tbilisi') {
         if (!selectedTbilisiZone.value) return null
         if (subtotal.value >= TBILISI_FREE_THRESHOLD) return 0
-        return totalWeightKg.value >= 50
+        return totalWeightKg.value >= 50 || hasTbilisiZoneOnlyItem.value
             ? selectedTbilisiZone.value.price
             : calcDeliveryPrice(totalWeightKg.value, 'tbilisi')
     }
