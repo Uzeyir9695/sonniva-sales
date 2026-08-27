@@ -5,14 +5,21 @@ namespace App\Services\Payments;
 use App\Models\Order;
 use App\Models\Payment;
 use Exception;
+use Flitt\Checkout;
+use Flitt\Configuration;
+use Flitt\Result\Result;
 use Illuminate\Support\Facades\Log;
 
 class TBCPaymentService
 {
     protected $merchantId;
+
     protected $secretKey;
+
     protected $apiVersion;
+
     protected $callbackUrl;
+
     protected $requestType;
 
     public function __construct()
@@ -25,10 +32,10 @@ class TBCPaymentService
         $this->callbackUrl = $config['callback_url'];
 
         // Initialize Flitt SDK
-        \Flitt\Configuration::setMerchantId($this->merchantId);
-        \Flitt\Configuration::setSecretKey($this->secretKey);
-        \Flitt\Configuration::setApiVersion($this->apiVersion);
-        \Flitt\Configuration::setRequestType($this->requestType);
+        Configuration::setMerchantId($this->merchantId);
+        Configuration::setSecretKey($this->secretKey);
+        Configuration::setApiVersion($this->apiVersion);
+        Configuration::setRequestType($this->requestType);
     }
 
     /**
@@ -38,51 +45,48 @@ class TBCPaymentService
     {
         try {
             $amountInCents = (int) round($totalAmount * 100);
-            $orderId = 'ORDER-' . $order->invoice_no;
+            $orderId = 'ORDER-'.$order->invoice_no;
 
             $paymentData = [
-                'order_id'            => $orderId,
-                'currency'            => 'GEL',
-                'amount'              => $amountInCents,
-                'response_url'        => $returnUrl,
+                'order_id' => $orderId,
+                'currency' => 'GEL',
+                'amount' => $amountInCents,
+                'response_url' => $returnUrl,
                 'server_callback_url' => $this->callbackUrl,
-                'lang'                => $this->mapLanguage($language),
-                'merchant_data'       => [
+                'lang' => $this->mapLanguage($language),
+                'merchant_data' => [
                     'order_id' => $order->id,
-                    'user_id'  => auth()->id(),
+                    'user_id' => auth()->id(),
                 ],
             ];
 
-            $checkoutUrl  = \Flitt\Checkout::url($paymentData);
+            $checkoutUrl = Checkout::url($paymentData);
             $checkoutData = $checkoutUrl->getData();
 
             return [
-                'success'      => true,
-                'order_id'     => $orderId,
-                'payment_id'   => $checkoutData['payment_id'] ?? null,
+                'success' => true,
+                'order_id' => $orderId,
+                'payment_id' => $checkoutData['payment_id'] ?? null,
                 'redirect_url' => $checkoutData['checkout_url'] ?? null,
                 'raw_response' => $checkoutData,
             ];
 
         } catch (Exception $e) {
             Log::channel('payment')->error('Flitt Payment Creation Error', [
-                'message'  => $e->getMessage(),
+                'message' => $e->getMessage(),
                 'order_id' => $order->id,
-                'trace'    => $e->getTraceAsString(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return [
                 'success' => false,
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ];
         }
     }
 
     /**
      * Get order status from Flitt API
-     *
-     * @param  string  $orderId
-     * @return array
      */
     public function getOrderStatus(string $orderId): array
     {
@@ -116,17 +120,14 @@ class TBCPaymentService
     /**
      * Validate callback from Flitt server_callback_url
      * Flitt SDK Result class handles signature validation automatically
-     *
-     * @param  array  $callbackData
-     * @return array
      */
     public function validateCallback(array $callbackData): array
     {
         try {
             // Use Flitt SDK Result class to validate callback
-            $result = new \Flitt\Result\Result();
+            $result = new Result;
 
-            if (!$result->getData()) {
+            if (! $result->getData()) {
                 return [
                     'valid' => false,
                     'error' => 'No callback data',
@@ -134,7 +135,7 @@ class TBCPaymentService
             }
 
             // Validate signature
-            if (!$result->isValid()) {
+            if (! $result->isValid()) {
                 return [
                     'valid' => false,
                     'error' => 'Invalid signature',
@@ -145,7 +146,7 @@ class TBCPaymentService
             $callbackInfo = $result->getData();
             $orderId = $callbackInfo['order_id'] ?? null;
 
-            if (!$orderId) {
+            if (! $orderId) {
                 return [
                     'valid' => false,
                     'error' => 'Missing order_id in callback',
@@ -156,7 +157,7 @@ class TBCPaymentService
                 'valid' => true,
                 'orderId' => $orderId,
                 'is_approved' => $isApproved,
-                'status' => $isApproved ? 'completed' : 'pending',
+                'status' => $this->mapOrderStatus($callbackInfo['order_status'] ?? null),
                 'raw_response' => $callbackInfo,
             ];
 
@@ -175,9 +176,6 @@ class TBCPaymentService
 
     /**
      * Find payment by order_id and update status
-     *
-     * @param  string  $orderId
-     * @return Payment|null
      */
     public function findAndUpdatePayment(string $orderId): ?Payment
     {
@@ -186,21 +184,22 @@ class TBCPaymentService
             $payment = Payment::whereJsonContains('response_data->order_id', $orderId)
                 ->first();
 
-            if (!$payment) {
+            if (! $payment) {
                 return null;
             }
 
             // Get latest status from Flitt API
             $statusResult = $this->getOrderStatus($orderId);
 
-            if (!$statusResult['success']) {
+            if (! $statusResult['success']) {
                 Log::channel('payment')->warning('Failed to get status from Flitt', [
                     'order_id' => $orderId,
                 ]);
+
                 return $payment;
             }
 
-            $status = $statusResult['is_approved'] ? 'completed' : 'pending';
+            $status = $this->mapOrderStatus($statusResult['data']['order_status'] ?? null);
             $additionalInfo = json_decode($statusResult['data']['additional_info'], true);
             $transactionId = $additionalInfo['transaction_id'] ?? null;
 
@@ -227,10 +226,22 @@ class TBCPaymentService
     }
 
     /**
+     * Map Flitt's order_status to our internal payment status. 'declined' and
+     * 'expired' are Flitt's own terminal-failure statuses (see the SDK's
+     * Result::isDeclined()/isExpired()) — anything else ('processing',
+     * 'created', etc.) stays pending until a later poll/callback resolves it.
+     */
+    protected function mapOrderStatus(?string $orderStatus): string
+    {
+        return match ($orderStatus) {
+            'approved' => 'completed',
+            'declined', 'expired' => 'failed',
+            default => 'pending',
+        };
+    }
+
+    /**
      * Map language codes
-     *
-     * @param  string  $language
-     * @return string
      */
     protected function mapLanguage(string $language): string
     {
@@ -247,10 +258,7 @@ class TBCPaymentService
     /**
      * Refund payment
      *
-     * @param  string  $orderId
-     * @param  int  $amount (in base currency, will be converted to cents)
-     * @param  string  $currency
-     * @return array
+     * @param  int  $amount  (in base currency, will be converted to cents)
      */
     public function refundPayment(string $orderId, int $amount, string $currency = 'GEL'): array
     {
