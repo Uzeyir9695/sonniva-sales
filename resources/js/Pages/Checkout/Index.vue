@@ -102,8 +102,42 @@ function calcDeliveryPrice(weightKg, type) {
 }
 
 // Items that must always use the flat Tbilisi zone rate (40/50/60) for Tbilisi delivery,
-// never the weight-based tariff - regardless of cart weight. Regions delivery is unaffected.
+// never the weight-based tariff - regardless of cart weight. Same treatment for any item
+// whose "სიგრძე" (length) attribute exceeds 2 m. Regions delivery is unaffected in both cases.
+// Mirror of OrderCalculatorService::usesTbilisiZoneRate().
 const TBILISI_ZONE_ONLY_ITEM_NOS = ['ALU00865-010', 'ALU00865-011', 'ALU00865-012']
+const TBILISI_ZONE_ONLY_LENGTH_M = 2
+
+// Pulls a length in meters out of free-form BC attribute values such as
+// "6მ", "1500 მმ", "290 სმ", "3,66 მ", "მ 6", "100mm". Returns null when
+// no number or no recognizable unit is present.
+function parseLengthToMeters(raw) {
+    const value = String(raw).replace(',', '.')
+    const number = value.match(/\d+(?:\.\d+)?/)
+    const unit = value.match(/მმ|სმ|მ|mm|cm|m/)
+    if (!number || !unit) return null
+
+    const n = parseFloat(number[0])
+    switch (unit[0]) {
+        case 'მ': case 'm': return n
+        case 'სმ': case 'cm': return n / 100
+        case 'მმ': case 'mm': return n / 1000
+        default: return null
+    }
+}
+
+function lengthAttributeMeters(item) {
+    const attr = (item.attributes ?? []).find(
+        a => (a.name ?? '').trim().replace(/^:+|:+$/g, '').trim().toLowerCase() === 'სიგრძე'
+    )
+    return attr?.value != null ? parseLengthToMeters(attr.value) : null
+}
+
+function usesTbilisiZoneRate(item) {
+    if (TBILISI_ZONE_ONLY_ITEM_NOS.includes(item.no)) return true
+    const meters = lengthAttributeMeters(item)
+    return meters != null && meters > TBILISI_ZONE_ONLY_LENGTH_M
+}
 
 const deliveryTypes = [
     { key: 'office',   label: 'თვითგატანა სონნივას ფილიალიდან' },
@@ -295,7 +329,7 @@ const deliveryPriceType = computed(() => {
 })
 
 const hasTbilisiZoneOnlyItem = computed(() =>
-    items.value.some(c => TBILISI_ZONE_ONLY_ITEM_NOS.includes(c.item.no))
+    items.value.some(c => usesTbilisiZoneRate(c.item))
 )
 
 const deliveryCost = computed(() => {

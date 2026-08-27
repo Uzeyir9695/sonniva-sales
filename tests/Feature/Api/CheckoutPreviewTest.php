@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Attribute;
 use App\Models\Cart;
 use App\Models\Item;
 use App\Models\Order;
@@ -22,6 +23,21 @@ function checkoutPreviewTestItem(array $overrides = []): Item
         'vip_discount_percent' => 0,
         'prices' => [],
     ], $overrides));
+}
+
+function previewTbilisiDeliveryCost(Item $item): int|float
+{
+    $user = User::factory()->create();
+    $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 1]);
+
+    Sanctum::actingAs($user);
+
+    return test()->postJson('/api/v1/checkout/preview', [
+        'delivery_type' => 'tbilisi',
+        'delivery_price_type' => 'tbilisi',
+        'city' => 'ვაკე',
+        'cart_ids' => [$cart->id],
+    ])->assertOk()->json('delivery_cost');
 }
 
 it('rejects an unauthenticated request', function () {
@@ -49,34 +65,36 @@ it('returns a pricing breakdown without creating an order or touching the cart',
 });
 
 it('charges a normal item the weight-based Tbilisi tariff under 50kg', function () {
-    $user = User::factory()->create();
     $item = checkoutPreviewTestItem(['weights' => [['uom' => 'PCS', 'weight' => 10]]]);
-    $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 1]);
 
-    Sanctum::actingAs($user);
-
-    $this->postJson('/api/v1/checkout/preview', [
-        'delivery_type' => 'tbilisi',
-        'delivery_price_type' => 'tbilisi',
-        'city' => 'ვაკე',
-        'cart_ids' => [$cart->id],
-    ])->assertOk()->assertJson(['delivery_cost' => 11]);
+    expect(previewTbilisiDeliveryCost($item))->toBe(11);
 });
 
-it('charges a zone-only item the flat Tbilisi zone rate even under 50kg', function () {
-    $user = User::factory()->create();
+it('charges a whitelisted item the flat Tbilisi zone rate even under 50kg', function () {
     $item = checkoutPreviewTestItem(['no' => 'ALU00865-011', 'weights' => [['uom' => 'PCS', 'weight' => 10]]]);
-    $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 1]);
 
-    Sanctum::actingAs($user);
-
-    $this->postJson('/api/v1/checkout/preview', [
-        'delivery_type' => 'tbilisi',
-        'delivery_price_type' => 'tbilisi',
-        'city' => 'ვაკე',
-        'cart_ids' => [$cart->id],
-    ])->assertOk()->assertJson(['delivery_cost' => 50]);
+    expect(previewTbilisiDeliveryCost($item))->toBe(50);
 });
+
+it('bills Tbilisi delivery by zone rate when the length attribute exceeds 2 m', function (string $name, string $value, int|float $expected) {
+    $item = checkoutPreviewTestItem(['weights' => [['uom' => 'PCS', 'weight' => 10]]]);
+    Attribute::create(['item_id' => $item->id, 'bc_attribute_id' => 1, 'name' => $name, 'value' => $value]);
+
+    expect(previewTbilisiDeliveryCost($item))->toBe($expected);
+})->with([
+    'plain 6 m' => ['სიგრძე', '6მ', 50],
+    'colon suffix 6 m' => ['სიგრძე:', '6მ', 50],
+    'spaced 290 cm' => ['სიგრძე:', '290 სმ', 50],
+    'comma decimal 3.66' => ['სიგრძე:', '3,66 მ', 50],
+    'prepended unit' => ['სიგრძე', 'მ 6', 50],
+    'exactly 2 m' => ['სიგრძე', '2მ', 11],
+    '1500 mm' => ['სიგრძე:', '1500 მმ', 11],
+    '100mm no space' => ['სიგრძე:', '100mm', 11],
+    'unrelated attr' => ['კაბელის სიგრძე', '10 მ', 11],
+    'no unit' => ['სიგრძე', '6', 11],
+    'inch + metric pair' => ['სიგრძე:', '6" / 160 მმ', 11],
+    'cm then inch' => ['სიგრძე:', '40 სმ, 16"', 11],
+]);
 
 it('leaves regions delivery on the weight-based tariff for a zone-only item', function () {
     $user = User::factory()->create();

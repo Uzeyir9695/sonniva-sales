@@ -12,12 +12,15 @@ class OrderCalculatorService
 
     /**
      * Items that must always use the flat Tbilisi zone rate (40/50/60) for Tbilisi
-     * delivery, never the weight-based tariff - regardless of cart weight.
-     * Regions delivery is unaffected.
+     * delivery, never the weight-based tariff - regardless of cart weight. This is on
+     * top of the length rule below (any item longer than 2 m gets the same treatment).
+     * Regions delivery is unaffected in both cases.
      *
      * @var list<string>
      */
     const TBILISI_ZONE_ONLY_ITEM_NOS = ['ALU00865-010', 'ALU00865-011', 'ALU00865-012'];
+
+    const TBILISI_ZONE_ONLY_LENGTH_METERS = 2;
 
     const TBILISI_ZONE_RATES = [
         // I ზონა – 5-40 ₾
@@ -56,7 +59,7 @@ class OrderCalculatorService
 
         // Fetch only cart rows that belong to this user and match the requested cart UUIDs.
         // Using cart IDs (not item IDs) correctly handles the same item with different UOMs.
-        $cartRows = Cart::with('item')
+        $cartRows = Cart::with(['item', 'item.attributes:id,item_id,name,value'])
             ->where('user_id', $userId)
             ->whereIn('id', $cartIds)
             ->get();
@@ -107,9 +110,7 @@ class OrderCalculatorService
             ];
         }
 
-        $forceTbilisiZoneRate = $cartRows->contains(
-            fn ($row) => in_array($row->item->no, self::TBILISI_ZONE_ONLY_ITEM_NOS, true)
-        );
+        $forceTbilisiZoneRate = $cartRows->contains(fn ($row) => $this->usesTbilisiZoneRate($row->item));
 
         $deliveryCost = $this->deliveryCost($deliveryType, $subtotal, $deliveryPriceType, $totalWeightKg, $city, $forceTbilisiZoneRate);
 
@@ -233,6 +234,56 @@ class OrderCalculatorService
         }
 
         return [$tierPrice * (1 - $discountPercent / 100), $discountPercent, $discountPercent];
+    }
+
+    /**
+     * A whitelisted item, or one whose "სიგრძე" (length) attribute exceeds 2 m,
+     * always bills Tbilisi delivery at the flat zone rate instead of the
+     * weight-based tariff (OnWay overcharges for oversized items).
+     */
+    private function usesTbilisiZoneRate(Item $item): bool
+    {
+        if (in_array($item->no, self::TBILISI_ZONE_ONLY_ITEM_NOS, true)) {
+            return true;
+        }
+
+        $lengthMeters = $this->lengthAttributeMeters($item);
+
+        return $lengthMeters !== null && $lengthMeters > self::TBILISI_ZONE_ONLY_LENGTH_METERS;
+    }
+
+    private function lengthAttributeMeters(Item $item): ?float
+    {
+        $attribute = $item->attributes->first(
+            fn ($attr) => mb_strtolower(trim((string) $attr->name, " \t:")) === 'სიგრძე'
+        );
+
+        return $attribute ? $this->parseLengthToMeters((string) $attribute->value) : null;
+    }
+
+    /**
+     * Pulls a length in meters out of free-form BC attribute values such as
+     * "6მ", "1500 მმ", "290 სმ", "3,66 მ", "მ 6", "100mm". Returns null when
+     * no number or no recognizable unit is present.
+     */
+    private function parseLengthToMeters(string $raw): ?float
+    {
+        $value = str_replace(',', '.', trim($raw));
+
+        if (! preg_match('/\d+(?:\.\d+)?/', $value, $number)) {
+            return null;
+        }
+
+        if (! preg_match('/მმ|სმ|მ|mm|cm|m/u', $value, $unit)) {
+            return null;
+        }
+
+        return match ($unit[0]) {
+            'მ', 'm' => (float) $number[0],
+            'სმ', 'cm' => (float) $number[0] / 100,
+            'მმ', 'mm' => (float) $number[0] / 1000,
+            default => null,
+        };
     }
 
     private function deliveryCost(string $deliveryType, float $subtotal, ?string $priceType, float $weightKg, ?string $city = null, bool $forceTbilisiZoneRate = false): float

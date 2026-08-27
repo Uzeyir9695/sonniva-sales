@@ -20,7 +20,7 @@ class CheckoutController extends Controller
         $cartItems = $request->user()
             ->carts()
             ->whereHas('item', fn ($q) => $q->where('inventory', '>', 0))
-            ->with('item')
+            ->with(['item', 'item.attributes:id,item_id,name,value'])
             ->when(count($cartIds), fn ($q) => $q->whereIn('id', $cartIds))
             ->when(count($itemIds), fn ($q) => $q
                 ->whereIn('item_id', $itemIds)
