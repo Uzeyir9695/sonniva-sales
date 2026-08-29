@@ -11,7 +11,7 @@ use Inertia\Response;
 
 class UserOrderController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response|JsonResponse
     {
         $orders = Order::with([
             'payment:id,order_id,provider,invoice_no',
@@ -42,6 +42,13 @@ class UserOrderController extends Controller
                     'quantity' => $orderItem->quantity,
                 ]),
             ]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'orders' => $orders,
+                'ordersSummary' => $this->ordersSummary(),
+            ]);
+        }
 
         return Inertia::render('UserOrders/Index', [
             'orders' => Inertia::defer(fn () => $orders),
@@ -142,6 +149,7 @@ class UserOrderController extends Controller
                 'payment' => $order->payment,
                 'items' => $order->items->map(fn ($oi) => [
                     'id' => $oi->id,
+                    'item_id' => $oi->item?->id,
                     'item_no' => $oi->item?->no,
                     'item_name' => $oi->item?->name,
                     'item_slug' => $oi->item?->slug,

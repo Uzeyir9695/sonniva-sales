@@ -13,6 +13,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\StockNotificationController;
+use App\Http\Controllers\UserOrderController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -65,6 +66,13 @@ Route::prefix('v1')->group(function () {
         Route::get('account', [AccountController::class, 'show'])->name('api.account.show');
         Route::put('account', [AccountController::class, 'update'])->name('api.account.update');
         Route::put('account/change-password', [AccountController::class, 'changePassword'])->name('api.account.change-password');
+
+        // ── Orders ───────────────────────────────────────────────────────
+        // index() branches to JSON via $request->wantsJson(); show()/reorder()
+        // are already pure JsonResponse on the web UserOrderController.
+        Route::get('orders', [UserOrderController::class, 'index'])->name('api.orders.index');
+        Route::get('orders/{order}', [UserOrderController::class, 'show'])->name('api.orders.show');
+        Route::post('orders/{order}/reorder', [UserOrderController::class, 'reorder'])->name('api.orders.reorder');
 
         // ── Wishlist ─────────────────────────────────────────────────────
         Route::get('wishlist', [WishlistController::class, 'index'])->name('api.wishlist.index');
