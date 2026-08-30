@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CheckoutController as ApiCheckoutController;
 use App\Http\Controllers\Api\ForgotPasswordController;
+use App\Http\Controllers\Api\HmsController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\RegisterController;
 use App\Http\Controllers\CartController;
@@ -24,6 +25,12 @@ use Illuminate\Support\Facades\Route;
 // ============================================================================
 // api.php — for NativePHP Mobile
 // ============================================================================
+
+// ============================================================================
+// sonniva-hms — external HMS / HMSFIX brand catalogue site
+// ============================================================================
+
+Route::get('/hms/items', [HmsController::class, 'items'])->name('api.hms.items');
 
 Route::prefix('v1')->group(function () {
     Route::post('/register', [RegisterController::class, 'register']);
