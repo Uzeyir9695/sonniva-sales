@@ -7,10 +7,10 @@ const DEFAULT_LOCALE = 'ka'
 const LOCALES = ['ka', 'en', 'ru', 'tr']
 
 const flagMap = {
-    ka: 'https://flagcdn.com/w40/ge.png',
-    en: 'https://flagcdn.com/w40/gb.png',
-    ru: 'https://flagcdn.com/w40/ru.png',
-    tr: 'https://flagcdn.com/w40/tr.png',
+    ka: '/flags/ge.png',
+    en: '/flags/gb.png',
+    ru: '/flags/ru.png',
+    tr: '/flags/tr.png',
 }
 const nameMap = { ka: 'GEO', en: 'ENG', ru: 'RUS', tr: 'TUR' }
 const fullNameMap = { ka: 'ქართული', en: 'English', ru: 'Русский', tr: 'Türkçe' }
