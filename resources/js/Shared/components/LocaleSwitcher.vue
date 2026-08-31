@@ -50,8 +50,10 @@ function switchTo(locale) {
             @click="open = !open"
             class="flex items-center justify-center md:w-8 md:h-8 lg:w-10 lg:h-10 gap-1.5 rounded-full text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"
         >
-            <img :src="flagMap[current]" class="w-6 h-4 object-cover rounded-xs shrink-0" alt="" />
-            <span class="sm:hidden text-sm font-medium text-gray-600">{{ fullNameMap[current] }}</span>
+            <!-- TEMP: flag hidden while Weglot proxy is still in front of www — restore these two lines once Weglot is off the DNS path -->
+            <!-- <img :src="flagMap[current]" class="w-6 h-4 object-cover rounded-xs shrink-0" alt="" /> -->
+            <!-- <span class="sm:hidden text-sm font-medium text-gray-600">{{ fullNameMap[current] }}</span> -->
+            <span class="text-sm font-semibold tracking-wide">{{ current.toUpperCase() }}</span>
         </button>
 
         <Transition
