@@ -12,21 +12,19 @@ class SearchController extends Controller
     public function index(Request $request): Response
     {
         $q = trim($request->input('q', ''));
-        $rawQ = trim($request->input('raw_q', $q));
         $priceMin = $request->input('price_min');
         $priceMax = $request->input('price_max');
         $stock = $request->input('stock');
 
         return Inertia::render('Search/Index', [
             'query' => $q,
-            'rawQuery' => $rawQ,
-            'items' => Inertia::defer(fn () => $this->fetchItems($q, $rawQ, $priceMin, $priceMax, $stock)),
+            'items' => Inertia::defer(fn () => $this->fetchItems($q, $priceMin, $priceMax, $stock)),
         ]);
     }
 
-    private function fetchItems(string $q, string $rawQ, ?string $priceMin, ?string $priceMax, ?string $stock): mixed
+    private function fetchItems(string $q, ?string $priceMin, ?string $priceMax, ?string $stock): mixed
     {
-        return Item::search($q, $rawQ)
+        return Item::search($q)
             ->when($priceMin !== null && $priceMin !== '', fn ($query) => $query->where('unit_price', '>=', $priceMin))
             ->when($priceMax !== null && $priceMax !== '', fn ($query) => $query->where('unit_price', '<=', $priceMax))
             ->when($stock === 'in', fn ($query) => $query->where('inventory', '>', 0))

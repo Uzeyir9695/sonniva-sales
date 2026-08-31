@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasLocalizedAttributes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute as AttributeCast;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -13,11 +14,15 @@ use Spatie\Image\Image;
 
 class Item extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasLocalizedAttributes, HasUuids, SoftDeletes;
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
-    protected $hidden = ['en_keywords', 'ru_keywords', 'tr_keywords'];
+    protected $hidden = [
+        'en_keywords', 'ru_keywords', 'tr_keywords',
+        'name_en', 'name_ru', 'name_tr',
+        'description_en', 'description_ru', 'description_tr',
+    ];
 
     protected $appends = ['storage_path', 'discounted_price', 'has_setup_service', 'setup_service_price', 'bc_unit_price'];
 
@@ -31,6 +36,7 @@ class Item extends Model
         'bc_discount_percent' => 'decimal:4',
         'fake_price' => 'decimal:2',
         'unit_price_override' => 'decimal:2',
+        'needs_review' => 'boolean',
     ];
 
     /**
@@ -51,6 +57,19 @@ class Item extends Model
     {
         return (float) $this->attributes['unit_price'];
     }
+
+    protected function name(): AttributeCast
+    {
+        return AttributeCast::get(fn ($value) => $this->localized('name', $value));
+    }
+
+    protected function description(): AttributeCast
+    {
+        return AttributeCast::get(fn ($value) => $this->localized('description', $value));
+    }
+
+    /** Columns to add to a restricted select() so the localized name accessor can resolve. */
+    const LOCALE_NAME_COLUMNS = ['name_en', 'name_ru', 'name_tr'];
 
     const SETUP_SERVICE_CATEGORY_CODE = '2300-02';
 
@@ -87,21 +106,14 @@ class Item extends Model
         return number_format($base * (1 - $this->discount / 100), 2, '.', '');
     }
 
-    public function scopeSearch(Builder $query, string $q, ?string $rawQ = null): Builder
+    public function scopeSearch(Builder $query, string $q): Builder
     {
-        $rawQ = $rawQ !== null && $rawQ !== '' ? $rawQ : $q;
-
-        return $query->where(function (Builder $query) use ($q, $rawQ) {
+        return $query->where(function (Builder $query) use ($q) {
             $query->where('name', 'like', "%{$q}%")
                 ->orWhere('no', 'like', "%{$q}%")
-                ->orWhere('en_keywords', 'like', "%{$rawQ}%")
-                ->orWhere('ru_keywords', 'like', "%{$rawQ}%")
-                ->orWhere('tr_keywords', 'like', "%{$rawQ}%");
-
-            if ($rawQ !== $q) {
-                $query->orWhere('name', 'like', "%{$rawQ}%")
-                    ->orWhere('no', 'like', "%{$rawQ}%");
-            }
+                ->orWhere('en_keywords', 'like', "%{$q}%")
+                ->orWhere('ru_keywords', 'like', "%{$q}%")
+                ->orWhere('tr_keywords', 'like', "%{$q}%");
         });
     }
 

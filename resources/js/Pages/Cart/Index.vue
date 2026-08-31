@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, watch, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import { useCart } from '@/composables/useCart'
 import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue'
@@ -7,6 +8,8 @@ import InputNumber from 'primevue/inputnumber'
 import { STORAGE_KEYS } from '@/constants/storageKeys'
 import { calculateTierPrice, getOriginalPrice, getRetailPrice, activeDiscountType } from '@/composables/usePricing.js'
 import { formatDiscount } from '@/utils/numberFormat.js'
+
+const { t } = useI18n()
 
 const props = defineProps({
     cartItems: { type: Array, required: true },
@@ -71,8 +74,8 @@ function rowBoldPrice(item, qty, selectedUOM) {
 }
 
 const DISCOUNT_TYPE_LABELS = {
-    wholesale: 'საბითუმო ფასდაკლება',
-    vip: 'VIP ფასდაკლება',
+    wholesale: () => t('cart.wholesaleDiscount'),
+    vip: () => t('cart.vipDiscount'),
 }
 
 const DISCOUNT_TYPE_BADGE_CLASS = {
@@ -93,7 +96,7 @@ function rowDiscountBadge(cartItem) {
         : type === 'vip' ? cartItem.item.vip_discount_percent
             : cartItem.item.discount
 
-    return { type, percent, label: DISCOUNT_TYPE_LABELS[type] ?? null, badgeClass: DISCOUNT_TYPE_BADGE_CLASS[type] }
+    return { type, percent, label: DISCOUNT_TYPE_LABELS[type]?.() ?? null, badgeClass: DISCOUNT_TYPE_BADGE_CLASS[type] }
 }
 
 
@@ -192,9 +195,9 @@ function goToCheckout() {
 
             <!-- Header -->
             <div class="mb-8">
-                <h1 class="text-2xl font-bold text-gray-900">კალათა</h1>
+                <h1 class="text-2xl font-bold text-gray-900">{{ $t('cart.title') }}</h1>
                 <p class="text-gray-500 text-sm mt-1">
-                    {{ items.length }} პროდუქტი
+                    {{ $t('cart.productCount', { count: items.length }) }}
                 </p>
             </div>
 
@@ -204,9 +207,9 @@ function goToCheckout() {
                 class="flex flex-col items-center justify-center py-32 text-center"
             >
                 <i class="pi pi-shopping-cart text-gray-200 text-7xl mb-6"></i>
-                <h2 class="text-lg font-semibold text-gray-700 mb-2">კალათა ცარიელია</h2>
+                <h2 class="text-lg font-semibold text-gray-700 mb-2">{{ $t('cart.emptyHeading') }}</h2>
                 <p class="text-gray-400 text-sm mb-8 max-w-xs">
-                    დაამატე პროდუქტები კალათაში და შემდეგ გააგრძელე შეძენა.
+                    {{ $t('cart.emptyText') }}
                 </p>
                 <Link
                     :href="route('home')"
@@ -215,7 +218,7 @@ function goToCheckout() {
                            active:scale-[0.98] transition-all cursor-pointer"
                 >
                     <i class="pi pi-arrow-left text-xs"></i>
-                    შოპინგის გაგრძელება
+                    {{ $t('common.continueShopping') }}
                 </Link>
             </div>
 
@@ -236,10 +239,10 @@ function goToCheckout() {
                             class="cursor-pointer"
                         />
                         <label for="select-all" class="text-sm text-gray-500 cursor-pointer select-none">
-                            ყველას არჩევა ({{ items.length }})
+                            {{ $t('cart.selectAll') }} ({{ items.length }})
                         </label>
                         <span v-if="selectedIds.length > 0" class="text-xs text-gray-400 ml-auto">
-                            {{ selectedIds.length }} არჩეულია
+                            {{ $t('cart.selectedCount', { count: selectedIds.length }) }}
                         </span>
                     </div>
 
@@ -301,7 +304,7 @@ function goToCheckout() {
                                         v-if="cartItem.item.inventory <= 0"
                                         class="inline-flex items-center gap-1 text-xs font-medium"
                                     >
-                                        მარაგში არ არის
+                                        {{ $t('common.outOfStock') }}
                                     </span>
                                 </div>
 
@@ -356,7 +359,7 @@ function goToCheckout() {
 
                                     <!-- Row total -->
                                     <span class="text-sm text-gray-400">
-                                        სულ: <span class="font-semibold text-gray-700">{{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip) * getQuantity(cartItem.item_id, cartItem.selected_uom) + (hasService(cartItem.item_id, cartItem.selected_uom) ? cartItem.item.setup_service_price * getQuantity(cartItem.item_id, cartItem.selected_uom) : 0)) }} ₾</span>
+                                        {{ $t('cart.rowTotal') }} <span class="font-semibold text-gray-700">{{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip) * getQuantity(cartItem.item_id, cartItem.selected_uom) + (hasService(cartItem.item_id, cartItem.selected_uom) ? cartItem.item.setup_service_price * getQuantity(cartItem.item_id, cartItem.selected_uom) : 0)) }} ₾</span>
                                     </span>
 
                                     <!-- Savings badge -->
@@ -368,10 +371,10 @@ function goToCheckout() {
                                     >
                                         <i class="pi pi-tag text-xs mr-1"></i>
                                         <template v-if="isVipPriceActive(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom)">
-                                            VIP დანაზოგი: {{ formatted((getRetailPrice(cartItem.item, cartItem.selected_uom) - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
+                                            {{ $t('cart.vipSavings') }} {{ formatted((getRetailPrice(cartItem.item, cartItem.selected_uom) - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
                                         </template>
                                         <template v-else>
-                                            დანაზოგი: {{ formatted((getRetailPrice(cartItem.item, cartItem.selected_uom) - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
+                                            {{ $t('cart.savings') }} {{ formatted((getRetailPrice(cartItem.item, cartItem.selected_uom) - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
                                         </template>
                                     </span>
 
@@ -386,7 +389,7 @@ function goToCheckout() {
                                     </span>
 
                                     <p v-if="overLimit(cartItem)" class="text-xs text-red-600">
-                                        ხელმისაწვდომი რაოდენობაა {{ cartItem.item.inventory }}
+                                        {{ $t('cart.availableQty', { count: cartItem.item.inventory }) }}
                                     </p>
                                 </div>
 
@@ -397,7 +400,7 @@ function goToCheckout() {
                                 >
                                     <div class="flex items-center gap-2">
                                         <i class="pi pi-wrench text-brand-500 text-sm"></i>
-                                        <span class="text-xs font-medium text-gray-700">დამონტაჟების სერვისი</span>
+                                        <span class="text-xs font-medium text-gray-700">{{ $t('cart.setupService') }}</span>
                                         <span class="text-xs text-gray-400">+{{ formatted(cartItem.item.setup_service_price) }} ₾</span>
                                     </div>
                                     <ToggleSwitch
@@ -436,18 +439,18 @@ function goToCheckout() {
                                hover:text-gray-700 transition-colors mt-2"
                     >
                         <i class="pi pi-arrow-left text-xs"></i>
-                        შოპინგის გაგრძელება
+                        {{ $t('common.continueShopping') }}
                     </Link>
                 </div>
 
                 <!-- ── Order summary ── -->
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-28">
-                        <h2 class="text-base font-bold text-gray-900 mb-5">შეკვეთის შეჯამება</h2>
+                        <h2 class="text-base font-bold text-gray-900 mb-5">{{ $t('cart.orderSummary') }}</h2>
 
                         <div class="space-y-3 text-sm">
                             <div class="flex justify-between text-gray-500">
-                                <span>{{ selectedItems.length }} პროდუქტი</span>
+                                <span>{{ $t('cart.productCount', { count: selectedItems.length }) }}</span>
                                 <span class="font-medium text-gray-700">
                                     <span v-if="totalSavings > 0" class="line-through text-red-500 mr-1">{{ formatted(subtotal + totalSavings) }} ₾</span>
                                     <span>{{ formatted(subtotal) }} ₾</span>
@@ -461,7 +464,7 @@ function goToCheckout() {
                             >
                                 <span class="flex items-center gap-1">
                                     <i class="pi pi-tag text-xs"></i>
-                                    ჯამური დანაზოგი
+                                    {{ $t('cart.totalSavings') }}
                                 </span>
                                 <span class="font-medium">-{{ formatted(totalSavings) }} ₾</span>
                             </div>
@@ -470,7 +473,7 @@ function goToCheckout() {
                         <div class="h-px bg-gray-100 my-5"></div>
 
                         <div class="flex justify-between items-center mb-6">
-                            <span class="font-bold text-gray-900">სულ</span>
+                            <span class="font-bold text-gray-900">{{ $t('common.total') }}</span>
                             <span class="text-xl font-bold text-brand-500">{{ formatted(subtotal) }} ₾</span>
                         </div>
 
@@ -484,13 +487,13 @@ function goToCheckout() {
                                 : 'bg-gray-100 text-gray-400'"
                         >
                             <i class="pi pi-wallet mr-2"></i>
-                            შეკვეთის გაფორმება
+                            {{ $t('cart.checkout') }}
                             <span v-if="selectedIds.length > 0" class="ml-1 opacity-75">({{ selectedIds.length }})</span>
                         </button>
 
                         <div class="mt-4 flex items-center justify-center gap-2 text-xs text-gray-400">
                             <i class="pi pi-lock text-xs"></i>
-                            უსაფრთხო გადახდა
+                            {{ $t('cart.securePayment') }}
                         </div>
                     </div>
                 </div>

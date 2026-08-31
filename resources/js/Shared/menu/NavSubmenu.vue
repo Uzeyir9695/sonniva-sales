@@ -32,7 +32,7 @@ import { Link } from '@inertiajs/vue3'
                     <span class="flex items-center justify-center w-7 h-7 lg:w-8 lg:h-8 rounded-full bg-neutral-950 shrink-0 transition-transform duration-500 group-hover:rotate-90">
                         <i class="pi pi-percentage text-xs lg:text-sm text-brand-400"></i>
                     </span>
-                    <span class="text-sm lg:text-lg tracking-wide whitespace-nowrap">ფასდაკლებები</span>
+                    <span class="text-sm lg:text-lg tracking-wide whitespace-nowrap">{{ $t('nav.sales') }}</span>
                 </Link>
 
                 <!-- right flow lines -->

@@ -16,7 +16,7 @@ const isAuthenticated = computed(() => page.props.isLoggedIn);
           class="flex items-center gap-x-2 text-sm cursor-pointer"
     >
         <i class="pi pi-sign-out text-sm ml-1 text-gray-400"></i>
-        <span class="max-sm:hid">გასვლა</span>
+        <span class="max-sm:hid">{{ $t('nav.signOut') }}</span>
     </Link>
 </template>
 

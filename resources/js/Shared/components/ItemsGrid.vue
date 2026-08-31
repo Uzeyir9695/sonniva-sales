@@ -44,7 +44,7 @@ function openQuickView(item) {
         <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
             <i class="pi pi-th-large text-3xl text-gray-300"></i>
         </div>
-        <h3 class="text-lg font-medium text-gray-500">პროდუქტი არ მოიძებნა</h3>
+        <h3 class="text-lg font-medium text-gray-500">{{ $t('item.noProducts') }}</h3>
     </div>
 
     <!-- QUICK VIEW DIALOG -->

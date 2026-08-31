@@ -2,6 +2,7 @@
 import { ref, computed, reactive, watch } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'primevue/usetoast'
+import { useI18n } from 'vue-i18n'
 import { useCart } from '@/composables/useCart'
 import { calculateTierPrice, getOriginalPrice } from '@/composables/usePricing.js'
 import PlacesAutocomplete from '@/Shared/components/PlacesAutocomplete.vue'
@@ -12,6 +13,7 @@ const props = defineProps({
     cartItems: { type: Array, required: true },
 })
 
+const { t } = useI18n()
 const page = usePage()
 const toast = useToast()
 const { getQuantity, hasService } = useCart()
@@ -47,7 +49,7 @@ const items = computed(() =>
 
 watch(() => items.value.length, (len) => {
     if (len === 0) {
-        toast.add({ severity: 'info', summary: 'კალათა ცარიელია', detail: 'ყველა პროდუქტი ამოღებულია გადახდის გვერდიდან', life: 4000 })
+        toast.add({ severity: 'info', summary: t('cart.emptyHeading'), detail: t('checkout.cartEmptyDetail'), life: 4000 })
         router.visit(route('cart.index'))
     }
 })
@@ -139,16 +141,16 @@ function usesTbilisiZoneRate(item) {
     return meters != null && meters > TBILISI_ZONE_ONLY_LENGTH_M
 }
 
-const deliveryTypes = [
-    { key: 'office',   label: 'თვითგატანა სონნივას ფილიალიდან' },
-    { key: 'tbilisi',  label: 'მიწოდება თბილისში' },
-    { key: 'regions',  label: 'მიწოდება რეგიონებში' },
-]
+const deliveryTypes = computed(() => [
+    { key: 'office',   label: t('checkout.deliveryOffice') },
+    { key: 'tbilisi',  label: t('checkout.deliveryTbilisi') },
+    { key: 'regions',  label: t('checkout.deliveryRegions') },
+])
 
-const regionOptions = [
-    { key: 'onway_office', label: 'OnWay-ის ფილიალიდან გატანა', icon: 'fa-solid fa-warehouse' },
-    { key: 'address',      label: 'ადგილზე მიტანა',             icon: 'fa-solid fa-truck-fast' },
-]
+const regionOptions = computed(() => [
+    { key: 'onway_office', label: t('checkout.regionOnwayOffice'), icon: 'fa-solid fa-warehouse' },
+    { key: 'address',      label: t('checkout.regionAddress'),     icon: 'fa-solid fa-truck-fast' },
+])
 
 const onwayBranches = [
     'რუსთავი', 'ბათუმი', 'ზუგდიდი', 'ქუთაისი',
@@ -166,20 +168,20 @@ const zones = ref([])
 const zoneSuggestions = ref([])
 const zonesLoading = ref(false)
 
-const officeBranches = [
+const officeBranches = computed(() => [
     {
         key: 'avchala',
-        label: 'ავჭალის ფილიალი',
-        address: 'შუშის ქუჩა 38 — ორშაბათი-პარასკევი 09:00-18:00',
+        label: t('item.branchAvchala'),
+        address: t('checkout.avchalaAddress'),
         mapUrl: 'https://maps.app.goo.gl/3YwH55CnhUUfJoYQ9',
     },
     {
         key: 'didube',
-        label: 'დიდუბის ფილიალი',
-        address: 'ზაირა კიკვიძის 6 — ორშაბათი-პარასკევი 09:00-18:00',
+        label: t('item.branchDidube'),
+        address: t('checkout.didubeAddress'),
         mapUrl: 'https://maps.app.goo.gl/mUedJ9Jf9j1tR9nt6',
     },
-]
+])
 
 const officeInventoryChecking = ref(false)
 const officeInventoryShortages = ref([])
@@ -206,7 +208,7 @@ async function checkOfficeInventory() {
             showOfficeInventoryDialog.value = true
         }
     } catch {
-        toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'მარაგის შემოწმება ვერ მოხერხდა', life: 4000 })
+        toast.add({ severity: 'error', summary: t('orders.errorSummary'), detail: t('checkout.inventoryCheckFailed'), life: 4000 })
     } finally {
         officeInventoryChecking.value = false
     }
@@ -219,9 +221,9 @@ watch(
 
 const TBILISI_FREE_THRESHOLD = 500
 
-const tbilisiZoneOptions = [
+const tbilisiZoneOptions = computed(() => [
     {
-        label: 'I ზონა – 5-40 ₾',
+        label: t('checkout.zone1Label'),
         price: 40,
         items: [
             'გლდანი', 'გლდანულა', 'სოფელი გლდანი', 'ზაჰესი', 'ავჭალა',
@@ -229,7 +231,7 @@ const tbilisiZoneOptions = [
         ].map(name => ({ name, price: 40 })),
     },
     {
-        label: 'II ზონა – 5-50 ₾',
+        label: t('checkout.zone2Label'),
         price: 50,
         items: [
             'ვაკე', 'საბურთალო', 'ბაგები', 'ლისი', 'ვაშლიჯვარი', 'ორთაჭალა',
@@ -237,7 +239,7 @@ const tbilisiZoneOptions = [
         ].map(name => ({ name, price: 50 })),
     },
     {
-        label: 'III ზონა – 5-60 ₾',
+        label: t('checkout.zone3Label'),
         price: 60,
         items: [
             'ისანი', 'სამგორი', 'ლილო', 'ორხევი', 'აეროპორტის დასახლება',
@@ -245,7 +247,7 @@ const tbilisiZoneOptions = [
             'კოჯორი', 'ტაბახმელა', 'წავკისი', 'შინდისი', 'ოქროყანა', 'ნაფეტვრები',
         ].map(name => ({ name, price: 60 })),
     },
-]
+])
 
 const GEO_TO_LATIN = {
     'ა':'a','ბ':'b','გ':'g','დ':'d','ე':'e','ვ':'v','ზ':'z','თ':'t',
@@ -286,7 +288,7 @@ async function fetchZones() {
         const res = await axios.get(route('checkout.onway-regions'))
         zones.value = res.data.zones ?? []
     } catch {
-        toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'ზონების ჩატვირთვა ვერ მოხერხდა. გთხოვთ განაახლოთ გვერდი და სცადოთ ხელახლა.', life: 4000 })
+        toast.add({ severity: 'error', summary: t('orders.errorSummary'), detail: t('checkout.zonesLoadFailed'), life: 4000 })
     } finally {
         zonesLoading.value = false
     }
@@ -360,12 +362,12 @@ const showAddressField = computed(() =>
 const canPayCash = computed(() => page.props.user?.allow_cash_payment ?? false)
 
 const providers = computed(() => [
-    { name: 'PCB ბანკი',         icon: '/payments/pcb.jpeg',         code: 'pcb' },
-    { name: 'BOG ბანკი',         icon: '/payments/bog.png',           code: 'bog' },
-    { name: 'TBC ბანკი',         icon: '/payments/tbc.png',           code: 'tbc' },
-    { name: 'საბანკო გადარიცხვა',  icon: '/payments/invoice-icon.png',  code: 'invoice' },
-    { name: 'ლიმიტით გადახდა',   icon: '',  code: 'limit' },
-    ...(canPayCash.value ? [{ name: 'ქეშით გადახდა', icon: '', code: 'cash' }] : []),
+    { name: t('checkout.providerPcb'),     icon: '/payments/pcb.jpeg',         code: 'pcb' },
+    { name: t('checkout.providerBog'),     icon: '/payments/bog.png',           code: 'bog' },
+    { name: t('checkout.providerTbc'),     icon: '/payments/tbc.png',           code: 'tbc' },
+    { name: t('checkout.providerInvoice'), icon: '/payments/invoice-icon.png',  code: 'invoice' },
+    { name: t('checkout.providerLimit'),   icon: '',  code: 'limit' },
+    ...(canPayCash.value ? [{ name: t('checkout.providerCash'), icon: '', code: 'cash' }] : []),
 ])
 
 const selectedProvider = ref(null)
@@ -449,39 +451,39 @@ function validate() {
     let valid = true
 
     if (!selectedDelivery.value) {
-        errors.deliveryType = 'გთხოვთ აირჩიოთ მიწოდების ტიპი'
+        errors.deliveryType = t('checkout.errDeliveryType')
         valid = false
     }
     if (selectedDelivery.value?.key === 'tbilisi' && !selectedTbilisiZone.value) {
-        errors.tbilisiZone = 'გთხოვთ აირჩიოთ თბილისის ზონა'
+        errors.tbilisiZone = t('checkout.errTbilisiZone')
         valid = false
     }
     if (selectedDelivery.value?.key === 'regions' && !selectedRegionOption.value) {
-        errors.regionOption = 'გთხოვთ აირჩიოთ მიწოდების ვარიანტი'
+        errors.regionOption = t('checkout.errRegionOption')
         valid = false
     }
     if (selectedRegionOption.value === 'onway_office' && !selectedOnwayBranch.value) {
-        errors.onwayBranch = 'გთხოვთ აირჩიოთ OnWay ფილიალი'
+        errors.onwayBranch = t('checkout.errOnwayBranch')
         valid = false
     }
     if (selectedRegionOption.value === 'address' && !selectedZone.value) {
-        errors.regionZone = 'გთხოვთ აირჩიოთ ქალაქი/სოფელი'
+        errors.regionZone = t('checkout.errRegionZone')
         valid = false
     }
     if (selectedDelivery.value?.key === 'office' && !selectedOfficeBranch.value) {
-        errors.officeBranch = 'გთხოვთ აირჩიოთ ფილიალი'
+        errors.officeBranch = t('checkout.errOfficeBranch')
         valid = false
     }
     if (showAddressField.value && !form.address) {
-        errors.address = 'გთხოვთ შეიყვანოთ მიწოდების მისამართი'
+        errors.address = t('checkout.errAddress')
         valid = false
     }
     if (!selectedProvider.value) {
-        errors.provider = 'გთხოვთ აირჩიოთ გადახდის მეთოდი'
+        errors.provider = t('checkout.errProvider')
         valid = false
     }
     if (!form.agreement) {
-        errors.agreement = 'გთხოვთ დაეთანხმოთ წესებსა და პირობებს'
+        errors.agreement = t('checkout.errAgreement')
         valid = false
     }
 
@@ -493,8 +495,8 @@ function initiatePayment() {
         const firstError = Object.values(errors).find(Boolean)
         toast.add({
             severity: 'error',
-            summary: 'შეცდომა',
-            detail: firstError ?? 'გთხოვთ შეასწოროთ მონიშნული ველები გაგრძელებამდე',
+            summary: t('orders.errorSummary'),
+            detail: firstError ?? t('checkout.fixMarkedFields'),
             life: 5000,
         })
         return
@@ -526,7 +528,7 @@ function initiatePayment() {
         router.post(route('initiate.payment.invoice'), data, {
             onSuccess: () => { loading.value = false },
             onError: (err) => {
-                toast.add({ severity: 'error', summary: 'შეცდომა', detail: err?.message || 'დაფიქსირდა შეცდომა', life: 5000 })
+                toast.add({ severity: 'error', summary: t('orders.errorSummary'), detail: err?.message || t('checkout.genericError'), life: 5000 })
                 loading.value = false
             },
         })
@@ -534,7 +536,7 @@ function initiatePayment() {
         router.post(route('initiate.payment.limit'), data, {
             onSuccess: () => { loading.value = false },
             onError: (err) => {
-                toast.add({ severity: 'error', summary: 'შეცდომა', detail: err?.message || 'დაფიქსირდა შეცდომა', life: 5000 })
+                toast.add({ severity: 'error', summary: t('orders.errorSummary'), detail: err?.message || t('checkout.genericError'), life: 5000 })
                 loading.value = false
             },
         })
@@ -542,7 +544,7 @@ function initiatePayment() {
         router.post(route('initiate.payment.cash'), data, {
             onSuccess: () => { loading.value = false },
             onError: (err) => {
-                toast.add({ severity: 'error', summary: 'შეცდომა', detail: err?.message || 'დაფიქსირდა შეცდომა', life: 5000 })
+                toast.add({ severity: 'error', summary: t('orders.errorSummary'), detail: err?.message || t('checkout.genericError'), life: 5000 })
                 loading.value = false
             },
         })
@@ -552,12 +554,12 @@ function initiatePayment() {
                 if (res.data.redirect_url) {
                     window.location.href = res.data.redirect_url
                 } else {
-                    toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'ბანკიდან პასუხი ვერ მივიღეთ', life: 5000 })
+                    toast.add({ severity: 'error', summary: t('orders.errorSummary'), detail: t('checkout.noBankResponse'), life: 5000 })
                     loading.value = false
                 }
             })
             .catch(err => {
-                toast.add({ severity: 'error', summary: 'შეცდომა', detail: err.response?.data?.error || 'დაფიქსირდა შეცდომა', life: 5000 })
+                toast.add({ severity: 'error', summary: t('orders.errorSummary'), detail: err.response?.data?.error || t('checkout.genericError'), life: 5000 })
                 loading.value = false
             })
     }
@@ -575,10 +577,10 @@ function initiatePayment() {
                     class="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors mb-4 cursor-pointer"
                 >
                     <i class="pi pi-arrow-left text-xs"></i>
-                    კალათაში დაბრუნება
+                    {{ $t('checkout.backToCart') }}
                 </Link>
-                <h1 class="text-2xl font-bold text-gray-900">შეკვეთის გაფორმება</h1>
-                <p class="text-gray-500 text-sm mt-1">{{ items.length }} პროდუქტი</p>
+                <h1 class="text-2xl font-bold text-gray-900">{{ $t('checkout.title') }}</h1>
+                <p class="text-gray-500 text-sm mt-1">{{ $t('cart.productCount', { count: items.length }) }}</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -590,8 +592,8 @@ function initiatePayment() {
                     <div class="bg-white rounded-2xl border shadow-sm p-6" :class="errors.deliveryType ? 'border-red-300' : 'border-gray-100'">
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-truck text-brand-500"></i>
-                            მიწოდების ტიპი
-                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
+                            {{ $t('checkout.deliveryTypeHeading') }}
+                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="$t('checkout.requiredField')"></i>
                         </h2>
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -607,7 +609,7 @@ function initiatePayment() {
                                 <div class="flex items-center justify-between w-full">
                                     <div class="block space-x-2">
                                         <span class="text-sm font-semibold text-gray-800">{{ type.label }}</span>
-                                        <span v-if="type.key === 'office'" class="text-sm font-semibold text-green-600">(უფასო)</span>
+                                        <span v-if="type.key === 'office'" class="text-sm font-semibold text-green-600">{{ $t('checkout.freeParen') }}</span>
                                     </div>
                                     <div
                                         class="w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0"
@@ -630,8 +632,8 @@ function initiatePayment() {
                     <div v-if="selectedDelivery && selectedDelivery?.key !== 'office'" class="bg-white rounded-2xl border shadow-sm p-6" :class="errors.tbilisiZone || errors.regionOption || errors.onwayBranch || errors.regionZone || errors.address ? 'border-red-300' : 'border-gray-100'">
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-map-marker text-brand-500"></i>
-                            მიწოდების მისამართი
-                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
+                            {{ $t('checkout.deliveryAddressHeading') }}
+                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="$t('checkout.requiredField')"></i>
                         </h2>
 
                         <!-- Region sub-options -->
@@ -667,14 +669,14 @@ function initiatePayment() {
                             <!-- OnWay branch picker -->
                             <div v-if="selectedRegionOption === 'onway_office'">
                                 <label for="select-branch" class="flex items-center-safe font-bold text-gray-700  text-sm mb-2 mt-5">
-                                    აირჩიეთ OnWay-ის ფილიალი
-                                    <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
+                                    {{ $t('checkout.chooseOnwayBranch') }}
+                                    <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="$t('checkout.requiredField')"></i>
                                 </label>
                                 <Select
                                     v-model="selectedOnwayBranch"
                                     inputId="select-branch"
                                     :options="onwayBranches"
-                                    placeholder="არჩევა"
+                                    :placeholder="$t('checkout.choose')"
                                     class="w-full"
                                 />
                                 <p v-if="errors.onwayBranch" class="mt-1.5 text-sm text-red-500 flex items-center gap-1.5">
@@ -686,8 +688,8 @@ function initiatePayment() {
                             <!-- Zone picker for address delivery -->
                             <div v-if="selectedRegionOption === 'address'">
                                 <label for="select-region" class="font-bold text-gray-700  text-sm mb-2 mt-5 block">
-                                    აირჩიეთ ქალაქი/რაიონიო/სოფელი
-                                    <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
+                                    {{ $t('checkout.chooseCityDistrictVillage') }}
+                                    <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="$t('checkout.requiredField')"></i>
                                 </label>
                                 <div class="relative">
                                     <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none text-sm"></i>
@@ -697,13 +699,13 @@ function initiatePayment() {
                                         :suggestions="zoneSuggestions"
                                         option-label="name"
                                         dropdown
-                                        placeholder="ძებნა..."
+                                        :placeholder="$t('common.searchDots')"
                                         :loading="zonesLoading"
                                         force-selection
                                         class="w-full rounded-l-xl"
                                         input-class="w-full rounded-l-xl"
                                         @complete="filterZones"
-                                        emptySearchMessage="ვერ მოიძებნა"
+                                        :emptySearchMessage="$t('checkout.notFound')"
                                         :pt="{ pcInputText: { root: { class: 'pl-8' } }, dropdown: { class: 'rounded-r-xl' } }"
                                     />
                                 </div>
@@ -717,8 +719,8 @@ function initiatePayment() {
                         <!-- Tbilisi zone picker -->
                         <div v-if="selectedDelivery?.key === 'tbilisi'" class="mb-6">
                             <label class="font-bold text-gray-700 text-sm mb-2 block">
-                                აირჩიეთ ზონა
-                                <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
+                                {{ $t('checkout.chooseZone') }}
+                                <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="$t('checkout.requiredField')"></i>
                             </label>
                             <Select
                                 v-model="selectedTbilisiZone"
@@ -726,22 +728,22 @@ function initiatePayment() {
                                 optionGroupLabel="label"
                                 optionGroupChildren="items"
                                 optionLabel="name"
-                                placeholder="აირჩიეთ ზონა"
+                                :placeholder="$t('checkout.chooseZone')"
                                 class="w-full"
                                 filter
                                 showClear
-                                filterPlaceholder="ძებნა..."
+                                :filterPlaceholder="$t('common.searchDots')"
                             >
                                 <template #optiongroup="{ option }">
                                     <div class="flex items-center justify-between py-1">
                                         <span class="font-semibold text-gray-800 text-sm">{{ option.label }}</span>
-                                        <span v-if="subtotal >= TBILISI_FREE_THRESHOLD" class="text-xs text-emerald-600 font-medium">უფასო</span>
+                                        <span v-if="subtotal >= TBILISI_FREE_THRESHOLD" class="text-xs text-emerald-600 font-medium">{{ $t('checkout.free') }}</span>
                                     </div>
                                 </template>
                             </Select>
                             <p v-if="subtotal >= TBILISI_FREE_THRESHOLD" class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1">
                                 <i class="pi pi-check-circle text-sm"></i>
-                                შეკვეთა 500 ₾-ზე მეტია — თბილისში მიწოდება უფასოა
+                                {{ $t('checkout.orderOver500FreeTbilisi') }}
                             </p>
                             <p v-if="errors.tbilisiZone" class="mt-1.5 text-sm text-red-500 flex items-center gap-1.5">
                                 <i class="pi pi-exclamation-circle shrink-0"></i>
@@ -760,7 +762,7 @@ function initiatePayment() {
 
                             <PrimeInputText
                                 v-model="form.apartment_number"
-                                placeholder="ქუჩის ნომერი (არასავალდებულო)"
+                                :placeholder="$t('checkout.streetNumberOptional')"
                                 class="py-2.5!"
                             />
                         </div>
@@ -774,8 +776,8 @@ function initiatePayment() {
                     >
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-building text-brand-500"></i>
-                            გატანის წერტილი
-                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
+                            {{ $t('checkout.pickupPoint') }}
+                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="$t('checkout.requiredField')"></i>
                         </h2>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -803,7 +805,7 @@ function initiatePayment() {
                                 </div>
                                 <p v-if="branch.address" class="text-xs text-gray-500">{{ branch.address }}</p>
                                 <a :href="branch.mapUrl" target="_blank" @click.stop class="text-xs text-brand-500 underline">
-                                    დააჭირეთ ლინკზე მისამართის სანახავად
+                                    {{ $t('checkout.clickLinkForAddress') }}
                                 </a>
                             </button>
                         </div>
@@ -815,11 +817,11 @@ function initiatePayment() {
 
                         <div v-if="officeInventoryChecking" class="mt-4 flex items-center gap-2 text-sm text-gray-400 bg-gray-50 px-3 py-3 rounded-xl">
                             <i class="pi pi-spinner pi-spin"></i>
-                            მიმდინარეობს მარაგის შემოწმება არჩეულ ფილიალში...
+                            {{ $t('checkout.checkingBranchInventory') }}
                         </div>
 
                         <Message v-else-if="hasOfficeInventoryIssue" severity="error" icon="pi pi-exclamation-circle" :closable="false" class="mt-4">
-                            პროდუქტის არასაკმარისი რაოდენობა არჩეულ ფილიალში
+                            {{ $t('checkout.insufficientBranchQty') }}
                         </Message>
                     </div>
 
@@ -827,11 +829,11 @@ function initiatePayment() {
                     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-comment text-brand-500"></i>
-                            კომენტარი
+                            {{ $t('checkout.commentHeading') }}
                         </h2>
                         <Textarea
                             v-model="form.comment"
-                            placeholder="სპეციალური მოთხოვნები, შენიშვნები..."
+                            :placeholder="$t('checkout.commentPlaceholder')"
                             rows="3"
                             class="w-full rounded-xl resize-none"
                         />
@@ -841,8 +843,8 @@ function initiatePayment() {
                     <div class="bg-white rounded-2xl border shadow-sm p-6" :class="errors.provider ? 'border-red-300' : 'border-gray-100'">
                         <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <i class="pi pi-credit-card text-brand-500"></i>
-                            გადახდის მეთოდი
-                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
+                            {{ $t('checkout.paymentMethodHeading') }}
+                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="$t('checkout.requiredField')"></i>
                         </h2>
 
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -893,31 +895,31 @@ function initiatePayment() {
                         <div v-if="selectedProvider?.code === 'limit'" class="mt-4">
                             <div v-if="creditLoading" class="flex items-center gap-2 text-sm text-gray-400 bg-gray-50 px-3 py-3 rounded-xl">
                                 <i class="pi pi-spinner pi-spin"></i>
-                                მიმდინარეობს ლიმიტის შემოწმება...
+                                {{ $t('checkout.checkingLimit') }}
                             </div>
                             <template v-else-if="creditInfo">
                                 <!-- No credit at all -->
                                 <div v-if="!creditInfo.has_credit" class="flex items-start gap-2 text-xs text-red-600 bg-red-50 px-3 py-3 rounded-xl">
                                     <i class="pi pi-times-circle mt-0.5 shrink-0"></i>
-                                    <span>თქვენ არ გაქვთ განსაზღვრული ლიმიტი. დაინტერესების შემთხვევაში დაგვიკავშირდით.</span>
+                                    <span>{{ $t('checkout.noLimitDefined') }}</span>
                                 </div>
                                 <!-- Has credit but not enough / Enough credit -->
                                 <div v-else class="rounded-xl border border-gray-100 divide-y divide-gray-100 overflow-hidden text-xs">
                                     <div v-if="!canPayWithLimit" class="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-500">
                                         <i class="pi pi-info-circle shrink-0"></i>
-                                        <span>არასაკმარისი ლიმიტი!</span>
+                                        <span>{{ $t('checkout.insufficientLimit') }}</span>
                                     </div>
                                     <div class="flex items-center justify-between px-3 py-2 bg-gray-50">
                                         <span class="flex items-center gap-1.5 text-gray-500">
                                             <i class="fa-solid fa-hourglass-start text-lg"></i>
-                                            ლიმიტი
+                                            {{ $t('checkout.limit') }}
                                         </span>
                                         <strong class="text-gray-700">{{ formatted(creditInfo.limit) }} ₾</strong>
                                     </div>
                                     <div class="flex items-center justify-between px-3 py-2 bg-white">
                                         <span class="flex items-center gap-1.5 text-orange-500">
                                             <i class="fa-solid fa-hourglass-end text-lg"></i>
-                                            გამოყენებული
+                                            {{ $t('checkout.used') }}
                                         </span>
                                         <strong class="text-orange-600">{{ formatted(creditInfo.used) }} ₾</strong>
                                     </div>
@@ -925,14 +927,14 @@ function initiatePayment() {
                                         <span class="text-emerald-600 flex items-center gap-1.5">
 <!--                                            <i class="pi pi-check-circle"></i>-->
                                             <i class="fa-solid fa-hourglass-half text-lg"></i>
-                                            ხელმისაწვდომი
+                                            {{ $t('checkout.available') }}
                                         </span>
                                         <strong class="text-emerald-700">{{ formatted(creditInfo.available) }} ₾</strong>
                                     </div>
                                     <div v-if="!canPayWithLimit" class="bg-amber-50 flex items-center justify-between px-3 py-2">
                                         <span class="text-amber-600 flex items-center gap-1.5">
                                             <i class="pi pi-wallet"></i>
-                                            გადასახდელი თანხა
+                                            {{ $t('checkout.amountDue') }}
                                         </span>
                                         <strong class="text-amber-700">{{ formatted(total) }} ₾</strong>
                                     </div>
@@ -946,7 +948,7 @@ function initiatePayment() {
                 <!-- ── Right: Order summary ── -->
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-28">
-                        <h2 class="text-base font-bold text-gray-900 mb-5">შეკვეთის შეჯამება</h2>
+                        <h2 class="text-base font-bold text-gray-900 mb-5">{{ $t('checkout.orderSummary') }}</h2>
 
                         <!-- Items list -->
                         <div class="space-y-3 mb-5 h-36 border border-gray-100 rounded-xl p-2 overflow-y-auto">
@@ -978,14 +980,14 @@ function initiatePayment() {
                                         class="inline-flex items-center gap-1 text-[10px] font-medium text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded-full mt-0.5"
                                     >
                                         <i class="pi pi-wrench text-[9px]"></i>
-                                        მონტაჟის სერვისი
+                                        {{ $t('checkout.setupService') }}
                                     </span>
                                 </div>
                                 <span class="text-sm font-semibold text-gray-800 shrink-0">{{ formatted(cartItem.rowTotal) }} ₾</span>
                                 <button
                                     type="button"
                                     @click="removeFromCheckout(cartItem.id)"
-                                    v-tooltip.top="'წაშლა'"
+                                    v-tooltip.top="$t('checkout.remove')"
                                     class="text-gray-300 hover:text-red-500 transition-colors shrink-0 cursor-pointer"
                                 >
                                     <i class="pi pi-times text-xs"></i>
@@ -998,7 +1000,7 @@ function initiatePayment() {
                         <!-- Totals -->
                         <div class="space-y-2.5 text-sm mb-5">
                             <div class="flex justify-between text-gray-500">
-                                <span>{{ items.length }} პროდუქტი</span>
+                                <span>{{ $t('cart.productCount', { count: items.length }) }}</span>
                                 <span class="font-medium text-gray-700">
                                     <span v-if="totalSavings > 0" class="line-through text-red-500 mr-1">{{ formatted(subtotal + totalSavings) }} ₾</span>
                                     <span>{{ formatted(subtotal) }} ₾</span>
@@ -1012,20 +1014,18 @@ function initiatePayment() {
                             >
                                 <span class="flex items-center gap-1">
                                     <i class="pi pi-tag text-xs"></i>
-                                    ჯამური დანაზოგი
+                                    {{ $t('checkout.totalSavings') }}
                                 </span>
                                 <span class="font-medium">-{{ formatted(totalSavings) }} ₾</span>
                             </div>
 
                             <div class="flex justify-between text-gray-500">
-                                <span>მიწოდება
-<!--                                    <span class="text-xs text-gray-400">({{ formattedWeight }} კგ)</span>-->
-                                </span>
+                                <span>{{ $t('checkout.delivery') }}</span>
                                 <span
                                     :class="deliveryCost === 0 ? 'text-emerald-600 font-medium' : 'font-medium text-gray-700'"
                                 >
                                     <template v-if="deliveryCost === null">—</template>
-                                    <template v-else-if="deliveryCost === 0">უფასო</template>
+                                    <template v-else-if="deliveryCost === 0">{{ $t('checkout.free') }}</template>
                                     <template v-else>{{ formatted(deliveryCost) }} ₾</template>
                                 </span>
                             </div>
@@ -1034,7 +1034,7 @@ function initiatePayment() {
                         <div class="h-px bg-gray-100 mb-4"></div>
 
                         <div class="flex justify-between items-center mb-6">
-                            <span class="font-bold text-gray-900">სულ</span>
+                            <span class="font-bold text-gray-900">{{ $t('common.total') }}</span>
                             <span class="text-xl font-bold text-brand-500">{{ formatted(total) }} ₾</span>
                         </div>
 
@@ -1044,8 +1044,8 @@ function initiatePayment() {
                             <div class="flex items-start gap-3">
                                 <Checkbox v-model="form.agreement" inputId="agreement" binary class="mt-0.5 cursor-pointer" />
                                 <label for="agreement" class="text-sm text-gray-600 cursor-pointer leading-relaxed">
-                                    ვეთანხმები
-                                    <a :href="route('terms-of-service')" target="_blank" class="text-brand-500 hover:underline">წესებსა და პირობებს</a>
+                                    {{ $t('checkout.agree') }}
+                                    <a :href="route('terms-of-service')" target="_blank" class="text-brand-500 hover:underline">{{ $t('checkout.termsAndConditions') }}</a>
                                 </label>
                             </div>
                             <p v-if="errors.agreement" class="text-sm text-red-500 flex items-center gap-1.5 pl-7">
@@ -1065,12 +1065,12 @@ function initiatePayment() {
                                 : 'bg-brand-500 hover:bg-brand-400 text-white'"
                         >
                             <i :class="loading ? 'pi pi-spinner pi-spin mr-2' : 'pi pi-lock mr-2'"></i>
-                            {{ loading ? 'მიმდინარეობს...' : 'გადახდა — ' + formatted(total) + ' ₾' }}
+                            {{ loading ? $t('checkout.processing') : $t('checkout.payAmount') + formatted(total) + ' ₾' }}
                         </button>
 
                         <div class="mt-3 flex items-center justify-center gap-2 text-xs text-gray-400">
                             <i class="pi pi-shield text-xs"></i>
-                            უსაფრთხო გადახდა SSL დაშიფვრით
+                            {{ $t('checkout.securePaymentSsl') }}
                         </div>
                     </div>
                 </div>
@@ -1083,11 +1083,11 @@ function initiatePayment() {
     <Dialog
         v-model:visible="showOfficeInventoryDialog"
         modal
-        header="არასაკმარისი მარაგი არჩეულ ფილიალში"
+        :header="$t('checkout.insufficientBranchStockTitle')"
         class="w-[95%] lg:w-[35%]"
     >
         <p class="text-sm text-gray-600 mb-4">
-            შემდეგი პროდუცქიის მარაგი არჩეულ ფილიალში საკმარისი არ არის. გთხოვთ შეცვალოთ ფილიალი ან რაოდენობა:
+            {{ $t('checkout.insufficientBranchStockText') }}
         </p>
         <ul class="space-y-2">
             <li
@@ -1096,7 +1096,7 @@ function initiatePayment() {
                 class="flex items-center justify-between gap-3 text-sm bg-red-50 rounded-xl px-3 py-2"
             >
                 <span class="font-medium text-gray-800">{{ shortage.name }}</span>
-                <span class="text-red-600 text-right shrink-0">მარაგშია: {{ shortage.available }} / სასურველი: {{ shortage.requested }}</span>
+                <span class="text-red-600 text-right shrink-0">{{ $t('checkout.inStockShort') }} {{ shortage.available }} / {{ $t('checkout.desiredShort') }} {{ shortage.requested }}</span>
             </li>
         </ul>
         <template #footer>
@@ -1105,7 +1105,7 @@ function initiatePayment() {
                 @click="showOfficeInventoryDialog = false"
                 class="w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-white text-sm font-semibold cursor-pointer"
             >
-                გასაგებია
+                {{ $t('checkout.understood') }}
             </button>
         </template>
     </Dialog>

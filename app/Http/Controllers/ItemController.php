@@ -6,9 +6,11 @@ use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Item;
 use App\Models\StockNotification;
+use App\Models\Translation;
 use App\Models\User;
 use App\Services\BusinessCentralService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\View;
 use Inertia\Inertia;
 
@@ -48,7 +50,7 @@ class ItemController extends Controller
             ->groupBy('bc_attribute_id')
             ->map(fn ($group) => [
                 'id' => $group->first()->bc_attribute_id,
-                'name' => $group->first()->name,
+                'name' => Translation::get($group->first()->name),
                 'values' => $group->pluck('value')->filter()->unique()->values(),
             ])
             ->values()
@@ -83,15 +85,15 @@ class ItemController extends Controller
         $relatedCategories = match ($category->level) {
             1 => Category::where('parent_id', $category->code)
                 ->orderBy('sort_order')
-                ->get(['name', 'slug', 'code', 'image']),
+                ->get(),
 
             2 => Category::where('parent_id', $category->code)
                 ->orderBy('sort_order')
-                ->get(['name', 'slug', 'code']),
+                ->get(),
 
             3 => Category::where('parent_id', $category->parent_id)
                 ->orderBy('sort_order')
-                ->get(['name', 'slug', 'code']),
+                ->get(),
 
             default => collect(),
         };
@@ -114,7 +116,7 @@ class ItemController extends Controller
         $subcategoryStrip = $level1Category
             ? Category::where('parent_id', $level1Category->code)
                 ->orderBy('sort_order')
-                ->get(['name', 'slug', 'code', 'image'])
+                ->get()
             : collect();
 
         $breadcrumbs = $this->buildCategoryBreadcrumbs($category);
@@ -152,7 +154,15 @@ class ItemController extends Controller
             ->where('id', '!=', $item->id)
             ->orderByRaw('CASE WHEN inventory > 0 THEN 0 ELSE 1 END')
             ->limit(10)
-            ->get(['id', 'name', 'slug', 'unit_price', 'unit_price_override', 'discount', 'fake_price', 'images', 'inventory']);
+            ->get(['id', 'name', ...Item::LOCALE_NAME_COLUMNS, 'slug', 'unit_price', 'unit_price_override', 'discount', 'fake_price', 'images', 'inventory']);
+
+        $attributes = $item->attributes->map(fn (Attribute $attr) => [
+            'id' => $attr->id,
+            'item_id' => $attr->item_id,
+            'bc_attribute_id' => $attr->bc_attribute_id,
+            'name' => Translation::get($attr->name),
+            'value' => Translation::get($attr->value),
+        ]);
 
         // 'sanctum' guard resolves both session (web) and Bearer token (mobile).
         $authUser = auth('sanctum')->user();
@@ -170,7 +180,7 @@ class ItemController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'item' => $item,
-                'attributes' => $item->attributes,
+                'attributes' => $attributes,
                 'similarItems' => $similarItems,
                 'tierPricing' => $this->visibleTierPricing($item, $authUser),
                 'isSubscribedToNotification' => $isSubscribedToNotification,
@@ -187,7 +197,7 @@ class ItemController extends Controller
 
         return Inertia::render('Items/Show', [
             'item' => $item,
-            'attributes' => $item->attributes,
+            'attributes' => $attributes,
             'similarItems' => $similarItems,
             'breadcrumbs' => $breadcrumbs,
             'inventory' => $inventory,
@@ -361,15 +371,22 @@ class ItemController extends Controller
     public function search(Request $request)
     {
         $q = $request->input('q', '');
-        $rawQ = rawurldecode($request->header('X-Search-Raw', ''));
 
         if (strlen($q) < 2) {
             return response()->json([]);
         }
 
-        $items = Item::search($q, $rawQ)
+        // /api/v1/search is outside the `web` group, so SetLocale never runs —
+        // the client (web SearchBar) passes its active locale explicitly so the
+        // suggestion list shows translated item names.
+        $locale = $request->input('locale');
+        if ($locale && in_array($locale, config('app.supported_locales', []), true)) {
+            App::setLocale($locale);
+        }
+
+        $items = Item::search($q)
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
-            ->get(['id', 'no', 'name', 'slug', 'unit_price', 'unit_price_override', 'discount', 'fake_price', 'prices', 'images', 'inventory']);
+            ->get(['id', 'no', 'name', ...Item::LOCALE_NAME_COLUMNS, 'slug', 'unit_price', 'unit_price_override', 'discount', 'fake_price', 'prices', 'images', 'inventory']);
 
         return response()->json($items);
     }

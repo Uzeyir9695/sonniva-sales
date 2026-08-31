@@ -34,11 +34,11 @@ const viewItemDetails = (item) => {
                 <span
                     v-if="item.inventory < 1"
                     class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-600"
-                >მარაგში არ არის</span>
+                >{{ $t('common.outOfStock') }}</span>
                 <span
                     v-else
                     class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700"
-                >მარაგშია</span>
+                >{{ $t('common.inStock') }}</span>
             </div>
 
             <span
@@ -68,21 +68,11 @@ const viewItemDetails = (item) => {
                     size="sm"
                 />
 
-                <!--  Require Order -->
-<!--                <button-->
-<!--                    v-if="item.inventory < 1"-->
-<!--                    @click.stop="showWhatsappDialog = true"-->
-<!--                    v-tooltip.left="'მოითხოვე შეკვეთა'"-->
-<!--                    class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-brand-600 hover:text-brand-700 hover:shadow-lg transition-all duration-150"-->
-<!--                >-->
-<!--                    <i class="pi pi-file-edit text-xs"></i>-->
-<!--                </button>-->
-
                 <!--  Notify when back in stock -->
                 <button
                     v-if="item.inventory < 1 && !isOrderOnly"
                     @click.stop="showNotifyDialog = true"
-                    v-tooltip.left="'მიიღეთ შეტყობინება მარაგის შევსებისთანავე'"
+                    v-tooltip.left="$t('item.notifyRestock')"
                     class="w-8 h-8 bg-white cursor-pointer rounded-full shadow-md flex items-center justify-center text-blue-500 hover:text-blue-600 hover:shadow-lg transition-all duration-150"
                 >
                     <i class="pi pi-bell text-xs"></i>
@@ -99,7 +89,7 @@ const viewItemDetails = (item) => {
                 <span>
                     <template v-if="displayPrice">
                         <div class="flex flex-col gap-1">
-                            <span v-if="displayUOM" class="text-xs text-blue-400">შეკვრა</span>
+                            <span v-if="displayUOM" class="text-xs text-blue-400">{{ $t('common.pack') }}</span>
                             <span v-if="originalPrice" class="text-xs text-red-500 line-through">{{ originalPrice }} ₾</span>
                                 <div class="flex items-center gap-1 5">
                                 <span class="text-base font-semibold text-gray-900">{{ displayPrice }} ₾</span>

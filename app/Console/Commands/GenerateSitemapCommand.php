@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Category;
 use App\Models\Item;
 use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
 use Spatie\Sitemap\Sitemap;
 use Spatie\Sitemap\Tags\Url;
 
@@ -14,8 +15,19 @@ class GenerateSitemapCommand extends Command
 
     protected $description = 'Generate the XML sitemap to public/sitemap.xml';
 
+    /** @var list<string> */
+    private array $locales;
+
+    private string $defaultLocale;
+
+    private string $base;
+
     public function handle(): int
     {
+        $this->defaultLocale = config('app.default_locale');
+        $this->locales = config('app.supported_locales', [$this->defaultLocale]);
+        $this->base = rtrim(config('app.url'), '/');
+
         $sitemap = Sitemap::create();
 
         $this->addStaticPages($sitemap);
@@ -31,10 +43,21 @@ class GenerateSitemapCommand extends Command
 
     private function addStaticPages(Sitemap $sitemap): void
     {
-        $sitemap->add(Url::create(url('/'))->setPriority(1.0)->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY));
-        $sitemap->add(Url::create(url('/read-more'))->setPriority(0.7)->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY));
-        $sitemap->add(Url::create(url('/about-us'))->setPriority(0.6)->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY));
-        $sitemap->add(Url::create(url('/frequently-asked-questions'))->setPriority(0.6)->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY));
+        $pages = [
+            ['/', 1.0, Url::CHANGE_FREQUENCY_DAILY],
+            ['/sales', 0.7, Url::CHANGE_FREQUENCY_DAILY],
+            ['/about-us', 0.6, Url::CHANGE_FREQUENCY_MONTHLY],
+            ['/read-more', 0.5, Url::CHANGE_FREQUENCY_MONTHLY],
+            ['/delivery-rates', 0.4, Url::CHANGE_FREQUENCY_MONTHLY],
+            ['/terms-of-service', 0.3, Url::CHANGE_FREQUENCY_YEARLY],
+            ['/privacy-policy', 0.3, Url::CHANGE_FREQUENCY_YEARLY],
+            ['/cookie-policy', 0.3, Url::CHANGE_FREQUENCY_YEARLY],
+            ['/keep-conditions', 0.3, Url::CHANGE_FREQUENCY_YEARLY],
+        ];
+
+        foreach ($pages as [$path, $priority, $freq]) {
+            $this->addLocalized($sitemap, $path, $priority, $freq);
+        }
     }
 
     private function addCategoryPages(Sitemap $sitemap): void
@@ -44,18 +67,13 @@ class GenerateSitemapCommand extends Command
             ->whereNotNull('slug')
             ->with(['parent', 'parent.parent'])
             ->each(function (Category $category) use ($sitemap) {
-                $url = $this->buildCategoryUrl($category);
+                $path = $this->buildCategoryPath($category);
 
-                if ($url === null) {
+                if ($path === null) {
                     return;
                 }
 
-                $sitemap->add(
-                    Url::create($url)
-                        ->setPriority(0.8)
-                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
-                        ->setLastModificationDate($category->updated_at)
-                );
+                $this->addLocalized($sitemap, $path, 0.8, Url::CHANGE_FREQUENCY_WEEKLY, $category->updated_at);
             });
     }
 
@@ -63,32 +81,58 @@ class GenerateSitemapCommand extends Command
     {
         Item::query()
             ->whereNotNull('slug')
-            ->orderBy('updated_at', 'desc')
+            ->orderByDesc('updated_at')
             ->each(function (Item $item) use ($sitemap) {
-                $sitemap->add(
-                    Url::create(route('items.show', ['item' => $item->slug]))
-                        ->setPriority(0.9)
-                        ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
-                        ->setLastModificationDate($item->updated_at)
-                );
+                $this->addLocalized($sitemap, '/item/'.rawurlencode($item->slug), 0.9, Url::CHANGE_FREQUENCY_WEEKLY, $item->updated_at);
             });
     }
 
-    private function buildCategoryUrl(Category $category): ?string
+    /**
+     * One <url> per page. <loc> is the default-locale (bare) URL; every locale
+     * variant — including the default itself — plus x-default is listed as an
+     * <xhtml:link rel="alternate" hreflang="…">, which is how Google clusters
+     * the translations. Google crawls the alternates, so the /en /ru /tr pages
+     * still get discovered without a separate <url> entry each.
+     */
+    private function addLocalized(Sitemap $sitemap, string $path, float $priority, string $freq, ?Carbon $lastModified = null): void
     {
-        return match ($category->level) {
-            1 => route('items.index', ['grandparentSlug' => $category->slug]),
+        $url = Url::create($this->href($this->defaultLocale, $path))
+            ->setPriority($priority)
+            ->setChangeFrequency($freq);
+
+        if ($lastModified) {
+            $url->setLastModificationDate($lastModified);
+        }
+
+        foreach ($this->locales as $locale) {
+            $url->addAlternate($this->href($locale, $path), $locale);
+        }
+        $url->addAlternate($this->href($this->defaultLocale, $path), 'x-default');
+
+        $sitemap->add($url);
+    }
+
+    private function href(string $locale, string $path): string
+    {
+        $prefix = $locale === $this->defaultLocale ? '' : '/'.$locale;
+        $path = $path === '/' ? '' : $path;
+
+        return $this->base.$prefix.$path;
+    }
+
+    private function buildCategoryPath(Category $category): ?string
+    {
+        $segments = match ($category->level) {
+            1 => [$category->slug],
             2 => $category->parent?->slug
-                ? route('items.index', ['grandparentSlug' => $category->parent->slug, 'parentSlug' => $category->slug])
+                ? [$category->parent->slug, $category->slug]
                 : null,
             3 => $category->parent?->slug && $category->parent->parent?->slug
-                ? route('items.index', [
-                    'grandparentSlug' => $category->parent->parent->slug,
-                    'parentSlug' => $category->parent->slug,
-                    'childSlug' => $category->slug,
-                ])
+                ? [$category->parent->parent->slug, $category->parent->slug, $category->slug]
                 : null,
             default => null,
         };
+
+        return $segments === null ? null : '/'.implode('/', array_map('rawurlencode', $segments));
     }
 }

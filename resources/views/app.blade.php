@@ -26,15 +26,17 @@
         </script>
         @endif
 
-        <script type="text/javascript" src="https://cdn.weglot.com/weglot.min.js"></script>
-        <script>
-            Weglot.initialize({
-                api_key: 'wg_7ace44a8c1f484cdedc879984406c4cb5',
-                hide_switcher: true,
-            });
-        </script>
-
         <link rel="canonical" href="{{ request()->url() }}" />
+
+        @php
+            $localePath = trim(preg_replace('#^(en|ru|tr)(/|$)#', '', request()->path()), '/');
+            $localeBase = rtrim(config('app.url'), '/');
+            $localeSuffix = $localePath !== '' ? '/'.$localePath : '';
+        @endphp
+        @foreach (config('app.supported_locales') as $hreflang)
+            <link rel="alternate" hreflang="{{ $hreflang }}" href="{{ $localeBase.($hreflang === config('app.default_locale') ? '' : '/'.$hreflang).$localeSuffix }}">
+        @endforeach
+        <link rel="alternate" hreflang="x-default" href="{{ $localeBase.$localeSuffix }}">
 
         @php
             $orgJsonLd = json_encode([

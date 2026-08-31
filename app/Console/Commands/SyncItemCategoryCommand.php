@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Category;
 use App\Models\Item;
 use App\Services\BusinessCentralService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
@@ -81,7 +81,7 @@ class SyncItemCategoryCommand extends Command
         // BC side and should be pruned here too.
         $prunedCount = $this->pruneItemsNotIn($items->pluck('no'));
 
-        Cache::forget('nav_categories');
+        Category::flushNavCache();
 
         $seconds = $startedAt->diffInSeconds(now());
         $this->info("Done. Updated {$items->count()} items, pruned $prunedCount in {$seconds}s.");

@@ -78,7 +78,7 @@ function onMouseLeave() {
                 <button
                     @click.stop="addToCart(item.id, quantity, getDisplayUOM(item))"
                     :disabled="overLimit"
-                    v-tooltip="overLimit ? 'შეკვეთის მაქსიმალური რაოდენობაა '+item.inventory : ''"
+                    v-tooltip="overLimit ? $t('item.maxQty', { count: item.inventory }) : ''"
                     class="flex items-center justify-center rounded-xl p-2
                            bg-brand-500 cursor-pointer hover:bg-brand-400 active:scale-95
                            text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -89,10 +89,6 @@ function onMouseLeave() {
         </div>
 
     </div>
-
-<!--    <p v-if="overLimit" class="text-xs text-red-600 bg-white px-2 py-0.5 rounded-lg shadow">-->
-<!--        მაქსიმუმ {{ item.inventory }} ერთეული-->
-<!--    </p>-->
 </template>
 
 <style scoped>

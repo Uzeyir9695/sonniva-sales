@@ -44,10 +44,11 @@ class HandleInertiaRequests extends Middleware
         $isAdmin = auth()?->user()?->role === 'admin';
         $isCashier = in_array(auth()?->user()?->role, ['cashier']);
 
-        $categories = fn () => Cache::rememberForever('nav_categories', fn () => Category::navTree());
+        $categories = fn () => Cache::rememberForever('nav_categories_'.app()->getLocale(), fn () => Category::navTree());
 
         return [
             ...parent::share($request),
+            'locale' => app()->getLocale(),
             'ziggy' => function () use ($request) {
                 return array_merge((new Ziggy)->toArray(), [
                     'location' => $request->url(),

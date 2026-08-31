@@ -1,17 +1,19 @@
 <script setup>
 import { useForm, usePage, Head } from '@inertiajs/vue3';
 import {computed, ref, watch} from "vue";
+import { useI18n } from 'vue-i18n';
 import UpdatePassword from "./UpdatePassword.vue";
 
+const { t } = useI18n();
 const page = usePage();
 const isAdmin = computed(() => page.props.isAdmin);
 const props = defineProps(['user', 'editingByAdmin']);
 const emit = defineEmits(['closeEditor']);
 const editableUser = props.user;
 const activeTab = ref('0')
-const userTypes = ref([
-    { key: 'individual', value: 'ფიზიკური პირი' },
-    { key: 'legal_entity', value: 'იურიდიული პირი' },
+const userTypes = computed(() => [
+    { key: 'individual', value: t('auth.individual') },
+    { key: 'legal_entity', value: t('auth.legalEntity') },
 ]);
 const selectedUserType = ref(null);
 
@@ -78,7 +80,7 @@ async function changePassword(){
 
 watch(() => props.user, (user) => {
     if (!user) return;
-    selectedUserType.value = {key: user.user_type, value: user.user_type === 'individual' ? 'ფიზიკური პირი' : 'იურიდიული პირი'};
+    selectedUserType.value = {key: user.user_type, value: user.user_type === 'individual' ? t('auth.individual') : t('auth.legalEntity')};
     form.name = user.name;
     form.email = user.email;
     form.lastname = user.lastname;
@@ -97,13 +99,13 @@ watch(() => props.user, (user) => {
 
 <template>
   <Head>
-    <title>Settings</title>
+    <title>{{ $t('account.settingsTitle') }}</title>
   </Head>
     <div class="mt-6">
         <Tabs v-model:value="activeTab">
             <TabList>
-                <Tab value="0">პროფილი</Tab>
-                <Tab v-if="!editingByAdmin" value="1">უსაფრთხოება</Tab>
+                <Tab value="0">{{ $t('account.profile') }}</Tab>
+                <Tab v-if="!editingByAdmin" value="1">{{ $t('account.security') }}</Tab>
             </TabList>
 
             <TabPanels>
@@ -129,7 +131,7 @@ watch(() => props.user, (user) => {
                                     v-model="form.name"
                                     :invalid="!!form.errors.name"
                                 />
-                                <label for="name">სახელი</label>
+                                <label for="name">{{ $t('account.firstName') }}</label>
                             </FloatLabel>
 
                             <FloatLabel v-if="selectedUserType?.key === 'individual'" variant="on" class="w-full">
@@ -138,7 +140,7 @@ watch(() => props.user, (user) => {
                                     v-model="form.lastname"
                                     :invalid="!!form.errors.lastname"
                                 />
-                                <label for="lastname">გვარი</label>
+                                <label for="lastname">{{ $t('account.lastName') }}</label>
                             </FloatLabel>
 
                             <FloatLabel v-if="editableUser.role !== 'admin'" variant="on" class="w-full">
@@ -147,7 +149,7 @@ watch(() => props.user, (user) => {
                                     v-model="form.tax_id"
                                     :invalid="!!form.errors.tax_id"
                                 />
-                                <label for="tax_id">{{ selectedUserType?.key === 'legal_entity' ? 'TAX ID' : 'ID Number' }}</label>
+                                <label for="tax_id">{{ selectedUserType?.key === 'legal_entity' ? $t('account.taxId') : $t('account.idNumber') }}</label>
                             </FloatLabel>
 
                             <FloatLabel variant="on" class="w-full">
@@ -156,7 +158,7 @@ watch(() => props.user, (user) => {
                                     v-model="form.phone"
                                     :invalid="!!form.errors.phone"
                                 />
-                                <label for="phone">ტელეფონი</label>
+                                <label for="phone">{{ $t('account.phone') }}</label>
                             </FloatLabel>
 
                             <FloatLabel variant="on">
@@ -165,7 +167,7 @@ watch(() => props.user, (user) => {
                                     v-model="form.email"
                                     :invalid="!!form.errors.email"
                                 />
-                                <label for="email">ელ.ფოსტა</label>
+                                <label for="email">{{ $t('account.email') }}</label>
                             </FloatLabel>
 
                             <FloatLabel v-if="editableUser.role !== 'admin'" variant="on" class="w-full">
@@ -174,7 +176,7 @@ watch(() => props.user, (user) => {
                                     v-model="form.address"
                                     :invalid="!!form.errors.address"
                                 />
-                                <label for="address">მისამართი</label>
+                                <label for="address">{{ $t('account.address') }}</label>
                             </FloatLabel>
 
                             <FloatLabel v-if="editableUser.role !== 'admin'" variant="on" class="w-full">
@@ -191,7 +193,7 @@ watch(() => props.user, (user) => {
                                         {{ slotProps.value?.value }}
                                     </template>
                                 </Select>
-                                <label for="user_type">მომხმარებელი</label>
+                                <label for="user_type">{{ $t('account.userType') }}</label>
                             </FloatLabel>
 
 
@@ -232,7 +234,7 @@ watch(() => props.user, (user) => {
                             <Button :disabled="form.processing"
                                     type="submit"
                                     class="bg-brand-500 border-none"
-                                    :label="form.processing ? 'გთხოვთ დაელოდოთ...' : 'შენახვა'"
+                                    :label="form.processing ? $t('common.pleaseWait') : $t('common.save')"
                                     size="small"
                                     :icon="form.processing ? 'pi pi-spin pi-spinner' :'pi pi-check'"
                             />

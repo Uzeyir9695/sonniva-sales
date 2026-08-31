@@ -1,30 +1,32 @@
 <script setup>
 import { Deferred, Head, router } from '@inertiajs/vue3';
 import { computed, inject, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import debounce from 'lodash/debounce';
 import GridSkeletonLoader from '@/Shared/skeletonLoaders/GridSkeletonLoader.vue';
 import ItemsGrid from '@/Shared/components/ItemsGrid.vue';
 
+const { t } = useI18n();
+
 const props = defineProps({
     query: String,
-    rawQuery: String,
     items: Object,
 });
 
 const loading = ref(false);
 
-const stockOptions = [
-    { label: 'ყველა', value: '' },
-    { label: 'მარაგშია', value: 'in' },
-    { label: 'მარაგში არ არის', value: 'out' },
-];
+const stockOptions = computed(() => [
+    { label: t('common.all'), value: '' },
+    { label: t('common.inStock'), value: 'in' },
+    { label: t('common.outOfStock'), value: 'out' },
+]);
 
 const route = inject('route');
 const params = route().params;
 
 const priceMin = ref(params.price_min ? Number(params.price_min) : null);
 const priceMax = ref(params.price_max ? Number(params.price_max) : null);
-const stockFilter = ref(stockOptions.find(o => o.value === (params.stock ?? '')) ?? stockOptions[0]);
+const stockFilter = ref(stockOptions.value.find(o => o.value === (params.stock ?? '')) ?? stockOptions.value[0]);
 const sidebarOpen = ref(false);
 
 const activeChips = computed(() => {
@@ -43,7 +45,6 @@ const applyFilters = debounce(() => {
 
     router.get(route('search.index'), {
         q: props.query,
-        raw_q: props.rawQuery,
         price_min: priceMin.value || undefined,
         price_max: priceMax.value || undefined,
         stock: stockFilter.value?.value || undefined,
@@ -63,7 +64,7 @@ function resetFilters() {
     loading.value = true;
     priceMin.value = null;
     priceMax.value = null;
-    stockFilter.value = stockOptions[0];
+    stockFilter.value = stockOptions.value[0];
     applyFilters();
 }
 
@@ -73,13 +74,13 @@ function removeChip(chip) {
         priceMin.value = null;
         priceMax.value = null;
     } else if (chip.type === 'stock') {
-        stockFilter.value = stockOptions[0];
+        stockFilter.value = stockOptions.value[0];
     }
 }
 </script>
 
 <template>
-    <Head :title="`ძიება: ${query}`">
+    <Head :title="$t('search.titleWithQuery', { query })">
         <meta name="robots" content="noindex, nofollow" />
     </Head>
 
@@ -90,7 +91,7 @@ function removeChip(chip) {
             <div class="flex items-center gap-2 min-w-0">
                 <i class="pi pi-search text-brand-400 shrink-0 text-sm"></i>
                 <span v-if="items?.total !== undefined" class="text-xs text-gray-400 shrink-0 ml-1">
-                    მოიძებნა {{ items.total }} პროდუქტი
+                    {{ $t('search.foundCount', { count: items.total }) }}
                 </span>
             </div>
             <button
@@ -146,23 +147,23 @@ function removeChip(chip) {
                         <div class="flex items-center justify-between mb-5">
                             <div class="flex items-center gap-x-1.5">
                                 <i class="pi pi-sliders-h"></i>
-                                <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">ფილტრი</p>
+                                <p class="text-xs font-semibold uppercase tracking-widest text-gray-400">{{ $t('search.filter') }}</p>
                             </div>
                             <div v-if="activeChips.length > 0" class="flex items-center gap-x-1 rounded-xl bg-slate-100 cursor-pointer px-2 py-1">
                                 <i class="text-sm pi pi-refresh text-gray-500"></i>
                                 <button @click="resetFilters" class="text-xs text-gray-400 cursor-pointer hover:text-gray-900 transition-colors">
-                                    გასუფთავება
+                                    {{ $t('common.clear') }}
                                 </button>
                             </div>
                         </div>
 
                         <!-- Price Range -->
                         <div class="mb-4 border-b border-gray-100 pb-4">
-                            <p class="text-sm font-semibold text-gray-500 mb-3">ფასი</p>
+                            <p class="text-sm font-semibold text-gray-500 mb-3">{{ $t('search.price') }}</p>
                             <div class="flex items-center gap-2">
                                 <InputNumber
                                     v-model="priceMin"
-                                    placeholder="მინ."
+                                    :placeholder="$t('search.min')"
                                     :min="0"
                                     :useGrouping="false"
                                     fluid
@@ -176,7 +177,7 @@ function removeChip(chip) {
                                 <span class="text-gray-300 shrink-0">—</span>
                                 <InputNumber
                                     v-model="priceMax"
-                                    placeholder="მაქს."
+                                    :placeholder="$t('search.max')"
                                     :min="0"
                                     :useGrouping="false"
                                     fluid
@@ -192,7 +193,7 @@ function removeChip(chip) {
 
                         <!-- Stock Filter -->
                         <div>
-                            <p class="text-sm font-semibold text-gray-500 mb-3">მარაგი</p>
+                            <p class="text-sm font-semibold text-gray-500 mb-3">{{ $t('search.stock') }}</p>
                             <Select
                                 v-model="stockFilter"
                                 :options="stockOptions"

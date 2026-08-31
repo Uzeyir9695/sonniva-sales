@@ -9,7 +9,7 @@ defineProps({
 </script>
 
 <template>
-    <SwiperCarousel :items="items" title="მსგავსი პროდუქტები" />
+    <SwiperCarousel :items="items" :title="$t('item.similarProducts')" />
 </template>
 
 <style>

@@ -23,10 +23,10 @@ async function changePassword(){
 
 <template>
   <Head>
-    <title>Settings</title>
+    <title>{{ $t('account.settingsTitle') }}</title>
   </Head>
     <div class="flex flex-col items-center gap-y-6 rounded-lg bg-slate-200/30 sm:max-w-[500px] px-6 py-10 lg:py-16 mx-auto">
-        <div class="text-lg sm:text-xl font-semibold">შეცვალე პაროლი</div>
+        <div class="text-lg sm:text-xl font-semibold">{{ $t('account.changePassword') }}</div>
 
         <!-- Form Validation Errors -->
         <div v-if="Object.keys(passwordForm.errors).length"
@@ -49,7 +49,7 @@ async function changePassword(){
                     inputId="current_password"
                     fluid
                 />
-                <label for="current_password">მიმდინარე პაროლი</label>
+                <label for="current_password">{{ $t('account.currentPassword') }}</label>
             </FloatLabel>
 
             <FloatLabel variant="on">
@@ -64,7 +64,7 @@ async function changePassword(){
                     fluid
                 >
                 </Password>
-                <label for="password">ახალი პაროლი</label>
+                <label for="password">{{ $t('account.newPassword') }}</label>
             </FloatLabel>
 
             <FloatLabel variant="on">
@@ -78,13 +78,13 @@ async function changePassword(){
                     inputId="password_confirmation"
                     fluid
                 />
-                <label for="password_confirmation">გაიმეორე ახალი პაროლი</label>
+                <label for="password_confirmation">{{ $t('account.repeatNewPassword') }}</label>
             </FloatLabel>
 
             <Button :disabled="passwordForm.processing"
                     type="submit"
                     class="shadow-none bg-brand-500 text-white"
-                    :label="passwordForm.processing ? 'გთხოვთ დაელოდოთ...' : 'დადასტურება'"
+                    :label="passwordForm.processing ? $t('common.pleaseWait') : $t('common.confirm')"
                     text
                     raised
                     size="small"

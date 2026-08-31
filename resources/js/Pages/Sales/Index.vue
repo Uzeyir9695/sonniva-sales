@@ -9,8 +9,8 @@ defineProps({
 </script>
 
 <template>
-    <Head title="ფასდაკლებები">
-        <meta name="description" content="იხილეთ Sonniva-ს ფასდაკლებული პროდუქცია" />
+    <Head :title="$t('sales.title')">
+        <meta name="description" :content="$t('sales.metaDescription')" />
     </Head>
 
     <div class="min-h-[calc(100vh-80px)] max-lg:mx-4">
@@ -21,11 +21,11 @@ defineProps({
 
             <span class="inline-flex items-center gap-1.5 bg-white/15 text-white text-sm font-semibold px-3 py-1 rounded-full mb-3">
                 <i class="pi pi-clock text-sm"></i>
-                შეზღუდული დროით
+                {{ $t('sales.limitedTime') }}
             </span>
-            <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">ფასდაკლებები</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">{{ $t('sales.heading') }}</h1>
             <p class="text-white/90 text-sm sm:text-base max-w-xl mx-auto">
-                აღმოაჩინეთ პროდუქცია საუკეთესო ფასებში.
+                {{ $t('sales.subheading') }}
             </p>
         </div>
 
@@ -39,7 +39,7 @@ defineProps({
                         <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                             <i class="pi pi-percentage text-3xl text-gray-300"></i>
                         </div>
-                        <h3 class="text-lg font-medium text-gray-500">ამჟამად ფასდაკლებული პროდუქცია არ არის</h3>
+                        <h3 class="text-lg font-medium text-gray-500">{{ $t('sales.empty') }}</h3>
                     </div>
                 </template>
                 <template #fallback>

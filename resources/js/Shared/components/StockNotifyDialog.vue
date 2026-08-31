@@ -29,16 +29,16 @@ const goToLogin = () => {
         <template #header>
             <div class="flex items-center gap-2">
                 <i class="pi pi-lock text-gray-500"></i>
-                <span class="font-semibold text-gray-800">საჭიროა ავტორიზაცია</span>
+                <span class="font-semibold text-gray-800">{{ $t('stockNotify.loginRequired') }}</span>
             </div>
         </template>
         <p class="text-sm text-gray-600 leading-relaxed">
-            შეტყობინების გამოსაწერად გთხოვთ გაიაროთ ავტორიზაცია.
+            {{ $t('stockNotify.loginRequiredText') }}
         </p>
         <template #footer>
             <div class="flex justify-end gap-2">
-                <Button label="გაუქმება" severity="secondary" text @click="emit('update:visible', false)" />
-                <Button label="შესვლა" icon="pi pi-sign-in" @click="goToLogin" />
+                <Button :label="$t('common.cancel')" severity="secondary" text @click="emit('update:visible', false)" />
+                <Button :label="$t('nav.signIn')" icon="pi pi-sign-in" @click="goToLogin" />
             </div>
         </template>
     </Dialog>
@@ -48,16 +48,16 @@ const goToLogin = () => {
         <template #header>
             <div class="flex items-center gap-2">
                 <i class="pi pi-bell text-blue-500"></i>
-                <span class="font-semibold text-gray-800">გამოიწერეთ შეტყობინება</span>
+                <span class="font-semibold text-gray-800">{{ $t('stockNotify.subscribeTitle') }}</span>
             </div>
         </template>
         <p class="text-sm text-gray-600 leading-relaxed">
-            გსურთ მიიღოთ SMS შეტყობინება მარაგის შევსებისთანავე?
+            {{ $t('stockNotify.subscribeText') }}
         </p>
         <template #footer>
             <div class="flex justify-end gap-2">
-                <Button label="არა" severity="secondary" text @click="emit('update:visible', false)" />
-                <Button label="კი" icon="pi pi-check" @click="subscribe" />
+                <Button :label="$t('common.no')" severity="secondary" text @click="emit('update:visible', false)" />
+                <Button :label="$t('common.yes')" icon="pi pi-check" @click="subscribe" />
             </div>
         </template>
     </Dialog>

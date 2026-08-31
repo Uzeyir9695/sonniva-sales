@@ -126,14 +126,14 @@ async function saveCustomer() {
                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-gray-300 text-gray-600 hover:border-emerald-400 hover:text-emerald-600 transition-colors shadow-sm"
                     @click="openDialog"
                 >
-                    <i class="pi pi-pencil text-xs"></i> შეცვლა
+                    <i class="pi pi-pencil text-xs"></i> {{ $t('customerPicker.edit') }}
                 </button>
                 <button
                     type="button"
                     class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-gray-300 text-gray-400 hover:border-red-400 hover:text-red-500 transition-colors shadow-sm"
                     @click="clear"
                 >
-                    <i class="pi pi-times text-xs"></i> წაშლა
+                    <i class="pi pi-times text-xs"></i> {{ $t('customerPicker.remove') }}
                 </button>
             </div>
         </div>
@@ -148,10 +148,10 @@ async function saveCustomer() {
     >
         <span class="flex items-center gap-2 font-semibold text-sm">
             <i class="pi pi-user-plus text-base"></i>
-            მომხმარებლის არჩევა
+            {{ $t('customerPicker.selectCustomer') }}
         </span>
         <span class="text-xs text-emerald-600 font-normal text-center leading-snug">
-            აირჩიეთ მომხმარებელი რომლის სახელითაც გსურთ შეკვეთის განხორციელება
+            {{ $t('customerPicker.selectCustomerHint') }}
         </span>
     </button>
 
@@ -159,7 +159,7 @@ async function saveCustomer() {
     <Dialog
         v-model:visible="dialogVisible"
         modal
-        header="მომხმარებლის არჩევა"
+        :header="$t('customerPicker.selectCustomer')"
         :style="{ width: '540px' }"
         :breakpoints="{ '640px': '95vw' }"
     >
@@ -170,7 +170,7 @@ async function saveCustomer() {
                 <InputText
                     v-model="searchQuery"
                     class="w-full"
-                    placeholder="სახელი, ტელეფონი, ელ-ფოსტა ან საიდენტიფიკაციო კოდი…"
+                    :placeholder="$t('customerPicker.searchPlaceholder')"
                     @input="onSearchInput"
                 />
             </IconField>
@@ -179,10 +179,10 @@ async function saveCustomer() {
         <!-- List -->
         <div class="mb-5">
             <p v-if="!searchQuery.trim()" class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-                ბოლოს დამატებული
+                {{ $t('customerPicker.recentlyAdded') }}
             </p>
             <p v-else class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-                ძიების შედეგები
+                {{ $t('customerPicker.searchResults') }}
             </p>
 
             <div v-if="loadingSearch || loadingRecent" class="flex justify-center py-6">
@@ -229,7 +229,7 @@ async function saveCustomer() {
             </div>
 
             <p v-else class="text-sm text-gray-400 text-center py-5">
-                {{ searchQuery.trim() ? 'მომხმარებელი ვერ მოიძებნა.' : 'ბოლო მომხმარებლები არ არის.' }}
+                {{ searchQuery.trim() ? $t('customerPicker.noCustomerFound') : $t('customerPicker.noRecentCustomers') }}
             </p>
         </div>
 
@@ -243,49 +243,49 @@ async function saveCustomer() {
                 @click="showNewForm = !showNewForm"
             >
                 <i :class="showNewForm ? 'pi pi-minus' : 'pi pi-plus'" class="text-xs"></i>
-                {{ showNewForm ? 'გაუქმება' : 'ახალი მომხმარებლის დამატება' }}
+                {{ showNewForm ? $t('common.cancel') : $t('customerPicker.addNewCustomer') }}
             </button>
 
             <div v-if="showNewForm" class="flex flex-col gap-4">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-medium text-gray-600">სახელი <span class="text-red-500">*</span></label>
-                        <InputText v-model="form.name" class="w-full" :class="{ 'p-invalid': formErrors.name }" placeholder="სახელი" />
+                        <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.firstName') }} <span class="text-red-500">*</span></label>
+                        <InputText v-model="form.name" class="w-full" :class="{ 'p-invalid': formErrors.name }" :placeholder="$t('customerPicker.firstName')" />
                         <small v-if="formErrors.name" class="text-red-500 text-xs">{{ formErrors.name[0] }}</small>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-medium text-gray-600">გვარი <span class="text-red-500">*</span></label>
-                        <InputText v-model="form.lastname" class="w-full" :class="{ 'p-invalid': formErrors.lastname }" placeholder="გვარი" />
+                        <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.lastName') }} <span class="text-red-500">*</span></label>
+                        <InputText v-model="form.lastname" class="w-full" :class="{ 'p-invalid': formErrors.lastname }" :placeholder="$t('customerPicker.lastName')" />
                         <small v-if="formErrors.lastname" class="text-red-500 text-xs">{{ formErrors.lastname[0] }}</small>
                     </div>
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-medium text-gray-600">მობილური <span class="text-red-500">*</span></label>
+                    <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.mobile') }} <span class="text-red-500">*</span></label>
                     <InputText v-model="form.phone" class="w-full" :class="{ 'p-invalid': formErrors.phone }" placeholder="5XX XXX XXX" />
                     <small v-if="formErrors.phone" class="text-red-500 text-xs">{{ formErrors.phone[0] }}</small>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-medium text-gray-600">ელ-ფოსტა</label>
+                        <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.email') }}</label>
                         <InputText v-model="form.email" type="email" class="w-full" :class="{ 'p-invalid': formErrors.email }" placeholder="email@example.com" />
                         <small v-if="formErrors.email" class="text-red-500 text-xs">{{ formErrors.email[0] }}</small>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-medium text-gray-600">საიდენტიფიკაციო კოდი <span v-if="taxIdRequired" class="text-red-500">*</span></label>
-                        <InputText v-model="form.tax_id" class="w-full" :class="{ 'p-invalid': formErrors.tax_id }" placeholder="პირადი / საიდ. კოდი" />
+                        <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.idCode') }} <span v-if="taxIdRequired" class="text-red-500">*</span></label>
+                        <InputText v-model="form.tax_id" class="w-full" :class="{ 'p-invalid': formErrors.tax_id }" :placeholder="$t('customerPicker.idCodePlaceholder')" />
                         <small v-if="formErrors.tax_id" class="text-red-500 text-xs">{{ formErrors.tax_id[0] }}</small>
                     </div>
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-medium text-gray-600">მისამართი</label>
-                    <InputText v-model="form.address" class="w-full" placeholder="ქუჩა, ქალაქი…" />
+                    <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.address') }}</label>
+                    <InputText v-model="form.address" class="w-full" :placeholder="$t('customerPicker.addressPlaceholder')" />
                 </div>
 
                 <Button
-                    label="შენახვა და არჩევა"
+                    :label="$t('customerPicker.saveAndSelect')"
                     icon="pi pi-check"
                     class="w-full bg-brand-500 border-none mt-1"
                     :loading="saving"

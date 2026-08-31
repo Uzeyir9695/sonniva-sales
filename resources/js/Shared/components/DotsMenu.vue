@@ -1,17 +1,19 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Link } from '@inertiajs/vue3'
 
+const { t } = useI18n()
 const open = ref(false)
 const menuRef = ref(null)
 
 const items = [
-    { label: 'ფავორიტების სია', icon: 'fa-heart', route: 'wishlist.index', class: 'sm:hidden' },
-    { label: 'ჩვენს შესახებ', icon: 'fa-circle-info', route: 'about-us' },
-    { label: 'მიწოდების ტარიფები', icon: 'fa-truck-fast', route: 'delivery-rates' },
-    { label: 'Cookie პოლიტიკა', icon: 'fa-cookie-bite', route: 'cookie-policy' },
-    { label: 'კონფიდენციალურობა', icon: 'fa-shield-halved', route: 'privacy-policy' },
-    { label: 'მომსახურების პირობები', icon: 'fa-file-lines', route: 'terms-of-service' },
+    { label: t('nav.favorites'), icon: 'fa-heart', route: 'wishlist.index', class: 'sm:hidden' },
+    { label: t('nav.aboutUs'), icon: 'fa-circle-info', route: 'about-us' },
+    { label: t('nav.deliveryRates'), icon: 'fa-truck-fast', route: 'delivery-rates' },
+    { label: t('nav.cookiePolicy'), icon: 'fa-cookie-bite', route: 'cookie-policy' },
+    { label: t('nav.privacyPolicy'), icon: 'fa-shield-halved', route: 'privacy-policy' },
+    { label: t('nav.termsOfService'), icon: 'fa-file-lines', route: 'terms-of-service' },
 ]
 
 function handleClickOutside(e) {
@@ -29,7 +31,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
         <button
             @click="open = !open"
             class="flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"
-            aria-label="მეტი"
+            :aria-label="t('common.more')"
         >
             <i class="pi pi-ellipsis-v text-lg"></i>
         </button>

@@ -9,20 +9,20 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
                 </div>
-                <h1 class="text-xl lg:text-2xl font-extrabold text-gray-900">შეკვეთა განხორციელდა</h1>
-                <p class="mt-2 text-gray-600">შეკვეთა წარმატებით გაფორმდა ლიმიტით გადახდის საფუძველზე</p>
+                <h1 class="text-xl lg:text-2xl font-extrabold text-gray-900">{{ $t('payment.limitOrderTitle') }}</h1>
+                <p class="mt-2 text-gray-600">{{ $t('payment.limitOrderText') }}</p>
             </div>
 
             <!-- Order Number -->
             <div class="my-6">
-                <p class="text-sm text-gray-500">შეკვეთის ნომერი</p>
+                <p class="text-sm text-gray-500">{{ $t('common.orderNumber') }}</p>
                 <p class="text-lg font-semibold text-gray-900">{{ invoiceNumber }}</p>
             </div>
 
             <!-- Actions -->
             <div class="flex flex-col gap-3">
                 <Link :href="route('home')" class="block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition">
-                    მთავარ გვერდზე დაბრუნება
+                    {{ $t('common.backToHome') }}
                 </Link>
             </div>
 

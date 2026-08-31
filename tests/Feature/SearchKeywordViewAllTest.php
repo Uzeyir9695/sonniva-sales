@@ -28,24 +28,23 @@ function makeSearchKeywordItem(string $categoryCode, array $overrides = []): Ite
     ], $overrides));
 }
 
-it('finds keyword-matched items on the deferred search reload without the raw header', function () {
+it('finds keyword-matched items on the deferred search reload', function () {
     $category = makeSearchKeywordCategory();
     $item = makeSearchKeywordItem($category->code, ['en_keywords' => 'drawer slide']);
 
     $version = $this->withHeaders(['X-Inertia' => 'true'])
-        ->get('/search?q=უჯრა&raw_q=drawer')
+        ->get('/search?q=drawer')
         ->headers->get('X-Inertia-Version');
 
-    // Simulates Inertia's automatic deferred-prop reload (fired on page mount
-    // and on every filter change): no X-Search-Raw header, since only
-    // goToSearch()'s one-off initial visit ever sent that. The raw text must
-    // survive purely via the `raw_q` query string param instead.
+    // Inertia's automatic deferred-prop reload (fired on page mount and on
+    // every filter change) reuses the page's query string, so the keyword
+    // match must survive purely via the `q` param.
     $response = $this->withHeaders([
         'X-Inertia' => 'true',
         'X-Inertia-Version' => $version,
         'X-Inertia-Partial-Data' => 'items',
         'X-Inertia-Partial-Component' => 'Search/Index',
-    ])->get('/search?'.http_build_query(['q' => 'უჯრა', 'raw_q' => 'drawer']));
+    ])->get('/search?q=drawer');
 
     $response->assertSuccessful();
     $response->assertJsonPath('props.items.data.0.id', $item->id);

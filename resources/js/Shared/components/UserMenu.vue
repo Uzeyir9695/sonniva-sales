@@ -1,8 +1,10 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Link, usePage } from '@inertiajs/vue3'
 import LogoutButton from './LogoutButton.vue'
 
+const { t } = useI18n()
 const page = usePage()
 const open = ref(false)
 const dropdownRef = ref(null)
@@ -15,9 +17,9 @@ const displayName = computed(() => {
 })
 
 const menuItems = computed(() => [
-    ...(page.props.user?.role === 'admin' ? [{ label: 'ადმინ პანელი', icon: 'pi-shield', route: 'admin.index' }] : []),
-    { label: 'ჩემი კაბინეტი', icon: 'pi-user', route: 'account.index' },
-    { label: 'ჩემი შეკვეთები', icon: 'pi-tags', route: 'user-orders.index' },
+    ...(page.props.user?.role === 'admin' ? [{ label: t('nav.adminPanel'), icon: 'pi-shield', href: '/admin' }] : []),
+    { label: t('nav.myAccount'), icon: 'pi-user', route: 'account.index' },
+    { label: t('nav.myOrders'), icon: 'pi-tags', route: 'user-orders.index' },
 ])
 
 // Close on outside click
@@ -79,7 +81,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
                     <Link
                         v-for="item in menuItems"
                         :key="item.label"
-                        :href="route(item.route)"
+                        :href="item.href ?? route(item.route)"
                         @click="open = false"
                         class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     >

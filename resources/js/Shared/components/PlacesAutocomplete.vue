@@ -76,15 +76,15 @@ function selectSuggestion(item) {
     <div class="w-full">
         <div>
             <label for="city" class="text-sm font-semibold">
-                ზუსტი მისამართი
-                <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="'სავალდებულო ველი'"></i>
+                {{ $t('places.exactAddress') }}
+                <i class="pi pi-exclamation-circle text-sm ml-1 text-red-500" v-tooltip.top="$t('places.requiredField')"></i>
             </label>
             <p v-if="showWarning" class="text-sm text-red-500 mt-1 mb-1">
                 <i class="pi pi-exclamation-circle text-xs"></i>
-                აირჩიეთ შესაბამისი მისამართი ქვემოთ მოცემული ლისტიდან
+                {{ $t('places.pickFromList') }}
             </p>
             <div class="relative mt-2">
-                <PrimeInputText id="city" class="py-2.5! w-full pr-8!" v-model="query" placeholder="მისამართი" @input="onInput" @blur="onBlur" />
+                <PrimeInputText id="city" class="py-2.5! w-full pr-8!" v-model="query" :placeholder="$t('places.addressPlaceholder')" @input="onInput" @blur="onBlur" />
                 <span v-if="isConfirmed" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-green-500 pointer-events-none">
                     <i class="pi pi-check-circle text-base"></i>
                 </span>

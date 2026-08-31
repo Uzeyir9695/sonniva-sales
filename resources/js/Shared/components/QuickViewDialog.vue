@@ -68,7 +68,7 @@ const { displayPrice, displayUOM, hasDiscount, originalPrice } = usePricing(() =
                             class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full"
                             :class="inStock ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'"
                         >
-                            {{ inStock ? 'მარაგშია' : 'მარაგში არ არის' }}
+                            {{ inStock ? $t('common.inStock') : $t('common.outOfStock') }}
                         </span>
 
                         <WishlistButton :item-id="item?.id" size="md" />
@@ -113,7 +113,7 @@ const { displayPrice, displayUOM, hasDiscount, originalPrice } = usePricing(() =
                                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'"
                             >
                                 <i class="pi pi-bolt"></i>
-                                შეუკვეთე ახლავე
+                                {{ $t('quickView.orderNow') }}
                             </button>
 
                             <button
@@ -126,7 +126,7 @@ const { displayPrice, displayUOM, hasDiscount, originalPrice } = usePricing(() =
                             >
                                 <i :class="isInCart(item.id) ? 'pi pi-shopping-cart' : 'pi pi-cart-plus'"></i>
 
-                                კალათაში დამატება
+                                {{ $t('common.addToCart') }}
 
                                 <CartCountBadge :item="item" />
                             </button>
@@ -137,7 +137,7 @@ const { displayPrice, displayUOM, hasDiscount, originalPrice } = usePricing(() =
                             class="mt-3 w-full flex items-center justify-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors py-2"
                             @click="handleDetailsClick"
                         >
-                            დეტალურად ნახვა <i class="pi pi-arrow-right text-xs"></i>
+                            {{ $t('common.viewDetails') }} <i class="pi pi-arrow-right text-xs"></i>
                         </Link>
                     </div>
                 </div>

@@ -9,26 +9,26 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
                 </div>
-                <h1 class="text-xl lg:text-2xl font-extrabold text-gray-900">ინვოისი გაგზავნილია</h1>
-                <p class="mt-2 text-gray-600">ინვოისი გაიგზავნა თქვენს ელ-ფოსტაზე</p>
+                <h1 class="text-xl lg:text-2xl font-extrabold text-gray-900">{{ $t('payment.invoiceSentTitle') }}</h1>
+                <p class="mt-2 text-gray-600">{{ $t('payment.invoiceSentText') }}</p>
             </div>
 
             <!-- Invoice Number -->
             <div class="my-6">
-                <p class="text-sm text-gray-500">ინვოისის ნომერი</p>
+                <p class="text-sm text-gray-500">{{ $t('payment.invoiceNumber') }}</p>
                 <p class="text-lg font-semibold text-gray-900">{{ invoiceNumber }}</p>
             </div>
 
             <!-- Optional Information -->
             <div class="mb-6 text-gray-600 text-sm">
-                <p>შეამოწმეთ ელ-ფოსტა PDF ინვოისისთვის</p>
-                <p class="mt-1">თუ წერილი არ მოგივიდათ, შეამოწმეთ სპამის საქაღალდე</p>
+                <p>{{ $t('payment.checkEmailForPdf') }}</p>
+                <p class="mt-1">{{ $t('payment.checkSpam') }}</p>
             </div>
 
             <!-- Actions -->
             <div class="flex flex-col gap-3">
                 <Link :href="route('home')" class="block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition">
-                    მთავარ გვერდზე დაბრუნება
+                    {{ $t('common.backToHome') }}
                 </Link>
             </div>
 

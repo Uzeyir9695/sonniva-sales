@@ -1,202 +1,144 @@
 <script setup>
 import { Head } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
+
+const { tm, rt, locale } = useI18n()
+
+function list(key) {
+    void locale.value
+    return tm(`pol.terms.${key}`).map(rt)
+}
 </script>
 
 <template>
-    <Head title="მომსახურების პირობები" />
+    <Head :title="$t('pol.terms.title')" />
 
     <div class="max-w-3xl mx-auto px-4 py-10 sm:py-16">
         <div class="mb-10 border-b border-gray-200 pb-6">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">მომსახურების პირობები</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{{ $t('pol.terms.title') }}</h1>
         </div>
 
         <div class="space-y-10 text-gray-700 text-[15px] leading-8">
 
-            <!-- Payment Methods -->
+            <!-- Payment methods -->
             <section>
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">გადახდის მეთოდები</h2>
-
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('pol.terms.paymentH') }}</h2>
                 <div class="space-y-5">
                     <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">ბარათით გადახდა</h3>
-                        <p class="mb-3">ონლაინ გადახდისთვის შეგიძლიათ გამოიყენოთ ნებისმიერი საერთაშორისო საბანკო ბარათი:</p>
+                        <h3 class="font-semibold text-gray-800 mb-2">{{ $t('pol.terms.payCardH') }}</h3>
+                        <p class="mb-3">{{ $t('pol.terms.payCardIntro') }}</p>
                         <ul class="space-y-1.5 mb-3">
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>VISA</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>MasterCard</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>American Express</li>
+                            <li v-for="c in ['VISA', 'MasterCard', 'American Express']" :key="c" class="flex items-start gap-2">
+                                <span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>{{ c }}
+                            </li>
                         </ul>
-                        <p>გადახდა ხორციელდება უსაფრთხო ელექტრონული გადახდის სისტემის მეშვეობით.</p>
+                        <p>{{ $t('pol.terms.payCardOutro') }}</p>
                     </div>
-
                     <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">საბანკო გადარიცხვა</h3>
-                        <p>გადახდა შესაძლებელია ინვოისის საფუძველზე საბანკო გადარიცხვით.</p>
-                        <p class="mt-2">აღნიშნული მეთოდი ხელმისაწვდომია როგორც ფიზიკური, ასევე იურიდიული პირებისთვის.</p>
+                        <h3 class="font-semibold text-gray-800 mb-2">{{ $t('pol.terms.payTransferH') }}</h3>
+                        <p>{{ $t('pol.terms.payTransferP1') }}</p>
+                        <p class="mt-2">{{ $t('pol.terms.payTransferP2') }}</p>
                     </div>
-
                     <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">გადახდა ხელშეკრულების საფუძველზე</h3>
-                        <p>იურიდიულ პირებს ვთავაზობთ თანამშრომლობის ინდივიდუალურ პირობებს.</p>
+                        <h3 class="font-semibold text-gray-800 mb-2">{{ $t('pol.terms.payContractH') }}</h3>
+                        <p>{{ $t('pol.terms.payContractP') }}</p>
                     </div>
                 </div>
             </section>
 
             <!-- Delivery -->
             <section>
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">მიწოდების პირობები</h2>
-
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('pol.terms.deliveryH') }}</h2>
                 <div class="space-y-5">
                     <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">უფასო მიწოდება</h3>
-                        <p>500 ლარის ან მეტი ღირებულების შეკვეთებზე თბილისში მოქმედებს უფასო მიწოდების სერვისი.</p>
-<!--                        <p class="mt-2">თუ შეკვეთა გაფორმდება 13:00 საათამდე, მიწოდება განხორციელდება იმავე სამუშაო დღეს.</p>-->
+                        <h3 class="font-semibold text-gray-800 mb-2">{{ $t('pol.terms.delFreeH') }}</h3>
+                        <p>{{ $t('pol.terms.delFreeP') }}</p>
                     </div>
-
                     <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">რეგიონებში მიწოდება</h3>
-                        <p>რეგიონებში შეკვეთების მიწოდების ვადაა მაქსიმუმ 5 სამუშაო დღე.</p>
+                        <h3 class="font-semibold text-gray-800 mb-2">{{ $t('pol.terms.delRegionsH') }}</h3>
+                        <p>{{ $t('pol.terms.delRegionsP') }}</p>
                     </div>
 
-                    <!-- Delivery zones -->
                     <div>
-                        <h3 class="font-semibold text-gray-800 mb-3">მიწოდების ღირებულება თბილისის მასშტაბით ფილიალიდან</h3>
+                        <h3 class="font-semibold text-gray-800 mb-3">{{ $t('pol.terms.delZonesH') }}</h3>
                         <div class="space-y-3">
-                            <div class="rounded-xl border border-gray-200 p-4">
-                                <p class="font-semibold text-gray-800 mb-2">I ზონა – 5-40 ლარი</p>
+                            <div v-for="z in [1, 2, 3]" :key="z" class="rounded-xl border border-gray-200 p-4">
+                                <p class="font-semibold text-gray-800 mb-2">{{ $t(`pol.terms.zone${z}`) }}</p>
                                 <ul class="space-y-1 text-sm">
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>გლდანი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>გლდანულა</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>სოფელი გლდანი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ზაჰესი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ავჭალა</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>თემქა</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>მუხიანი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>დიღომი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>დიღმის მასივი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>დიდი დიღომი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>სოფელი დიღომი</li>
-                                </ul>
-                            </div>
-
-                            <div class="rounded-xl border border-gray-200 p-4">
-                                <p class="font-semibold text-gray-800 mb-2">II ზონა – 5-50 ლარი</p>
-                                <ul class="space-y-1 text-sm">
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ვაკე</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>საბურთალო</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ბაგები</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ლისი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ვაშლიჯვარი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ორთაჭალა</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>მთაწმინდა</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>სოლოლაკი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ვერა</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>დიდუბე</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ჩუღურეთი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ნაძალადევი</li>
-                                </ul>
-                            </div>
-
-                            <div class="rounded-xl border border-gray-200 p-4">
-                                <p class="font-semibold text-gray-800 mb-2">III ზონა – 5-60 ლარი</p>
-                                <ul class="space-y-1 text-sm">
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ისანი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>სამგორი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ლილო</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ორხევი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>აეროპორტის დასახლება</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ქვემო ფონიჭალა</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ზემო ფონიჭალა</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ვარკეთილი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>წყნეთი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>კოჯორი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ტაბახმელა</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>წავკისი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>შინდისი</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ოქროყანა</li>
-                                    <li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ნაფეტვრები</li>
+                                    <li v-for="n in list(`zone${z}Items`)" :key="n" class="flex items-start gap-2">
+                                        <span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>{{ n }}
+                                    </li>
                                 </ul>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Additional conditions -->
                     <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-3">დამატებითი პირობები</h3>
+                        <h3 class="font-semibold text-gray-800 mb-3">{{ $t('pol.terms.delAdditionalH') }}</h3>
                         <ul class="space-y-2">
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ჰიპერმარკეტებიდან უფასო მიწოდების სერვისი მოქმედებს მხოლოდ იმ შემთხვევაში, თუ შეკვეთის ჯამური ღირებულება აღემატება 1500 ლარს.</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>მიტანის სერვისი მოიცავს პროდუქციის ტრანსპორტირებას დანიშნულების მისამართამდე. მომსახურებაში არ შედის პროდუქციის მანქანიდან ჩამოტვირთვა, შენობაში შეტანა ან სართულზე ატანა.</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ონლაინ შეძენილი პროდუქციის ტრანსპორტირების ღირებულება გამოითვლება ავტომატურად შეკვეთის დასრულებისას, მიწოდების მეთოდის არჩევის შემდეგ.</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>გაბარიტული ამანათების შემთხვევაში ტრანსპორტირების საფასური შეიძლება გამოითვალოს მოცულობითი წონის მიხედვით. თუ მოცულობითი წონა აღემატება ფიზიკურ წონას, გამოიყენება შემდეგი ფორმულა: <span class="font-medium text-gray-800">სიგრძე (სმ) × სიგანე (სმ) × სიმაღლე (სმ) ÷ 5000</span></li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ჩვენ ვუზრუნველყოფთ იმ პროდუქციის მიწოდებას, რომლის სიგრძე არ აღემატება 4 მეტრს.</li>
+                            <li v-for="(item, i) in list('delAdditionalItems')" :key="`a${i}`" class="flex items-start gap-2">
+                                <span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>{{ item }}
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>
+                                <span>{{ $t('pol.terms.delFormulaItemPre') }} <span class="font-medium text-gray-800">{{ $t('pol.terms.delFormula') }}</span></span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>{{ $t('pol.terms.delMaxLengthItem') }}
+                            </li>
                         </ul>
-                        <p class="mt-4 text-sm text-gray-500">დამატებითი ინფორმაციის მისაღებად გთხოვთ დაგვიკავშირდეთ.</p>
+                        <p class="mt-4 text-sm text-gray-500">{{ $t('pol.terms.delContactNote') }}</p>
                     </div>
                 </div>
             </section>
 
-            <!-- Returns, Exchange, Storage, Warranty -->
+            <!-- Returns / exchange / storage / warranty -->
             <section>
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">დაბრუნება, გადაცვლა, შენახვის პირობები და საგარანტიო მომსახურება</h2>
-
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">{{ $t('pol.terms.returnsH') }}</h2>
                 <div class="space-y-5">
                     <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">საგარანტიო მომსახურება</h3>
-                        <p>საგარანტიო მომსახურება ვრცელდება მხოლოდ იმ პროდუქციაზე, რომელსაც თან ახლავს ოფიციალური საგარანტიო ტალონი.</p>
-                        <p class="mt-2">საგარანტიო ტალონი მომხმარებელს გადაეცემა პროდუქციის შეძენის მომენტში.</p>
-                        <p class="mt-3">გთხოვთ გაითვალისწინოთ, რომ საგარანტიო პირობები არ ვრცელდება იმ დაზიანებებზე, რომლებიც გამოწვეულია:</p>
+                        <h3 class="font-semibold text-gray-800 mb-2">{{ $t('pol.terms.warrantyH') }}</h3>
+                        <p>{{ $t('pol.terms.warrantyP1') }}</p>
+                        <p class="mt-2">{{ $t('pol.terms.warrantyP2') }}</p>
+                        <p class="mt-3">{{ $t('pol.terms.warrantyIntro') }}</p>
                         <ul class="space-y-1.5 mt-2">
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>მექანიკური ზემოქმედებით;</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>არასწორი მონტაჟით ან ექსპლუატაციით;</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>დაუდევრობით ან არამიზნობრივი გამოყენებით;</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>ბუნებრივი ცვეთით;</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>მწარმოებლის ინსტრუქციების დარღვევით.</li>
+                            <li v-for="(item, i) in list('warrantyItems')" :key="`w${i}`" class="flex items-start gap-2">
+                                <span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>{{ item }}
+                            </li>
                         </ul>
-                        <p class="mt-3">
-                            ზოგიერთ პროდუქციაზე საგარანტიო მომსახურება შესაძლოა არ ვრცელდებოდეს ან ჰქონდეს
-                            განსხვავებული პირობები, რაც მითითებული იქნება კონკრეტული პროდუქტის აღწერაში ან
-                            საგარანტიო დოკუმენტაციაში.
-                        </p>
+                        <p class="mt-3">{{ $t('pol.terms.warrantyOutro') }}</p>
                     </div>
 
                     <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">პროდუქციის გადაცვლა</h3>
-                        <p>Sonniva Georgia უზრუნველყოფს პროდუქციის გადაცვლას შემდეგ შემთხვევებში:</p>
+                        <h3 class="font-semibold text-gray-800 mb-2">{{ $t('pol.terms.exchangeH') }}</h3>
+                        <p>{{ $t('pol.terms.exchangeIntro') }}</p>
                         <ul class="space-y-1.5 mt-2 mb-3">
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>პროდუქციას აქვს ქარხნული წუნი (მექანიკური დაზიანების გარდა);</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>შეკვეთის დამუშავების ან გაცემის პროცესში მოხდა შეცდომა და მომხმარებელმა მიიღო არასწორი მოდელი, ზომა, ფერი ან მახასიათებლების მქონე პროდუქცია;</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>მომხმარებელს სურს პროდუქციის გადაცვლა სხვა ანალოგიურ მოდელში პროდუქციის მიღებიდან 14 კალენდარული დღის განმავლობაში.</li>
+                            <li v-for="(item, i) in list('exchangeItems')" :key="`e${i}`" class="flex items-start gap-2">
+                                <span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>{{ item }}
+                            </li>
                         </ul>
-                        <p>გადაცვლის მიზნით მომხმარებელმა უნდა მიმართოს იმ ფილიალს, სადაც განხორციელდა შეძენა, ან დაუკავშირდეს კომპანიის წარმომადგენელს.</p>
+                        <p>{{ $t('pol.terms.exchangeOutro') }}</p>
                     </div>
 
                     <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">პროდუქციის დაბრუნება</h3>
-                        <p>მომხმარებელს უფლება აქვს დააბრუნოს შეძენილი პროდუქცია შეძენიდან 14 კალენდარული დღის განმავლობაში, თუ დაცულია შემდეგი პირობები:</p>
+                        <h3 class="font-semibold text-gray-800 mb-2">{{ $t('pol.terms.returnH') }}</h3>
+                        <p>{{ $t('pol.terms.returnIntro') }}</p>
                         <ul class="space-y-1.5 mt-2 mb-3">
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>პროდუქცია არ არის გამოყენებული;</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>შენარჩუნებულია პროდუქტის პირვანდელი მდგომარეობა;</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>არ არის დაზიანებული შეფუთვა;</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>შენარჩუნებულია ქარხნული იარლიყები, სტიკერები და დამცავი ელემენტები;</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>პროდუქციას არ აღენიშნება ექსპლუატაციის ან მექანიკური დაზიანების კვალი.</li>
+                            <li v-for="(item, i) in list('returnItems')" :key="`r${i}`" class="flex items-start gap-2">
+                                <span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>{{ item }}
+                            </li>
                         </ul>
-                        <p>კომპანია იტოვებს უფლებას უარი თქვას დაბრუნებაზე, თუ პროდუქცია არ აკმაყოფილებს ზემოთ ჩამოთვლილ პირობებს.</p>
+                        <p>{{ $t('pol.terms.returnOutro') }}</p>
                     </div>
 
                     <div class="rounded-xl border border-gray-200 p-4">
-                        <h3 class="font-semibold text-gray-800 mb-2">შეკვეთის შენახვის პირობები</h3>
-                        <p>
-                            იმ შემთხვევაში, თუ მომხმარებელმა შეკვეთის გაფორმებისას აირჩია თვითგატანის სერვისი
-                            და შეკვეთა სრულად არის გადახდილი, კომპანია უზრუნველყოფს პროდუქციის შენახვას
-                            5 სამუშაო დღის განმავლობაში.
-                        </p>
-                        <p class="mt-3">
-                            თუ აღნიშნულ ვადაში მომხმარებელი არ გამოცხადდება შეკვეთის გასატანად და წინასწარ
-                            არ შეათანხმებს შენახვის ვადის გაგრძელებას, Sonniva Georgia უფლებას იტოვებს:
-                        </p>
+                        <h3 class="font-semibold text-gray-800 mb-2">{{ $t('pol.terms.storageH') }}</h3>
+                        <p>{{ $t('pol.terms.storageP1') }}</p>
+                        <p class="mt-3">{{ $t('pol.terms.storageIntro') }}</p>
                         <ul class="space-y-1.5 mt-2">
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>გააუქმოს შეკვეთა;</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>დააბრუნოს პროდუქცია საწყობის მარაგში;</li>
-                            <li class="flex items-start gap-2"><span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>საჭიროების შემთხვევაში დააკისროს დამატებითი შენახვის საფასური.</li>
+                            <li v-for="(item, i) in list('storageItems')" :key="`s${i}`" class="flex items-start gap-2">
+                                <span class="mt-2 w-1.5 h-1.5 rounded-full bg-brand-500 shrink-0"></span>{{ item }}
+                            </li>
                         </ul>
                     </div>
                 </div>

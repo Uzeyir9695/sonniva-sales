@@ -34,16 +34,16 @@ async function resendCode(){
 
 <template>
     <Head>
-        <title>ტელეფონის იდენტიფიცირება</title>
+        <title>{{ $t('auth.verifyPhoneTitle') }}</title>
     </Head>
 
     <div class="bg-white flex flex-col justify-evenly mx-3 sm:mx-auto shadow-lg rounded-xl border border-slate-200 mt-8 w-full sm:w-[450px] h-[400px]">
         <form @submit.prevent="verifyPhone" class="flex flex-col p-8 gap-6 self-center">
             <div class="flex flex-col items-center">
-                <p class="text-surface-500 dark:text-surface-400 block mb-8">შეიყვანე 6 ნიშნა კოდი</p>
+                <p class="text-surface-500 dark:text-surface-400 block mb-8">{{ $t('auth.enterSixDigitCode') }}</p>
                 <InputOtp v-model="form.otp" :length="6" />
                 <div class="flex justify-between mt-8 self-stretch">
-                    <Button label="ხელახლა გაგზავნა" @click="resendCode" link class="p-0"></Button>
+                    <Button :label="$t('auth.resendCode')" @click="resendCode" link class="p-0"></Button>
                 </div>
             </div>
             <div class="flex xs:flex-col gap-2 sm:justify-between sm:items-center">
@@ -51,7 +51,7 @@ async function resendCode(){
                     :disabled="form.processing"
                     type="submit"
                     class="custom-button w-full"
-                    :label="form.processing ? 'გთხოვ დაიცადო...' : 'დადასტურება'"
+                    :label="form.processing ? $t('common.pleaseWait') : $t('auth.confirm')"
                     size="medium"
                     :icon="form.processing ? 'pi pi-spin pi-spinner' :'pi pi-check-circle'"
                 />

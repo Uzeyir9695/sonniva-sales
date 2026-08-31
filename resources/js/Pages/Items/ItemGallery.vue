@@ -48,7 +48,7 @@ const slides = computed(() => {
             class="w-full rounded-3xl border border-gray-100 shadow-sm h-[270px] sm:h-[500px] bg-gray-50 flex flex-col items-center justify-center gap-3 text-gray-300"
         >
             <i class="pi pi-image text-6xl"></i>
-            <span class="text-sm">სურათი არ არის</span>
+            <span class="text-sm">{{ $t('gallery.noImage') }}</span>
         </div>
 
         <!-- Main Swiper -->

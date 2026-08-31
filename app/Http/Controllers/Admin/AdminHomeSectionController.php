@@ -11,7 +11,6 @@ use App\Models\HomeSection;
 use App\Models\HomeSectionImage;
 use App\Models\Item;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class AdminHomeSectionController extends Controller
@@ -19,7 +18,7 @@ class AdminHomeSectionController extends Controller
     public function store(HomeSectionRequest $request): RedirectResponse
     {
         HomeSection::create($request->validated());
-        Cache::forget('home_sections');
+        HomeSection::flushCache();
 
         return back()->with('message', 'Section created.');
     }
@@ -27,7 +26,7 @@ class AdminHomeSectionController extends Controller
     public function update(HomeSectionRequest $request, HomeSection $homeSection): RedirectResponse
     {
         $homeSection->update($request->validated());
-        Cache::forget('home_sections');
+        HomeSection::flushCache();
 
         return back()->with('message', 'Section updated.');
     }
@@ -35,7 +34,7 @@ class AdminHomeSectionController extends Controller
     public function toggleHidden(HomeSection $homeSection): RedirectResponse
     {
         $homeSection->update(['is_hidden' => ! $homeSection->is_hidden]);
-        Cache::forget('home_sections');
+        HomeSection::flushCache();
 
         return back()->with('message', 'Visibility updated.');
     }
@@ -44,7 +43,7 @@ class AdminHomeSectionController extends Controller
     {
         $homeSection->images->each(fn (HomeSectionImage $image) => Storage::disk('public')->delete($image->image_path));
         $homeSection->delete();
-        Cache::forget('home_sections');
+        HomeSection::flushCache();
 
         return back()->with('message', 'Section deleted.');
     }
@@ -52,7 +51,7 @@ class AdminHomeSectionController extends Controller
     public function attachItem(AttachHomeSectionItemRequest $request, HomeSection $homeSection): RedirectResponse
     {
         $homeSection->items()->syncWithoutDetaching([$request->validated('item_id')]);
-        Cache::forget('home_sections');
+        HomeSection::flushCache();
 
         return back()->with('message', 'Item added.');
     }
@@ -60,7 +59,7 @@ class AdminHomeSectionController extends Controller
     public function detachItem(HomeSection $homeSection, Item $item): RedirectResponse
     {
         $homeSection->items()->detach($item->id);
-        Cache::forget('home_sections');
+        HomeSection::flushCache();
 
         return back()->with('message', 'Item removed.');
     }
@@ -75,7 +74,7 @@ class AdminHomeSectionController extends Controller
             'link_url' => $request->validated('link_url'),
         ]);
 
-        Cache::forget('home_sections');
+        HomeSection::flushCache();
 
         return back()->with('message', 'Image uploaded.');
     }
@@ -83,7 +82,7 @@ class AdminHomeSectionController extends Controller
     public function updateImage(UpdateHomeSectionImageRequest $request, HomeSection $homeSection, HomeSectionImage $homeSectionImage): RedirectResponse
     {
         $homeSectionImage->update($request->validated());
-        Cache::forget('home_sections');
+        HomeSection::flushCache();
 
         return back()->with('message', 'Image updated.');
     }
@@ -92,7 +91,7 @@ class AdminHomeSectionController extends Controller
     {
         Storage::disk('public')->delete($homeSectionImage->image_path);
         $homeSectionImage->delete();
-        Cache::forget('home_sections');
+        HomeSection::flushCache();
 
         return back()->with('message', 'Image deleted.');
     }

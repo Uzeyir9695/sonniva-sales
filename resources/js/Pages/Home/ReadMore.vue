@@ -3,12 +3,12 @@ import { Head } from '@inertiajs/vue3'
 </script>
 
 <template>
-    <Head title="ჩვენს შესახებ">
-        <meta name="description" content="გაიგეთ მეტი Sonniva-ს შესახებ - ავეჯის ფიტინგებისა და სამშენებლო მასალების წამყვანი მომწოდებელი საქართველოში." />
+    <Head :title="$t('seo.aboutTitle')">
+        <meta name="description" :content="$t('seo.aboutDescription')" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Sonniva" />
-        <meta property="og:title" content="ჩვენს შესახებ - Sonniva" />
-        <meta property="og:description" content="გაიგეთ მეტი Sonniva-ს შესახებ - ავეჯის ფიტინგებისა და სამშენებლო მასალების წამყვანი მომწოდებელი საქართველოში." />
+        <meta property="og:title" :content="`${$t('seo.aboutTitle')} - Sonniva`" />
+        <meta property="og:description" :content="$t('seo.aboutDescription')" />
         <meta property="og:url" :content="$page.props.ziggy.location" />
         <meta property="og:image" :content="`${$page.props.ziggy.url}/logo/logo.png`" />
     </Head>

@@ -48,7 +48,7 @@ function onLinkClick(link) {
         type="button"
         v-bind="$attrs"
         @click.stop="dialogVisible = true"
-        aria-label="გაზიარება"
+        :aria-label="$t('share.share')"
         :class="[
             buttonSizeClass,
             'cursor-pointer inline-flex items-center justify-center rounded-full shadow-md',
@@ -74,7 +74,7 @@ function onLinkClick(link) {
         @click.stop
     >
         <template #header>
-            <span class="text-base font-bold text-gray-900">გააზიარეთ</span>
+            <span class="text-base font-bold text-gray-900">{{ $t('share.shareHeading') }}</span>
         </template>
 
         <div class="grid grid-cols-4 gap-1 pt-1 pb-2">
@@ -101,7 +101,7 @@ function onLinkClick(link) {
                 <span :class="['w-12 h-12 rounded-full flex items-center justify-center text-white shadow-sm transition-colors', copied ? 'bg-emerald-500' : 'bg-gray-700']">
                     <i :class="['pi text-lg', copied ? 'pi-check' : 'pi-copy']"></i>
                 </span>
-                <span class="text-[11px] text-gray-600 font-medium text-center leading-tight">{{ copied ? 'დაკოპირდა!' : 'ბმულის კოპირება' }}</span>
+                <span class="text-[11px] text-gray-600 font-medium text-center leading-tight">{{ copied ? $t('share.copied') : $t('share.copyLink') }}</span>
             </button>
         </div>
     </Dialog>

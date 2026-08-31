@@ -4,8 +4,8 @@ import {Link, usePage} from '@inertiajs/vue3';
 import SmallDeviceMegaMenu from '@/Shared/menu/SmallDeviceMegaMenu.vue';
 import SearchBar from '@/Shared/components/SearchBar.vue';
 import WishlistNavIcon from '@/Shared/components/WishlistNavIcon.vue';
+import LocaleSwitcher from '@/Shared/components/LocaleSwitcher.vue';
 import CartNavIcon from '@/Shared/components/CartNavIcon.vue';
-import WeglotSwitcher from '@/Shared/components/WeglotSwitcher.vue';
 import UserMenu from '@/Shared/components/UserMenu.vue';
 import DotsMenu from '@/Shared/components/DotsMenu.vue';
 import NavbarContactMenu from '@/Shared/components/NavbarContactMenu.vue';
@@ -45,7 +45,7 @@ const openSearch = async () => {
                 <template v-if="searchOpen">
                     <div class="flex lg:hidden items-center w-full gap-1">
                         <div class="flex-1">
-                            <SearchBar @close="searchOpen = false" placeholder="რას ეძებთ?" />
+                            <SearchBar @close="searchOpen = false" :placeholder="$t('common.searchShort')" />
                         </div>
                         <button @click="searchOpen = false" class="p-2 text-gray-500 hover:text-gray-900">
                             <i class="pi pi-times text-"></i>
@@ -92,7 +92,7 @@ const openSearch = async () => {
                     </Link>
 
                     <div class="hidden lg:flex flex-4">
-                        <SearchBar placeholder="მოძებნე ის რაც გჭირდება..." />
+                        <SearchBar />
                     </div>
 
 <!--                    <a href="tel:+995591047372" class="hidden lg:flex items-center gap-2 text-gray-600 hover:text-gray-900 shrink-0">-->
@@ -101,7 +101,7 @@ const openSearch = async () => {
 <!--                    </a>-->
 
                     <div class="hidden lg:flex items-center gap-1 shrink-0">
-                        <WeglotSwitcher />
+                        <LocaleSwitcher />
 
                         <WishlistNavIcon></WishlistNavIcon>
 

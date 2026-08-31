@@ -47,10 +47,6 @@ return [
         ],
     ],
 
-    'weglot' => [
-        'api_key' => env('WEGLOT_API_KEY'),
-    ],
-
     'mobile_app' => [
         // Must match the sonniva-mobile app's NATIVEPHP_DEEPLINK_SCHEME —
         // used to hand off from the payment bridge page back into the app.

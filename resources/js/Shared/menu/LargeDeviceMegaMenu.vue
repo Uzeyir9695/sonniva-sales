@@ -85,7 +85,7 @@ const categoryIcons = {
                     :href="route('items.index', activeCategory.slug)"
                     class="text-brand-500 text-sm font-semibold hover:text-brand-600 flex items-center gap-1"
                 >
-                    ყველას ნახვა <i class="pi pi-arrow-right text-xs!"></i>
+                    {{ $t('common.viewAll') }} <i class="pi pi-arrow-right text-xs!"></i>
                 </Link>
             </div>
 

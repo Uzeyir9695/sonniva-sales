@@ -116,11 +116,6 @@ const ogImage = computed(() => {
                             />
                         </template>
                     </ItemGallery>
-<!--                    <Link  class="absolute bottom-4 right-4 flex items-center gap-x-2 bg-blue-500 text-sm sm:text-base text-white px-3 sm:px-5 py-1.5 rounded-lg shadow-md hover:bg-blue-600 transition-colors z-10">-->
-<!--                        <i class="pi pi-external-link text-sm sm:text-base"></i>-->
-<!--                        <span>მინდა დაჭრა</span>-->
-<!--                    </Link>-->
-
                 </div>
 
                 <!-- ========== RIGHT: DETAILS ========== -->
@@ -136,7 +131,7 @@ const ogImage = computed(() => {
                         >
                             <div v-if="inStock" class="w-2 h-2 rounded-full bg-emerald-700 animate-pulse"></div>
                             <div v-if="!inStock" class="w-2 h-2 rounded-full bg-red-500"></div>
-                            <span>{{ inStock ? 'მარაგშია' : 'მარაგში არ არის' }}</span>
+                            <span>{{ inStock ? $t('common.inStock') : $t('common.outOfStock') }}</span>
                         </div>
 
                         <div class="flex items-center gap-3">
@@ -157,7 +152,7 @@ const ogImage = computed(() => {
                         </p>
                         <div
                             @click="copyNo(item.no)"
-                            v-tooltip.bottom="'დააკოპირე პროდუქტის კოდი'"
+                            v-tooltip.bottom="$t('item.copyCode')"
                             class="flex items-center justify-center w-5 h-5 cursor-pointer"
                         >
                             <i v-if="copiedNo" class="pi pi-check text-emerald-500 text-xs"></i>
@@ -170,7 +165,7 @@ const ogImage = computed(() => {
                         </h1>
                         <div
                             @click="copyName(item.name)"
-                            v-tooltip.bottom="'დააკოპირე პროდუქტის სახელი'"
+                            v-tooltip.bottom="$t('item.copyName')"
                             class="flex items-center justify-center w-5 h-5 cursor-pointer shrink-0"
                         >
                             <i v-if="copiedName" class="pi pi-check text-emerald-500 text-xs"></i>
@@ -210,7 +205,7 @@ const ogImage = computed(() => {
                                 <div class="flex-1 flex flex-col sm:flex-row items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-2 sm:px-4 py-3">
                                     <div class="flex items-center gap-2 text-nowrap">
                                         <i class="pi pi-warehouse text-brand-500 text-sm"></i>
-                                        <span class="text-xs sm:text-sm text-gray-500">ავჭალის ფილიალი</span>
+                                        <span class="text-xs sm:text-sm text-gray-500">{{ $t('item.branchAvchala') }}</span>
                                     </div>
                                     <span class="text-sm font-semibold text-gray-800">{{ inventory.shop2Total }}</span>
                                 </div>
@@ -218,7 +213,7 @@ const ogImage = computed(() => {
                                 <div class="flex-1 flex flex-col sm:flex-row items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-2 sm:px-4 py-3">
                                     <div class="flex items-center gap-2 text-nowrap">
                                         <i class="pi pi-warehouse text-brand-500 text-sm"></i>
-                                        <span class="text-xs sm:text-sm text-gray-500">დიდუბის ფილიალი</span>
+                                        <span class="text-xs sm:text-sm text-gray-500">{{ $t('item.branchDidube') }}</span>
                                     </div>
                                     <span class="text-sm font-semibold text-gray-800">{{ inventory.shop1Total }}</span>
                                 </div>
@@ -230,18 +225,18 @@ const ogImage = computed(() => {
                         <div v-if="(price.priceGroup === 'VIP' && $page.props.user?.can_view_vip) || (price.priceGroup !== 'VIP' && $page.props.user?.can_view_wholesales)" class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 mb-2 hover:border-brand-200 hover:bg-brand-50/30 transition-all duration-150">
                             <div class="flex-1">
                                 <p class="text-sm font-semibold text-gray-800 mb-1">
-                                    {{ price.priceGroup === 'VIP' ? 'VIP' : price.priceGroup === 'Wholesales' ? 'საბითუმო' : (item?.unit_price === '0.00' ? 'შეკვრა' : 'საცალო')}}
+                                    {{ price.priceGroup === 'VIP' ? 'VIP' : price.priceGroup === 'Wholesales' ? $t('item.wholesale') : (item?.unit_price === '0.00' ? $t('item.pack') : $t('item.retail'))}}
                                 </p>
                                 <div v-if="price.custMinQuantity > 0" class="flex items-center gap-1.5">
                                     <p class="text-sm text-gray-500">
-                                        ფასი ვრცელდება
+                                        {{ $t('item.priceAppliesFrom') }}
                                         <span class="text-sm mx-1 text-gray-600 font-semibold">{{ price.custMinQuantity }}</span>
-                                        {{ item?.unit_price === '0.00' ? 'შეკვრის შეძენის შემთხვევაში' : 'ცალის შეძენის შემთხვევაში' }}
+                                        {{ item?.unit_price === '0.00' ? $t('item.perPackPurchase') : $t('item.perUnitPurchase') }}
                                     </p>
                                 </div>
                             </div>
                             <div class="text-right ml-4">
-                                <p class="text-xs text-gray-400 mb-0.5">{{ item.unit_price === '0.00' ? 'შეკვრის ფასი' : 'ცალის ფასი'}}</p>
+                                <p class="text-xs text-gray-400 mb-0.5">{{ item.unit_price === '0.00' ? $t('item.packPrice') : $t('item.unitPrice')}}</p>
                                 <div class="flex items-center gap-2">
                                     <p class="text-brand-500 font-bold text-xl">
                                         {{ Number(discountedTierPrice(item, price)).toFixed(2) }}<span class="text-sm ml-0.5">₾</span>
@@ -260,7 +255,7 @@ const ogImage = computed(() => {
 
                     <!-- Package price selector (only for unit_price = 0 items) -->
                     <div v-if="isPackageItem" class="mb-6">
-                        <p class="text-xs text-gray-400 mb-2">აირჩიეთ შეკვრა</p>
+                        <p class="text-xs text-gray-400 mb-2">{{ $t('item.choosePack') }}</p>
                         <div class="flex flex-wrap gap-2">
                             <button
                                 v-for="entry in prices"
@@ -294,7 +289,7 @@ const ogImage = computed(() => {
                     >
                         <div class="flex items-center gap-2">
                             <i class="pi pi-wrench text-brand-500"></i>
-                            <span class="text-sm font-medium text-gray-800">მონტაჟის სერვისი</span>
+                            <span class="text-sm font-medium text-gray-800">{{ $t('item.setupService') }}</span>
                             <span class="text-sm text-gray-400">+{{ item.setup_service_price }} ₾</span>
                         </div>
                         <ToggleSwitch v-model="withService" />
@@ -347,7 +342,7 @@ const ogImage = computed(() => {
                                 hover:bg-brand-400 disabled:cursor-not-allowed active:scale-[0.98] transition-all shadow-md"
                             >
                                 <i :class="['lg:mr-2', isInCart(item.id) ? 'pi pi-shopping-cart' : 'pi pi-cart-plus']"></i>
-                                კალათაში დამატება
+                                {{ $t('common.addToCart') }}
 
                                 <!-- Badge -->
                                 <CartCountBadge class="sm:min-w-5! sm:h-5! min-w-4! h-4!" :item="item" />
@@ -355,25 +350,15 @@ const ogImage = computed(() => {
                         </div>
 
                         <p v-if="overLimit" class="text-xs text-red-600">
-                            ხელმისაწვდომი რაოდენობაა {{ item.inventory }}
+                            {{ $t('cart.availableQty', { count: item.inventory }) }}
                         </p>
 
                         <div class="mt-8 space-y-3">
                             <!-- Buy Now -->
                             <button v-if="inStock" @click="buyNow(item.id, quantity, selectedEntry?.UOM ?? null, withService)" class="w-full py-2.5 rounded-2xl max-sm:text-sm cursor-pointer border border-gray-500 text-gray-900 font-semibold hover:bg-gray-800 hover:text-white active:scale-[0.98] transition-all" >
                                 <i class="pi pi-bolt mr-2"></i>
-                                ახლავე შეძენა
+                                {{ $t('item.buyNow') }}
                             </button>
-
-                            <!-- Require Order -->
-<!--                            <button-->
-<!--                                v-if="!inStock"-->
-<!--                                @click="showWhatsappDialog = true"-->
-<!--                                class="w-full py-2.5 rounded-2xl max-sm:text-sm flex items-center justify-center gap-2 bg-slate-700 cursor-pointer border border-slate-800 text-white font-bold hover:bg-slate-800 active:scale-[0.98] transition-all"-->
-<!--                            >-->
-<!--                                <i class="pi pi-file-edit"></i>-->
-<!--                                მოითხოვე შეკვეთა-->
-<!--                            </button>-->
 
                             <!-- Notify when back in stock -->
                             <StockNotifyButton
@@ -391,7 +376,7 @@ const ogImage = computed(() => {
                             <template #header>
                                 <div class="flex items-center gap-2">
                                     <i class="pi pi-truck text-brand-500"></i>
-                                    <span class="text-sm font-semibold text-gray-800">მიწოდება</span>
+                                    <span class="text-sm font-semibold text-gray-800">{{ $t('item.delivery') }}</span>
                                 </div>
                             </template>
                             <template #toggleicon="{ collapsed }">
@@ -401,23 +386,22 @@ const ogImage = computed(() => {
                                 <li class="flex gap-2">
                                     <span class="text-brand-500">→</span>
                                     <span>
-                                        <strong>თვითგატანა ოფისიდან:</strong>
-                                        უფასო. გატანის წერტილი
+                                        <strong>{{ $t('item.deliverySelfPickup') }}</strong>
+                                        {{ $t('item.deliverySelfPickupText') }}
                                     <a href="https://maps.app.goo.gl/3YwH55CnhUUfJoYQ9" target="_blank" class="text-blue-500 hover:underline">
-                                        რუკაზე
+                                        {{ $t('item.onMap') }}
                                     </a>
                                 </span>
                                 </li>
-                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>მიწოდება თბილისში: 500+ ₾ უფასო </span></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>{{ $t('item.deliveryTbilisi') }}</span></li>
                                 <li class="flex gap-2">
                                     <span class="text-brand-500">→</span>
                                     <span>
-                                        მიწოდება რეგიონებში:
-                                        <Link :href="route('delivery-rates')" class="text-blue-500 hover:underline">იხილეთ მიწოდების ტარიფები</Link>
+                                        {{ $t('item.deliveryRegions') }}
+                                        <Link :href="route('delivery-rates')" class="text-blue-500 hover:underline">{{ $t('item.seeDeliveryRates') }}</Link>
                                     </span>
                                 </li>
-<!--                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>13:00 საათამდე გაფორმებულ შეკვეთებს თბილისში გაწვდით იმავე დღეს!</span></li>-->
-                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>მიტანის სერვისის ფარგლებში პროდუქციის მანქანიდან ჩამოტვირთვა და სართულზე ატანა არ შედის მომსახურებაში.</span></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>{{ $t('item.deliveryUnloadNote') }}</span></li>
                             </ul>
                         </Panel>
 
@@ -425,15 +409,15 @@ const ogImage = computed(() => {
                             <template #header>
                                 <div class="flex items-center gap-2">
                                     <i class="pi pi-credit-card text-brand-500"></i>
-                                    <span class="text-sm font-semibold text-gray-800">გადახდის მეთოდები</span>
+                                    <span class="text-sm font-semibold text-gray-800">{{ $t('item.paymentMethods') }}</span>
                                 </div>
                             </template>
                             <template #toggleicon="{ collapsed }">
                                 <i :class="['pi text-xs text-gray-400', collapsed ? 'pi-plus' : 'pi-minus']"></i>
                             </template>
                             <ul class="space-y-2 text-xs text-gray-600">
-                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>ბარათებით Visa, MasterCard, ლოიალობის ქულებით</span></li>
-                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>საბანკო გადარიცხვით</span></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>{{ $t('item.paymentCards') }}</span></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>{{ $t('item.paymentBankTransfer') }}</span></li>
                            </ul>
                         </Panel>
 
@@ -457,7 +441,7 @@ const ogImage = computed(() => {
                                     pt:root:class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition"
                                     pt:selected:class="text-gray-900"
                                 >
-                                    მახასიათებლები
+                                    {{ $t('item.specifications') }}
                                 </Tab>
 
                                 <Tab
@@ -465,7 +449,7 @@ const ogImage = computed(() => {
                                     pt:root:class="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-900 transition"
                                     pt:selected:class="text-gray-900"
                                 >
-                                    აღწერა
+                                    {{ $t('item.descriptionTab') }}
                                 </Tab>
                             </TabList>
 
@@ -486,7 +470,7 @@ const ogImage = computed(() => {
                                     </div>
 
                                     <div v-else class="text-sm text-gray-400 italic">
-                                        მახასიათებლები არ არის მითითებული.
+                                        {{ $t('item.noSpecifications') }}
                                     </div>
                                 </TabPanel>
 
@@ -496,7 +480,7 @@ const ogImage = computed(() => {
                                         {{ item.description }}
                                     </div>
                                     <div v-else class="text-sm text-gray-400 italic">
-                                        აღწერა არ არის მითითებული.
+                                        {{ $t('item.noDescription') }}
                                     </div>
                                 </TabPanel>
 

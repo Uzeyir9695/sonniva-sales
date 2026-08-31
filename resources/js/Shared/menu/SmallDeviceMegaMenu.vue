@@ -1,10 +1,13 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { Link } from '@inertiajs/vue3'
 import { onClickOutside } from '@vueuse/core'
 import LogoutButton from '@/Shared/components/LogoutButton.vue';
-import WeglotSwitcher from '@/Shared/components/WeglotSwitcher.vue';
+import LocaleSwitcher from '@/Shared/components/LocaleSwitcher.vue';
 import { CATEGORY_ICON_VERSION } from '@/constants/categoryIcons.js';
+
+const { t } = useI18n();
 
 const props = defineProps({
     categories: Array,
@@ -43,7 +46,7 @@ const currentItems = computed(() => {
 })
 
 const currentTitle = computed(() => {
-    if (stack.value.length === 0) return 'აირჩიე კატეგორია'
+    if (stack.value.length === 0) return t('nav.chooseCategory')
     return stack.value[stack.value.length - 1].name
 })
 
@@ -117,7 +120,7 @@ defineExpose({ openDrawer })
                 class="fixed top-16 sm:top-20 left-0 z-50 h-[calc(100dvh-60px)] w-full sm:w-80 bg-white shadow-2xl flex flex-col"
             >
                 <div class="bg-gray-50 shado w-full sm:w-xs flex items-center justify-between px-4 py-4 border-y border-gray-100 sm:hidden">
-                    <WeglotSwitcher />
+                    <LocaleSwitcher />
                     <LogoutButton />
                 </div>
 
@@ -147,9 +150,7 @@ defineExpose({ openDrawer })
                                 @click="closeDrawer"
                                 class="w-full flex items-center gap-2 px-5 py-3.5 rounded-xl hover:bg-gray-50 text-brand-500 font-semibold text-sm mb-1"
                             >
-                                <i class="pi pi-th-large text-xs"></i>
-                                ყველას ნახვა
-                            </Link>
+                                <i class="pi pi-th-large text-xs"></i> {{ $t('common.viewAll') }} </Link>
 
                             <!-- Level 0: main categories — full width, no grid, no images -->
                             <template v-if="stack.length === 0">

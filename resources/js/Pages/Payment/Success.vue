@@ -19,17 +19,17 @@ onMounted(() => syncFromServer())
                 <i class="pi pi-check text-white text-2xl"></i>
             </div>
 
-            <h1 class="text-xl font-bold text-gray-900 mb-2">გადახდა წარმატებით შესრულდა</h1>
+            <h1 class="text-xl font-bold text-gray-900 mb-2">{{ $t('payment.successTitle') }}</h1>
 
             <p v-if="invoiceNumber" class="text-sm text-gray-500 mb-1">
-                შეკვეთის ნომერი
+                {{ $t('common.orderNumber') }}
             </p>
             <p v-if="invoiceNumber" class="text-lg font-bold mb-6">
                 #{{ invoiceNumber }}
             </p>
 
             <p class="text-sm text-gray-400 mb-8">
-                დადასტურების წერილი გამოგზავნილია თქვენს ელ-ფოსტაზე.
+                {{ $t('payment.confirmationEmailSent') }}
             </p>
 
             <div class="space-y-3">
@@ -37,7 +37,7 @@ onMounted(() => syncFromServer())
                     :href="route('home')"
                     class="block w-full bg-green-500 hover:bg-green-400 text-white font-semibold py-3 rounded-xl transition-colors text-sm"
                 >
-                    მთავარზე დაბრუნება
+                    {{ $t('common.backToHome') }}
                 </Link>
             </div>
         </div>

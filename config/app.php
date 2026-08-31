@@ -78,11 +78,22 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'ka'),
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'ka'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+
+    /*
+    | Locales the site is served in. 'default_locale' is served on bare URLs;
+    | every other supported locale is served under its own URL prefix
+    | (/en, /ru, /tr) via the route clones registered in bootstrap/app.php.
+    | 'default_locale' is a stable copy of the app locale — App::setLocale()
+    | mutates 'locale' at runtime, so comparisons must not rely on it.
+    */
+    'default_locale' => env('APP_LOCALE', 'ka'),
+
+    'supported_locales' => ['ka', 'en', 'ru', 'tr'],
 
     /*
     |--------------------------------------------------------------------------

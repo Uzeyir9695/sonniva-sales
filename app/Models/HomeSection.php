@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 
 class HomeSection extends Model
 {
@@ -16,6 +17,13 @@ class HomeSection extends Model
     protected function casts(): array
     {
         return ['is_hidden' => 'boolean'];
+    }
+
+    public static function flushCache(): void
+    {
+        foreach (['', ...config('app.supported_locales', [])] as $locale) {
+            Cache::forget('home_sections'.($locale ? '_'.$locale : ''));
+        }
     }
 
     public function items(): BelongsToMany

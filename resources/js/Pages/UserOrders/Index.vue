@@ -24,14 +24,14 @@ const statusSeverity = {
     cancelled:  'danger',
 };
 
-const statusLabel = {
-    pending:    'დაუდასტურებელი',
-    paid:       'გადახდილი',
-    ready:      'მზადაა',
-    dispatched: 'გაგზავნილია',
-    delivered:  'ჩაბარებულია',
-    cancelled:  'უარყოფილი',
-    limit:      'ლიმიტი',
+const statusLabelKey = {
+    pending:    'orders.status.pending',
+    paid:       'orders.status.paid',
+    ready:      'orders.status.ready',
+    dispatched: 'orders.status.dispatched',
+    delivered:  'orders.status.delivered',
+    cancelled:  'orders.status.cancelled',
+    limit:      'orders.status.limit',
 };
 
 function visibleImages(order) {
@@ -48,13 +48,13 @@ function imageUrl(orderItem) {
 </script>
 
 <template>
-    <Head title="ჩემი შეკვეთები" />
+    <Head :title="$t('orders.title')" />
 
     <OrderDetailDialog ref="detailDialog" />
     <ReorderDialog ref="reorderDialog" />
 
     <div class="py-8 px-4">
-        <h1 class="text-xl font-semibold text-gray-800 mb-6">ჩემი შეკვეთები</h1>
+        <h1 class="text-xl font-semibold text-gray-800 mb-6">{{ $t('orders.title') }}</h1>
 
         <Deferred :data="['orders', 'ordersSummary']">
             <template #fallback>
@@ -89,20 +89,20 @@ function imageUrl(orderItem) {
             >
                 <div class="flex items-start gap-2">
                     <i class="pi pi-info-circle mt-0.5 shrink-0"></i>
-                    <span>შეკვეთის სტატუსისა და მიწოდების ინფორმაციის სანახავად გადადით ვებგვერდზე და შეიყვანეთ თრექინგის ნომერი.</span>
+                    <span>{{ $t('orders.trackingBanner') }}</span>
                 </div>
                 <a href="https://onway.ge/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 font-semibold underline underline-offset-5 shrink-0">
                     <i class="pi pi-external-link text-xs"></i>
-                    <span>სტატუსის შემოწმება</span>
+                    <span>{{ $t('orders.checkStatus') }}</span>
                 </a>
             </div>
 
             <div class="flex items-center justify-between gap-2 mb-4 flex-wrap">
                 <span class="font-semibold text-gray-700 text-sm">
-                    {{ orders.total ?? orders.data.length }} შეკვეთა
+                    {{ $t('orders.orderCount', { count: orders.total ?? orders.data.length }) }}
                 </span>
                 <div v-if="ordersSummary" class="flex flex-col items-end gap-1.5 text-sm">
-                    <h5 class="font-semibold">ჯამური თანხა</h5>
+                    <h5 class="font-semibold">{{ $t('orders.totalAmount') }}</h5>
                     <div class="flex items-center gap-1.5">
                         <span v-if="ordersSummary.discount > 0" class="line-through text-gray-400 text-xs">
                         {{ (ordersSummary.total + ordersSummary.discount).toFixed(2) }} ₾
@@ -123,10 +123,10 @@ function imageUrl(orderItem) {
                 >
                     <div class="flex items-start justify-between gap-2">
                         <div>
-                            <p class="text-xs text-gray-400">შეკვეთის №</p>
+                            <p class="text-xs text-gray-400">{{ $t('orders.orderNo') }}</p>
                             <p class="font-mono text-sm font-semibold text-gray-800">{{ order.invoice_no ?? '—' }}</p>
                         </div>
-                        <Tag :value="statusLabel[order.status] ?? order.status" :severity="statusSeverity[order.status]" />
+                        <Tag :value="statusLabelKey[order.status] ? $t(statusLabelKey[order.status]) : order.status" :severity="statusSeverity[order.status]" />
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -157,16 +157,16 @@ function imageUrl(orderItem) {
                                 +{{ remainingItemCount(order) }}
                             </div>
                         </template>
-                        <span v-else class="text-xs text-gray-300">პროდუქტები არ მოიძებნა</span>
+                        <span v-else class="text-xs text-gray-300">{{ $t('orders.noProducts') }}</span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-y-2 gap-x-3 text-sm border-t border-gray-100 pt-3">
                         <div>
-                            <p class="text-xs text-gray-400">თარიღი</p>
+                            <p class="text-xs text-gray-400">{{ $t('orders.date') }}</p>
                             <p class="text-gray-700">{{ order.created_at }}</p>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-400">სულ</p>
+                            <p class="text-xs text-gray-400">{{ $t('common.total') }}</p>
                             <div v-if="order.discount_total > 0" class="flex flex-col gap-0.5">
                                 <span class="line-through text-gray-400 text-xs">{{ (Number(order.total) + Number(order.discount_total)).toFixed(2) }} ₾</span>
                                 <span class="font-semibold text-gray-900">{{ order.total }} ₾</span>
@@ -175,14 +175,14 @@ function imageUrl(orderItem) {
                             <p v-else class="font-semibold text-gray-900">{{ order.total }} ₾</p>
                         </div>
                         <div v-if="order.tracking_number" class="col-span-2">
-                            <p class="text-xs text-gray-400">თრექინგის ნომერი</p>
+                            <p class="text-xs text-gray-400">{{ $t('orders.trackingNumber') }}</p>
                             <p class="font-mono text-gray-700">{{ order.tracking_number }}</p>
                         </div>
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-center justify-between flex-wrap gap-2 mt-auto pt-1">
                         <Button
-                            label="დეტალები"
+                            :label="$t('orders.details')"
                             icon="pi pi-eye"
                             size="small"
                             severity="secondary"
@@ -190,7 +190,7 @@ function imageUrl(orderItem) {
                             @click="detailDialog.open(order.id)"
                         />
                         <Button
-                            label="თავიდან შეკვეთა"
+                            :label="$t('orders.reorder')"
                             icon="pi pi-refresh"
                             size="small"
                             severity="secondary"
@@ -203,7 +203,7 @@ function imageUrl(orderItem) {
 
             <div v-else class="flex flex-col items-center justify-center h-60 bg-white rounded-2xl border border-gray-100 shadow-sm">
                 <i class="pi pi-inbox text-5xl text-gray-300 mb-3"></i>
-                <p class="text-gray-500">შეკვეთები არ მოიძებნა.</p>
+                <p class="text-gray-500">{{ $t('orders.noOrders') }}</p>
             </div>
 
             <Paginate :data="orders" class="mt-4" />

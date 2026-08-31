@@ -1,17 +1,19 @@
 <script setup>
 import {Head, Link, useForm, usePage} from '@inertiajs/vue3';
 import { Divider } from 'primevue';
-import {ref} from "vue";
+import {computed, ref} from "vue";
+import { useI18n } from 'vue-i18n';
 
+const { t } = useI18n();
 const props = defineProps(['errors']);
 const page = usePage();
 const recaptchaSiteKey = page.props.recaptcha_site_key;
 
-const userTypes = ref([
-    { key: 'individual', value: 'ფიზიკური პირი' },
-    { key: 'legal_entity', value: 'იურიდიული პირი' },
+const userTypes = computed(() => [
+    { key: 'individual', value: t('auth.individual') },
+    { key: 'legal_entity', value: t('auth.legalEntity') },
 ]);
-const selectedUserType = ref({ key: 'individual', value: 'ფიზიკური პირი' });
+const selectedUserType = ref({ key: 'individual', value: t('auth.individual') });
 
 const selectedCountryCode = ref('GE');
 
@@ -48,13 +50,13 @@ async function register(){
 
 <template>
     <Head>
-        <title>რეგისტრაცია</title>
+        <title>{{ $t('auth.registerTitle') }}</title>
     </Head>
 
     <div class="w-full max-w-md mx-auto my-6">
         <!-- Register Card -->
         <div class="bg-white mx-3 rounded-xl shadow-lg transition-shadow duration-500 ease-in-out border transiton-all border-gray-200 p-8">
-            <h1 class="text-2xl font-bold text-gray-800 text-center">რეგისტრაცია</h1>
+            <h1 class="text-2xl font-bold text-gray-800 text-center">{{ $t('auth.registerHeading') }}</h1>
 
             <div class="flex justify-center my-4">
                 <SelectButton v-model="selectedUserType" optionLabel="key" :allow-empty="false" :options="userTypes">
@@ -75,11 +77,11 @@ async function register(){
             <form @submit.prevent="register" class="flex flex-col gap-6">
                 <!-- Foreign Resident Checkbox -->
                 <div class="flex flex-col gap-2">
-                    <p class="text-sm">მონიშნეთ თუ არ ხართ საქართველოს მოქალაქე</p>
+                    <p class="text-sm">{{ $t('auth.notGeorgianCitizen') }}</p>
                     <div class="flex items-center gap-2">
                         <Checkbox v-model="form.is_foreign_resident" size="medium" inputId="is_foreign_resident" binary />
                         <label for="is_foreign_resident" class="text-sm">
-                            არარეზიდენტი ვარ
+                            {{ $t('auth.nonResident') }}
                         </label>
                     </div>
                 </div>
@@ -96,7 +98,7 @@ async function register(){
                             :invalid="!!form.errors.name"
                         />
                         <label for="name">
-                            {{  selectedUserType?.key === 'individual' ? 'სახელი' : 'კომპანიის სახელი' }}
+                            {{ selectedUserType?.key === 'individual' ? $t('auth.firstName') : $t('auth.companyName') }}
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -113,7 +115,7 @@ async function register(){
                             :invalid="!!form.errors.lastname"
                         />
                         <label for="lastname">
-                            გვარი
+                            {{ $t('auth.lastName') }}
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -131,7 +133,7 @@ async function register(){
                             :invalid="!!form.errors.phone"
                         />
                         <label for="phone">
-                            ტელეფონი
+                            {{ $t('auth.phone') }}
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -149,7 +151,7 @@ async function register(){
                             :maxlength="11"
                             :invalid="!!form.errors.tax_id"
                         />
-                        <label for="id-number">{{ selectedUserType?.key === 'individual' ? 'პირადი ნომერი' : 'საიდენტიფიკაციო ნომერი' }}</label>
+                        <label for="id-number">{{ selectedUserType?.key === 'individual' ? $t('auth.personalId') : $t('auth.identificationNumber') }}</label>
                     </FloatLabel>
                 </InputGroup>
 
@@ -164,7 +166,7 @@ async function register(){
                             v-model="form.email"
                             :invalid="!!form.errors.email"
                         />
-                        <label for="email">ელ. ფოსტა</label>
+                        <label for="email">{{ $t('auth.email') }}</label>
                     </FloatLabel>
                 </InputGroup>
 
@@ -184,7 +186,7 @@ async function register(){
                             :invalid="!!form.errors.password"
                         />
                         <label for="password">
-                            პაროლი
+                            {{ $t('auth.password') }}
                         </label>
                     </FloatLabel>
                 </InputGroup>
@@ -205,21 +207,18 @@ async function register(){
                             :invalid="!!form.errors.password_confirmation"
                         />
                         <label for="password_confirm">
-                            გაიმეორე პაროლი
+                            {{ $t('auth.repeatPassword') }}
                         </label>
                     </FloatLabel>
                 </InputGroup>
 
-                <p>
-                    თუ გაქვთ მცირე მეწარმის სტატუსი ან ხართ იურიდიული პირი,
-                    სპეციალური შეთავაზებების მისაღებად დაგვიკავშირდით
-                </p>
+                <p>{{ $t('auth.entrepreneurNote') }}</p>
                 <!-- Submit Button -->
                 <div>
                     <Button
                         type="submit"
                         icon="pi pi-user-plus"
-                        label="დადასტურება"
+                        :label="$t('auth.confirm')"
                         class="w-full bg-blue-500 hover:bg-blue-500/90 border-none text-white rounded-lg py-2.5"
                     />
                 </div>
@@ -227,12 +226,12 @@ async function register(){
                 <Divider pt:root:class="m-0"></Divider>
                 <div>
                     <div class="flex justify-center gap-x-2 text-sm">
-                        <p class="w-fit">უკვე ხარ რეგისტრირებული?</p>
+                        <p class="w-fit">{{ $t('auth.alreadyRegistered') }}</p>
                         <!-- Login Link -->
                         <div class="flex items-center w-fit gap-x-2 text-nowrap">
                             <Link :href="route('login')" class="flex items-center gap-x-1 text-brand-500 text-sm no-underline">
                                 <i class="pi pi-user text-brand-500"></i>
-                                შესვლა
+                                {{ $t('auth.signIn') }}
                             </Link>
                         </div>
                     </div>

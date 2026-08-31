@@ -27,12 +27,12 @@ async function  forgotPassword(){
 
 <template>
     <Head>
-        <title>დაგავიწყდა პაროლი</title>
+        <title>{{ $t('auth.forgotTitle') }}</title>
     </Head>
 
     <div class="bg-white flex flex-col justify-evenly mx-3 sm:mx-auto shadow-lg rounded-xl border border-slate-200 mt-8 w-full sm:w-[450px] h-[400px]">
         <form @submit.prevent="forgotPassword" class="flex flex-col p-8 gap-6 self-center">
-            <p class="text-center">შეიყვანე ტელეფონი, რომლითაც ხარ რეგისტრირებული</p>
+            <p class="text-center">{{ $t('auth.forgotHint') }}</p>
             <!-- Error Message -->
             <Message v-if="Object.keys(errors)?.length > 0" severity="error" icon="pi pi-exclamation-circle" :closable="false">
                 {{ errors.phone }}
@@ -40,11 +40,11 @@ async function  forgotPassword(){
 
             <FloatLabel variant="on">
                 <InputText id="email" v-model="form.phone" class="p-3" :invalid="!!form.errors.phone" fluid />
-                <label for="email">ტელეფონი</label>
+                <label for="email">{{ $t('auth.phone') }}</label>
             </FloatLabel>
 
             <div class="flex xs:flex-col gap-2 sm:justify-between sm:items-center">
-                <Button :disabled="form.processing" type="submit" class="custom-button w-full" :label="form.processing ? 'გთხოვ დაიცადო...' : 'გაგრძელება'" size="medium" :icon="form.processing ? 'pi pi-spin pi-spinner' :'pi pi-user'" />
+                <Button :disabled="form.processing" type="submit" class="custom-button w-full" :label="form.processing ? $t('common.pleaseWait') : $t('common.continue')" size="medium" :icon="form.processing ? 'pi pi-spin pi-spinner' :'pi pi-user'" />
             </div>
         </form>
     </div>

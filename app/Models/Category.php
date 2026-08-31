@@ -2,17 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasLocalizedAttributes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Image\Image;
 
 class Category extends Model
 {
-    use HasUuids;
+    use HasLocalizedAttributes, HasUuids;
 
     /**
      * Top-level codes shown in navigation (web mega menu + mobile drawer), in display order.
@@ -26,6 +29,10 @@ class Category extends Model
 
     protected $fillable = [
         'name',
+        'name_en',
+        'name_ru',
+        'name_tr',
+        'needs_review',
         'slug',
         'parent_id',
         'level',
@@ -34,6 +41,18 @@ class Category extends Model
     ];
 
     protected $appends = ['storage_path'];
+
+    protected $hidden = ['name_en', 'name_ru', 'name_tr', 'needs_review'];
+
+    protected function casts(): array
+    {
+        return ['needs_review' => 'boolean'];
+    }
+
+    protected function name(): Attribute
+    {
+        return Attribute::get(fn ($value) => $this->localized('name', $value));
+    }
 
     public function getStoragePathAttribute()
     {
@@ -117,6 +136,13 @@ class Category extends Model
                     ])->values(),
                 ])->values(),
             ]);
+    }
+
+    public static function flushNavCache(): void
+    {
+        foreach (['', ...config('app.supported_locales', [])] as $locale) {
+            Cache::forget('nav_categories'.($locale ? '_'.$locale : ''));
+        }
     }
 
     public static function storeImageFromBase64(string $base64): ?string

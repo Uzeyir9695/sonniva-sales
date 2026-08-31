@@ -14,10 +14,10 @@ defineProps({
                 <i class="pi pi-times text-red-500 text-2xl"></i>
             </div>
 
-            <h1 class="text-xl font-bold text-gray-900 mb-2">გადახდა უარყოფილია</h1>
+            <h1 class="text-xl font-bold text-gray-900 mb-2">{{ $t('payment.cancelTitle') }}</h1>
 
             <p class="text-sm text-gray-400 mb-8">
-                გადახდა ვერ განხორციელდა. სცადეთ თავიდან ან აირჩიეთ სხვა მეთოდი.
+                {{ $t('payment.cancelText') }}
             </p>
 
             <div class="space-y-3">
@@ -25,13 +25,13 @@ defineProps({
                     :href="route('checkout.index')"
                     class="block w-full bg-brand-500 hover:bg-brand-400 text-white font-semibold py-3 rounded-xl transition-colors text-sm"
                 >
-                    თავიდან ცდა
+                    {{ $t('payment.tryAgain') }}
                 </Link>
                 <Link
                     :href="route('home')"
                     class="block w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition-colors text-sm"
                 >
-                    მთავარზე დაბრუნება
+                    {{ $t('common.backToHome') }}
                 </Link>
             </div>
         </div>

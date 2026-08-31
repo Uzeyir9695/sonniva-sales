@@ -1,13 +1,13 @@
 <template>
     <Head>
-        <title>პაროლის შეცვლა</title>
+        <title>{{ $t('auth.resetTitle') }}</title>
     </Head>
 
     <div class="px-2.5 sm:px-0">
         <div class="bg-white flex flex-col justify-evenly sm:mx-auto shadow-lg rounded-xl border border-slate-200 mt-8 w-full max-w-[450px] h-100">
         <form @submit.prevent="resetPassword" class="flex flex-col p-8 gap-6 self-center w-full">
             <div class="flex flex-col space-y-5">
-                <div class="self-center text-2xl font-semibold">ახალი პაროლი</div>
+                <div class="self-center text-2xl font-semibold">{{ $t('auth.newPassword') }}</div>
             </div>
             <Message
                 v-if="$page.props.flash.message"
@@ -31,7 +31,7 @@
 
             <FloatLabel variant="on">
                 <InputText id="phone" v-model="form.phone" :invalid="form.errors.phone" fluid/>
-                <label for="phone">ტელეფონი</label>
+                <label for="phone">{{ $t('auth.phone') }}</label>
             </FloatLabel>
 
             <FloatLabel variant="on">
@@ -46,7 +46,7 @@
                     v-model="form.password"
                     inputId="password"
                 />
-                <label for="password">ახალი პაროლი</label>
+                <label for="password">{{ $t('auth.newPassword') }}</label>
             </FloatLabel>
 
             <FloatLabel variant="on">
@@ -61,7 +61,7 @@
                     v-model="form.password_confirmation"
                     inputId="password_confirmation"
                 />
-                <label for="password_confirmation">გაიმეორე ახალი პაროლი</label>
+                <label for="password_confirmation">{{ $t('auth.repeatNewPassword') }}</label>
             </FloatLabel>
 
             <div class="flex xs:flex-col gap-2 sm:justify-between sm:items-center">
@@ -69,7 +69,7 @@
                     :disabled="form.processing"
                     type="submit"
                     class="custom-button w-full"
-                    :label="form.processing ? 'გთხოვ დაიცადო...' : 'დადასტურება'"
+                    :label="form.processing ? $t('common.pleaseWait') : $t('auth.confirm')"
                     size="medium"
                     :icon="form.processing ? 'pi pi-spin pi-spinner' :''"
                 />

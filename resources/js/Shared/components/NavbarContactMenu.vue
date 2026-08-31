@@ -57,7 +57,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
             <button
                 @click="toggleCallback"
                 class="flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100 transition-all"
-                aria-label="დაგვიკავშირდით"
+                :aria-label="$t('nav.contactUs')"
             >
                 <i class="pi pi-phone text-xl"></i>
             </button>
@@ -71,7 +71,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
         <button
             @click="open = !open"
             class="flex items-center justify-center w-10 h-10 rounded-full text-gray-600 hover:bg-gray-100 transition-all"
-            aria-label="დაგვიკავშირდით"
+            :aria-label="$t('nav.contactUs')"
         >
             <i class="pi pi-phone text-xl"></i>
         </button>

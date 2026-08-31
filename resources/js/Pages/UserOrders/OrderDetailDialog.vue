@@ -2,8 +2,10 @@
 import { ref } from 'vue';
 import { Link, useHttp } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
+import { useI18n } from 'vue-i18n';
 import { formatDiscount } from '@/utils/numberFormat.js';
 
+const { t } = useI18n();
 const toast = useToast();
 const http = useHttp();
 
@@ -23,7 +25,7 @@ async function open(id) {
         const res = await http.get(route('user-orders.show', id));
         order.value = res.order;
     } catch {
-        toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'შეკვეთის ჩატვირთვა ვერ მოხერხდა.', life: 3000 });
+        toast.add({ severity: 'error', summary: t('orders.errorSummary'), detail: t('orders.loadError'), life: 3000 });
         visible.value = false;
     } finally {
         loading.value = false;
@@ -42,53 +44,56 @@ const statusSeverity = {
     cancelled:        'danger',
 };
 
-const orderStatusLabel = {
-    awaiting_payment: 'გადახდის მოლოდინში',
-    pending:          'დაუდასტურებელი',
-    paid:             'გადახდილი',
-    ready:            'მზადაა',
-    dispatched:       'გაგზავნილია',
-    delivered:        'ჩაბარებულია',
-    cancelled:        'გაუქმებული',
-    limit:            'ლიმიტი',
+const orderStatusLabelKey = {
+    awaiting_payment: 'orders.status.awaitingPayment',
+    pending:          'orders.status.pending',
+    paid:             'orders.status.paid',
+    ready:            'orders.status.ready',
+    dispatched:       'orders.status.dispatched',
+    delivered:        'orders.status.delivered',
+    cancelled:        'orders.status.cancelledAlt',
+    limit:            'orders.status.limit',
 };
 
 // Payment.status has its own vocabulary, distinct from Order.status above.
-const paymentStatusLabel = {
-    pending:    'მოლოდინში',
-    processing: 'მუშავდება',
-    completed:  'დასრულებული',
-    failed:     'ვერ შესრულდა',
-    cancelled:  'გაუქმებული',
+const paymentStatusLabelKey = {
+    pending:    'orders.paymentStatusLabels.pending',
+    processing: 'orders.paymentStatusLabels.processing',
+    completed:  'orders.paymentStatusLabels.completed',
+    failed:     'orders.paymentStatusLabels.failed',
+    cancelled:  'orders.paymentStatusLabels.cancelled',
 };
 
-const deliveryLabel = {
-    office:  'ოფისიდან გატანა',
-    tbilisi: 'თბილისი',
-    regions: 'რეგიონები',
+const deliveryLabelKey = {
+    office:  'orders.deliveryTypes.office',
+    tbilisi: 'orders.deliveryTypes.tbilisi',
+    regions: 'orders.deliveryTypes.regions',
 };
 
-const providerLabel = {
-    bog:     'BOG',
-    tbc:     'TBC',
-    pcb:     'ProCredit',
-    invoice: 'ინვოისი',
-    cash:    'ქეში',
-};
+function providerText(provider) {
+    const map = {
+        bog: 'BOG',
+        tbc: 'TBC',
+        pcb: 'ProCredit',
+        invoice: t('orders.providers.invoice'),
+        cash: t('orders.providers.cash'),
+    };
+    return map[provider] ?? provider;
+}
 </script>
 
 <template>
     <Dialog
         v-model:visible="visible"
         modal
-        :header="order ? `შეკვეთა #${order.invoice_no ?? order.id?.slice(0, 8)}` : 'შეკვეთის დეტალები'"
+        :header="order ? $t('orders.orderHash', { no: order.invoice_no ?? order.id?.slice(0, 8) }) : $t('orders.detailTitle')"
         class="w-[95%] sm:w-[75%] lg:w-[68%]"
         pt:header:class="border-b border-gray-100"
     >
         <!-- Loading -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-16 gap-3">
             <i class="pi pi-spinner pi-spin text-4xl text-brand-400"></i>
-            <span class="text-sm text-gray-400">იტვირთება...</span>
+            <span class="text-sm text-gray-400">{{ $t('common.loading') }}</span>
         </div>
 
         <div v-else-if="order" class="text-sm">
@@ -99,7 +104,7 @@ const providerLabel = {
                     <i class="pi pi-calendar text-xs"></i>
                     <span class="text-xs">{{ order.created_at }}</span>
                 </div>
-                <Tag :value="orderStatusLabel[order.status] ?? order.status" :severity="statusSeverity[order.status]" />
+                <Tag :value="orderStatusLabelKey[order.status] ? $t(orderStatusLabelKey[order.status]) : order.status" :severity="statusSeverity[order.status]" />
             </div>
 
             <!-- Delivery & Payment -->
@@ -107,21 +112,21 @@ const providerLabel = {
                 <div class="border border-gray-200 rounded-xl overflow-hidden">
                     <div class="flex items-center gap-2 bg-gray-50 border-b border-gray-200 px-3 py-2">
                         <i class="pi pi-truck text-brand-500 text-xs"></i>
-                        <span class="font-semibold text-gray-700 text-xs uppercase tracking-wide">მიწოდება</span>
+                        <span class="font-semibold text-gray-700 text-xs uppercase tracking-wide">{{ $t('orders.delivery') }}</span>
                     </div>
                     <div class="px-3 py-3 space-y-1.5">
-                        <p class="font-semibold text-gray-800">{{ deliveryLabel[order.delivery_type] ?? order.delivery_type }}</p>
+                        <p class="font-semibold text-gray-800">{{ deliveryLabelKey[order.delivery_type] ? $t(deliveryLabelKey[order.delivery_type]) : order.delivery_type }}</p>
                         <p v-if="order.address" class="flex items-start gap-1.5 text-gray-500">
                             <i class="pi pi-map-marker text-xs text-brand-400 mt-0.5"></i>
                             {{ order.address }}<span v-if="order.apartment_number">, apt {{ order.apartment_number }}</span>
                         </p>
                         <p class="flex items-center gap-1.5 text-gray-500">
                             <i class="pi pi-tag text-xs text-brand-400"></i>
-                            მიწოდება: <span class="font-medium text-gray-700 ml-1">{{ order.delivery_cost }} ₾</span>
+                            {{ $t('orders.deliveryLine') }} <span class="font-medium text-gray-700 ml-1">{{ order.delivery_cost }} ₾</span>
                         </p>
                         <p v-if="order.tracking_number" class="flex items-center gap-1.5 text-gray-500">
                             <i class="pi pi-hashtag text-xs text-brand-400"></i>
-                            თრექინგის ნომერი: <span class="font-medium text-gray-700 ml-1">{{ order.tracking_number }}</span>
+                            {{ $t('orders.trackingLine') }} <span class="font-medium text-gray-700 ml-1">{{ order.tracking_number }}</span>
                         </p>
                     </div>
                 </div>
@@ -129,23 +134,23 @@ const providerLabel = {
                 <div v-if="order.payment" class="border border-blue-200 rounded-xl overflow-hidden">
                     <div class="flex items-center gap-2 bg-blue-50 border-b border-blue-200 px-3 py-2">
                         <i class="pi pi-credit-card text-blue-500 text-xs"></i>
-                        <span class="font-semibold text-blue-700 text-xs uppercase tracking-wide">გადახდა</span>
+                        <span class="font-semibold text-blue-700 text-xs uppercase tracking-wide">{{ $t('orders.payment') }}</span>
                     </div>
                     <div class="px-3 py-3 flex flex-wrap gap-5 text-gray-600">
                         <div>
-                            <p class="text-xs text-gray-400 mb-0.5">გადახდის მეთოდი</p>
-                            <p class="font-semibold text-gray-800">{{ providerLabel[order.payment.provider] ?? order.payment.provider }}</p>
+                            <p class="text-xs text-gray-400 mb-0.5">{{ $t('orders.paymentMethod') }}</p>
+                            <p class="font-semibold text-gray-800">{{ providerText(order.payment.provider) }}</p>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-400 mb-0.5">გადახდის სტატუსი</p>
+                            <p class="text-xs text-gray-400 mb-0.5">{{ $t('orders.paymentStatus') }}</p>
                             <Tag
-                                :value="paymentStatusLabel[order.payment.status] ?? order.payment.status"
+                                :value="paymentStatusLabelKey[order.payment.status] ? $t(paymentStatusLabelKey[order.payment.status]) : order.payment.status"
                                 :severity="order.payment.status === 'completed' ? 'success' : 'warn'"
                                 class="text-xs"
                             />
                         </div>
                         <div v-if="order.payment.transaction_id">
-                            <p class="text-xs text-gray-400 mb-0.5">ტრანზაქციის ID</p>
+                            <p class="text-xs text-gray-400 mb-0.5">{{ $t('orders.transactionId') }}</p>
                             <code class="text-xs bg-gray-100 px-2 py-0.5 rounded text-gray-700">{{ order.payment.transaction_id }}</code>
                         </div>
                     </div>
@@ -156,7 +161,7 @@ const providerLabel = {
             <div v-if="order.comment" class="border border-brand-200 rounded-xl overflow-hidden mb-4">
                 <div class="flex items-center gap-2 bg-brand-50 border-b border-brand-200 px-3 py-2">
                     <i class="pi pi-comment text-brand-500 text-xs"></i>
-                    <span class="font-semibold text-brand-700 text-xs uppercase tracking-wide">კომენტარი</span>
+                    <span class="font-semibold text-brand-700 text-xs uppercase tracking-wide">{{ $t('orders.comment') }}</span>
                 </div>
                 <p class="px-3 py-3 text-gray-600 italic">{{ order.comment }}</p>
             </div>
@@ -165,7 +170,7 @@ const providerLabel = {
             <div class="border border-gray-200 rounded-xl overflow-hidden mb-4">
                 <div class="flex items-center gap-2 bg-gray-50 border-b border-gray-200 px-3 py-2">
                     <i class="pi pi-shopping-cart text-brand-500 text-xs"></i>
-                    <span class="font-semibold text-gray-700 text-xs uppercase tracking-wide">პროდუქცია</span>
+                    <span class="font-semibold text-gray-700 text-xs uppercase tracking-wide">{{ $t('orders.products') }}</span>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3">
                     <div
@@ -204,18 +209,18 @@ const providerLabel = {
                             class="inline-flex items-center gap-1 text-xs font-medium text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded-full w-fit"
                         >
                             <i class="pi pi-wrench text-xs"></i>
-                            მონტაჟის სერვისი — {{ data.service_price }} ₾
+                            {{ $t('orders.setupServiceLine') }} {{ data.service_price }} ₾
                         </span>
 
                         <div class="flex items-end justify-between border-t border-gray-100 pt-2 mt-auto">
                             <div>
-                                <p class="text-xs text-gray-400 mb-0.5">ერთეულის ფასი</p>
+                                <p class="text-xs text-gray-400 mb-0.5">{{ $t('orders.unitPrice') }}</p>
                                 <div v-if="data.wholesale_discount > 0" class="flex flex-col gap-0.5">
                                     <div class="flex items-center gap-1.5">
                                         <span class="line-through text-gray-400 text-xs">{{ (Number(data.unit_price) + Number(data.wholesale_discount) / data.quantity).toFixed(2) }} ₾</span>
                                         <span class="font-medium text-emerald-600">{{ data.unit_price }} ₾</span>
                                     </div>
-                                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold w-fit">საბითუმო</span>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold w-fit">{{ $t('orders.wholesale') }}</span>
                                 </div>
                                 <div v-else-if="data.discount > 0" class="flex flex-col gap-0.5">
                                     <div class="flex items-center gap-1.5">
@@ -232,7 +237,7 @@ const providerLabel = {
                             </div>
 
                             <div class="text-right">
-                                <p class="text-xs text-gray-400 mb-0.5">სულ</p>
+                                <p class="text-xs text-gray-400 mb-0.5">{{ $t('common.total') }}</p>
                                 <span class="font-semibold text-gray-800">{{ data.subtotal }} ₾</span>
                             </div>
                         </div>
@@ -241,26 +246,26 @@ const providerLabel = {
 
                 <div class="px-4 py-3 border-t border-gray-200 bg-gray-50 space-y-1.5">
                     <div v-if="order.wholesale_discount > 0" class="flex justify-between text-sm text-gray-500">
-                        <span>ჯამი</span>
+                        <span>{{ $t('orders.subtotal') }}</span>
                         <span>
                             <span class="line-through text-gray-400 mr-1">{{ (Number(order.subtotal) + Number(order.wholesale_discount)).toFixed(2) }} ₾</span>
                             <span class="font-medium text-emerald-600">{{ order.subtotal }} ₾</span>
                         </span>
                     </div>
                     <div v-else class="flex justify-between text-sm text-gray-500">
-                        <span>ჯამი</span>
+                        <span>{{ $t('orders.subtotal') }}</span>
                         <span class="font-medium text-gray-700">{{ order.subtotal }} ₾</span>
                     </div>
                     <div v-if="order.wholesale_discount > 0" class="flex justify-between text-sm text-emerald-600">
-                        <span>საბითუმო ფასდაკლება</span>
+                        <span>{{ $t('orders.wholesaleDiscount') }}</span>
                         <span class="font-medium">-{{ order.wholesale_discount }} ₾</span>
                     </div>
                     <div class="flex justify-between text-sm text-gray-500">
-                        <span>მიწოდება</span>
+                        <span>{{ $t('orders.delivery') }}</span>
                         <span class="font-medium text-gray-700">{{ order.delivery_cost }} ₾</span>
                     </div>
                     <div class="flex justify-between text-sm font-bold text-gray-800 border-t border-gray-200 pt-1.5 mt-1">
-                        <span>სულ</span>
+                        <span>{{ $t('common.total') }}</span>
                         <span class="text-brand-600 text-base">{{ order.total }} ₾</span>
                     </div>
                 </div>
@@ -269,7 +274,7 @@ const providerLabel = {
             <!-- Actions -->
             <div v-if="order.payment?.provider === 'invoice' && order.payment?.invoice_no" class="flex justify-end gap-2">
                 <a :href="route('download.file', order.payment.invoice_no)" target="_blank">
-                    <Button label="ინვოისის ჩამოტვირთვა" icon="pi pi-download" severity="secondary" size="small" outlined />
+                    <Button :label="$t('orders.downloadInvoice')" icon="pi pi-download" severity="secondary" size="small" outlined />
                 </a>
             </div>
         </div>

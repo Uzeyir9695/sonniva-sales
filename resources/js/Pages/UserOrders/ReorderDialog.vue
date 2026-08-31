@@ -2,9 +2,11 @@
 import { computed, ref } from 'vue';
 import { useHttp } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
+import { useI18n } from 'vue-i18n';
 import { formatDiscount } from '@/utils/numberFormat.js';
 import { useReorder } from '@/composables/useReorder';
 
+const { t } = useI18n();
 const toast = useToast();
 const http = useHttp();
 const { reorder, processing: reorderProcessing } = useReorder();
@@ -24,7 +26,7 @@ async function open(id) {
         order.value = res.order;
         selectedItems.value = [...order.value.items];
     } catch {
-        toast.add({ severity: 'error', summary: 'შეცდომა', detail: 'შეკვეთის ჩატვირთვა ვერ მოხერხდა.', life: 3000 });
+        toast.add({ severity: 'error', summary: t('orders.errorSummary'), detail: t('orders.loadError'), life: 3000 });
         visible.value = false;
     } finally {
         loading.value = false;
@@ -59,14 +61,14 @@ const selectedTotal = computed(() =>
     <Dialog
         v-model:visible="visible"
         modal
-        :header="order ? `თავიდან შეკვეთა #${order.invoice_no ?? order.id?.slice(0, 8)}` : 'თავიდან შეკვეთა'"
+        :header="order ? $t('orders.reorderTitle', { no: order.invoice_no ?? order.id?.slice(0, 8) }) : $t('orders.reorder')"
         class="w-[95%] sm:w-[75%] lg:w-[68%]"
         pt:header:class="border-b border-gray-100"
     >
         <!-- Loading -->
         <div v-if="loading" class="flex flex-col items-center justify-center py-16 gap-3">
             <i class="pi pi-spinner pi-spin text-4xl text-brand-400"></i>
-            <span class="text-sm text-gray-400">იტვირთება...</span>
+            <span class="text-sm text-gray-400">{{ $t('common.loading') }}</span>
         </div>
 
         <div v-else-if="order" class="text-sm">
@@ -91,13 +93,13 @@ const selectedTotal = computed(() =>
 
                     <div class="flex items-end justify-between border-t border-gray-100 pt-2 mt-auto">
                         <div>
-                            <p class="text-xs text-gray-400 mb-0.5">ერთ. ფასი</p>
+                            <p class="text-xs text-gray-400 mb-0.5">{{ $t('orders.unitPriceShort') }}</p>
                             <div v-if="data.wholesale_discount > 0" class="flex flex-col gap-0.5">
                                 <div class="flex items-center gap-1.5">
                                     <span class="line-through text-gray-400 text-xs">{{ (Number(data.unit_price) + Number(data.wholesale_discount) / data.quantity).toFixed(2) }} ₾</span>
                                     <span class="font-medium text-emerald-600">{{ data.unit_price }} ₾</span>
                                 </div>
-                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold w-fit">საბითუმო</span>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold w-fit">{{ $t('orders.wholesale') }}</span>
                             </div>
                             <div v-else-if="data.discount > 0" class="flex flex-col gap-0.5">
                                 <div class="flex items-center gap-1.5">
@@ -114,7 +116,7 @@ const selectedTotal = computed(() =>
                         </div>
 
                         <div class="text-right">
-                            <p class="text-xs text-gray-400 mb-0.5">სულ</p>
+                            <p class="text-xs text-gray-400 mb-0.5">{{ $t('common.total') }}</p>
                             <span class="font-semibold text-gray-800">{{ data.subtotal }} ₾</span>
                         </div>
                     </div>
@@ -124,12 +126,12 @@ const selectedTotal = computed(() =>
             <!-- Actions -->
             <div class="flex items-center justify-between gap-3">
                 <div v-if="selectedItems.length">
-                    <p class="text-sm text-gray-500 mb-0.5">ჯამი</p>
+                    <p class="text-sm text-gray-500 mb-0.5">{{ $t('orders.subtotal') }}</p>
                     <span class="font-semibold text-gray-800">{{ selectedTotal.toFixed(2) }} ₾</span>
                 </div>
                 <div v-else></div>
                 <Button
-                    :label="`თავიდან შეკვეთა (${selectedItems.length})`"
+                    :label="`${$t('orders.reorder')} (${selectedItems.length})`"
                     icon="pi pi-refresh"
                     size="small"
                     :disabled="selectedItems.length === 0"

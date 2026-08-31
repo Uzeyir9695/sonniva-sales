@@ -60,12 +60,12 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
             </Swiper>
             <div class="absolute bottom-0 left-0 right-0 p-4 z-10 flex items-center justify-between bg-black/50">
                 <div>
-                    <p class="text-white font-semibold text-sm">მემბრანული კარები</p>
-                    <p class="text-white/90 text-xs">შეუკვეთეთ მემბრანული კარები თქვენთვის სასურველ ზომებში და ფერებში</p>
+                    <p class="text-white font-semibold text-sm">{{ $t('promo.doorsTitle') }}</p>
+                    <p class="text-white/90 text-xs">{{ $t('promo.doorsText') }}</p>
                 </div>
                 <a href="https://frame.sonniva.ge/ka/doors" target="_blank" rel="noopener noreferrer"
                    class="flex items-center gap-x-1.5 shrink-0 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors">
-                    <span>იხილეთ</span>
+                    <span>{{ $t('common.view') }}</span>
                     <i class="pi pi-external-link text-xs"></i>
                 </a>
             </div>
@@ -86,41 +86,16 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
             </Swiper>
             <div class="absolute bottom-0 left-0 right-0 p-4 z-10 flex items-center justify-between bg-black/50">
                 <div>
-                    <p class="text-white font-semibold text-sm">ალუმინის ჩარჩოები</p>
-                    <p class="text-white/90 text-xs">ჩვენ ვამზადებთ ალუმინის ჩარჩოებს თქვენთვის სასურველ ზომებში</p>
+                    <p class="text-white font-semibold text-sm">{{ $t('promo.framesTitle') }}</p>
+                    <p class="text-white/90 text-xs">{{ $t('promo.framesText') }}</p>
                 </div>
                 <a href="https://frame.sonniva.ge/ka/frames/create" target="_blank" rel="noopener noreferrer"
                    class="flex items-center gap-x-1.5 shrink-0 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors">
-                    <span>იხილეთ</span>
+                    <span>{{ $t('common.view') }}</span>
                     <i class="pi pi-external-link text-xs"></i>
                 </a>
             </div>
         </div>
-
-        <!-- Feature cards -->
-<!--        <div class="col-span-5 grid grid-cols-1 xl:grid-cols-3 gap-3">-->
-<!--            <div class="flex items-center gap-3 bg-blue-50 rounded-2xl px-4 py-3">-->
-<!--                <span class="text-2xl shrink-0">🚚</span>-->
-<!--                <div>-->
-<!--                    <p class="text-xs font-semibold text-gray-800">უფასო მიწოდება თბილისში</p>-->
-<!--                    <p class="text-xs text-gray-400">500₾+</p>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="flex items-center gap-3 bg-pink-50 rounded-2xl px-4 py-3">-->
-<!--                <span class="text-2xl shrink-0">💎</span>-->
-<!--                <div>-->
-<!--                    <p class="text-xs font-semibold text-gray-800">ტოპ ბრენდები</p>-->
-<!--                    <p class="text-xs text-gray-400">პრემიუმ ხარისხი</p>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="flex items-center gap-3 bg-amber-50 rounded-2xl px-4 py-3">-->
-<!--                <span class="text-2xl shrink-0">⭐</span>-->
-<!--                <div>-->
-<!--                    <p class="text-xs font-semibold text-gray-800">ტოპ სელერი</p>-->
-<!--                    <p class="text-xs text-gray-400">პოპულარული</p>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
 
     </div>
 </template>

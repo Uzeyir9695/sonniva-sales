@@ -16,7 +16,7 @@ const emit = defineEmits(['remove', 'reset'])
     >
         <div
             @click="emit('reset')"
-            v-tooltip.top="'გასუფთავება'"
+            v-tooltip.top="$t('common.clear')"
             class="flex items-center justify-center group p-2 rounded-lg bg-slate-100 cursor-pointer shrink-0"
         >
             <i class="pi pi-trash text-sm text-gray-500 group-hover:text-red-500"></i>

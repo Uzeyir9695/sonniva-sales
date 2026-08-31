@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import { onClickOutside } from '@vueuse/core'
 import LogoutButton from '@/Shared/components/LogoutButton.vue';
-import WeglotSwitcher from '@/Shared/components/WeglotSwitcher.vue';
 
 const props = defineProps({
     categories: Array,
@@ -114,7 +113,6 @@ defineExpose({ openDrawer })
                 class="fixed top-20 left-0 z-50 min-h-[calc(100vh-80px)] w-80 bg-white shadow-2xl flex flex-col"
             >
                 <div class="bg-gray-50 shado w-xs flex items-center justify-between px-4 py-4 border-y border-gray-100 sm:hidden">
-                    <WeglotSwitcher />
                     <LogoutButton />
                 </div>
 

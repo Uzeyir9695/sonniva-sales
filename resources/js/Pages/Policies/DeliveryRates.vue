@@ -1,22 +1,26 @@
 <script setup>
+import { computed } from 'vue'
 import { Head } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
+
+const { t, tm, rt, locale } = useI18n()
 
 const TBILISI_FREE_THRESHOLD = 500
 
-const deliveryMethods = [
+const deliveryMethods = computed(() => [
     {
         icon: 'pi pi-building',
-        title: 'სონნივას ფილიალიდან გატანა',
-        subtitle: 'ავჭალა — შუშის ქუჩა 38',
-        badge: 'უფასო',
+        title: t('pol.delivery.methodOfficeTitle'),
+        subtitle: t('pol.delivery.methodOfficeSubtitle'),
+        badge: t('pol.delivery.free'),
         badgeClass: 'bg-emerald-100 text-emerald-700',
         cardClass: 'border-emerald-200',
         iconClass: 'bg-emerald-50 text-emerald-600',
     },
     {
         icon: 'pi pi-map-marker',
-        title: 'მიწოდება თბილისში',
-        subtitle: 'ზონის მიხედვით',
+        title: t('pol.delivery.methodTbilisiTitle'),
+        subtitle: t('pol.delivery.methodTbilisiSubtitle'),
         badge: '5 – 60 ₾',
         badgeClass: 'bg-blue-100 text-blue-700',
         cardClass: 'border-blue-200',
@@ -24,60 +28,28 @@ const deliveryMethods = [
     },
     {
         icon: 'fa-solid fa-truck-fast',
-        title: 'მიწოდება რეგიონებში',
-        subtitle: 'წონისა და ტიპის მიხედვით',
+        title: t('pol.delivery.methodRegionsTitle'),
+        subtitle: t('pol.delivery.methodRegionsSubtitle'),
         badge: '6 – 750 ₾',
         badgeClass: 'bg-violet-100 text-violet-700',
         cardClass: 'border-violet-200',
         iconClass: 'bg-violet-50 text-violet-600',
     },
-]
+])
 
-const officeBranches = [
-    {
-        key: 'avchala',
-        address: 'ავჭალა, შუშის ქუჩა 38',
-        hours: 'ორშაბათი–პარასკევი, 09:00–18:00',
-        mapUrl: 'https://maps.app.goo.gl/3YwH55CnhUUfJoYQ9',
-    },
-    {
-        key: 'didube',
-        address: 'დიდუბე, ზაირა კიკვიძის 6',
-        hours: 'ორშაბათი–პარასკევი, 09:00–18:00',
-        mapUrl: 'https://maps.app.goo.gl/mUedJ9Jf9j1tR9nt6',
-    },
-]
+const officeBranches = computed(() => [
+    { address: t('pol.delivery.avchalaAddress'), hours: t('pol.delivery.hours'), mapUrl: 'https://maps.app.goo.gl/3YwH55CnhUUfJoYQ9' },
+    { address: t('pol.delivery.didubeAddress'), hours: t('pol.delivery.hours'), mapUrl: 'https://maps.app.goo.gl/mUedJ9Jf9j1tR9nt6' },
+])
 
-const tbilisiZones = [
-    {
-        label: 'I ზონა',
-        price: '5-40',
-        color: 'blue',
-        neighborhoods: [
-            'გლდანი', 'გლდანულა', 'სოფელი გლდანი', 'ზაჰესი', 'ავჭალა',
-            'თემქა', 'მუხიანი', 'დიღომი', 'დიღმის მასივი', 'დიდი დიღომი', 'სოფელი დიღომი',
-        ],
-    },
-    {
-        label: 'II ზონა',
-        price: '5-50',
-        color: 'indigo',
-        neighborhoods: [
-            'ვაკე', 'საბურთალო', 'ბაგები', 'ლისი', 'ვაშლიჯვარი', 'ორთაჭალა',
-            'მთაწმინდა', 'სოლოლაკი', 'ვერა', 'დიდუბე', 'ჩუღურეთი', 'ნაძალადევი',
-        ],
-    },
-    {
-        label: 'III ზონა',
-        price: '5-60',
-        color: 'violet',
-        neighborhoods: [
-            'ისანი', 'სამგორი', 'ლილო', 'ორხევი', 'აეროპორტის დასახლება',
-            'ქვემო ფონიჭალა', 'ზემო ფონიჭალა', 'ვარკეთილი', 'წყნეთი',
-            'კოჯორი', 'ტაბახმელა', 'წავკისი', 'შინდისი', 'ოქროყანა', 'ნაფეტვრები',
-        ],
-    },
-]
+const tbilisiZones = computed(() => {
+    void locale.value
+    return [
+        { label: t('pol.delivery.zone1'), price: '5-40', color: 'blue', neighborhoods: tm('pol.terms.zone1Items').map(rt) },
+        { label: t('pol.delivery.zone2'), price: '5-50', color: 'indigo', neighborhoods: tm('pol.terms.zone2Items').map(rt) },
+        { label: t('pol.delivery.zone3'), price: '5-60', color: 'violet', neighborhoods: tm('pol.terms.zone3Items').map(rt) },
+    ]
+})
 
 const DELIVERY_RATES = [
     { maxKg: 1,    region: 10.5, office: 6,   village: 15.5 },
@@ -99,14 +71,12 @@ const DELIVERY_RATES = [
 
 function weightLabel(rate, index) {
     const prev = index === 0 ? 0 : DELIVERY_RATES[index - 1].maxKg
-    return index === 0
-        ? `0 – ${rate.maxKg} კგ`
-        : `${prev} – ${rate.maxKg} კგ`
+    return t('pol.delivery.weightRange', { from: prev, to: rate.maxKg })
 }
 </script>
 
 <template>
-    <Head title="მიწოდების ტარიფები" />
+    <Head :title="$t('pol.delivery.title')" />
 
     <div class="min-h-screen bg-gray-50">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-16 space-y-10">
@@ -116,8 +86,8 @@ function weightLabel(rate, index) {
                 <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-500/10 mb-2">
                     <i class="fa-solid fa-truck-fast text-3xl text-brand-500"></i>
                 </div>
-                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">მიწოდების ტარიფები</h1>
-                <p class="text-gray-500 text-sm max-w-md mx-auto">ყველა მიწოდების ვარიანტი და მათი ფასები ერთ გვერდზე</p>
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ $t('pol.delivery.title') }}</h1>
+                <p class="text-gray-500 text-sm max-w-md mx-auto">{{ $t('pol.delivery.headerSubtitle') }}</p>
             </div>
 
             <!-- 3 method overview cards -->
@@ -148,15 +118,15 @@ function weightLabel(rate, index) {
                 <div class="bg-emerald-50 px-6 py-4 flex items-center gap-3 border-b border-emerald-100">
                     <i class="pi pi-building text-emerald-600 text-lg"></i>
                     <div>
-                        <h2 class="font-bold text-gray-900 text-base">სონნივას ფილიალიდან გატანა</h2>
-                        <p class="text-xs text-emerald-600 font-medium mt-0.5">სრულიად უფასო</p>
+                        <h2 class="font-bold text-gray-900 text-base">{{ $t('pol.delivery.officeSectionTitle') }}</h2>
+                        <p class="text-xs text-emerald-600 font-medium mt-0.5">{{ $t('pol.delivery.officeFullyFree') }}</p>
                     </div>
                     <span class="ml-auto text-xl font-bold text-emerald-600">0 ₾</span>
                 </div>
                 <div class="p-6 grid sm:grid-cols-2 gap-4">
                     <div
                         v-for="branch in officeBranches"
-                        :key="branch.key"
+                        :key="branch.address"
                         class="flex items-start gap-2 text-sm text-gray-600 rounded-xl border border-gray-200 ring-1 ring-gray-100 p-4"
                     >
                         <i class="pi pi-map-marker text-brand-500 mt-0.5 shrink-0"></i>
@@ -164,7 +134,7 @@ function weightLabel(rate, index) {
                             <p class="font-medium text-gray-800">{{ branch.address }}</p>
                             <p class="text-xs text-gray-400 mt-0.5">{{ branch.hours }}</p>
                             <a :href="branch.mapUrl" target="_blank" class="text-brand-500 underline">
-                                მისამართის სანახავად დააჭირეთ ლინკს
+                                {{ $t('pol.delivery.mapLinkText') }}
                             </a>
                         </div>
                     </div>
@@ -178,14 +148,17 @@ function weightLabel(rate, index) {
                         <i class="pi pi-map-marker text-blue-600"></i>
                     </div>
                     <div>
-                        <h2 class="font-bold text-gray-900 text-base">მიწოდება თბილისში</h2>
-                        <p class="text-xs text-gray-400">ფასი განისაზღვრება ზონის მიხედვით</p>
+                        <h2 class="font-bold text-gray-900 text-base">{{ $t('pol.delivery.tbilisiSectionTitle') }}</h2>
+                        <p class="text-xs text-gray-400">{{ $t('pol.delivery.tbilisiPriceByZone') }}</p>
                     </div>
                 </div>
 
                 <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-2 text-sm text-emerald-700">
                     <i class="pi pi-check-circle shrink-0"></i>
-                    <span><strong>{{ TBILISI_FREE_THRESHOLD }} ₾-ზე</strong> მეტი შეკვეთისას — თბილისში მიწოდება <strong>უფასოა</strong></span>
+                    <i18n-t keypath="pol.delivery.freeThreshold" tag="span">
+                        <template #amount><strong>{{ TBILISI_FREE_THRESHOLD }} ₾</strong></template>
+                        <template #free><strong>{{ $t('pol.delivery.freeThresholdWord') }}</strong></template>
+                    </i18n-t>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -231,8 +204,8 @@ function weightLabel(rate, index) {
                         <i class="fa-solid fa-truck-fast text-violet-600"></i>
                     </div>
                     <div>
-                        <h2 class="font-bold text-gray-900 text-base">მიწოდება რეგიონებში</h2>
-                        <p class="text-xs text-gray-400">ფასი განისაზღვრება წონისა და ტიპის მიხედვით</p>
+                        <h2 class="font-bold text-gray-900 text-base">{{ $t('pol.delivery.regionsSectionTitle') }}</h2>
+                        <p class="text-xs text-gray-400">{{ $t('pol.delivery.regionsPriceByWeightType') }}</p>
                     </div>
                 </div>
 
@@ -242,22 +215,22 @@ function weightLabel(rate, index) {
                         <div class="w-7 h-7 rounded-lg bg-sky-50 flex items-center justify-center mx-auto mb-1.5">
                             <i class="fa-solid fa-warehouse text-sky-500 text-sm"></i>
                         </div>
-                        <p class="text-sm font-semibold text-gray-700">OnWay ფილიალი</p>
-                        <p class="text-xs text-gray-400 mt-0.5">ფილიალიდან გატანა</p>
+                        <p class="text-sm font-semibold text-gray-700">{{ $t('pol.delivery.legendOnwayTitle') }}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">{{ $t('pol.delivery.legendOnwaySub') }}</p>
                     </div>
                     <div class="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 text-center">
                         <div class="w-7 h-7 rounded-lg bg-violet-50 flex items-center justify-center mx-auto mb-1.5">
                             <i class="fa-solid fa-city text-violet-500 text-sm"></i>
                         </div>
-                        <p class="text-sm font-semibold text-gray-700">ქალაქი/რაიონი</p>
-                        <p class="text-xs text-gray-400 mt-0.5">ადგილზე მიტანა</p>
+                        <p class="text-sm font-semibold text-gray-700">{{ $t('pol.delivery.legendCityTitle') }}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">{{ $t('pol.delivery.legendCitySub') }}</p>
                     </div>
                     <div class="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 text-center">
                         <div class="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center mx-auto mb-1.5">
                             <i class="fa-solid fa-house-crack text-amber-500 text-sm"></i>
                         </div>
-                        <p class="text-sm font-semibold text-gray-700">სოფელი</p>
-                        <p class="text-xs text-gray-400 mt-0.5">სოფელში მიტანა</p>
+                        <p class="text-sm font-semibold text-gray-700">{{ $t('pol.delivery.legendVillageTitle') }}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">{{ $t('pol.delivery.legendVillageSub') }}</p>
                     </div>
                 </div>
 
@@ -265,10 +238,10 @@ function weightLabel(rate, index) {
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-100">
-                                <th class="text-left px-4 py-3 font-semibold text-gray-600 text-sm">წონა</th>
-                                <th class="text-center px-4 py-3 font-semibold text-sky-600 text-sm">OnWay ფილიალი</th>
-                                <th class="text-center px-4 py-3 font-semibold text-violet-600 text-sm">ქალაქი/რაიონი</th>
-                                <th class="text-center px-4 py-3 font-semibold text-amber-600 text-sm">სოფელი</th>
+                                <th class="text-left px-4 py-3 font-semibold text-gray-600 text-sm">{{ $t('pol.delivery.thWeight') }}</th>
+                                <th class="text-center px-4 py-3 font-semibold text-sky-600 text-sm">{{ $t('pol.delivery.legendOnwayTitle') }}</th>
+                                <th class="text-center px-4 py-3 font-semibold text-violet-600 text-sm">{{ $t('pol.delivery.legendCityTitle') }}</th>
+                                <th class="text-center px-4 py-3 font-semibold text-amber-600 text-sm">{{ $t('pol.delivery.legendVillageTitle') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">

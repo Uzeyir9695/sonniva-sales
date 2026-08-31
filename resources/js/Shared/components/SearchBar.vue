@@ -1,5 +1,6 @@
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useDebounceFn } from '@vueuse/core';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
@@ -10,9 +11,12 @@ import { getDisplayPrice, getDisplayUOM, hasDiscount, getOriginalPrice } from '@
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 
 const props = defineProps({
-    placeholder: { type: String, default: 'მოძებნე ის რაც გჭირდება...' },
+    placeholder: { type: String, default: '' },
     inputClass:  { type: String, default: '' },
 });
+
+const { t, locale } = useI18n();
+const placeholderText = computed(() => props.placeholder || t('common.searchPlaceholder'));
 
 const emit = defineEmits(['close']);
 
@@ -31,14 +35,7 @@ const quickViewItem = ref(null);
 
 const debouncedSearch = useDebounceFn(async (val) => {
     try {
-        // Weglot intercepts this request and rewrites the `q` param's value
-        // in-flight (it translates it back to the site's origin language), so
-        // we also send the untranslated text via a header, which Weglot's
-        // search-parameter translation has no reason to touch.
-        const res = await axios.get('/api/v1/search', {
-            params: { q: val },
-            headers: { 'X-Search-Raw': encodeURIComponent(val) },
-        });
+        const res = await axios.get('/api/v1/search', { params: { q: val, locale: locale.value } });
         results.value = res.data;
         visibleCount.value = 20;
         showDropdown.value = true;
@@ -73,13 +70,7 @@ function goToSearch() {
     track('search', { search_term: q })
     showDropdown.value = false;
 
-    // Weglot rewrites the `q` param of this request in-flight, translating it
-    // back to the site's origin language - that's wanted here, since `name` is
-    // stored in Georgian. `raw_q` carries the as-typed text through instead of
-    // a header, since the results are fetched via Inertia's deferred-prop
-    // reload (and filter changes), which don't carry headers set on this call
-    // but do reuse the page's query string.
-    router.get(route('search.index', { q, raw_q: q }));
+    router.get(route('search.index', { q }));
 }
 
 function imageUrl(item) {
@@ -126,10 +117,10 @@ defineExpose({ inputRef });
             action="/search"
             method="get"
             @submit.prevent="goToSearch"
-            class="weglot-search-form flex items-center rounded-xl px-4 h-11 gap-3 transition-all focus-within:border-2 border border-brand-400"
+            class="flex items-center rounded-xl px-4 h-11 gap-3 transition-all focus-within:border-2 border border-brand-400"
             :class="showDropdown ? 'rounded-b-none border-2 border-brand-400' : ''"
         >
-            <button type="submit" aria-label="ძებნა" class="shrink-0 flex items-center justify-center cursor-pointer">
+            <button type="submit" :aria-label="$t('common.search')" class="shrink-0 flex items-center justify-center cursor-pointer">
                 <i v-if="!loading" class="pi pi-search text-gray-400 text-sm"></i>
                 <i v-else class="pi pi-spinner pi-spin text-brand-400 text-sm"></i>
             </button>
@@ -139,7 +130,7 @@ defineExpose({ inputRef });
                 v-model="query"
                 type="search"
                 name="q"
-                :placeholder="placeholder"
+                :placeholder="placeholderText"
                 @keydown.escape="showDropdown = false"
                 class="w-full bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400"
             />
@@ -147,7 +138,7 @@ defineExpose({ inputRef });
             <button
                 v-if="query"
                 type="button"
-                @click="query = ''; rawQuery = ''; results = []; showDropdown = false"
+                @click="query = ''; results = []; showDropdown = false"
                 class="text-gray-400 hover:text-gray-600 shrink-0 cursor-pointer"
             >
                 <i class="pi pi-times text-xs"></i>
@@ -162,13 +153,13 @@ defineExpose({ inputRef });
             <div v-if="results.length > 0" class="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 py-2.5 bg-gray-50 border-b border-gray-100">
                 <div class="flex items-center justify-center gap-2 sticky top-0 text-xs font-medium text-gray-500">
                     <i class="pi pi-search text-xs"></i>
-                    სულ მოიძებნა {{ results.length }} პროდუქტი
+                    {{ $t('search.foundCount', { count: results.length }) }}
                 </div>
                 <button @click="goToSearch"
                      class="flex items-center justify-center rounded-lg gap-x-2 sticky top-0 px-4 py-1.5 sm:py-2.5 sm:bg-gray-50 bg-slate-100 hover:bg-gray-100 cursor-pointer transition-colors text-xs font-medium text-gray-500"
                 >
                     <i class="pi pi-eye text-xs"></i>
-                    <span>ყველას ნახვა</span>
+                    <span>{{ $t('common.viewAll') }}</span>
                 </button>
             </div>
 
@@ -177,8 +168,8 @@ defineExpose({ inputRef });
                 class="flex flex-col items-center justify-center gap-2 py-10 text-gray-400"
             >
                 <i class="pi pi-search text-2xl"></i>
-                <p class="text-sm font-medium">პროდუქტი დასახელებით "{{ query }}" — არ მოიძებნა</p>
-                <p class="text-xs">სცადეთ სხვა საძიებო სიტყვა</p>
+                <p class="text-sm font-medium">{{ $t('search.noResults', { query }) }}</p>
+                <p class="text-xs">{{ $t('search.tryAnother') }}</p>
             </div>
 
             <ul v-else>
@@ -211,7 +202,7 @@ defineExpose({ inputRef });
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <div class="flex flex-col gap-0.5">
-                                    <span v-if="getDisplayUOM(item)" class="text-xs text-blue-400">შეკვრა</span>
+                                    <span v-if="getDisplayUOM(item)" class="text-xs text-blue-400">{{ $t('search.pack') }}</span>
                                     <p class="text-xs sm:text-sm text-brand-500 font-bold">
                                         {{ getDisplayPrice(item) }} ₾
                                         <span v-if="getDisplayUOM(item)" class="text-xs font-normal text-gray-400">/ {{ getDisplayUOM(item) }}</span>
@@ -223,7 +214,7 @@ defineExpose({ inputRef });
                                     class="text-xs px-2 py-0.5 rounded-full font-medium shrink-0"
                                     :class="item.inventory > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-500'"
                                 >
-                                {{ item.inventory > 0 ? 'მარაგშია' : 'მარაგში არ არის' }}
+                                {{ item.inventory > 0 ? $t('common.inStock') : $t('common.outOfStock') }}
                             </span>
                             </div>
 
@@ -232,7 +223,7 @@ defineExpose({ inputRef });
                                 <button
                                     @click.stop
                                     class="w-5 sm:w-7 h-5 sm:h-7 rounded-lg cursor-pointer flex items-center justify-center text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
-                                    v-tooltip.top="'სურვილების სია'"
+                                    v-tooltip.top="$t('search.wishlist')"
                                 >
                                     <i class="pi pi-heart"></i>
                                 </button>
@@ -240,7 +231,7 @@ defineExpose({ inputRef });
                                     @click.stop="addToCart(item.id, 1, getDisplayUOM(item))"
                                     :disabled="(item.inventory > 0 && getQuantity(item.id) >= item.inventory) || (item.inventory <= 0 && isInCart(item.id))"
                                     class="relative w-5 sm:w-7 h-5 sm:h-7 rounded-lg cursor-pointer flex items-center justify-center text-gray-400 hover:text-brand-500 hover:bg-brand-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:hover:bg-transparent"
-                                    v-tooltip.top="'დაამატე კალათაში'"
+                                    v-tooltip.top="$t('common.addToCart')"
                                 >
                                     <i class="pi pi-cart-plus"></i>
 
@@ -249,7 +240,7 @@ defineExpose({ inputRef });
                                 <button
                                     @click.stop="openQuickView(item)"
                                     class="w-5 sm:w-7 h-5 sm:h-7 rounded-lg cursor-pointer flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
-                                    v-tooltip.top="'სწრაფი დათვალიერება'"
+                                    v-tooltip.top="$t('search.quickView')"
                                 >
                                     <i class="pi pi-eye"></i>
                                 </button>
@@ -264,7 +255,7 @@ defineExpose({ inputRef });
                 @click.stop="visibleCount += 20"
                 class="cursor-pointer w-full py-3 text-xs font-medium text-brand-500 hover:bg-brand-50 transition-colors"
             >
-                მაჩვენე უფრო მეტი
+                {{ $t('search.showMore') }}
             </button>
         </div>
     </div>

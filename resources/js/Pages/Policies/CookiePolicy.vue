@@ -1,135 +1,115 @@
 <script setup>
 import { Head } from '@inertiajs/vue3'
+
+const GOOGLE_PRIVACY_URL = 'https://policies.google.com/privacy'
+const GA_OPT_OUT_URL = 'https://tools.google.com/dlpage/gaoptout'
 </script>
 
 <template>
-    <Head title="ქუქი ფაილების პოლიტიკა" />
+    <Head :title="$t('pol.cookie.title')" />
 
     <div class="max-w-3xl mx-auto py-12 px-6 text-gray-800">
-        <h1 class="text-3xl font-bold mb-6">Cookie პოლიტიკა</h1>
-        <p class="text-sm text-gray-500 mb-6">ბოლო განახლება: ივლისი 2026</p>
+        <h1 class="text-3xl font-bold mb-6">{{ $t('pol.cookie.title') }}</h1>
+        <p class="text-sm text-gray-500 mb-6">{{ $t('pol.cookie.lastUpdated') }}</p>
 
-        <p class="mb-4">
-            აღნიშნული Cookie პოლიტიკა განმარტავს, თუ როგორ ვიყენებთ ჩვენს ვებგვერდზე Cookie და მსგავს ტექნოლოგიებს.
-            ჩვენ ვიყენებთ მხოლოდ იმ Cookie-ებს, რომლებიც საჭიროა საიტის გამართული მუშაობისთვის, უსაფრთხოებისთვის და გამოყენების ანალიზისთვის.
-        </p>
+        <p class="mb-4">{{ $t('pol.cookie.intro') }}</p>
 
-        <!-- What Are Cookies -->
-        <h2 class="text-xl font-semibold mt-8 mb-3">რა არის Cookie?</h2>
-        <p class="mb-4">
-            Cookie წარმოადგენს მცირე ტექსტურ ფაილებს, რომლებიც ინახება თქვენს ბრაუზერში იმისათვის, რომ ვებგვერდმა
-            იმუშაოს გამართულად, გააუმჯობესოს შესრულება ან საუკეთესო გამოყენების გამოცდილება.
-        </p>
+        <h2 class="text-xl font-semibold mt-8 mb-3">{{ $t('pol.cookie.whatH') }}</h2>
+        <p class="mb-4">{{ $t('pol.cookie.whatP') }}</p>
 
-        <!-- What Cookies We Use -->
-        <h2 class="text-xl font-semibold mt-8 mb-3">რასთვის ვიყენებთ Cookie</h2>
+        <h2 class="text-xl font-semibold mt-8 mb-3">{{ $t('pol.cookie.useH') }}</h2>
 
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-4">
 
             <div>
-                <h3 class="font-semibold">1. აუცილებელი Cookie</h3>
-                <p class="text-gray-700">
-                    ეს Cookie საჭიროა ვებგვერდის გამართული მუშაობისთვის, მათ შორის:
-                </p>
+                <h3 class="font-semibold">{{ $t('pol.cookie.c1h') }}</h3>
+                <p class="text-gray-700">{{ $t('pol.cookie.c1p') }}</p>
                 <ul class="list-disc ml-6 mt-2 text-gray-700">
-                    <li>მომხმარებლის ავტორიზაციის სესიის Cookie</li>
-                    <li>უსაფრთხოების და CSRF დაცვის Cookie</li>
+                    <li>{{ $t('pol.cookie.c1i1') }}</li>
+                    <li>{{ $t('pol.cookie.c1i2') }}</li>
                 </ul>
             </div>
 
             <div>
-                <h3 class="font-semibold">2. Google Places API (მისამართის ავტომატური შევსება)</h3>
-                <p class="text-gray-700">
-                    მისამართის შეყვანისას თქვენ მიერ აკრეფილი ტექსტი იგზავნება Google Places API-ზე ავტომატური
-                    შევსების შეთავაზებების გენერირებისთვის. ამ მოთხოვნის ფარგლებში Google-ს ასევე გადაეცემა
-                    თქვენი IP მისამართი.
-                </p>
-                <p class="mt-2 text-gray-700">
-                    ეს სერვისი <strong>არ</strong> ადგენს Cookie-ებს. იგი გამოიყენება მხოლოდ მისამართის
-                    შეყვანის დასახმარებლად და ექვემდებარება
-                    <a href="https://policies.google.com/privacy" class="text-blue-600 underline" target="_blank" rel="noopener">Google-ის კონფიდენციალურობის პოლიტიკას</a>.
-                </p>
+                <h3 class="font-semibold">{{ $t('pol.cookie.c2h') }}</h3>
+                <p class="text-gray-700">{{ $t('pol.cookie.c2p1') }}</p>
+                <i18n-t keypath="pol.cookie.c2p2" tag="p" class="mt-2 text-gray-700">
+                    <template #strong><strong>{{ $t('pol.cookie.c2p2strong') }}</strong></template>
+                    <template #link>
+                        <a :href="GOOGLE_PRIVACY_URL" class="text-blue-600 underline" target="_blank" rel="noopener">{{ $t('pol.cookie.googlePrivacyDat') }}</a>
+                    </template>
+                </i18n-t>
             </div>
 
             <div>
-                <h3 class="font-semibold">3. Google reCAPTCHA</h3>
-                <p class="text-gray-700">
-                    ეს საიტი იყენებს Google reCAPTCHA-ს ბოტებისა და სპამისგან დასაცავად.
-                    reCAPTCHA სკრიპტი ადგენს შემდეგ Cookie-ს:
-                </p>
+                <h3 class="font-semibold">{{ $t('pol.cookie.c3h') }}</h3>
+                <p class="text-gray-700">{{ $t('pol.cookie.c3p1') }}</p>
                 <table class="w-full mt-2 text-sm text-gray-700 border border-gray-200 rounded">
                     <thead class="bg-gray-100">
                     <tr>
-                        <th class="text-left px-3 py-2">Cookie</th>
-                        <th class="text-left px-3 py-2">დანიშნულება</th>
-                        <th class="text-left px-3 py-2">ვადა</th>
+                        <th class="text-left px-3 py-2">{{ $t('pol.cookie.thCookie') }}</th>
+                        <th class="text-left px-3 py-2">{{ $t('pol.cookie.thPurpose') }}</th>
+                        <th class="text-left px-3 py-2">{{ $t('pol.cookie.thExpiry') }}</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr class="border-t border-gray-200">
                         <td class="px-3 py-2 font-mono">_GRECAPTCHA</td>
-                        <td class="px-3 py-2">განასხვავებს ადამიანებს ბოტებისგან</td>
-                        <td class="px-3 py-2">6 თვე</td>
+                        <td class="px-3 py-2">{{ $t('pol.cookie.grecaptchaPurpose') }}</td>
+                        <td class="px-3 py-2">{{ $t('pol.cookie.sixMonths') }}</td>
                     </tr>
                     </tbody>
                 </table>
-                <p class="mt-3 text-gray-700">
-                    მისი გამოყენება ექვემდებარება
-                    <a href="https://policies.google.com/privacy" class="text-blue-600 underline" target="_blank" rel="noopener">Google-ის კონფიდენციალურობის პოლიტიკას</a>.
-                </p>
+                <i18n-t keypath="pol.cookie.c3p2" tag="p" class="mt-3 text-gray-700">
+                    <template #link>
+                        <a :href="GOOGLE_PRIVACY_URL" class="text-blue-600 underline" target="_blank" rel="noopener">{{ $t('pol.cookie.googlePrivacyDat') }}</a>
+                    </template>
+                </i18n-t>
             </div>
 
             <div>
-                <h3 class="font-semibold">4. Google Analytics (GA4)</h3>
-                <p class="text-gray-700">
-                    ჩვენ ვიყენებთ Google Analytics GA4-ს იმის გასაგებად, თუ როგორ სარგებლობენ ვიზიტორები ჩვენი
-                    ვებგვერდით (ნანახი გვერდები, სესიის ხანგრძლივობა, ტრაფიკის წყარო). ეს მონაცემები ანონიმიზებულია
-                    და გამოიყენება მხოლოდ ჩვენი ვებგვერდის გასაუმჯობესებლად.
-                </p>
-                <p class="mt-2 text-gray-700">Google Analytics ადგენს შემდეგ Cookie-ებს:</p>
+                <h3 class="font-semibold">{{ $t('pol.cookie.c4h') }}</h3>
+                <p class="text-gray-700">{{ $t('pol.cookie.c4p1') }}</p>
+                <p class="mt-2 text-gray-700">{{ $t('pol.cookie.c4p2') }}</p>
                 <table class="w-full mt-2 text-sm text-gray-700 border border-gray-200 rounded">
                     <thead class="bg-gray-100">
                     <tr>
-                        <th class="text-left px-3 py-2">Cookie</th>
-                        <th class="text-left px-3 py-2">დანიშნულება</th>
-                        <th class="text-left px-3 py-2">ვადა</th>
+                        <th class="text-left px-3 py-2">{{ $t('pol.cookie.thCookie') }}</th>
+                        <th class="text-left px-3 py-2">{{ $t('pol.cookie.thPurpose') }}</th>
+                        <th class="text-left px-3 py-2">{{ $t('pol.cookie.thExpiry') }}</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr class="border-t border-gray-200">
                         <td class="px-3 py-2 font-mono">_ga</td>
-                        <td class="px-3 py-2">განასხვავებს მომხმარებლებს</td>
-                        <td class="px-3 py-2">2 წელი</td>
+                        <td class="px-3 py-2">{{ $t('pol.cookie.gaPurpose') }}</td>
+                        <td class="px-3 py-2">{{ $t('pol.cookie.twoYears') }}</td>
                     </tr>
                     <tr class="border-t border-gray-200">
                         <td class="px-3 py-2 font-mono">_gid</td>
-                        <td class="px-3 py-2">განასხვავებს მომხმარებლებს</td>
-                        <td class="px-3 py-2">24 საათი</td>
+                        <td class="px-3 py-2">{{ $t('pol.cookie.gaPurpose') }}</td>
+                        <td class="px-3 py-2">{{ $t('pol.cookie.twentyFourHours') }}</td>
                     </tr>
                     <tr class="border-t border-gray-200">
                         <td class="px-3 py-2 font-mono">_ga_*</td>
-                        <td class="px-3 py-2">ინარჩუნებს სესიის მდგომარეობას</td>
-                        <td class="px-3 py-2">2 წელი</td>
+                        <td class="px-3 py-2">{{ $t('pol.cookie.gaSessionPurpose') }}</td>
+                        <td class="px-3 py-2">{{ $t('pol.cookie.twoYears') }}</td>
                     </tr>
                     </tbody>
                 </table>
-                <p class="mt-3 text-gray-700">
-                    დამატებითი ინფორმაციისთვის იხილეთ
-                    <a href="https://policies.google.com/privacy" class="text-blue-600 underline" target="_blank" rel="noopener">Google-ის კონფიდენციალურობის პოლიტიკა</a>.
-                    შეგიძლიათ უარი თქვათ
-                    <a href="https://tools.google.com/dlpage/gaoptout" class="text-blue-600 underline" target="_blank" rel="noopener">Google Analytics-ის გამორთვის გაფართოების</a> საშუალებით.
-                </p>
+                <i18n-t keypath="pol.cookie.c4p3" tag="p" class="mt-3 text-gray-700">
+                    <template #link>
+                        <a :href="GOOGLE_PRIVACY_URL" class="text-blue-600 underline" target="_blank" rel="noopener">{{ $t('pol.cookie.googlePrivacyNom') }}</a>
+                    </template>
+                    <template #link2>
+                        <a :href="GA_OPT_OUT_URL" class="text-blue-600 underline" target="_blank" rel="noopener">{{ $t('pol.cookie.gaOptOut') }}</a>
+                    </template>
+                </i18n-t>
             </div>
         </div>
 
-        <!-- Managing Cookies -->
-        <h2 class="text-xl font-semibold mt-8 mb-3">Cookie მართვა</h2>
-        <p class="mb-4">
-            თქვენ შეგიძლიათ აკონტროლოთ ან გამორთოთ Cookie თქვენი ბრაუზერის პარამეტრებიდან.
-            თუმცა, აუცილებელი Cookie გამორთვამ შესაძლოა ხელი შეუშალოს ვებგვერდის ფუნქციონირებას.
-        </p>
-        <p class="text-gray-700">
-            Cookie მართვის შესახებ ინფორმაციისთვის იხილეთ თქვენი ბრაუზერის დახმარების განყოფილება.
-        </p>
+        <h2 class="text-xl font-semibold mt-8 mb-3">{{ $t('pol.cookie.manageH') }}</h2>
+        <p class="mb-4">{{ $t('pol.cookie.manageP1') }}</p>
+        <p class="text-gray-700">{{ $t('pol.cookie.manageP2') }}</p>
     </div>
 </template>

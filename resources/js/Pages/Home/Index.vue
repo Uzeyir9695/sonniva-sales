@@ -23,11 +23,11 @@ defineProps({
 
 <template>
     <Head>
-        <meta name="description" content="Sonniva - ავეჯის ფიტინგები, სახელურები, სასრიალოები და სამშენებლო მასალები. საუკეთესო ხარისხი და ფასები საქართველოში." />
+        <meta name="description" :content="$t('seo.homeDescription')" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Sonniva" />
         <meta property="og:title" content="Sonniva" />
-        <meta property="og:description" content="Sonniva - ავეჯის ფიტინგები, სახელურები, სასრიალოები და სამშენებლო მასალები. საუკეთესო ხარისხი და ფასები საქართველოში." />
+        <meta property="og:description" :content="$t('seo.homeDescription')" />
         <meta property="og:url" :content="$page.props.ziggy.location" />
         <meta property="og:image" :content="`${$page.props.ziggy.url}/logo/logo.png`" />
     </Head>

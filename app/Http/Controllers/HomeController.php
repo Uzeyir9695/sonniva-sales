@@ -40,7 +40,7 @@ class HomeController extends Controller
                 ->toArray();
         });
 
-        $homeSections = Cache::rememberForever('home_sections', function () {
+        $homeSections = Cache::rememberForever('home_sections_'.app()->getLocale(), function () {
             return HomeSection::where('is_hidden', false)
                 ->with(['items', 'images'])
                 ->orderBy('created_at')
@@ -77,7 +77,7 @@ class HomeController extends Controller
 
     private function getItemsByBrand(string $brand, int $limit = 12): array
     {
-        $items = Cache::remember("home_carousel_{$brand}", now()->addHour(), function () use ($brand, $limit) {
+        $items = Cache::remember('home_carousel_'.$brand.'_'.app()->getLocale(), now()->addHour(), function () use ($brand, $limit) {
             return Item::where('inventory', '>', 0)
                 ->whereHas('attributes', fn ($q) => $q->where('name', self::BRAND_ATTRIBUTE_NAME)
                     ->where('value', $brand)
