@@ -142,9 +142,9 @@ function usesTbilisiZoneRate(item) {
 }
 
 const deliveryTypes = computed(() => [
-    { key: 'office',   label: t('checkout.deliveryOffice') },
-    { key: 'tbilisi',  label: t('checkout.deliveryTbilisi') },
-    { key: 'regions',  label: t('checkout.deliveryRegions') },
+    { key: 'office',   label: t('checkout.deliveryOffice'),  note: t('pol.delivery.hours') },
+    { key: 'tbilisi',  label: t('checkout.deliveryTbilisi'), note: t('pol.delivery.methodTbilisiSubtitle2') },
+    { key: 'regions',  label: t('checkout.deliveryRegions'), note: t('pol.delivery.methodRegionsSubtitle2') },
 ])
 
 const regionOptions = computed(() => [
@@ -620,6 +620,7 @@ function initiatePayment() {
                                         <div v-if="selectedDelivery?.key === type.key" class="w-2 h-2 rounded-full bg-brand-500"></div>
                                     </div>
                                 </div>
+                                <span v-if="type.note" class="text-xs text-gray-500 font-medium">{{ type.note }}</span>
                             </button>
                         </div>
                         <p v-if="errors.deliveryType" class="mt-3 text-sm text-red-500 flex items-center gap-1.5">

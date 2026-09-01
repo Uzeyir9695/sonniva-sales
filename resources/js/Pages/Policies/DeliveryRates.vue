@@ -12,6 +12,7 @@ const deliveryMethods = computed(() => [
         icon: 'pi pi-building',
         title: t('pol.delivery.methodOfficeTitle'),
         subtitle: t('pol.delivery.methodOfficeSubtitle'),
+        subtitle2: t('pol.delivery.methodOfficeSubtitle2'),
         badge: t('pol.delivery.free'),
         badgeClass: 'bg-emerald-100 text-emerald-700',
         cardClass: 'border-emerald-200',
@@ -21,6 +22,7 @@ const deliveryMethods = computed(() => [
         icon: 'pi pi-map-marker',
         title: t('pol.delivery.methodTbilisiTitle'),
         subtitle: t('pol.delivery.methodTbilisiSubtitle'),
+        subtitle2: t('pol.delivery.methodTbilisiSubtitle2'),
         badge: '5 – 60 ₾',
         badgeClass: 'bg-blue-100 text-blue-700',
         cardClass: 'border-blue-200',
@@ -30,6 +32,7 @@ const deliveryMethods = computed(() => [
         icon: 'fa-solid fa-truck-fast',
         title: t('pol.delivery.methodRegionsTitle'),
         subtitle: t('pol.delivery.methodRegionsSubtitle'),
+        subtitle2: t('pol.delivery.methodRegionsSubtitle2'),
         badge: '6 – 750 ₾',
         badgeClass: 'bg-violet-100 text-violet-700',
         cardClass: 'border-violet-200',
@@ -109,6 +112,7 @@ function weightLabel(rate, index) {
                     <div>
                         <p class="font-semibold text-gray-900 text-sm">{{ method.title }}</p>
                         <p class="text-xs text-gray-400 mt-0.5">{{ method.subtitle }}</p>
+                        <p v-if="method.subtitle2" class="text-xs text-gray-400 font-bold mt-2">{{ method.subtitle2 }}</p>
                     </div>
                 </div>
             </div>
