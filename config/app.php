@@ -56,6 +56,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Asset URL
+    |--------------------------------------------------------------------------
+    |
+    | Static assets (Vite's build output, favicon, etc.) don't have per-locale
+    | copies, so asset() must never inherit the /en, /ru, /tr root that
+    | SetLocale forces onto route()/url() for the rest of the request.
+    | Defaults to APP_URL, which forceRootUrl() never mutates.
+    |
+    */
+
+    'asset_url' => env('ASSET_URL', env('APP_URL')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |
