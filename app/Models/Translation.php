@@ -9,6 +9,35 @@ class Translation extends Model
 {
     protected $fillable = ['source_text', 'en', 'ru', 'tr', 'needs_review'];
 
+    /**
+     * Georgian unit words that appear glued to a number in attribute values
+     * (e.g. "160 მმ", "20 კგ") — translated in place so a value never needs
+     * its own dictionary row just because of the number in front of it.
+     *
+     * @var array<string, array<string, string>>
+     */
+    private const UNIT_WORDS = [
+        'მმ' => ['en' => 'mm', 'ru' => 'мм', 'tr' => 'mm'],
+        'სმ' => ['en' => 'cm', 'ru' => 'см', 'tr' => 'cm'],
+        'მ' => ['en' => 'm', 'ru' => 'м', 'tr' => 'm'],
+        'კგ' => ['en' => 'kg', 'ru' => 'кг', 'tr' => 'kg'],
+        'გრ' => ['en' => 'g', 'ru' => 'г', 'tr' => 'g'],
+        'ლ' => ['en' => 'l', 'ru' => 'л', 'tr' => 'l'],
+        'მლ' => ['en' => 'ml', 'ru' => 'мл', 'tr' => 'ml'],
+        'ცალი' => ['en' => 'pcs', 'ru' => 'шт', 'tr' => 'adet'],
+        'ვატი' => ['en' => 'W', 'ru' => 'Вт', 'tr' => 'W'],
+        'ვოლტი' => ['en' => 'V', 'ru' => 'В', 'tr' => 'V'],
+        'ამპერი' => ['en' => 'A', 'ru' => 'А', 'tr' => 'A'],
+        'კელვინი' => ['en' => 'K', 'ru' => 'К', 'tr' => 'K'],
+        'ლუმენი' => ['en' => 'lm', 'ru' => 'лм', 'tr' => 'lm'],
+        'ბარი' => ['en' => 'bar', 'ru' => 'бар', 'tr' => 'bar'],
+        'ჯოული' => ['en' => 'J', 'ru' => 'Дж', 'tr' => 'J'],
+        'ნიუტონი' => ['en' => 'N', 'ru' => 'Н', 'tr' => 'N'],
+        'სთ' => ['en' => 'h', 'ru' => 'ч', 'tr' => 'sa'],
+        'წთ' => ['en' => 'min', 'ru' => 'мин', 'tr' => 'dk'],
+        'წამი' => ['en' => 's', 'ru' => 'с', 'tr' => 'sn'],
+    ];
+
     protected function casts(): array
     {
         return ['needs_review' => 'boolean'];
@@ -30,7 +59,25 @@ class Translation extends Model
             return $source;
         }
 
-        return static::map($locale)[trim($source)] ?? $source;
+        return static::map($locale)[trim($source)] ?? static::translateUnits($source, $locale);
+    }
+
+    /**
+     * Translates Georgian unit words that follow a number (e.g. "160 მმ" →
+     * "160 mm"), leaving everything else in the string untouched. Used as a
+     * fallback when there's no exact dictionary match for the full value.
+     */
+    private static function translateUnits(string $source, string $locale): string
+    {
+        return preg_replace_callback(
+            '/(\d)(\s*)([\x{10A0}-\x{10FF}]+)/u',
+            function (array $m) use ($locale) {
+                $unit = self::UNIT_WORDS[$m[3]] ?? null;
+
+                return $unit ? $m[1].$m[2].$unit[$locale] : $m[0];
+            },
+            $source
+        );
     }
 
     /**
