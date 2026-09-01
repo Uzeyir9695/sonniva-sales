@@ -355,6 +355,10 @@ $values = [
     'ფოლადი' => ['Steel', 'Сталь', 'Çelik'],
     'ქვედა' => ['Bottom', 'Нижний', 'Alt'],
     'წებოვანი' => ['Adhesive', 'Клейкий', 'Yapışkanlı'],
+    'რეგულირებადი კუთხე, სოკოს ძირით' => ['Adjustable angle, mushroom base', 'Регулируемый угол, с грибовидным основанием', 'Ayarlanabilir açı, mantar tabanlı'],
+    'ორი კარის სლაიდ სისტემა, კარის სისქე 15-22 მმ' => ['Two-door sliding system, door thickness 15-22 mm', 'Раздвижная система на две двери, толщина двери 15-22 мм', 'İki kapılı sürgü sistemi, kapı kalınlığı 15-22 mm'],
+    'ფეხიანი ღია საკიდი' => ['Open rail with legs', 'Открытый кронштейн на ножках', 'Ayaklı açık askı'],
+    'ერთ კარზე 20 კგ, ორ კარზე 40 კგ' => ['20 kg per door, 40 kg for two doors', '20 кг на одну дверь, 40 кг на две двери', 'Tek kapıda 20 kg, iki kapıda 40 kg'],
 ];
 
 $out = [];
