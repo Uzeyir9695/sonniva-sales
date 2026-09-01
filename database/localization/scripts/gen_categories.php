@@ -4,6 +4,21 @@
 // code => [en, ru, tr]  (empty string = leave for review)
 
 $t = [
+    // ── Top-level nav categories (Category::NAV_CODES) ────────
+    '1100' => ['Furniture mechanisms', 'Мебельные механизмы', 'Mobilya mekanizmaları'],
+    '1200' => ['Furniture materials & accessories', 'Мебельные материалы и комплектующие', 'Mobilya malzemeleri ve aksesuarları'],
+    '1300' => ['Edge banding', 'Кромка', 'Kenar bandı'],
+    '1400' => ['Aluminium profiles', 'Алюминиевые профили', 'Alüminyum profiller'],
+    '1500' => ['Railing components', 'Комплектующие для перил', 'Korkuluk bileşenleri'],
+    '1600' => ['Glass & shower enclosure fittings', 'Стекло и фурнитура для душевых кабин', 'Cam ve duşakabin aksesuarları'],
+    '1700' => ['Aluminium sliding-door systems', 'Алюминиевые раздвижные системы', 'Alüminyum sürgülü kapı sistemleri'],
+    '1800' => ['Consumables & chemicals', 'Расходные материалы и химия', 'Sarf malzemeleri ve kimyasallar'],
+    '1900' => ['Hand tools & instruments', 'Ручной инструмент и оснастка', 'El aletleri ve ölçü aletleri'],
+    '2000' => ['Power tools & machinery', 'Электроинструмент и оборудование', 'Elektrikli aletler ve makineler'],
+    '2100' => ['Electrical products', 'Электротовары', 'Elektrik ürünleri'],
+    '2200' => ['Plumbing & sanitary ware', 'Сантехника', 'Sıhhi tesisat'],
+    '2300' => ['Home', 'Для дома', 'Ev'],
+
     // ── Level 1 ────────────────────────────────────────────────
     '6100' => ['Air fresheners', 'Ароматизаторы', 'Oda kokuları'],
     '6200' => ['Miscellaneous', 'Разное', 'Diğer ürünler'],
