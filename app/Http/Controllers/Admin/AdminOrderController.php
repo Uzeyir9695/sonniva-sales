@@ -41,7 +41,7 @@ class AdminOrderController extends Controller
             ->when($status === 'delivered' && $request->filled('delivered_start'), fn ($q) => $q->whereDate('delivered_at', '>=', $request->delivered_start))
             ->when($status === 'delivered' && $request->filled('delivered_end'), fn ($q) => $q->whereDate('delivered_at', '<=', $request->delivered_end))
             ->latest()
-            ->paginate(20)
+            ->paginate($request->integer('per_page', 20))
             ->through(fn ($order) => [
                 'id' => $order->id,
                 'invoice_no' => $order->invoice_no,

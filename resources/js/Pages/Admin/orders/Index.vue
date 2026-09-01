@@ -145,6 +145,41 @@ function resetDeliveredAt() {
     }, { preserveState: true, preserveScroll: true });
 }
 
+const currentFilterParams = computed(() => {
+    const params = { status: props.status };
+
+    if (props.status === 'pending' && invoicedAtDates.value?.[0] && invoicedAtDates.value?.[1]) {
+        params.start_date = fmt(invoicedAtDates.value[0]);
+        params.end_date = fmt(invoicedAtDates.value[1]);
+    }
+    if (['paid', 'limit'].includes(props.status) && approvedAtDates.value?.[0] && approvedAtDates.value?.[1]) {
+        params.start_date = fmt(approvedAtDates.value[0]);
+        params.end_date = fmt(approvedAtDates.value[1]);
+    }
+    if (['ready', 'delivered'].includes(props.status) && approvedAtDates.value?.[0] && approvedAtDates.value?.[1]) {
+        params.approved_start = fmt(approvedAtDates.value[0]);
+        params.approved_end = fmt(approvedAtDates.value[1]);
+    }
+    if (props.status === 'ready' && readyAtDates.value?.[0] && readyAtDates.value?.[1]) {
+        params.ready_start = fmt(readyAtDates.value[0]);
+        params.ready_end = fmt(readyAtDates.value[1]);
+    }
+    if (props.status === 'delivered' && deliveredAtDates.value?.[0] && deliveredAtDates.value?.[1]) {
+        params.delivered_start = fmt(deliveredAtDates.value[0]);
+        params.delivered_end = fmt(deliveredAtDates.value[1]);
+    }
+
+    return params;
+});
+
+function onPage(event) {
+    router.get(route('admin.orders.index'), {
+        ...currentFilterParams.value,
+        page: event.page + 1,
+        per_page: event.rows,
+    }, { preserveState: true, preserveScroll: true, only: ['orders'] });
+}
+
 const tabs = [
     { label: 'Invoiced',   value: 'pending',    badge: true,  icon: 'pi-clock' },
     { label: 'Limit',      value: 'limit',      badge: true,  icon: 'pi-credit-card' },
@@ -446,8 +481,12 @@ function confirmMarkDelivered(order) {
             <DataTable
                     :value="orders?.data ?? []"
                     dataKey="id"
-                    :rows="10"
+                    lazy
                     paginator
+                    :rows="orders?.per_page ?? 20"
+                    :totalRecords="orders?.total ?? 0"
+                    :first="((orders?.current_page ?? 1) - 1) * (orders?.per_page ?? 20)"
+                    @page="onPage"
                     :rowsPerPageOptions="[10, 20, 50]"
                     tableStyle="min-width: 50rem"
                     class="text-sm"
@@ -459,7 +498,7 @@ function confirmMarkDelivered(order) {
                         <div class="flex items-center gap-2">
                             <i class="pi pi-shopping-cart text-gray-500"></i>
                             <span class="font-semibold text-gray-700">
-                                {{ orders.data.length }} order{{ orders.data.length !== 1 ? 's' : '' }}
+                                {{ orders.total }} order{{ orders.total !== 1 ? 's' : '' }}
                                 <span class="capitalize text-gray-400">({{ status }})</span>
                             </span>
                         </div>
