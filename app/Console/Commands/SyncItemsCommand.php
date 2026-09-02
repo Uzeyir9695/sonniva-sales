@@ -134,6 +134,8 @@ class SyncItemsCommand extends Command
                 'min_qty_unit_price' => $item['minQtyUnitPrice'] ?? 0,
                 'prices' => $detailed['itemUnitPrices'] ?? [],
                 'images' => $images,
+                ...$this->localeColumns('name', $item['itemDescriptions'] ?? []),
+                ...$this->localeColumns('description', $item['itemReviews'] ?? []),
             ]
         );
 
@@ -154,10 +156,36 @@ class SyncItemsCommand extends Command
         }
     }
 
+    /**
+     * Map a Business Central translations collection (itemDescriptions for the
+     * name, itemReviews for the description) onto our `<column>_<locale>`
+     * columns, keyed by BC's uppercase language code. Missing or empty
+     * translations are skipped so a partial BC payload never wipes a column.
+     *
+     * @param  array<int, array{languageCode?: string, translation?: string}>  $translations
+     * @return array<string, string>
+     */
+    private function localeColumns(string $column, array $translations): array
+    {
+        $locales = ['ENG' => 'en', 'RUS' => 'ru', 'TUR' => 'tr'];
+        $columns = [];
+
+        foreach ($translations as $translation) {
+            $locale = $locales[$translation['languageCode'] ?? ''] ?? null;
+            $value = trim((string) ($translation['translation'] ?? ''));
+
+            if ($locale && $value !== '') {
+                $columns["{$column}_{$locale}"] = $value;
+            }
+        }
+
+        return $columns;
+    }
+
     private function fetchItem(string $token, string $no): ?array
     {
         $base = config('bc.api_base_url');
-        $url = $base."Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items?\$select=no,itemCategoryCode,description,itemReview,inventory,baseUOMDesc,unitPrice,minQtyUnitPrice&\$expand=itemAttributeValues(\$select=itemAttributeId,attributeName,attributeValue)&\$filter=no eq '{$no}'";
+        $url = $base."Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items?\$select=no,itemCategoryCode,description,itemReview,inventory,baseUOMDesc,unitPrice,minQtyUnitPrice&\$expand=itemAttributeValues(\$select=itemAttributeId,attributeName,attributeValue),itemDescriptions(\$select=languageCode,translation),itemReviews(\$select=languageCode,translation)&\$filter=no eq '{$no}'";
 
         $response = Http::withToken($token)
             ->timeout(180)

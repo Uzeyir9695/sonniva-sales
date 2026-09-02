@@ -75,6 +75,52 @@ it('refreshes an existing item without churning its slug or duplicating attribut
     expect(Attribute::where('item_id', $item->id)->first()->value)->toBe('Blue');
 });
 
+it('stores BC name and description translations into the locale columns', function () {
+    $category = makeSyncItemsCategory();
+
+    $this->mock(BusinessCentralService::class, function ($mock) {
+        $mock->shouldReceive('getAccessToken')->andReturn('fake-token');
+    });
+
+    Http::fake([
+        '*/items?*' => Http::response(['value' => [[
+            'no' => 'ITEM003',
+            'itemCategoryCode' => $category->code,
+            'description' => 'ჩარჩო',
+            'itemReview' => 'ქართული აღწერა',
+            'inventory' => 1,
+            'baseUOMDesc' => null,
+            'unitPrice' => 10,
+            'minQtyUnitPrice' => 0,
+            'itemAttributeValues' => [],
+            'itemDescriptions' => [
+                ['languageCode' => 'ENG', 'translation' => 'Frame - black wide'],
+                ['languageCode' => 'RUS', 'translation' => 'Рама чёрная'],
+                ['languageCode' => 'TUR', 'translation' => ''],
+            ],
+            'itemReviews' => [
+                ['languageCode' => 'ENG', 'translation' => 'Durable aluminum frame.'],
+                ['languageCode' => 'RUS', 'translation' => 'Прочная алюминиевая рама.'],
+            ],
+        ]]]),
+        '*itemsDetailed*' => Http::response(['itemUnitPrices' => []]),
+    ]);
+
+    $this->artisan('items:sync', ['no' => 'ITEM003'])->assertSuccessful();
+
+    $item = Item::where('no', 'ITEM003')->firstOrFail();
+
+    expect($item->getAttributes())
+        ->toMatchArray([
+            'name_en' => 'Frame - black wide',
+            'name_ru' => 'Рама чёрная',
+            'name_tr' => null,
+            'description_en' => 'Durable aluminum frame.',
+            'description_ru' => 'Прочная алюминиевая рама.',
+            'description_tr' => null,
+        ]);
+});
+
 it('gives a renamed existing item a fresh slug instead of colliding with itself', function () {
     $category = makeSyncItemsCategory();
 
