@@ -394,6 +394,7 @@ const ogImage = computed(() => {
                                 </span>
                                 </li>
                                 <li class="flex gap-2"><span class="text-brand-500">→</span> <span>{{ $t('item.deliveryTbilisi') }}</span></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>{{ $t('item.deliveryTbilisiEta') }}</span></li>
                                 <li class="flex gap-2">
                                     <span class="text-brand-500">→</span>
                                     <span>
