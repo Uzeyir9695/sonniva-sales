@@ -231,10 +231,6 @@ Route::get('/terms-of-service', function () {
     return Inertia::render('Policies/TermsOfService');
 })->name('terms-of-service');
 
-Route::get('/keep-conditions', function () {
-    return Inertia::render('Policies/KeepConditions');
-})->name('keep-conditions');
-
 Route::get('/privacy-policy', function () {
     return Inertia::render('Policies/PrivacyPolicy');
 })->name('privacy-policy');

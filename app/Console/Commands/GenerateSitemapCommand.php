@@ -52,7 +52,6 @@ class GenerateSitemapCommand extends Command
             ['/terms-of-service', 0.3, Url::CHANGE_FREQUENCY_YEARLY],
             ['/privacy-policy', 0.3, Url::CHANGE_FREQUENCY_YEARLY],
             ['/cookie-policy', 0.3, Url::CHANGE_FREQUENCY_YEARLY],
-            ['/keep-conditions', 0.3, Url::CHANGE_FREQUENCY_YEARLY],
         ];
 
         foreach ($pages as [$path, $priority, $freq]) {
