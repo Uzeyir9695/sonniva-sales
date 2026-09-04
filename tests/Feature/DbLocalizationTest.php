@@ -51,6 +51,17 @@ it('translates dictionary strings for the active locale with source fallback', f
     expect(Translation::get('წითელი'))->toBe('წითელი');
 });
 
+it('never queries a non-translation locale column even when default_locale is misconfigured', function () {
+    config()->set('app.default_locale', 'en');
+    Translation::create(['source_text' => 'წითელი', 'en' => 'Red']);
+
+    app()->setLocale('ka');
+
+    expect(Translation::get('წითელი'))->toBe('წითელი')
+        ->and(makeLocalizationCategory(['name_en' => 'Furniture hardware'])->fresh()->name)
+        ->toBe('ავეჯის ფურნიტურა');
+});
+
 it('imports translated category and item files keyed by business key', function () {
     Storage::fake('local');
 

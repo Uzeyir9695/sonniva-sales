@@ -2,6 +2,8 @@
 
 namespace App\Models\Concerns;
 
+use App\Models\Translation;
+
 trait HasLocalizedAttributes
 {
     /**
@@ -14,7 +16,7 @@ trait HasLocalizedAttributes
     {
         $locale = app()->getLocale();
 
-        if ($locale === config('app.default_locale')) {
+        if (! in_array($locale, Translation::LOCALES, true)) {
             return $fallback;
         }
 

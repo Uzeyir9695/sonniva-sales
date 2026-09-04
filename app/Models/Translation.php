@@ -9,6 +9,9 @@ class Translation extends Model
 {
     protected $fillable = ['source_text', 'en', 'ru', 'tr', 'needs_review'];
 
+    /** Locales with a real column on this table — anything else resolves to the source text. */
+    public const LOCALES = ['en', 'ru', 'tr'];
+
     /**
      * Georgian unit words that appear glued to a number in attribute values
      * (e.g. "160 მმ", "20 კგ") — translated in place so a value never needs
@@ -55,7 +58,7 @@ class Translation extends Model
 
         $locale = app()->getLocale();
 
-        if ($locale === config('app.default_locale')) {
+        if (! in_array($locale, self::LOCALES, true)) {
             return $source;
         }
 
@@ -93,7 +96,7 @@ class Translation extends Model
 
     public static function flushCache(): void
     {
-        foreach (['en', 'ru', 'tr'] as $locale) {
+        foreach (self::LOCALES as $locale) {
             Cache::forget("translations_map_{$locale}");
         }
     }

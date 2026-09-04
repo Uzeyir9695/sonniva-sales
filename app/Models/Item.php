@@ -53,9 +53,9 @@ class Item extends Model
         );
     }
 
-    public function getBcUnitPriceAttribute(): float
+    public function getBcUnitPriceAttribute(): ?float
     {
-        return (float) $this->attributes['unit_price'];
+        return isset($this->attributes['unit_price']) ? (float) $this->attributes['unit_price'] : null;
     }
 
     protected function name(): AttributeCast
