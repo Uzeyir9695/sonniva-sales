@@ -32,7 +32,8 @@ class HmsController extends Controller
             ->orderBy('sales_rank')
             ->orderByRaw('CASE WHEN inventory > 0 THEN 0 ELSE 1 END')
             ->orderBy('id')
-            ->get();
+            ->get()
+            ->each->makeVisible(['name_en', 'name_tr', 'description_en', 'description_tr']);
 
         $level2ByCode = $this->resolveLevel2Categories($items->pluck('category_code'));
 
@@ -44,6 +45,8 @@ class HmsController extends Controller
                 return [
                     'category_code' => $category?->code,
                     'category_name' => $category?->name,
+                    'category_name_en' => $category?->name_en,
+                    'category_name_tr' => $category?->name_tr,
                     'items_count' => $group->count(),
                     'items' => $group->values(),
                 ];
