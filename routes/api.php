@@ -16,6 +16,7 @@ use App\Http\Controllers\SalesController;
 use App\Http\Controllers\StockNotificationController;
 use App\Http\Controllers\UserOrderController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Middleware\SetApiLocale;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/user', function (Request $request) {
@@ -32,7 +33,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/hms/items', [HmsController::class, 'items'])->name('api.hms.items');
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware(SetApiLocale::class)->group(function () {
     Route::post('/register', [RegisterController::class, 'register']);
     Route::post('/register/verify-phone', [RegisterController::class, 'verifyCode']);
     Route::post('/register/resend-code', [RegisterController::class, 'resendCode']);
