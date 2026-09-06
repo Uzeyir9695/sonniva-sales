@@ -18,6 +18,8 @@ import mitt from "mitt"
 
 const DEFAULT_LOCALE = 'ka'
 const PREFIXED_LOCALES = ['en', 'ru', 'tr']
+const SUPPORTED_LOCALES = [DEFAULT_LOCALE, ...PREFIXED_LOCALES]
+const resolveLocale = (locale) => (SUPPORTED_LOCALES.includes(locale) ? locale : DEFAULT_LOCALE)
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
@@ -157,15 +159,21 @@ createInertiaApp({
         const i18n = createI18n({
             legacy: false,
             globalInjection: true,
-            locale: props.initialPage.props.locale ?? DEFAULT_LOCALE,
+            locale: resolveLocale(props.initialPage.props.locale),
             fallbackLocale: DEFAULT_LOCALE,
+            missingWarn: false,
+            fallbackWarn: false,
             messages: { ka, en, ru, tr },
         });
         // Inertia SPA visits don't re-run this setup, so keep vue-i18n in sync
-        // with the shared `locale` prop on every navigation.
-        router.on('success', (event) => {
-            i18n.global.locale.value = event.detail.page.props.locale ?? DEFAULT_LOCALE
-        });
+        // with the shared `locale` prop on every navigation. Client only: SSR
+        // never makes SPA visits, and `router` is a module singleton, so binding
+        // here per render would leak a listener on every SSR request.
+        if (typeof window !== 'undefined') {
+            router.on('success', (event) => {
+                i18n.global.locale.value = resolveLocale(event.detail.page.props.locale)
+            });
+        }
 
         app.use(plugin);
         app.use(pinia);

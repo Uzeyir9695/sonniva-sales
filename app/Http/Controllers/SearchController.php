@@ -11,7 +11,7 @@ class SearchController extends Controller
 {
     public function index(Request $request): Response
     {
-        $q = trim($request->input('q', ''));
+        $q = is_string($value = $request->input('q')) ? trim($value) : '';
         $priceMin = $request->input('price_min');
         $priceMax = $request->input('price_max');
         $stock = $request->input('stock');

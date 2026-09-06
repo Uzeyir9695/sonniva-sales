@@ -49,3 +49,9 @@ it('finds keyword-matched items on the deferred search reload', function () {
     $response->assertSuccessful();
     $response->assertJsonPath('props.items.data.0.id', $item->id);
 });
+
+it('does not crash when q is passed as an array', function () {
+    $this->get('/search?q[]=foo&q[]=bar')
+        ->assertSuccessful()
+        ->assertInertia(fn ($page) => $page->where('query', ''));
+});
