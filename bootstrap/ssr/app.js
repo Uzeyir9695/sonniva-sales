@@ -891,6 +891,8 @@ var ToastService = {
 };
 const DEFAULT_LOCALE = "ka";
 const PREFIXED_LOCALES = ["en", "ru", "tr"];
+const SUPPORTED_LOCALES = [DEFAULT_LOCALE, ...PREFIXED_LOCALES];
+const resolveLocale = (locale) => SUPPORTED_LOCALES.includes(locale) ? locale : DEFAULT_LOCALE;
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 const emitter = mitt();
@@ -997,13 +999,17 @@ const render = await createInertiaApp({
     const i18n = createI18n({
       legacy: false,
       globalInjection: true,
-      locale: props.initialPage.props.locale ?? DEFAULT_LOCALE,
+      locale: resolveLocale(props.initialPage.props.locale),
       fallbackLocale: DEFAULT_LOCALE,
+      missingWarn: false,
+      fallbackWarn: false,
       messages: { ka, en, ru, tr }
     });
-    router.on("success", (event) => {
-      i18n.global.locale.value = event.detail.page.props.locale ?? DEFAULT_LOCALE;
-    });
+    if (typeof window !== "undefined") {
+      router.on("success", (event) => {
+        i18n.global.locale.value = resolveLocale(event.detail.page.props.locale);
+      });
+    }
     app.use(plugin);
     app.use(pinia);
     app.use(U, ziggyForVue);
