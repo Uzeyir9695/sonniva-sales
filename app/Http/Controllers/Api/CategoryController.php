@@ -11,7 +11,7 @@ class CategoryController extends Controller
 {
     public function tree(): JsonResponse
     {
-        $categories = Cache::rememberForever('nav_categories', fn () => Category::navTree());
+        $categories = Cache::rememberForever('nav_categories_'.app()->getLocale(), fn () => Category::navTree());
 
         return response()->json($categories);
     }
