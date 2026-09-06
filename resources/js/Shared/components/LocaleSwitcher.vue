@@ -7,12 +7,11 @@ const DEFAULT_LOCALE = 'ka'
 const LOCALES = ['ka', 'en', 'ru', 'tr']
 
 const flagMap = {
-    ka: '/flags/ge.png',
-    en: '/flags/gb.png',
-    ru: '/flags/ru.png',
-    tr: '/flags/tr.png',
+    ka: '/flags/ge.svg',
+    en: '/flags/gb.svg',
+    ru: '/flags/ru.svg',
+    tr: '/flags/tr.svg',
 }
-const nameMap = { ka: 'GEO', en: 'ENG', ru: 'RUS', tr: 'TUR' }
 const fullNameMap = { ka: 'ქართული', en: 'English', ru: 'Русский', tr: 'Türkçe' }
 
 const page = usePage()
@@ -48,9 +47,9 @@ function switchTo(locale) {
         <button
             type="button"
             @click="open = !open"
-            class="flex items-center justify-center md:w-8 md:h-8 lg:w-10 lg:h-10 gap-1.5 rounded-full text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"
+            class="flex items-center justify-center md:w-8 md:h-8 lg:w-10 lg:h-10 rounded-full text-gray-600 hover:bg-gray-100 transition-all cursor-pointer"
         >
-            <span class="text-sm font-semibold tracking-wide">{{ current.toUpperCase() }}</span>
+            <img :src="flagMap[current]" class="w-7 h-5 object-cover border border-gray-200 rounded-sm" alt="" />
         </button>
 
         <Transition
@@ -72,9 +71,8 @@ function switchTo(locale) {
                     class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm cursor-pointer hover:bg-gray-50 transition-colors"
                     :class="current === locale ? 'text-brand-500 font-semibold bg-brand-50/50' : 'text-gray-700'"
                 >
-                    <img :src="flagMap[locale]" class="w-5 h-3.5 object-cover rounded-xs shrink-0" alt="" />
-                    <span class="hidden sm:inline">{{ nameMap[locale] }}</span>
-                    <span class="sm:hidden">{{ fullNameMap[locale] }}</span>
+                    <img :src="flagMap[locale]" class="w-5 h-3.5 border border-gray-200 object-cover rounded-xs shrink-0" alt="" />
+                    <span>{{ fullNameMap[locale] }}</span>
                     <i v-if="current === locale" class="pi pi-check text-xs ml-auto text-brand-500"></i>
                 </button>
             </div>
