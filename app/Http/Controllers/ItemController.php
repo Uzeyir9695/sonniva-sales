@@ -16,6 +16,25 @@ use Inertia\Inertia;
 
 class ItemController extends Controller
 {
+    /**
+     * Category codes (any level) whose items offer the "custom cut to size"
+     * service on the product page. An item qualifies when its own category or
+     * any ancestor is listed here.
+     *
+     * @var array<int, string>
+     */
+    private const CUSTOM_CUT_CATEGORY_CODES = [
+        '1400',    // ალუმინის პროფილები
+        '1501-01', // მოაჯირის მილი და სახელური
+        '1502-01', // მოაჯირის მილკვადრატი
+        '1503-03', // შუშის დამჭერი პროფილი
+        '1503-04', // შუშის დამჭერი პროფილის ხუფი/დაბოლოება
+        '1602',    // შუშის სახელური
+        '1604-01', // შუშის მილი
+        '1604-03', // შუშის მილკვადრატი
+        '1704',    // აივნის სისტემა (cam balkon)
+    ];
+
     //
     public function index(Request $request)
     {
@@ -176,6 +195,7 @@ class ItemController extends Controller
 
         $itemCategory = Category::where('code', $item->category_code)->first();
         $isOrderOnly = $itemCategory ? $this->isOrderOnlyCategory($itemCategory) : false;
+        $offersCustomCut = $this->offersCustomCutService($itemCategory);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -185,6 +205,7 @@ class ItemController extends Controller
                 'tierPricing' => $this->visibleTierPricing($item, $authUser),
                 'isSubscribedToNotification' => $isSubscribedToNotification,
                 'isOrderOnly' => $isOrderOnly,
+                'offersCustomCut' => $offersCustomCut,
             ]);
         }
 
@@ -203,7 +224,21 @@ class ItemController extends Controller
             'inventory' => $inventory,
             'isSubscribedToNotification' => $isSubscribedToNotification,
             'isOrderOnly' => $isOrderOnly,
+            'offersCustomCut' => $offersCustomCut,
         ]);
+    }
+
+    private function offersCustomCutService(?Category $category): bool
+    {
+        while ($category) {
+            if (in_array($category->code, self::CUSTOM_CUT_CATEGORY_CODES, true)) {
+                return true;
+            }
+
+            $category = $category->parent;
+        }
+
+        return false;
     }
 
     /**

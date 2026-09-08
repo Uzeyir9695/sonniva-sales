@@ -24,6 +24,7 @@ const props = defineProps({
     inventory: Object,
     isSubscribedToNotification: Boolean,
     isOrderOnly: Boolean,
+    offersCustomCut: Boolean,
 })
 
 const showWhatsappDialog = ref(false)
@@ -223,20 +224,22 @@ const ogImage = computed(() => {
                         </template>
                     </Deferred>
 
-                    <div class="mb-6 bg-brand-50/40 border border-brand-100 rounded-2xl px-4 py-3">
-                        <ul class="space-y-2 text-xs sm:text-sm text-gray-600">
-                            <li class="flex gap-2"><span class="text-brand-500">→</span> <span>{{ $t('item.customCutOver100') }}</span></li>
-                            <li class="flex gap-2"><span class="text-brand-500">→</span> <span>{{ $t('item.customCutUnder100') }}</span></li>
-                        </ul>
-                    </div>
+                    <template v-if="offersCustomCut">
+                        <div class="mb-6 bg-brand-50/40 border border-brand-100 rounded-2xl px-4 py-3">
+                            <ul class="space-y-2 text-xs sm:text-sm text-gray-600">
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>{{ $t('item.customCutOver100') }}</span></li>
+                                <li class="flex gap-2"><span class="text-brand-500">→</span> <span>{{ $t('item.customCutUnder100') }}</span></li>
+                            </ul>
+                        </div>
 
-                    <button
-                        @click="openCustomSizesWhatsapp"
-                        class="flex items-center justify-center gap-2 w-full py-2.5 mb-6 rounded-2xl cursor-pointer border border-green-500 text-green-600 font-semibold hover:bg-green-500 hover:text-white active:scale-[0.98] transition-all"
-                    >
-                        <i class="pi pi-whatsapp"></i>
-                        {{ $t('item.orderCustomSizes') }}
-                    </button>
+                        <button
+                            @click="openCustomSizesWhatsapp"
+                            class="flex items-center justify-center gap-2 w-full py-2.5 mb-6 rounded-2xl cursor-pointer border border-green-500 text-green-600 font-semibold hover:bg-green-500 hover:text-white active:scale-[0.98] transition-all"
+                        >
+                            <i class="pi pi-whatsapp"></i>
+                            {{ $t('item.orderCustomSizes') }}
+                        </button>
+                    </template>
 
                     <template v-for="price in item.prices" :key="price.id">
                         <div v-if="(price.priceGroup === 'VIP' && $page.props.user?.can_view_vip) || (price.priceGroup !== 'VIP' && $page.props.user?.can_view_wholesales)" class="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3 mb-2 hover:border-brand-200 hover:bg-brand-50/30 transition-all duration-150">
