@@ -77,7 +77,6 @@ async function register(){
             <form @submit.prevent="register" class="flex flex-col gap-6">
                 <!-- Foreign Resident Checkbox -->
                 <div class="flex flex-col gap-2">
-                    <p class="text-sm">{{ $t('auth.notGeorgianCitizen') }}</p>
                     <div class="flex items-center gap-2">
                         <Checkbox v-model="form.is_foreign_resident" size="medium" inputId="is_foreign_resident" binary />
                         <label for="is_foreign_resident" class="text-sm">
