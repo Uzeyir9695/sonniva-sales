@@ -103,3 +103,27 @@ it('does not call BC when the tax id is unchanged', function () {
 
     $response->assertSessionDoesntHaveErrors();
 });
+
+it('lets an admin grant free delivery to a user', function () {
+    Queue::fake();
+
+    $admin = User::factory()->create(['role' => 'admin', 'phone_country' => 'GE']);
+    $target = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE', 'has_free_delivery' => false]);
+
+    $this->actingAs($admin)
+        ->put(route('account.update', $target), validPayload($target, ['has_free_delivery' => true]))
+        ->assertSessionDoesntHaveErrors();
+
+    expect($target->fresh()->has_free_delivery)->toBeTrue();
+});
+
+it('ignores has_free_delivery sent by a non-admin editing their own profile', function () {
+    Queue::fake();
+
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE', 'has_free_delivery' => false]);
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user, ['has_free_delivery' => true]));
+
+    expect($user->fresh()->has_free_delivery)->toBeFalse();
+});

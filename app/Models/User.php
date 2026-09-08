@@ -59,6 +59,7 @@ class User extends Authenticatable
             'can_view_vip' => 'boolean',
             'can_view_inventory' => 'boolean',
             'allow_cash_payment' => 'boolean',
+            'has_free_delivery' => 'boolean',
             'password' => 'hashed',
             'phone' => E164PhoneNumberCast::class.':phone_country',
         ];

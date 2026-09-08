@@ -110,6 +110,24 @@ it('leaves regions delivery on the weight-based tariff for a zone-only item', fu
     ])->assertOk()->assertJson(['delivery_cost' => 16]);
 });
 
+it('waives delivery entirely for a user flagged has_free_delivery', function () {
+    $user = User::factory()->create(['has_free_delivery' => true]);
+    $item = checkoutPreviewTestItem(['weights' => [['uom' => 'PCS', 'weight' => 10]]]);
+    $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 2]);
+
+    Sanctum::actingAs($user);
+
+    $this->postJson('/api/v1/checkout/preview', [
+        'delivery_type' => 'regions',
+        'delivery_price_type' => 'region',
+        'cart_ids' => [$cart->id],
+    ])->assertOk()->assertJson([
+        'subtotal' => 200,
+        'delivery_cost' => 0,
+        'total' => 200,
+    ]);
+});
+
 it('rejects unknown cart ids with a 422', function () {
     Sanctum::actingAs(User::factory()->create());
 

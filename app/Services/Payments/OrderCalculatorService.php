@@ -55,7 +55,8 @@ class OrderCalculatorService
 
     public function calculate(array $cartIds, string $deliveryType, int|string $userId, ?string $deliveryPriceType = null, ?string $city = null): array
     {
-        $isVip = User::find($userId)?->can_view_vip ?? false;
+        $user = User::find($userId);
+        $isVip = $user?->can_view_vip ?? false;
 
         // Fetch only cart rows that belong to this user and match the requested cart UUIDs.
         // Using cart IDs (not item IDs) correctly handles the same item with different UOMs.
@@ -112,7 +113,9 @@ class OrderCalculatorService
 
         $forceTbilisiZoneRate = $cartRows->contains(fn ($row) => $this->usesTbilisiZoneRate($row->item));
 
-        $deliveryCost = $this->deliveryCost($deliveryType, $subtotal, $deliveryPriceType, $totalWeightKg, $city, $forceTbilisiZoneRate);
+        $deliveryCost = $user?->has_free_delivery
+            ? 0.0
+            : $this->deliveryCost($deliveryType, $subtotal, $deliveryPriceType, $totalWeightKg, $city, $forceTbilisiZoneRate);
 
         return [
             'subtotal' => $subtotal,

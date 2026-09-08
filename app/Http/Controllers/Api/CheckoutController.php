@@ -28,6 +28,7 @@ class CheckoutController extends Controller
     {
         return response()->json([
             'allow_cash_payment' => (bool) $request->user()->allow_cash_payment,
+            'has_free_delivery' => (bool) $request->user()->has_free_delivery,
         ]);
     }
 

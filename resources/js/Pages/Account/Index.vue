@@ -27,6 +27,7 @@ const form = useForm({
   can_view_vip: false,
   can_view_inventory: false,
   allow_cash_payment: false,
+  has_free_delivery: false,
   is_handyman: false,
   is_entrepreneur: false,
   tax_id: null,
@@ -90,6 +91,7 @@ watch(() => props.user, (user) => {
     form.can_view_vip = user.can_view_vip;
     form.can_view_inventory = user.can_view_inventory;
     form.allow_cash_payment = user.allow_cash_payment;
+    form.has_free_delivery = user.has_free_delivery;
     form.tax_id = user.tax_id;
     form.phone = user.phone;
     form.address = user.address;
@@ -218,6 +220,11 @@ watch(() => props.user, (user) => {
                                 <div class="flex items-center gap-2">
                                     <Checkbox v-model="form.allow_cash_payment" binary />
                                     <label for="ingredient1"> Allow cash payment </label>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <Checkbox v-model="form.has_free_delivery" binary />
+                                    <label for="ingredient1"> Has free delivery </label>
                                 </div>
 
                                 <div class="flex items-center gap-2">

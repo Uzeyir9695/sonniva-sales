@@ -19,6 +19,7 @@ const toast = useToast()
 const { getQuantity, hasService } = useCart()
 
 const isVip = computed(() => page.props.user?.can_view_vip ?? false)
+const hasFreeDelivery = computed(() => page.props.user?.has_free_delivery ?? false)
 
 // ─── Cart items with reactive quantities ──────────────────────────────────
 
@@ -337,6 +338,7 @@ const hasTbilisiZoneOnlyItem = computed(() =>
 const deliveryCost = computed(() => {
     const key = selectedDelivery.value?.key
     if (!key) return null
+    if (hasFreeDelivery.value) return 0
     if (key === 'office') return 0
     if (key === 'tbilisi') {
         if (!selectedTbilisiZone.value) return null
