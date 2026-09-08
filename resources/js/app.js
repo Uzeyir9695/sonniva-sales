@@ -21,12 +21,6 @@ const PREFIXED_LOCALES = ['en', 'ru', 'tr']
 const SUPPORTED_LOCALES = [DEFAULT_LOCALE, ...PREFIXED_LOCALES]
 const resolveLocale = (locale) => (SUPPORTED_LOCALES.includes(locale) ? locale : DEFAULT_LOCALE)
 
-const pinia = createPinia()
-pinia.use(piniaPluginPersistedstate)
-
-const emitter = mitt()
-if (typeof window !== 'undefined') window.emitter = emitter
-
 // route().current() matches window.location against route patterns that have
 // no locale segment, so strip the /en|/ru|/tr prefix off the path Ziggy sees.
 // route() generation stays prefixed via the shared ziggy prop's `url`.
@@ -155,6 +149,14 @@ createInertiaApp({
         const ziggyForVue = typeof window !== 'undefined' ? { ...ziggyConfig, location: ziggyLocation } : ziggy;
 
         const app = createApp({ render: () => h(App, props) });
+
+        const pinia = createPinia();
+        pinia.use(piniaPluginPersistedstate);
+
+        const emitter = mitt();
+        if (typeof window !== 'undefined') {
+            window.emitter = emitter;
+        }
 
         const i18n = createI18n({
             legacy: false,

@@ -59,6 +59,33 @@ function deleteImage(id) {
     })
 }
 
+function onMobileFileChange(id, event) {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    uploading.value[`mobile-${id}`] = true
+
+    router.post(route('admin.home-page.banners.mobile-image.store', id), {
+        mobile_image: file,
+    }, {
+        preserveScroll: true,
+        onSuccess: () => toast.add({ severity: 'success', summary: 'Mobile image uploaded', life: 3000 }),
+        onError: () => toast.add({ severity: 'error', summary: 'Upload failed', life: 3000 }),
+        onFinish: () => {
+            uploading.value[`mobile-${id}`] = false
+            event.target.value = ''
+        },
+    })
+}
+
+function deleteMobile(id) {
+    router.delete(route('admin.home-page.banners.mobile-image.destroy', id), {
+        preserveScroll: true,
+        onSuccess: () => toast.add({ severity: 'success', summary: 'Mobile image removed', life: 3000 }),
+        onError: () => toast.add({ severity: 'error', summary: 'Remove failed', life: 3000 }),
+    })
+}
+
 /* ---------------- Main banner: search item, then upload image bound to it ---------------- */
 const query = ref('')
 const results = ref([])
@@ -118,6 +145,7 @@ function onMainFileChange(item, event) {
                 <div>
                     <p class="font-semibold text-gray-800">Main Banner (large left)</p>
                     <p class="text-xs text-gray-400 mt-0.5">Link a slide to an item by searching below, or upload one with no item link.</p>
+                    <p class="text-xs text-gray-400 mt-0.5">Each slide can also get an optional mobile version (recommended 1080×1350px, 4:5 portrait) shown on phones.</p>
                 </div>
                 <label
                     for="upload-main"
@@ -200,18 +228,44 @@ function onMainFileChange(item, event) {
                     <div
                         v-for="img in imagesFor('main')"
                         :key="img.id"
-                        class="relative group rounded-xl overflow-hidden aspect-video bg-gray-100 shadow-md"
+                        class="rounded-xl overflow-hidden bg-gray-100 shadow-md flex flex-col"
                     >
-                        <img :src="img.image_url" alt="banner" class="w-full h-full object-cover" />
-                        <span class="absolute bottom-0 left-0 right-0 px-2 py-1 text-[11px] font-medium text-white bg-black/60 truncate">
-                            {{ img.item?.name ?? 'No item linked' }}
-                        </span>
-                        <button
-                            @click="deleteImage(img.id)"
-                            class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                            <i class="pi pi-trash text-white text-lg"></i>
-                        </button>
+                        <div class="relative group aspect-video">
+                            <img :src="img.image_url" alt="banner" class="w-full h-full object-cover" />
+                            <span class="absolute bottom-0 left-0 right-0 px-2 py-1 text-[11px] font-medium text-white bg-black/60 truncate">
+                                {{ img.item?.name ?? 'No item linked' }}
+                            </span>
+                            <button
+                                @click="deleteImage(img.id)"
+                                class="absolute top-1.5 right-1.5 flex items-center justify-center w-7 h-7 rounded-lg bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600"
+                            >
+                                <i class="pi pi-trash text-xs"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center gap-2 px-2 py-1.5 bg-white border-t border-gray-100">
+                            <template v-if="img.mobile_image_url">
+                                <img :src="img.mobile_image_url" alt="mobile" class="w-6 h-8 object-cover rounded shrink-0" />
+                                <span class="text-[11px] font-medium text-gray-600 flex items-center gap-1">
+                                    <i class="pi pi-mobile text-xs"></i> Mobile set
+                                </span>
+                                <button
+                                    @click="deleteMobile(img.id)"
+                                    class="ml-auto text-[11px] font-medium text-red-500 hover:text-red-600"
+                                >
+                                    Remove
+                                </button>
+                            </template>
+                            <label
+                                v-else
+                                class="flex items-center gap-1.5 text-[11px] font-medium text-brand-600 hover:text-brand-700 cursor-pointer"
+                                :class="uploading[`mobile-${img.id}`] ? 'opacity-60 pointer-events-none' : ''"
+                            >
+                                <i class="pi pi-upload text-xs"></i>
+                                {{ uploading[`mobile-${img.id}`] ? 'Uploading...' : 'Add mobile version' }}
+                                <input type="file" accept="image/*" class="hidden" @change="onMobileFileChange(img.id, $event)" />
+                            </label>
+                        </div>
                     </div>
                 </div>
 

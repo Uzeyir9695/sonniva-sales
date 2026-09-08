@@ -1,11 +1,14 @@
 <script setup>
 import { computed } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
+import { useMediaQuery } from '@vueuse/core'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay } from 'swiper/modules'
 import 'swiper/css'
 
 const modules = [Autoplay]
+
+const isMobile = useMediaQuery('(max-width: 639px)')
 
 const page = usePage()
 const banners = computed(() => page.props.banners ?? {})
@@ -15,11 +18,14 @@ const doorImages  = computed(() => banners.value.doors  ?? [])
 const frameImages = computed(() => banners.value.frames ?? [])
 
 // Fallback static images when nothing uploaded yet
-const FALLBACK_MAIN   = [{ image_url: '/frame-examples/fur1.jpeg', item_slug: null }]
+const FALLBACK_MAIN   = [{ image_url: '/frame-examples/fur1.jpeg', mobile_image_url: null, item_slug: null }]
 const FALLBACK_DOORS  = ['/door-examples/picture1.png', '/door-examples/picture2.png', '/door-examples/picture3.png']
 const FALLBACK_FRAMES = ['/frame-examples/fur1.jpeg', '/frame-examples/fur2.jpeg', '/frame-examples/fur3.jpeg']
 
-const mainSrc   = computed(() => mainImages.value.length   ? mainImages.value   : FALLBACK_MAIN)
+const mainSrc = computed(() => {
+    const list = mainImages.value.length ? mainImages.value : FALLBACK_MAIN
+    return isMobile.value ? list.filter((slide) => slide.mobile_image_url) : list
+})
 const doorSrc   = computed(() => doorImages.value.length   ? doorImages.value   : FALLBACK_DOORS)
 const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  : FALLBACK_FRAMES)
 </script>
@@ -28,7 +34,7 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
     <div class="grid grid-cols-5 gap-3 px-4 h-[calc(100vh-100px)]">
 
         <!-- Main banner: large left -->
-        <div class="col-span-5 xl:col-span-3 xl:row-span-2 h-full relative rounded-xl overflow-hidden">
+        <div v-if="mainSrc.length" class="col-span-5 xl:col-span-3 xl:row-span-2 h-full relative rounded-xl overflow-hidden">
             <Swiper
                 :modules="modules"
                 :slides-per-view="1"
@@ -38,9 +44,15 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
             >
                 <SwiperSlide v-for="(slide, i) in mainSrc" :key="i" class="h-full!">
                     <Link v-if="slide.item_slug" :href="route('items.show', slide.item_slug)" class="block h-full w-full">
-                        <img :src="slide.image_url" :alt="`main ${i + 1}`" class="w-full h-full object-cover sm:object-contain" />
+                        <picture class="block h-full w-full">
+                            <source v-if="slide.mobile_image_url" :srcset="slide.mobile_image_url" media="(max-width: 639px)" />
+                            <img :src="slide.image_url" :alt="`main ${i + 1}`" class="w-full h-full object-cover sm:object-contain" />
+                        </picture>
                     </Link>
-                    <img v-else :src="slide.image_url" :alt="`main ${i + 1}`" class="w-full h-full object-cover sm:object-contain" />
+                    <picture v-else class="block h-full w-full">
+                        <source v-if="slide.mobile_image_url" :srcset="slide.mobile_image_url" media="(max-width: 639px)" />
+                        <img :src="slide.image_url" :alt="`main ${i + 1}`" class="w-full h-full object-cover sm:object-contain" />
+                    </picture>
                 </SwiperSlide>
             </Swiper>
         </div>

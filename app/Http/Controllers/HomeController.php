@@ -34,6 +34,9 @@ class HomeController extends Controller
                 ->map(fn ($group, $slot) => $slot === 'main'
                     ? $group->map(fn ($b) => [
                         'image_url' => Storage::disk('public')->url($b->image_path),
+                        'mobile_image_url' => $b->mobile_image_path
+                            ? Storage::disk('public')->url($b->mobile_image_path)
+                            : null,
                         'item_slug' => $b->item?->slug,
                     ])->values()
                     : $group->map(fn ($b) => Storage::disk('public')->url($b->image_path))->values())
@@ -63,7 +66,7 @@ class HomeController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'carouselItems' => $carouselItems,
-                'banners' => $banners,
+                'banners' => $this->mobileBanners($banners),
                 'homeSections' => $homeSections,
             ]);
         }
@@ -73,6 +76,28 @@ class HomeController extends Controller
             'banners' => $banners,
             'homeSections' => $homeSections,
         ]);
+    }
+
+    /**
+     * The mobile app only shows the main banner when a phone-specific image
+     * exists for a slide — never the wide desktop image. Slides without a
+     * mobile image are dropped; an empty list means the app renders no carousel.
+     *
+     * @param  array<string, mixed>  $banners
+     * @return array<string, mixed>
+     */
+    private function mobileBanners(array $banners): array
+    {
+        $banners['main'] = collect($banners['main'] ?? [])
+            ->filter(fn (array $slide) => ! empty($slide['mobile_image_url']))
+            ->map(fn (array $slide) => [
+                'image_url' => $slide['mobile_image_url'],
+                'item_slug' => $slide['item_slug'],
+            ])
+            ->values()
+            ->all();
+
+        return $banners;
     }
 
     private function getItemsByBrand(string $brand, int $limit = 12): array

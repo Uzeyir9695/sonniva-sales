@@ -23,6 +23,9 @@ class AdminBannerController extends Controller
             ->map(fn ($group) => $group->map(fn ($b) => [
                 'id' => $b->id,
                 'image_url' => Storage::disk('public')->url($b->image_path),
+                'mobile_image_url' => $b->mobile_image_path
+                    ? Storage::disk('public')->url($b->mobile_image_path)
+                    : null,
                 'sort_order' => $b->sort_order,
                 'item' => $b->item,
             ]));
@@ -77,9 +80,44 @@ class AdminBannerController extends Controller
         return back()->with('message', 'Images uploaded.');
     }
 
+    public function storeMobileImage(Request $request, BannerImage $banner): RedirectResponse
+    {
+        $request->validate([
+            'mobile_image' => ['required', 'image', 'max:4096'],
+        ]);
+
+        if ($banner->mobile_image_path) {
+            Storage::disk('public')->delete($banner->mobile_image_path);
+        }
+
+        $banner->update([
+            'mobile_image_path' => $request->file('mobile_image')->store("banners/{$banner->slot}/mobile", 'public'),
+        ]);
+
+        Cache::forget('nav_banners');
+
+        return back()->with('message', 'Mobile image uploaded.');
+    }
+
+    public function destroyMobileImage(BannerImage $banner): RedirectResponse
+    {
+        if ($banner->mobile_image_path) {
+            Storage::disk('public')->delete($banner->mobile_image_path);
+            $banner->update(['mobile_image_path' => null]);
+            Cache::forget('nav_banners');
+        }
+
+        return back()->with('message', 'Mobile image removed.');
+    }
+
     public function destroy(BannerImage $banner): RedirectResponse
     {
         Storage::disk('public')->delete($banner->image_path);
+
+        if ($banner->mobile_image_path) {
+            Storage::disk('public')->delete($banner->mobile_image_path);
+        }
+
         $banner->delete();
         Cache::forget('nav_banners');
 

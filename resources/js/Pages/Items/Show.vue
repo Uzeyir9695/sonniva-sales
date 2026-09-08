@@ -202,7 +202,7 @@ const ogImage = computed(() => {
                         </template>
                         <template #default>
                             <div class="flex flex-wrap items-center gap-3 mt-4 mb-6">
-                                <div class="flex-1 flex flex-col sm:flex-row items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-2 sm:px-4 py-3">
+                                <div class="flex-1 flex flex-col sm:flex-row items-center justify-between gap-2 bg-gray-50 border border-gray-100 rounded-2xl px-2 sm:px-4 py-3">
                                     <div class="flex items-center gap-2 text-nowrap">
                                         <i class="pi pi-warehouse text-brand-500 text-sm"></i>
                                         <span class="text-xs sm:text-sm text-gray-500">{{ $t('item.branchAvchala') }}</span>
@@ -210,7 +210,7 @@ const ogImage = computed(() => {
                                     <span class="text-sm font-semibold text-gray-800">{{ inventory.shop2Total }}</span>
                                 </div>
 
-                                <div class="flex-1 flex flex-col sm:flex-row items-center justify-between bg-gray-50 border border-gray-100 rounded-2xl px-2 sm:px-4 py-3">
+                                <div class="flex-1 flex flex-col sm:flex-row items-center justify-between gap-2 bg-gray-50 border border-gray-100 rounded-2xl px-2 sm:px-4 py-3">
                                     <div class="flex items-center gap-2 text-nowrap">
                                         <i class="pi pi-warehouse text-brand-500 text-sm"></i>
                                         <span class="text-xs sm:text-sm text-gray-500">{{ $t('item.branchDidube') }}</span>
