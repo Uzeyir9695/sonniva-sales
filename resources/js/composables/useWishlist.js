@@ -4,6 +4,7 @@ import { reactive, computed, watch } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import axios from 'axios'
 import { STORAGE_KEYS } from '@/constants/storageKeys'
+import { apiRoute } from '@/utils/apiRoute'
 
 // Key-value map: { 42: true, 57: false, ... }
 // Much simpler for per-item lookups than an array or Set.
@@ -48,7 +49,7 @@ export function useWishlist() {
             const unsyncedIds = guestIds.filter(id => !serverIds.has(id))
 
             if (unsyncedIds.length) {
-                axios.post(route('api.wishlist.sync'), { item_ids: unsyncedIds })
+                axios.post(apiRoute('api.wishlist.sync'), { item_ids: unsyncedIds })
                     .then(({ data }) => {
                         Object.keys(state.wishlisted).forEach(k => delete state.wishlisted[k])
                         ;(data.wishlisted_ids ?? []).forEach(id => { state.wishlisted[String(id)] = true })
@@ -82,7 +83,7 @@ export function useWishlist() {
 
         try {
             if (isLoggedIn.value) {
-                const { data } = await axios.post(route('api.wishlist.toggle', id))
+                const { data } = await axios.post(apiRoute('api.wishlist.toggle', id))
                 // Confirm with server
                 state.wishlisted[id] = data.wishlisted
             } else {

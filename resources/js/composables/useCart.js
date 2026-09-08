@@ -3,6 +3,7 @@ import { usePage, router } from '@inertiajs/vue3'
 import axios from 'axios'
 import { useToast } from 'primevue/usetoast'
 import { STORAGE_KEYS } from '@/constants/storageKeys'
+import { apiRoute } from '@/utils/apiRoute'
 
 const state = reactive({
     items:   {},  // { [cartKey]: quantity } — cartKey = itemId or "itemId__uom"
@@ -79,7 +80,7 @@ export function useCart() {
                     const [id, uom] = key.split('__')
                     return { id, quantity: storage.items[key], uom: uom ?? null, with_service: storage.services[key] ?? false }
                 })
-                axios.post(route('api.cart.sync'), { items }).then(({ data }) => {
+                axios.post(apiRoute('api.cart.sync'), { items }).then(({ data }) => {
                     Object.keys(state.items).forEach(k => delete state.items[k])
                     Object.keys(state.uoms).forEach(k => delete state.uoms[k])
                     Object.keys(state.services).forEach(k => delete state.services[k])
@@ -128,7 +129,7 @@ export function useCart() {
 
         try {
             if (isLoggedIn.value) {
-                const { data } = await axios.post(route('api.cart.add', String(itemId)), {
+                const { data } = await axios.post(apiRoute('api.cart.add', String(itemId)), {
                     quantity: qty,
                     selected_uom: selectedUOM ?? null,
                     with_service: withService,
@@ -159,7 +160,7 @@ export function useCart() {
 
         try {
             if (isLoggedIn.value) {
-                const { data } = await axios.put(route('api.cart.update', String(itemId)), {
+                const { data } = await axios.put(apiRoute('api.cart.update', String(itemId)), {
                     quantity: qty,
                     selected_uom: selectedUOM ?? null,
                 })
@@ -184,7 +185,7 @@ export function useCart() {
 
         try {
             if (isLoggedIn.value) {
-                await axios.delete(route('api.cart.remove', String(itemId)), {
+                await axios.delete(apiRoute('api.cart.remove', String(itemId)), {
                     data: { selected_uom: selectedUOM ?? null },
                 })
             } else {
@@ -206,7 +207,7 @@ export function useCart() {
 
         try {
             if (isLoggedIn.value) {
-                const { data } = await axios.post(route('api.cart.toggle-service', String(itemId)), {
+                const { data } = await axios.post(apiRoute('api.cart.toggle-service', String(itemId)), {
                     selected_uom: selectedUOM ?? null,
                 })
                 state.services[key] = data.with_service

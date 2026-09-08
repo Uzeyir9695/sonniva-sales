@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\SetLocale;
 use App\Models\Item;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
 
@@ -49,6 +50,23 @@ it('keeps scoped route-model bindings on prefixed clones', function () {
 
 it('rejects an unsupported locale segment', function () {
     $this->get('/de/about-us')->assertNotFound();
+});
+
+it('serves cart api routes only unprefixed, never under a locale prefix', function () {
+    // routes/api.php is never cloned, so a /<locale>/api/... URL hits no real
+    // endpoint — the client must call these unprefixed (see utils/apiRoute.js).
+    $user = User::factory()->create();
+    $item = Item::create([
+        'no' => 'API01', 'category_code' => 'API01', 'name' => 'api item',
+        'slug' => 'api-item-slug', 'inventory' => 5, 'unit_price' => 5,
+    ]);
+
+    $this->actingAs($user)->postJson('/en/api/v1/cart/'.$item->id, ['quantity' => 1])
+        ->assertStatus(405);
+
+    $this->actingAs($user)->postJson('/api/v1/cart/'.$item->id, ['quantity' => 1])
+        ->assertOk()
+        ->assertJsonPath('quantity', 1);
 });
 
 it('forces the locale root for route generation on a prefixed request', function () {
