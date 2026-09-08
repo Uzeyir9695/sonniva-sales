@@ -1,10 +1,8 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 import axios from 'axios';
-import { usePage } from '@inertiajs/vue3';
-
-const taxIdRequired = computed(() => usePage().props.user?.role === 'manager');
+import { apiRoute } from '@/utils/apiRoute';
 
 const props = defineProps({
     modelValue: { type: Object, default: null },
@@ -18,36 +16,18 @@ const searchQuery       = ref('');
 const searchResults     = ref([]);
 const loadingSearch     = ref(false);
 
-const recentCustomers   = ref([]);
-const loadingRecent     = ref(false);
-
-const listToShow = computed(() =>
-    searchQuery.value.trim() ? searchResults.value : recentCustomers.value
-);
-
-async function openDialog() {
+function openDialog() {
     dialogVisible.value = true;
     showNewForm.value   = false;
     formErrors.value    = {};
     searchQuery.value   = '';
     searchResults.value = [];
-    await fetchRecent();
-}
-
-async function fetchRecent() {
-    loadingRecent.value = true;
-    try {
-        const { data } = await axios.get(route('cashier.customers.index'));
-        recentCustomers.value = data.customers ?? [];
-    } finally {
-        loadingRecent.value = false;
-    }
 }
 
 const debouncedSearch = useDebounceFn(async (q) => {
     loadingSearch.value = true;
     try {
-        const { data } = await axios.get(route('cashier.customers.index'), { params: { q } });
+        const { data } = await axios.get(apiRoute('admin.customers.index'), { params: { q } });
         searchResults.value = data.customers ?? [];
     } finally {
         loadingSearch.value = false;
@@ -83,8 +63,7 @@ async function saveCustomer() {
     formErrors.value = {};
     saving.value     = true;
     try {
-        const { data } = await axios.post(route('cashier.customers.register'), form.value);
-        recentCustomers.value.unshift(data.customer);
+        const { data } = await axios.post(apiRoute('admin.customers.store'), form.value);
         selectCustomer(data.customer);
         form.value    = { name: '', lastname: '', phone: '', email: '', tax_id: '', address: '' };
         showNewForm.value = false;
@@ -169,7 +148,7 @@ async function saveCustomer() {
                 <InputIcon class="pi pi-search" />
                 <InputText
                     v-model="searchQuery"
-                    class="w-full"
+                    class="w-full pl-9!"
                     :placeholder="$t('customerPicker.searchPlaceholder')"
                     @input="onSearchInput"
                 />
@@ -178,20 +157,17 @@ async function saveCustomer() {
 
         <!-- List -->
         <div class="mb-5">
-            <p v-if="!searchQuery.trim()" class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
-                {{ $t('customerPicker.recentlyAdded') }}
-            </p>
-            <p v-else class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+            <p v-if="searchQuery.trim()" class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
                 {{ $t('customerPicker.searchResults') }}
             </p>
 
-            <div v-if="loadingSearch || loadingRecent" class="flex justify-center py-6">
+            <div v-if="loadingSearch" class="flex justify-center py-6">
                 <i class="pi pi-spinner pi-spin text-2xl text-gray-400"></i>
             </div>
 
-            <div v-else-if="listToShow.length" class="flex flex-col gap-1.5 max-h-60 overflow-y-auto pr-1">
+            <div v-else-if="searchResults.length" class="flex flex-col gap-1.5 max-h-60 overflow-y-auto pr-1">
                 <button
-                    v-for="c in listToShow"
+                    v-for="c in searchResults"
                     :key="c.id"
                     type="button"
                     class="flex items-center gap-3 w-full text-left rounded-xl border-2 px-3 py-2.5 transition-all"
@@ -229,7 +205,7 @@ async function saveCustomer() {
             </div>
 
             <p v-else class="text-sm text-gray-400 text-center py-5">
-                {{ searchQuery.trim() ? $t('customerPicker.noCustomerFound') : $t('customerPicker.noRecentCustomers') }}
+                {{ searchQuery.trim() ? $t('customerPicker.noCustomerFound') : $t('customerPicker.searchToBegin') }}
             </p>
         </div>
 
@@ -273,7 +249,7 @@ async function saveCustomer() {
                         <small v-if="formErrors.email" class="text-red-500 text-xs">{{ formErrors.email[0] }}</small>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.idCode') }} <span v-if="taxIdRequired" class="text-red-500">*</span></label>
+                        <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.idCode') }} <span class="text-red-500">*</span></label>
                         <InputText v-model="form.tax_id" class="w-full" :class="{ 'p-invalid': formErrors.tax_id }" :placeholder="$t('customerPicker.idCodePlaceholder')" />
                         <small v-if="formErrors.tax_id" class="text-red-500 text-xs">{{ formErrors.tax_id[0] }}</small>
                     </div>

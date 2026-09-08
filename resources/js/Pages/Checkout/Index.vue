@@ -7,6 +7,7 @@ import { useCart } from '@/composables/useCart'
 import { calculateTierPrice, getOriginalPrice } from '@/composables/usePricing.js'
 import PlacesAutocomplete from '@/Shared/components/PlacesAutocomplete.vue'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
+import CustomerPicker from '@/Shared/components/CustomerPicker.vue'
 import AutoComplete from 'primevue/autocomplete'
 
 const props = defineProps({
@@ -18,8 +19,14 @@ const page = usePage()
 const toast = useToast()
 const { getQuantity, hasService } = useCart()
 
-const isVip = computed(() => page.props.user?.can_view_vip ?? false)
-const hasFreeDelivery = computed(() => page.props.user?.has_free_delivery ?? false)
+// An admin can place the order on a customer's behalf; pricing, delivery and the
+// invoice then follow that customer, not the admin.
+const isAdmin = computed(() => page.props.isAdmin)
+const selectedCustomer = ref(null)
+const orderingUser = computed(() => (isAdmin.value ? selectedCustomer.value : null) ?? page.props.user)
+
+const isVip = computed(() => orderingUser.value?.can_view_vip ?? false)
+const hasFreeDelivery = computed(() => orderingUser.value?.has_free_delivery ?? false)
 
 // ─── Cart items with reactive quantities ──────────────────────────────────
 
@@ -383,7 +390,9 @@ async function fetchCreditInfo() {
     if (creditInfo.value !== null) return
     creditLoading.value = true
     try {
-        const res = await axios.get(route('checkout.credit-info'))
+        const res = await axios.get(route('checkout.credit-info'), {
+            params: isAdmin.value && selectedCustomer.value ? { customer_id: selectedCustomer.value.id } : {},
+        })
         creditInfo.value = res.data
     } catch {
         creditInfo.value = { has_credit: false, available: 0, limit: 0, used: 0 }
@@ -396,6 +405,12 @@ watch(selectedProvider, (val) => {
     if (val?.code === 'limit') fetchCreditInfo()
 })
 
+// The limit belongs to the buyer, so re-check it when the admin swaps customer.
+watch(selectedCustomer, () => {
+    creditInfo.value = null
+    if (selectedProvider.value?.code === 'limit') fetchCreditInfo()
+})
+
 const canPayWithLimit = computed(() => {
     if (!creditInfo.value) return false
     return creditInfo.value.has_credit && creditInfo.value.available >= total.value
@@ -403,6 +418,7 @@ const canPayWithLimit = computed(() => {
 
 const payButtonDisabled = computed(() =>
     loading.value ||
+    (isAdmin.value && !selectedCustomer.value) ||
     (selectedProvider.value?.code === 'limit' && !canPayWithLimit.value) ||
     hasOfficeInventoryIssue.value
 )
@@ -421,6 +437,7 @@ const loading = ref(false)
 const formatted = (val) => Number(val).toFixed(2)
 
 const errors = reactive({
+    customer: null,
     deliveryType: null,
     tbilisiZone: null,
     regionOption: null,
@@ -436,6 +453,7 @@ function clearErrors() {
     Object.keys(errors).forEach(k => errors[k] = null)
 }
 
+watch(selectedCustomer, () => { errors.customer = null })
 watch(selectedDelivery, () => { errors.deliveryType = null })
 watch(selectedTbilisiZone, () => { errors.tbilisiZone = null })
 watch(selectedRegionOption, () => { errors.regionOption = null })
@@ -452,6 +470,10 @@ function validate() {
     clearErrors()
     let valid = true
 
+    if (isAdmin.value && !selectedCustomer.value) {
+        errors.customer = t('customerPicker.selectCustomerFirst')
+        valid = false
+    }
     if (!selectedDelivery.value) {
         errors.deliveryType = t('checkout.errDeliveryType')
         valid = false
@@ -524,6 +546,7 @@ function initiatePayment() {
         comment:          form.comment,
         provider:         selectedProvider.value.code,
         cart_ids: items.value.map(c => c.id),
+        customer_id: isAdmin.value ? selectedCustomer.value?.id ?? null : null,
     }
 
     if (selectedProvider.value.code === 'invoice') {
@@ -589,6 +612,20 @@ function initiatePayment() {
 
                 <!-- ── Left: Form ── -->
                 <div class="lg:col-span-2 space-y-4">
+
+                    <!-- Admin: place the order on a customer's behalf -->
+                    <div v-if="isAdmin" class="bg-white rounded-2xl border shadow-sm p-6" :class="errors.customer ? 'border-red-300' : 'border-gray-100'">
+                        <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="pi pi-user text-brand-500"></i>
+                            {{ $t('customerPicker.selectCustomer') }}
+                            <i class="pi pi-exclamation-circle text-sm text-red-500" v-tooltip.top="$t('checkout.requiredField')"></i>
+                        </h2>
+                        <CustomerPicker v-model="selectedCustomer" />
+                        <p v-if="errors.customer" class="mt-2 text-xs text-red-500">{{ errors.customer }}</p>
+                        <p v-else-if="selectedCustomer" class="mt-2 text-xs text-emerald-600">
+                            {{ $t('customerPicker.orderingFor', { name: `${selectedCustomer.name} ${selectedCustomer.lastname ?? ''}`.trim() }) }}
+                        </p>
+                    </div>
 
                     <!-- Delivery type -->
                     <div class="bg-white rounded-2xl border shadow-sm p-6" :class="errors.deliveryType ? 'border-red-300' : 'border-gray-100'">

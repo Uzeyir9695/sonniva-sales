@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Payment;
 
+use App\Http\Controllers\Concerns\PlacesOrdersForCustomers;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendOrderEmailJob;
 use App\Jobs\SendOrderToBCJob;
@@ -25,6 +26,8 @@ use Inertia\Response;
 
 class PaymentController extends Controller
 {
+    use PlacesOrdersForCustomers;
+
     protected $bcService;
 
     protected $pdfService;
@@ -64,13 +67,18 @@ class PaymentController extends Controller
     {
         $provider = $request->provider;
 
+        $actingUser = $request->user();
+        $buyer = $this->resolveOrderBuyer($request);
+        $placedById = $buyer->is($actingUser) ? null : $actingUser->id;
+
         try {
             $calc = $this->calculatorService->calculate(
                 $request->cart_ids,
                 $request->delivery_type,
-                auth()->id(),
+                $actingUser->id,
                 $request->delivery_price_type,
-                $request->city
+                $request->city,
+                $buyer->id,
             );
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 422);
@@ -83,16 +91,17 @@ class PaymentController extends Controller
 
         session()->put('invoice_no', $invoiceNumber);
 
-        // Clean up stale awaiting_payment orders for this user before creating a new one
-        Order::where('user_id', auth()->id())
+        // Clean up stale awaiting_payment orders for the buyer before creating a new one
+        Order::where('user_id', $buyer->id)
             ->where('status', 'awaiting_payment')
             ->whereDoesntHave('payment', fn ($q) => $q->where('status', 'completed'))
             ->delete();
 
         // Create order and snapshot order items
-        $order = DB::transaction(function () use ($request, $calc, $invoiceNumber) {
+        $order = DB::transaction(function () use ($request, $calc, $invoiceNumber, $buyer, $placedById) {
             $order = Order::create([
-                'user_id' => auth()->id(),
+                'user_id' => $buyer->id,
+                'placed_by_id' => $placedById,
                 'invoice_no' => $invoiceNumber,
                 'status' => 'awaiting_payment',
                 'delivery_type' => $request->delivery_type,
@@ -189,7 +198,7 @@ class PaymentController extends Controller
                 }
 
                 return Payment::create([
-                    'user_id' => auth()->id(),
+                    'user_id' => $order->user_id,
                     'order_id' => $order->id,
                     'invoice_no' => $invoiceNumber,
                     'provider' => $provider,
@@ -373,8 +382,9 @@ class PaymentController extends Controller
         });
 
         if ($shouldProcess) {
-            // Delete only the exact cart rows that were ordered (matched by item + UOM)
-            Cart::where('user_id', $order->user_id)
+            // Delete only the exact cart rows that were ordered (matched by item + UOM).
+            // For an admin-placed order the cart belongs to the admin, not the buyer.
+            Cart::where('user_id', $order->placed_by_id ?? $order->user_id)
                 ->where(function ($q) use ($order) {
                     foreach ($order->items as $orderItem) {
                         $q->orWhere(fn ($q2) => $q2

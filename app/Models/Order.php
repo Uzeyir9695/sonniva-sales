@@ -65,6 +65,11 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function placedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'placed_by_id');
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);

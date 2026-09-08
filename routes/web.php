@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminAnalyticsController;
 use App\Http\Controllers\Admin\AdminBannerController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminCustomerController;
 use App\Http\Controllers\Admin\AdminHomeSectionController;
 use App\Http\Controllers\Admin\AdminItemController;
 use App\Http\Controllers\Admin\AdminOrderController;
@@ -14,7 +15,6 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\CashierController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
@@ -141,9 +141,10 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.delete');
     });
 
-    Route::prefix('cashier')->name('cashier.')->group(function () {
-        Route::get('/customers', [CashierController::class, 'getCustomers'])->name('customers.index');
-        Route::post('/customers', [CashierController::class, 'registerCustomer'])->name('customers.register');
+    // Customer picker used by an admin to place an order on a customer's behalf at checkout.
+    Route::middleware('can:place-orders-for-customers')->name('admin.customers.')->prefix('admin/customers')->group(function () {
+        Route::get('/', [AdminCustomerController::class, 'index'])->name('index');
+        Route::post('/', [AdminCustomerController::class, 'store'])->name('store');
     });
 
     /*******************************************************************************************************************

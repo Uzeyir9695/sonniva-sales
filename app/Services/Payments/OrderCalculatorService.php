@@ -53,15 +53,20 @@ class OrderCalculatorService
         ['maxKg' => 1000, 'tbilisi' => 380,  'region' => 700,  'office' => 510, 'village' => 750],
     ];
 
-    public function calculate(array $cartIds, string $deliveryType, int|string $userId, ?string $deliveryPriceType = null, ?string $city = null): array
+    /**
+     * $cartOwnerId owns the cart rows; $buyerId (defaults to the cart owner) is
+     * who the order is priced for — they differ when an admin checks out on a
+     * customer's behalf, using the admin's cart but the customer's price tier.
+     */
+    public function calculate(array $cartIds, string $deliveryType, int|string $cartOwnerId, ?string $deliveryPriceType = null, ?string $city = null, int|string|null $buyerId = null): array
     {
-        $user = User::find($userId);
-        $isVip = $user?->can_view_vip ?? false;
+        $buyer = User::find($buyerId ?? $cartOwnerId);
+        $isVip = $buyer?->can_view_vip ?? false;
 
-        // Fetch only cart rows that belong to this user and match the requested cart UUIDs.
+        // Fetch only cart rows that belong to the cart owner and match the requested cart UUIDs.
         // Using cart IDs (not item IDs) correctly handles the same item with different UOMs.
         $cartRows = Cart::with(['item', 'item.attributes:id,item_id,name,value'])
-            ->where('user_id', $userId)
+            ->where('user_id', $cartOwnerId)
             ->whereIn('id', $cartIds)
             ->get();
 
@@ -113,7 +118,7 @@ class OrderCalculatorService
 
         $forceTbilisiZoneRate = $cartRows->contains(fn ($row) => $this->usesTbilisiZoneRate($row->item));
 
-        $deliveryCost = $user?->has_free_delivery
+        $deliveryCost = $buyer?->has_free_delivery
             ? 0.0
             : $this->deliveryCost($deliveryType, $subtotal, $deliveryPriceType, $totalWeightKg, $city, $forceTbilisiZoneRate);
 

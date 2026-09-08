@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Payment;
 
+use App\Http\Controllers\Concerns\PlacesOrdersForCustomers;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendOrderEmailJob;
 use App\Jobs\SendOrderToBCJob;
@@ -22,6 +23,8 @@ use Inertia\Response;
 
 class InvoiceController extends Controller
 {
+    use PlacesOrdersForCustomers;
+
     public function __construct(
         protected PDFGeneratorService $pdfService,
         protected OrderCalculatorService $calculatorService,
@@ -35,7 +38,7 @@ class InvoiceController extends Controller
             return back()->withErrors(['message' => $e->getMessage()]);
         }
 
-        $this->generatePDF($result['order']->load('items'), $result['invoiceNo'], $result['payment']);
+        $this->generatePDF($result['order']->load('items', 'user'), $result['invoiceNo'], $result['payment']);
 
         return to_route('payment.invoice.success', ['invoice' => $result['invoiceNo']]);
     }
@@ -53,7 +56,9 @@ class InvoiceController extends Controller
 
     public function initiateCash(Request $request): RedirectResponse
     {
-        if (! auth()->user()->allow_cash_payment) {
+        $buyer = $this->resolveOrderBuyer($request);
+
+        if (! $buyer->allow_cash_payment) {
             return back()->withErrors(['message' => __('Cash payment is not available for your account.')]);
         }
 
@@ -63,7 +68,7 @@ class InvoiceController extends Controller
             return back()->withErrors(['message' => $e->getMessage()]);
         }
 
-        SendOrderEmailJob::dispatch($result['order']->id, $result['payment']->id, $result['invoiceNo'], auth()->user());
+        SendOrderEmailJob::dispatch($result['order']->id, $result['payment']->id, $result['invoiceNo'], $result['buyer']);
         SendOrderToBCJob::dispatch($result['order']);
 
         return to_route('payment.success', ['provider' => 'cash']);
@@ -71,12 +76,17 @@ class InvoiceController extends Controller
 
     private function createOrder(Request $request, string $status, string $provider): array
     {
+        $actingUser = $request->user();
+        $buyer = $this->resolveOrderBuyer($request);
+        $placedById = $buyer->is($actingUser) ? null : $actingUser->id;
+
         $calc = $this->calculatorService->calculate(
             $request->cart_ids,
             $request->delivery_type,
-            auth()->id(),
+            $actingUser->id,
             $request->delivery_price_type,
-            $request->city
+            $request->city,
+            $buyer->id,
         );
 
         do {
@@ -85,16 +95,17 @@ class InvoiceController extends Controller
 
         session()->put('invoice_no', $invoiceNo);
 
-        Order::where('user_id', auth()->id())
+        Order::where('user_id', $buyer->id)
             ->where('status', 'awaiting_payment')
             ->whereDoesntHave('payment', fn ($q) => $q->where('status', 'completed'))
             ->delete();
 
         $order = $payment = null;
 
-        DB::transaction(function () use ($request, $calc, $invoiceNo, $status, $provider, &$order, &$payment) {
+        DB::transaction(function () use ($request, $calc, $invoiceNo, $status, $provider, $buyer, $placedById, &$order, &$payment) {
             $orderData = [
-                'user_id' => auth()->id(),
+                'user_id' => $buyer->id,
+                'placed_by_id' => $placedById,
                 'invoice_no' => $invoiceNo,
                 'status' => $status,
                 'delivery_type' => $request->delivery_type,
@@ -132,7 +143,7 @@ class InvoiceController extends Controller
             }
 
             $payment = Payment::create([
-                'user_id' => auth()->id(),
+                'user_id' => $buyer->id,
                 'order_id' => $order->id,
                 'invoice_no' => $invoiceNo,
                 'provider' => $provider,
@@ -141,16 +152,16 @@ class InvoiceController extends Controller
             ]);
         });
 
-        Cart::where('user_id', auth()->id())
+        Cart::where('user_id', $actingUser->id)
             ->whereIn('id', $request->cart_ids)
             ->delete();
 
-        return ['order' => $order, 'invoiceNo' => $invoiceNo, 'payment' => $payment];
+        return ['order' => $order, 'invoiceNo' => $invoiceNo, 'payment' => $payment, 'buyer' => $buyer];
     }
 
     public function generatePDF($orderItems, $invoiceNumber, $payment): void
     {
-        $user = auth()->user();
+        $user = $orderItems->user ?? auth()->user();
 
         $totalCost = $orderItems->sum('subtotal') + $payment->delivery_cost;
 

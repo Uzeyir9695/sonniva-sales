@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Services\BusinessCentralService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -60,6 +61,11 @@ class CheckoutController extends Controller
     public function creditInfo(Request $request, BusinessCentralService $bc): JsonResponse
     {
         $user = $request->user();
+
+        if ($request->filled('customer_id')) {
+            abort_unless($request->user()->can('place-orders-for-customers'), 403);
+            $user = User::where('role', 'user')->findOrFail($request->input('customer_id'));
+        }
 
         if (! $user->tax_id) {
             return response()->json(['has_credit' => false, 'available' => 0, 'limit' => 0, 'used' => 0]);
