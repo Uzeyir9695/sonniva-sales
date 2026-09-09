@@ -7,7 +7,7 @@ import Components from 'unplugin-vue-components/vite';
 import {PrimeVueResolver} from '@primevue/auto-import-resolver';
 import path from 'path';
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
     define: {
         __VUE_PROD_DEVTOOLS__: 'false',
         __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
@@ -16,6 +16,9 @@ export default defineConfig({
         __INTLIFY_PROD_DEVTOOLS__: 'false',
         __INTLIFY_JIT_COMPILATION__: 'true',
         __INTLIFY_DROP_MESSAGE_COMPILER__: 'false',
+        // Vite leaves process.env.NODE_ENV unreplaced in SSR builds, so bundled deps
+        // keep dev branches (vue-i18n's devtools plugin leaks per-render and OOMs the worker).
+        ...(isSsrBuild ? { 'process.env.NODE_ENV': JSON.stringify('production') } : {}),
     },
     plugins: [
         laravel({
@@ -54,4 +57,4 @@ export default defineConfig({
     optimizeDeps: {
         include: ['vue', '@inertiajs/vue3', 'primevue'],
     },
-});
+}));
