@@ -105,7 +105,7 @@ function resetSelectedDate() {
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     tax_id: { value: null, matchMode: FilterMatchMode.EQUALS },
-    name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    name: { value: null, matchMode: FilterMatchMode.CONTAINS },
     phone: { value: null, matchMode: FilterMatchMode.CONTAINS },
     created_at: { value: null, matchMode: FilterMatchMode.EQUALS },
 });

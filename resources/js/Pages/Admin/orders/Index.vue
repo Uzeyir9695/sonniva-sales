@@ -3,8 +3,8 @@ import AdminLayout from '../AdminLayout.vue';
 import TableSkeleton from '@/Shared/components/TableSkeleton.vue';
 import OrderDetailDialog from './OrderDetailDialog.vue';
 import { computed, ref } from 'vue';
-import { useMediaQuery } from '@vueuse/core';
-import { Deferred, router, usePoll } from '@inertiajs/vue3';
+import { useMediaQuery, useDebounceFn } from '@vueuse/core';
+import { Deferred, router, usePoll, usePage } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { FilterMatchMode } from '@primevue/core/api';
@@ -33,6 +33,22 @@ const invoicedAtDates  = ref(null);
 const approvedAtDates  = ref(null);
 const readyAtDates     = ref(null);
 const deliveredAtDates = ref(null);
+
+const initialQuery = new URLSearchParams(usePage().url.split('?')[1] ?? '');
+
+const filters = ref({
+    invoice_no:    { value: initialQuery.get('invoice_no'), matchMode: FilterMatchMode.CONTAINS },
+    'user.tax_id': { value: initialQuery.get('tax_id'), matchMode: FilterMatchMode.CONTAINS },
+    'user.name':   { value: initialQuery.get('customer_name'), matchMode: FilterMatchMode.CONTAINS },
+});
+
+function buildFilterParams() {
+    const params = {};
+    if (filters.value.invoice_no.value) params.invoice_no = filters.value.invoice_no.value;
+    if (filters.value['user.tax_id'].value) params.tax_id = filters.value['user.tax_id'].value;
+    if (filters.value['user.name'].value) params.customer_name = filters.value['user.name'].value;
+    return params;
+}
 
 const fmt = (d) => d.toLocaleDateString('en-CA');
 
@@ -147,7 +163,7 @@ function resetDeliveredAt() {
 }
 
 const currentFilterParams = computed(() => {
-    const params = { status: props.status };
+    const params = { status: props.status, ...buildFilterParams() };
 
     if (props.status === 'pending' && invoicedAtDates.value?.[0] && invoicedAtDates.value?.[1]) {
         params.start_date = fmt(invoicedAtDates.value[0]);
@@ -196,6 +212,9 @@ function switchTab(value) {
     approvedAtDates.value  = null;
     readyAtDates.value     = null;
     deliveredAtDates.value = null;
+    filters.value.invoice_no.value = null;
+    filters.value['user.tax_id'].value = null;
+    filters.value['user.name'].value = null;
     router.get(route('admin.orders.index'), { status: value }, {
         only: ['orders', 'ordersSummary', 'status'],
         preserveState: true,
@@ -231,11 +250,13 @@ const totalsSummary = computed(() => {
     return { before: after + discount, after, discount };
 });
 
-const filters = ref({
-    invoice_no:    { value: null, matchMode: FilterMatchMode.EQUALS },
-    'user.tax_id': { value: null, matchMode: FilterMatchMode.EQUALS },
-    'user.name':   { value: null, matchMode: FilterMatchMode.CONTAINS },
-});
+const onFilter = useDebounceFn(() => {
+    router.get(route('admin.orders.index'), { ...currentFilterParams.value }, {
+        only: ['orders', 'ordersSummary'],
+        preserveState: true,
+        preserveScroll: true,
+    });
+}, 350);
 
 // Detail dialog
 const detailDialog = ref(null);
@@ -492,6 +513,7 @@ function confirmMarkDelivered(order) {
                     :totalRecords="orders?.total ?? 0"
                     :first="((orders?.current_page ?? 1) - 1) * (orders?.per_page ?? 20)"
                     @page="onPage"
+                    @filter="onFilter"
                     :rowsPerPageOptions="[10, 20, 50]"
                     tableStyle="min-width: 50rem"
                     class="text-sm"
