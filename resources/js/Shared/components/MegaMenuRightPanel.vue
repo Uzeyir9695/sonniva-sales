@@ -1,7 +1,6 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
-import { useMediaQuery } from '@vueuse/core'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay } from 'swiper/modules'
 import 'swiper/css'
@@ -12,8 +11,6 @@ const modules = [Autoplay]
 // makes Vue and Swiper fight over the same nodes (banners flash then vanish).
 const mounted = ref(false)
 onMounted(() => { mounted.value = true })
-
-const isMobile = useMediaQuery('(max-width: 639px)')
 
 const page = usePage()
 const banners = computed(() => page.props.banners ?? {})
@@ -27,10 +24,7 @@ const FALLBACK_MAIN   = [{ image_url: '/frame-examples/fur1.jpeg', mobile_image_
 const FALLBACK_DOORS  = ['/door-examples/picture1.png', '/door-examples/picture2.png', '/door-examples/picture3.png']
 const FALLBACK_FRAMES = ['/frame-examples/fur1.jpeg', '/frame-examples/fur2.jpeg', '/frame-examples/fur3.jpeg']
 
-const mainSrc = computed(() => {
-    const list = mainImages.value.length ? mainImages.value : FALLBACK_MAIN
-    return isMobile.value ? list.filter((slide) => slide.mobile_image_url) : list
-})
+const mainSrc = computed(() => mainImages.value.length ? mainImages.value : FALLBACK_MAIN)
 const doorSrc   = computed(() => doorImages.value.length   ? doorImages.value   : FALLBACK_DOORS)
 const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  : FALLBACK_FRAMES)
 </script>
@@ -40,7 +34,7 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
     <div class="grid grid-cols-1 grid-rows-[minmax(0,1.4fr)_minmax(0,1fr)] gap-3 px-4 h-[calc(100vh-100px)] max-sm:flex max-sm:flex-col max-sm:h-auto">
 
         <!-- Main banner: full width -->
-        <div v-if="mainSrc.length" class="relative rounded-xl overflow-hidden min-h-0 max-sm:h-60">
+        <div v-if="mainSrc.length" class="relative w-full min-w-0 rounded-xl overflow-hidden min-h-0 max-sm:h-60">
             <Swiper
                 v-if="mounted"
                 :modules="modules"
@@ -50,24 +44,27 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
                 class="h-full w-full"
             >
                 <SwiperSlide v-for="(slide, i) in mainSrc" :key="i" class="h-full!">
-                    <Link v-if="slide.item_slug" :href="route('items.show', slide.item_slug)" class="block h-full w-full">
-                        <picture class="block h-full w-full">
+                    <component
+                        :is="slide.item_slug ? Link : 'div'"
+                        :href="slide.item_slug ? route('items.show', slide.item_slug) : undefined"
+                        class="block h-full w-full"
+                    >
+                        <picture class="block h-full w-full ring">
                             <source v-if="slide.mobile_image_url" :srcset="slide.mobile_image_url" media="(max-width: 639px)" />
-                            <img :src="slide.image_url" :alt="`main ${i + 1}`" class="w-full h-full object-cover" />
+                            <img :src="slide.image_url" :alt="`main ${i + 1}`" class="w-full h-full object-fill" />
                         </picture>
-                    </Link>
-                    <picture v-else class="block h-full w-full">
-                        <source v-if="slide.mobile_image_url" :srcset="slide.mobile_image_url" media="(max-width: 639px)" />
-                        <img :src="slide.image_url" :alt="`main ${i + 1}`" class="w-full h-full object-cover" />
-                    </picture>
+                    </component>
                 </SwiperSlide>
             </Swiper>
-            <img v-else :src="mainSrc[0].image_url" alt="main" class="w-full h-full object-cover" />
+            <picture v-else class="block h-full w-full">
+                <source v-if="mainSrc[0].mobile_image_url" :srcset="mainSrc[0].mobile_image_url" media="(max-width: 639px)" />
+                <img :src="mainSrc[0].image_url" alt="main" class="w-full h-full object-fill" />
+            </picture>
         </div>
 
         <!-- Promo banners row: doors + frames side by side. Add a third here and
              bump this to sm:grid-cols-3. Stacked on small screens. -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-0">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-0 min-w-0">
 
             <!-- Doors carousel -->
             <div class="relative rounded-xl overflow-hidden min-h-0 max-sm:h-56">

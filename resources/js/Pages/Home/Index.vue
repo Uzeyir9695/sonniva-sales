@@ -34,7 +34,7 @@ defineProps({
 
     <div class="flex gap-x-4 mt-4">
         <LargeDeviceMegaMenu class="hidden lg:flex" :categories="categories"/>
-        <div class="flex-1 rounded-lg">
+        <div class="flex-1 min-w-0 rounded-lg">
             <MegaMenuRightPanel/>
         </div>
     </div>
