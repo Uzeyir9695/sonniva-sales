@@ -17,6 +17,7 @@ const confirm = useConfirm();
 
 const props = defineProps({
     orders: Object,
+    ordersSummary: Object,
     unseenCounts: Object,
     status: String,
 });
@@ -196,7 +197,7 @@ function switchTab(value) {
     readyAtDates.value     = null;
     deliveredAtDates.value = null;
     router.get(route('admin.orders.index'), { status: value }, {
-        only: ['orders', 'status'],
+        only: ['orders', 'ordersSummary', 'status'],
         preserveState: true,
         preserveScroll: true,
     });
@@ -218,8 +219,12 @@ const providerLabel = {
 };
 
 const totalsSummary = computed(() => {
-    const rows = props.orders?.data ?? [];
+    const s = props.ordersSummary;
+    if (s) {
+        return { before: Number(s.before), after: Number(s.after), discount: Number(s.discount) };
+    }
 
+    const rows = props.orders?.data ?? [];
     const after    = rows.reduce((sum, order) => sum + Number(order.total), 0);
     const discount = rows.reduce((sum, order) => sum + Number(order.discount_total), 0);
 

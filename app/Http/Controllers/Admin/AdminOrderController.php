@@ -7,7 +7,9 @@ use App\Jobs\SendOrderEmailJob;
 use App\Jobs\SendOrderToBCJob;
 use App\Mail\ReadyOrderEmail;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Services\SmsService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -23,23 +25,12 @@ class AdminOrderController extends Controller
     {
         $status = $request->input('status', 'pending');
 
-        $orders = Order::with([
-            'user:id,name,lastname,phone,tax_id',
-            'payment:id,order_id,provider,status,amount,invoice_no,transaction_id',
-            'items:id,order_id,quantity,unit_price,subtotal,discount,wholesale_discount,fake_price',
-        ])
-            ->whereNot('status', 'awaiting_payment')
-            ->where('status', $status)
-            ->when($status === 'pending' && $request->filled('start_date'), fn ($q) => $q->whereDate('invoiced_at', '>=', $request->start_date))
-            ->when($status === 'pending' && $request->filled('end_date'), fn ($q) => $q->whereDate('invoiced_at', '<=', $request->end_date))
-            ->when(in_array($status, ['paid', 'limit']) && $request->filled('start_date'), fn ($q) => $q->whereDate('approved_at', '>=', $request->start_date))
-            ->when(in_array($status, ['paid', 'limit']) && $request->filled('end_date'), fn ($q) => $q->whereDate('approved_at', '<=', $request->end_date))
-            ->when(in_array($status, ['ready', 'delivered']) && $request->filled('approved_start'), fn ($q) => $q->whereDate('approved_at', '>=', $request->approved_start))
-            ->when(in_array($status, ['ready', 'delivered']) && $request->filled('approved_end'), fn ($q) => $q->whereDate('approved_at', '<=', $request->approved_end))
-            ->when($status === 'ready' && $request->filled('ready_start'), fn ($q) => $q->whereDate('ready_at', '>=', $request->ready_start))
-            ->when($status === 'ready' && $request->filled('ready_end'), fn ($q) => $q->whereDate('ready_at', '<=', $request->ready_end))
-            ->when($status === 'delivered' && $request->filled('delivered_start'), fn ($q) => $q->whereDate('delivered_at', '>=', $request->delivered_start))
-            ->when($status === 'delivered' && $request->filled('delivered_end'), fn ($q) => $q->whereDate('delivered_at', '<=', $request->delivered_end))
+        $orders = $this->filteredOrders($request, $status)
+            ->with([
+                'user:id,name,lastname,phone,tax_id',
+                'payment:id,order_id,provider,status,amount,invoice_no,transaction_id',
+                'items:id,order_id,quantity,unit_price,subtotal,discount,wholesale_discount,fake_price',
+            ])
             ->latest()
             ->paginate($request->integer('per_page', 20))
             ->through(fn ($order) => [
@@ -83,9 +74,57 @@ class AdminOrderController extends Controller
 
         return Inertia::render('Admin/orders/Index', [
             'orders' => Inertia::defer(fn () => $orders),
+            'ordersSummary' => Inertia::defer(fn () => $this->ordersSummary($request, $status)),
             'unseenCounts' => $unseenCounts,
             'status' => $status,
         ]);
+    }
+
+    private function filteredOrders(Request $request, string $status): Builder
+    {
+        return Order::query()
+            ->whereNot('status', 'awaiting_payment')
+            ->where('status', $status)
+            ->when($status === 'pending' && $request->filled('start_date'), fn ($q) => $q->whereDate('invoiced_at', '>=', $request->start_date))
+            ->when($status === 'pending' && $request->filled('end_date'), fn ($q) => $q->whereDate('invoiced_at', '<=', $request->end_date))
+            ->when(in_array($status, ['paid', 'limit']) && $request->filled('start_date'), fn ($q) => $q->whereDate('approved_at', '>=', $request->start_date))
+            ->when(in_array($status, ['paid', 'limit']) && $request->filled('end_date'), fn ($q) => $q->whereDate('approved_at', '<=', $request->end_date))
+            ->when(in_array($status, ['ready', 'delivered']) && $request->filled('approved_start'), fn ($q) => $q->whereDate('approved_at', '>=', $request->approved_start))
+            ->when(in_array($status, ['ready', 'delivered']) && $request->filled('approved_end'), fn ($q) => $q->whereDate('approved_at', '<=', $request->approved_end))
+            ->when($status === 'ready' && $request->filled('ready_start'), fn ($q) => $q->whereDate('ready_at', '>=', $request->ready_start))
+            ->when($status === 'ready' && $request->filled('ready_end'), fn ($q) => $q->whereDate('ready_at', '<=', $request->ready_end))
+            ->when($status === 'delivered' && $request->filled('delivered_start'), fn ($q) => $q->whereDate('delivered_at', '>=', $request->delivered_start))
+            ->when($status === 'delivered' && $request->filled('delivered_end'), fn ($q) => $q->whereDate('delivered_at', '<=', $request->delivered_end));
+    }
+
+    /**
+     * Totals across every order matching the current tab + date filters, not just the visible page.
+     *
+     * @return array{count: int, before: float, after: float, discount: float}
+     */
+    private function ordersSummary(Request $request, string $status): array
+    {
+        $after = (float) $this->filteredOrders($request, $status)->sum('total');
+        $wholesaleDiscount = (float) $this->filteredOrders($request, $status)->sum('wholesale_discount');
+
+        // Mirrors the per-line logic of Order::discountTotal(), summed in SQL so it can span all filtered orders.
+        $lineDiscount = (float) OrderItem::query()
+            ->whereIn('order_id', $this->filteredOrders($request, $status)->select('id'))
+            ->selectRaw('COALESCE(SUM(CASE
+                WHEN wholesale_discount > 0 THEN 0
+                WHEN discount > 0 THEN subtotal / (1 - discount / 100.0) - subtotal
+                WHEN fake_price > 0 THEN fake_price * quantity - subtotal
+                ELSE 0 END), 0) as agg')
+            ->value('agg');
+
+        $discount = round($wholesaleDiscount + $lineDiscount, 2);
+
+        return [
+            'count' => $this->filteredOrders($request, $status)->count(),
+            'after' => round($after, 2),
+            'discount' => $discount,
+            'before' => round($after + $discount, 2),
+        ];
     }
 
     public function show(Order $order)
