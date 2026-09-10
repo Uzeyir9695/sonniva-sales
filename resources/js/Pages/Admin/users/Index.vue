@@ -201,6 +201,9 @@ const filters = ref({
                 </Column>
 
                 <Column field="paid_orders_count" header="Paid Orders">
+                    <template #body="{ data }">
+                        {{ data.paid_orders_count ?? 0 }}
+                    </template>
                     <template #footer>
                         <div class="space-x-1 inline-block mb-6">
                             <i class="pi pi-calculator text-sm"></i>
