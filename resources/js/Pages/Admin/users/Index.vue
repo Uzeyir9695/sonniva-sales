@@ -102,10 +102,14 @@ function resetSelectedDate() {
     router.get(route('admin.users.index'), {}, { preserveState: true });
 }
 
+const tableRows = computed(() =>
+    props.users.map(u => ({ ...u, full_name: `${u.name ?? ''} ${u.lastname ?? ''}`.trim() }))
+);
+
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     tax_id: { value: null, matchMode: FilterMatchMode.EQUALS },
-    name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    full_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
     phone: { value: null, matchMode: FilterMatchMode.CONTAINS },
     created_at: { value: null, matchMode: FilterMatchMode.EQUALS },
 });
@@ -134,8 +138,8 @@ const filters = ref({
             <DataTable
                 v-model:filters="filters"
                 filterDisplay="row"
-                :globalFilterFields="['tax_id', 'name', 'phone']"
-                :value="users"
+                :globalFilterFields="['tax_id', 'full_name', 'phone']"
+                :value="tableRows"
                 paginator
                 :rows="15"
                 :rowsPerPageOptions="[5, 10, 15, 20, 50]"
@@ -169,7 +173,7 @@ const filters = ref({
                     </template>
                 </Column>
 
-                <Column field="name" header="Full Name" style="min-width: 11rem">
+                <Column field="name" filterField="full_name" header="Full Name" style="min-width: 11rem">
                     <template #body="{ data }">
                         {{ data.name }} {{ data.lastname?? '' }}
                     </template>

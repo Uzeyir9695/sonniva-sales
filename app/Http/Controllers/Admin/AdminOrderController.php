@@ -96,6 +96,7 @@ class AdminOrderController extends Controller
             ->when($status === 'delivered' && $request->filled('delivered_start'), fn ($q) => $q->whereDate('delivered_at', '>=', $request->delivered_start))
             ->when($status === 'delivered' && $request->filled('delivered_end'), fn ($q) => $q->whereDate('delivered_at', '<=', $request->delivered_end))
             ->when($request->filled('invoice_no'), fn ($q) => $q->where('invoice_no', 'like', '%'.$request->string('invoice_no').'%'))
+            ->when($request->filled('amount'), fn ($q) => $q->where('total', 'like', '%'.$request->string('amount').'%'))
             ->when($request->filled('tax_id'), fn ($q) => $q->whereHas('user', fn ($u) => $u->where('tax_id', 'like', '%'.$request->string('tax_id').'%')))
             ->when($request->filled('customer_name'), fn ($q) => $q->whereHas('user', function ($u) use ($request) {
                 $name = '%'.$request->string('customer_name').'%';

@@ -67,6 +67,16 @@ it('filters the list by full "first last" name', function () {
     expect(ordersReload(['status' => 'pending', 'customer_name' => 'Nino Beridze']))->toHaveCount(1);
 });
 
+it('filters the list by amount, matching anywhere in the total', function () {
+    Order::factory()->for(User::factory()->create())->create(['status' => 'pending', 'invoice_no' => 'A', 'total' => 280, 'seen_at' => now()]);
+    Order::factory()->for(User::factory()->create())->create(['status' => 'pending', 'invoice_no' => 'B', 'total' => 1280, 'seen_at' => now()]);
+    Order::factory()->for(User::factory()->create())->create(['status' => 'pending', 'invoice_no' => 'C', 'total' => 99, 'seen_at' => now()]);
+
+    $rows = ordersReload(['status' => 'pending', 'amount' => '280']);
+
+    expect(collect($rows)->pluck('invoice_no')->sort()->values()->all())->toBe(['A', 'B']);
+});
+
 it('returns every order when no filter is supplied', function () {
     pendingOrderFor(User::factory()->create(), 'S1');
     pendingOrderFor(User::factory()->create(), 'S2');

@@ -40,6 +40,7 @@ const filters = ref({
     invoice_no:    { value: initialQuery.get('invoice_no'), matchMode: FilterMatchMode.CONTAINS },
     'user.tax_id': { value: initialQuery.get('tax_id'), matchMode: FilterMatchMode.CONTAINS },
     'user.name':   { value: initialQuery.get('customer_name'), matchMode: FilterMatchMode.CONTAINS },
+    total:         { value: initialQuery.get('amount'), matchMode: FilterMatchMode.CONTAINS },
 });
 
 function buildFilterParams() {
@@ -47,6 +48,7 @@ function buildFilterParams() {
     if (filters.value.invoice_no.value) params.invoice_no = filters.value.invoice_no.value;
     if (filters.value['user.tax_id'].value) params.tax_id = filters.value['user.tax_id'].value;
     if (filters.value['user.name'].value) params.customer_name = filters.value['user.name'].value;
+    if (filters.value.total.value) params.amount = filters.value.total.value;
     return params;
 }
 
@@ -215,6 +217,7 @@ function switchTab(value) {
     filters.value.invoice_no.value = null;
     filters.value['user.tax_id'].value = null;
     filters.value['user.name'].value = null;
+    filters.value.total.value = null;
     router.get(route('admin.orders.index'), { status: value }, {
         only: ['orders', 'ordersSummary', 'status'],
         preserveState: true,
@@ -573,7 +576,10 @@ function confirmMarkDelivered(order) {
                         </template>
                     </Column>
 
-                    <Column header="Total" style="min-width: 7rem;">
+                    <Column header="Total" filterField="total" style="min-width: 10rem;">
+                        <template #filter="{ filterModel, filterCallback }">
+                            <PrimeInputText v-model="filterModel.value" size="small" class="text-xs w-24" @input="filterCallback()" placeholder="Amount" />
+                        </template>
                         <template #body="{ data }">
                             <div v-if="data.discount_total > 0" class="flex flex-col gap-0.5">
                                 <span class="line-through text-gray-400 text-xs">{{ (Number(data.total) + Number(data.discount_total)).toFixed(2) }} ₾</span>
