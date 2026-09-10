@@ -32,6 +32,7 @@ function openQuickView(item) {
         <h2 class="sm:text-lg font-semibold text-gray-800 mb-4">{{ title }}</h2>
 
         <Swiper
+            class="carousel-swiper"
             :modules="modules"
             :space-between="16"
             :navigation="true"
@@ -55,15 +56,23 @@ function openQuickView(item) {
 </template>
 
 <style>
+.carousel-swiper {
+    padding-block: 6px 16px;
+}
 .swiper-wrapper {
     align-items: stretch;
 }
 .swiper-slide {
     height: auto;
+    display: flex;
+}
+.swiper-slide > * {
+    width: 100%;
 }
 
 .swiper-button-next,
 .swiper-button-prev {
+    --swiper-navigation-size: 16px;
     color: #f59e0b;
     background: white;
     width: 30px !important;
