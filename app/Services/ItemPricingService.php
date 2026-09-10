@@ -32,6 +32,22 @@ class ItemPricingService
     }
 
     /**
+     * Tiers a given buyer is actually priced against: VIP tiers only for a VIP buyer,
+     * and Wholesale tiers dropped for the gated categories when the buyer lacks the
+     * "Can view wholesales" grant. Mirrors the VIP/wholesale filters in usePricing.js.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private static function allowedTiers(Item $item, bool $isVip, bool $canViewWholesales): array
+    {
+        return collect($item->prices ?? [])
+            ->when(! $isVip, fn ($tiers) => $tiers->reject(fn (array $p) => ($p['priceGroup'] ?? null) === 'VIP'))
+            ->when($item->wholesaleTierGated($canViewWholesales), fn ($tiers) => $tiers->reject(fn (array $p) => ($p['priceGroup'] ?? null) === 'Wholesales'))
+            ->values()
+            ->all();
+    }
+
+    /**
      * General "is this a package/tiered item" check — no standalone
      * unit_price, priced entirely from its `prices` tiers. Mirrors the
      * module-scope `isPackageItem()`. Note `calculateTierPrice()` /
@@ -144,7 +160,7 @@ class ItemPricingService
      * The price actually charged for a quantity/UOM. Mirrors
      * `calculateTierPrice()`.
      */
-    public static function tierPrice(Item $item, int $qty, ?string $selectedUom = null, bool $isVip = false): float
+    public static function tierPrice(Item $item, int $qty, ?string $selectedUom = null, bool $isVip = false, bool $canViewWholesales = true): float
     {
         if (empty($item->prices)) {
             return self::effectiveUnitPrice($item);
@@ -152,9 +168,7 @@ class ItemPricingService
 
         $isPackage = self::isUomSelectedPackage($item, $selectedUom);
 
-        $prices = $isVip
-            ? $item->prices
-            : collect($item->prices)->reject(fn (array $p) => ($p['priceGroup'] ?? null) === 'VIP')->values()->all();
+        $prices = self::allowedTiers($item, $isVip, $canViewWholesales);
 
         $tier = self::matchTier($prices, $qty, $isPackage ? $selectedUom : null);
 
@@ -173,7 +187,7 @@ class ItemPricingService
      * Which discount is actually active for a quantity/UOM right now.
      * Mirrors `activeDiscountType()`.
      */
-    public static function activeDiscountType(Item $item, int $qty, ?string $selectedUom = null, bool $isVip = false): ?string
+    public static function activeDiscountType(Item $item, int $qty, ?string $selectedUom = null, bool $isVip = false, bool $canViewWholesales = true): ?string
     {
         if (empty($item->prices)) {
             return (float) $item->discount > 0 ? 'retail' : null;
@@ -181,9 +195,7 @@ class ItemPricingService
 
         $isPackage = self::isUomSelectedPackage($item, $selectedUom);
 
-        $prices = $isVip
-            ? $item->prices
-            : collect($item->prices)->reject(fn (array $p) => ($p['priceGroup'] ?? null) === 'VIP')->values()->all();
+        $prices = self::allowedTiers($item, $isVip, $canViewWholesales);
 
         $tier = self::matchTier($prices, $qty, $isPackage ? $selectedUom : null);
 

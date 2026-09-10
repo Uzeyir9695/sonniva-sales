@@ -1,5 +1,22 @@
 import { computed, toValue } from 'vue'
 
+// Categories where the Wholesale tier is opt-in: it only applies to buyers an admin has
+// granted "Can view wholesales". Every other category applies wholesale to all buyers.
+// Keep in sync with Item::WHOLESALE_GATED_CATEGORY_CODES (PHP).
+const WHOLESALE_GATED_CATEGORY_CODES = ['1201-08']
+
+function wholesaleTierGated(item, canViewWholesales) {
+    return !canViewWholesales && WHOLESALE_GATED_CATEGORY_CODES.includes(item?.category_code)
+}
+
+// Tiers the buyer is actually priced against: VIP tiers only for a VIP buyer, Wholesale
+// tiers dropped for the gated categories when the buyer can't view wholesales.
+function allowedTiers(item, isVip, canViewWholesales) {
+    return (item?.prices ?? [])
+        .filter(p => isVip || p.priceGroup !== 'VIP')
+        .filter(p => !wholesaleTierGated(item, canViewWholesales) || p.priceGroup !== 'Wholesales')
+}
+
 // Plain helper for use inside v-for loops (SearchBar, etc.) - only the Retail tier is ever
 // shown to anonymous/regular browsers, Wholesale and VIP prices are never public.
 function visiblePrices(item) {
@@ -72,15 +89,13 @@ function matchTier(prices, qty, uom = null) {
 // Resolves the price actually charged for a quantity/UOM. Package items (unit_price = 0) are
 // always priced from their matched UOM tier; normal items use their own unit_price/discount
 // unless a Wholesale/VIP tier is matched.
-export function calculateTierPrice(item, qty, selectedUOM = null, isVip = false) {
+export function calculateTierPrice(item, qty, selectedUOM = null, isVip = false, canViewWholesales = true) {
     if (!item) return 0
     if (!item.prices?.length) return effectiveUnitPrice(item)
 
     const isPackageItem = item.unit_price == 0 && selectedUOM
 
-    const prices = isVip
-        ? item.prices
-        : item.prices.filter(p => p.priceGroup !== 'VIP')
+    const prices = allowedTiers(item, isVip, canViewWholesales)
 
     const tier = matchTier(prices, qty, isPackageItem ? selectedUOM : null)
 
@@ -97,15 +112,13 @@ export function calculateTierPrice(item, qty, selectedUOM = null, isVip = false)
 // Which discount is actually active for a quantity/UOM right now: 'retail', 'wholesale', 'vip',
 // or null if none applies. Mirrors calculateTierPrice's own tier-matching branch for branch, so
 // the badge shown always agrees with the price actually charged.
-export function activeDiscountType(item, qty, selectedUOM = null, isVip = false) {
+export function activeDiscountType(item, qty, selectedUOM = null, isVip = false, canViewWholesales = true) {
     if (!item) return null
     if (!item.prices?.length) return Number(item.discount) > 0 ? 'retail' : null
 
     const isPackageItem = item.unit_price == 0 && selectedUOM
 
-    const prices = isVip
-        ? item.prices
-        : item.prices.filter(p => p.priceGroup !== 'VIP')
+    const prices = allowedTiers(item, isVip, canViewWholesales)
 
     const tier = matchTier(prices, qty, isPackageItem ? selectedUOM : null)
 

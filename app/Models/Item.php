@@ -75,6 +75,20 @@ class Item extends Model
 
     const SETUP_SERVICE_PRICE = 130.00;
 
+    /**
+     * Categories where the Wholesale tier is opt-in: it only applies to buyers an admin
+     * has granted "Can view wholesales". Every other category applies wholesale to all
+     * buyers as usual. Keep in sync with WHOLESALE_GATED_CATEGORY_CODES in usePricing.js.
+     *
+     * @var list<string>
+     */
+    const WHOLESALE_GATED_CATEGORY_CODES = ['1201-08'];
+
+    public function wholesaleTierGated(bool $canViewWholesales): bool
+    {
+        return ! $canViewWholesales && in_array($this->category_code, self::WHOLESALE_GATED_CATEGORY_CODES, true);
+    }
+
     public function getStoragePathAttribute()
     {
         return '/storage/items';

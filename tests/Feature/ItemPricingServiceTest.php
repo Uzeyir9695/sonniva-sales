@@ -133,3 +133,40 @@ describe('a package (UOM-tiered) item', function () {
             ->and(ItemPricingService::retailPrice($item, 'pallet'))->toBeNull();
     });
 });
+
+describe('a wholesale-gated category item', function () {
+    $gatedCode = Item::WHOLESALE_GATED_CATEGORY_CODES[0];
+
+    function gatedItem(string $categoryCode): Item
+    {
+        return makePricingItem([
+            'category_code' => $categoryCode,
+            'unit_price' => 280,
+            'wholesale_discount_percent' => 10,
+            'prices' => [
+                ['priceGroup' => 'Retail', 'price' => 280, 'custMinQuantity' => 0],
+                ['priceGroup' => 'Wholesales', 'price' => 200, 'custMinQuantity' => 5],
+            ],
+        ]);
+    }
+
+    it('ignores the wholesale tier for a buyer without the grant', function () use ($gatedCode) {
+        $item = gatedItem($gatedCode);
+
+        expect(ItemPricingService::tierPrice($item, 5, null, isVip: false, canViewWholesales: false))->toBe(280.0)
+            ->and(ItemPricingService::activeDiscountType($item, 5, null, isVip: false, canViewWholesales: false))->toBeNull();
+    });
+
+    it('applies the wholesale tier for a buyer with the grant', function () use ($gatedCode) {
+        $item = gatedItem($gatedCode);
+
+        expect(ItemPricingService::tierPrice($item, 5, null, isVip: false, canViewWholesales: true))->toBe(180.0) // 200 * 0.9
+            ->and(ItemPricingService::activeDiscountType($item, 5, null, isVip: false, canViewWholesales: true))->toBe('wholesale');
+    });
+
+    it('still applies wholesale to non-gated categories regardless of the grant', function () {
+        $item = gatedItem('some-other-category');
+
+        expect(ItemPricingService::tierPrice($item, 5, null, isVip: false, canViewWholesales: false))->toBe(180.0);
+    });
+});

@@ -64,6 +64,31 @@ it('returns a pricing breakdown without creating an order or touching the cart',
     expect(Order::count())->toBe(0);
 });
 
+it('gates the wholesale tier by "can view wholesales" for the gated category only', function () {
+    $prices = [
+        ['priceGroup' => 'Retail', 'price' => 280, 'custMinQuantity' => 0],
+        ['priceGroup' => 'Wholesales', 'price' => 200, 'custMinQuantity' => 5],
+    ];
+
+    $gated = checkoutPreviewTestItem(['category_code' => Item::WHOLESALE_GATED_CATEGORY_CODES[0], 'unit_price' => 280, 'inventory' => 20, 'prices' => $prices]);
+    $normal = checkoutPreviewTestItem(['category_code' => 'test-category', 'unit_price' => 280, 'inventory' => 20, 'prices' => $prices]);
+
+    $preview = function (Item $item, bool $canViewWholesales) {
+        $user = User::factory()->create(['can_view_wholesales' => $canViewWholesales]);
+        $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 5]);
+        Sanctum::actingAs($user);
+
+        return test()->postJson('/api/v1/checkout/preview', [
+            'delivery_type' => 'office',
+            'cart_ids' => [$cart->id],
+        ])->assertOk()->json('subtotal');
+    };
+
+    expect($preview($gated, false))->toBe(1400)   // 5 × 280 retail — wholesale ignored
+        ->and($preview($gated, true))->toBe(1000)  // 5 × 200 wholesale
+        ->and($preview($normal, false))->toBe(1000); // other category: wholesale still applies
+});
+
 it('charges a normal item the weight-based Tbilisi tariff under 50kg', function () {
     $item = checkoutPreviewTestItem(['weights' => [['uom' => 'PCS', 'weight' => 10]]]);
 

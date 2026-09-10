@@ -34,6 +34,7 @@ class CartController extends Controller
 
         if ($request->wantsJson()) {
             $isVip = (bool) $request->user()->can_view_vip;
+            $canViewWholesales = (bool) $request->user()->can_view_wholesales;
 
             return response()->json([
                 // Row id + the raw item alongside a `pricing` block computed
@@ -50,10 +51,10 @@ class CartController extends Controller
                     'with_service' => $cart->with_service,
                     'item' => $cart->item,
                     'pricing' => [
-                        'unit_price' => ItemPricingService::tierPrice($cart->item, $cart->quantity, $cart->selected_uom, $isVip),
+                        'unit_price' => ItemPricingService::tierPrice($cart->item, $cart->quantity, $cart->selected_uom, $isVip, $canViewWholesales),
                         'original_price' => ItemPricingService::originalPrice($cart->item),
                         'retail_price' => ItemPricingService::retailPrice($cart->item, $cart->selected_uom),
-                        'discount_type' => ItemPricingService::activeDiscountType($cart->item, $cart->quantity, $cart->selected_uom, $isVip),
+                        'discount_type' => ItemPricingService::activeDiscountType($cart->item, $cart->quantity, $cart->selected_uom, $isVip, $canViewWholesales),
                     ],
                 ]),
                 'subscribedItemIds' => $subscribedItemIds,

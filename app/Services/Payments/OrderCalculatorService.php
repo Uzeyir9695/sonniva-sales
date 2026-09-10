@@ -62,6 +62,7 @@ class OrderCalculatorService
     {
         $buyer = User::find($buyerId ?? $cartOwnerId);
         $isVip = $buyer?->can_view_vip ?? false;
+        $canViewWholesales = $buyer?->can_view_wholesales ?? false;
 
         // Fetch only cart rows that belong to the cart owner and match the requested cart UUIDs.
         // Using cart IDs (not item IDs) correctly handles the same item with different UOMs.
@@ -88,7 +89,7 @@ class OrderCalculatorService
 
         foreach ($cartRows as $cartRow) {
             $qty = $cartRow->quantity;
-            [$unitPrice, $appliedDiscountPercent, $bcDiscountPercent] = $this->tierPrice($cartRow->item, $qty, $cartRow->selected_uom, $isVip);
+            [$unitPrice, $appliedDiscountPercent, $bcDiscountPercent] = $this->tierPrice($cartRow->item, $qty, $cartRow->selected_uom, $isVip, $canViewWholesales);
             $serviceUnitPrice = $cartRow->with_service ? (float) Item::SETUP_SERVICE_PRICE : 0.0;
             $rowTotal = ($unitPrice + $serviceUnitPrice) * $qty;
             $subtotal += $rowTotal;
@@ -165,7 +166,7 @@ class OrderCalculatorService
      *
      * @return array{0: float, 1: float, 2: float} unit price, discount percent applied, and the Business Central discount percent
      */
-    private function tierPrice(Item $item, int $qty, ?string $uom = null, bool $isVip = false): array
+    private function tierPrice(Item $item, int $qty, ?string $uom = null, bool $isVip = false, bool $canViewWholesales = true): array
     {
         if (empty($item->prices)) {
             return $this->discountedRetailPrice($item);
@@ -174,7 +175,8 @@ class OrderCalculatorService
         $isPackageItem = $item->unit_price == 0 && $uom;
 
         $tiers = collect($item->prices)
-            ->when(! $isVip, fn ($tiers) => $tiers->filter(fn ($tier) => ($tier['priceGroup'] ?? '') !== 'VIP'));
+            ->when(! $isVip, fn ($tiers) => $tiers->filter(fn ($tier) => ($tier['priceGroup'] ?? '') !== 'VIP'))
+            ->when($item->wholesaleTierGated($canViewWholesales), fn ($tiers) => $tiers->filter(fn ($tier) => ($tier['priceGroup'] ?? '') !== 'Wholesales'));
 
         $matchedTier = $isPackageItem
             ? $tiers->filter(fn ($tier) => $tier['UOM'] === $uom)->sortByDesc('custMinQuantity')->first(fn ($tier) => $qty >= $tier['custMinQuantity'])

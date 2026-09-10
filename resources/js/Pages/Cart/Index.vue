@@ -19,6 +19,7 @@ const props = defineProps({
 const { removeFromCart, updateQuantity, isLoading, getQuantity, count, syncFromServer, toggleService, hasService } = useCart()
 const page = usePage()
 const isVip = computed(() => page.props.user?.can_view_vip ?? false)
+const canViewWholesales = computed(() => page.props.user?.can_view_wholesales ?? false)
 
 // Unique key per cart row: UUID when available, fallback composite
 const rowKey = (c) => c.id ?? (c.selected_uom ? `${c.item_id}__${c.selected_uom}` : c.item_id)
@@ -54,7 +55,7 @@ const formatted = (val) => Number(val).toFixed(2)
 
 function isVipPriceActive(item, qty, selectedUOM = null) {
     if (!isVip.value) return false
-    return calculateTierPrice(item, qty, selectedUOM, true) < calculateTierPrice(item, qty, selectedUOM, false)
+    return calculateTierPrice(item, qty, selectedUOM, true, canViewWholesales.value) < calculateTierPrice(item, qty, selectedUOM, false, canViewWholesales.value)
 }
 
 // fake_price/discount only ever apply to normal (non-package) items - takes priority over the
@@ -65,12 +66,12 @@ function rowStrikePrice(item, qty, selectedUOM) {
         if (p) return p
     }
     const retail = getRetailPrice(item, selectedUOM)
-    if (retail !== null && calculateTierPrice(item, qty, selectedUOM, isVip.value) < retail) return retail
+    if (retail !== null && calculateTierPrice(item, qty, selectedUOM, isVip.value, canViewWholesales.value) < retail) return retail
     return null
 }
 
 function rowBoldPrice(item, qty, selectedUOM) {
-    return calculateTierPrice(item, qty, selectedUOM, isVip.value)
+    return calculateTierPrice(item, qty, selectedUOM, isVip.value, canViewWholesales.value)
 }
 
 const DISCOUNT_TYPE_LABELS = {
@@ -89,7 +90,7 @@ const DISCOUNT_TYPE_BADGE_CLASS = {
 // actually active for the row's current quantity (see activeDiscountType).
 function rowDiscountBadge(cartItem) {
     const qty = getQuantity(cartItem.item_id, cartItem.selected_uom)
-    const type = activeDiscountType(cartItem.item, qty, cartItem.selected_uom, isVip.value)
+    const type = activeDiscountType(cartItem.item, qty, cartItem.selected_uom, isVip.value, canViewWholesales.value)
     if (!type) return null
 
     const percent = type === 'wholesale' ? cartItem.item.wholesale_discount_percent
@@ -166,7 +167,7 @@ const subtotal = computed(() =>
     selectedItems.value.reduce((sum, c) => {
         const qty = getQuantity(c.item_id, c.selected_uom)
         const serviceTotal = hasService(c.item_id, c.selected_uom) ? c.item.setup_service_price * qty : 0
-        return sum + (calculateTierPrice(c.item, qty, c.selected_uom, isVip.value) * qty) + serviceTotal
+        return sum + (calculateTierPrice(c.item, qty, c.selected_uom, isVip.value, canViewWholesales.value) * qty) + serviceTotal
     }, 0)
 )
 
@@ -174,7 +175,7 @@ const totalSavings = computed(() =>
     selectedItems.value.reduce((sum, c) => {
         const qty = getQuantity(c.item_id, c.selected_uom)
         const originalTotal = c.item.unit_price * qty
-        const tieredTotal = calculateTierPrice(c.item, qty, c.selected_uom, isVip.value) * qty
+        const tieredTotal = calculateTierPrice(c.item, qty, c.selected_uom, isVip.value, canViewWholesales.value) * qty
         return sum + Math.max(0, originalTotal - tieredTotal)
     }, 0)
 )
@@ -359,22 +360,22 @@ function goToCheckout() {
 
                                     <!-- Row total -->
                                     <span class="text-sm text-gray-400">
-                                        {{ $t('cart.rowTotal') }} <span class="font-semibold text-gray-700">{{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip) * getQuantity(cartItem.item_id, cartItem.selected_uom) + (hasService(cartItem.item_id, cartItem.selected_uom) ? cartItem.item.setup_service_price * getQuantity(cartItem.item_id, cartItem.selected_uom) : 0)) }} ₾</span>
+                                        {{ $t('cart.rowTotal') }} <span class="font-semibold text-gray-700">{{ formatted(calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip, canViewWholesales) * getQuantity(cartItem.item_id, cartItem.selected_uom) + (hasService(cartItem.item_id, cartItem.selected_uom) ? cartItem.item.setup_service_price * getQuantity(cartItem.item_id, cartItem.selected_uom) : 0)) }} ₾</span>
                                     </span>
 
                                     <!-- Savings badge -->
                                     <span
-                                        v-if="getRetailPrice(cartItem.item, cartItem.selected_uom) !== null && calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip) < getRetailPrice(cartItem.item, cartItem.selected_uom)"
+                                        v-if="getRetailPrice(cartItem.item, cartItem.selected_uom) !== null && calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip, canViewWholesales) < getRetailPrice(cartItem.item, cartItem.selected_uom)"
                                         :class="isVipPriceActive(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom)
                                             ? 'flex items-center text-xs text-purple-600 font-medium bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full'
                                             : 'flex items-center text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-0.5 rounded-full'"
                                     >
                                         <i class="pi pi-tag text-xs mr-1"></i>
                                         <template v-if="isVipPriceActive(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom)">
-                                            {{ $t('cart.vipSavings') }} {{ formatted((getRetailPrice(cartItem.item, cartItem.selected_uom) - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
+                                            {{ $t('cart.vipSavings') }} {{ formatted((getRetailPrice(cartItem.item, cartItem.selected_uom) - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip, canViewWholesales)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
                                         </template>
                                         <template v-else>
-                                            {{ $t('cart.savings') }} {{ formatted((getRetailPrice(cartItem.item, cartItem.selected_uom) - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
+                                            {{ $t('cart.savings') }} {{ formatted((getRetailPrice(cartItem.item, cartItem.selected_uom) - calculateTierPrice(cartItem.item, getQuantity(cartItem.item_id, cartItem.selected_uom), cartItem.selected_uom, isVip, canViewWholesales)) * getQuantity(cartItem.item_id, cartItem.selected_uom)) }} ₾
                                         </template>
                                     </span>
 

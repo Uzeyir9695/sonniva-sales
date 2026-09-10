@@ -26,6 +26,7 @@ const selectedCustomer = ref(null)
 const orderingUser = computed(() => (isAdmin.value ? selectedCustomer.value : null) ?? page.props.user)
 
 const isVip = computed(() => orderingUser.value?.can_view_vip ?? false)
+const canViewWholesales = computed(() => orderingUser.value?.can_view_wholesales ?? false)
 const hasFreeDelivery = computed(() => orderingUser.value?.has_free_delivery ?? false)
 
 // ─── Cart items with reactive quantities ──────────────────────────────────
@@ -41,7 +42,7 @@ const items = computed(() =>
         .filter(c => !removedCartIds.value.includes(c.id))
         .map(c => {
             const qty = getQuantity(c.item_id, c.selected_uom) || c.quantity
-            const unitPrice = calculateTierPrice(c.item, qty, c.selected_uom, isVip.value)
+            const unitPrice = calculateTierPrice(c.item, qty, c.selected_uom, isVip.value, canViewWholesales.value)
             const withService = hasService(c.item_id, c.selected_uom)
             const serviceTotal = withService ? c.item.setup_service_price * qty : 0
 
