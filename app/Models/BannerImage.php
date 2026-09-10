@@ -16,4 +16,9 @@ class BannerImage extends Model
     {
         return $this->belongsTo(Item::class);
     }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

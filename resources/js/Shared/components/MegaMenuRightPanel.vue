@@ -20,11 +20,17 @@ const doorImages  = computed(() => banners.value.doors  ?? [])
 const frameImages = computed(() => banners.value.frames ?? [])
 
 // Fallback static images when nothing uploaded yet
-const FALLBACK_MAIN   = [{ image_url: '/frame-examples/fur1.jpeg', mobile_image_url: null, item_slug: null }]
+const FALLBACK_MAIN   = [{ image_url: '/frame-examples/fur1.jpeg', mobile_image_url: null, item_slug: null, category_slug: null }]
 const FALLBACK_DOORS  = ['/door-examples/picture1.png', '/door-examples/picture2.png', '/door-examples/picture3.png']
 const FALLBACK_FRAMES = ['/frame-examples/fur1.jpeg', '/frame-examples/fur2.jpeg', '/frame-examples/fur3.jpeg']
 
 const mainSrc = computed(() => mainImages.value.length ? mainImages.value : FALLBACK_MAIN)
+
+function slideHref(slide) {
+    if (slide.item_slug) return route('items.show', slide.item_slug)
+    if (slide.category_slug) return route('items.index', slide.category_slug)
+    return undefined
+}
 const doorSrc   = computed(() => doorImages.value.length   ? doorImages.value   : FALLBACK_DOORS)
 const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  : FALLBACK_FRAMES)
 </script>
@@ -45,8 +51,8 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
             >
                 <SwiperSlide v-for="(slide, i) in mainSrc" :key="i" class="h-full!">
                     <component
-                        :is="slide.item_slug ? Link : 'div'"
-                        :href="slide.item_slug ? route('items.show', slide.item_slug) : undefined"
+                        :is="slideHref(slide) ? Link : 'div'"
+                        :href="slideHref(slide)"
                         class="block h-full w-full"
                     >
                         <picture class="block h-full w-full ring">

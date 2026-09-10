@@ -27,7 +27,7 @@ class HomeController extends Controller
         ];
 
         $banners = Cache::rememberForever('nav_banners', function () {
-            return BannerImage::with('item:id,slug')
+            return BannerImage::with(['item:id,slug', 'category:id,slug'])
                 ->orderBy('sort_order')
                 ->get()
                 ->groupBy('slot')
@@ -38,6 +38,7 @@ class HomeController extends Controller
                             ? Storage::disk('public')->url($b->mobile_image_path)
                             : null,
                         'item_slug' => $b->item?->slug,
+                        'category_slug' => $b->category?->slug,
                     ])->values()
                     : $group->map(fn ($b) => Storage::disk('public')->url($b->image_path))->values())
                 ->toArray();
@@ -93,6 +94,7 @@ class HomeController extends Controller
             ->map(fn (array $slide) => [
                 'image_url' => $slide['mobile_image_url'],
                 'item_slug' => $slide['item_slug'],
+                'category_slug' => $slide['category_slug'],
             ])
             ->values()
             ->all();

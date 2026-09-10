@@ -17,7 +17,7 @@ class AdminBannerController extends Controller
 {
     public function index(): Response
     {
-        $banners = BannerImage::with('item:id,name,slug')
+        $banners = BannerImage::with(['item:id,name,slug', 'category:id,name'])
             ->orderBy('sort_order')->get()
             ->groupBy('slot')
             ->map(fn ($group) => $group->map(fn ($b) => [
@@ -28,6 +28,7 @@ class AdminBannerController extends Controller
                     : null,
                 'sort_order' => $b->sort_order,
                 'item' => $b->item,
+                'category' => $b->category,
             ]));
 
         $sections = HomeSection::with(['items:id,no,name,slug,images', 'images'])
@@ -58,6 +59,7 @@ class AdminBannerController extends Controller
         $request->validate([
             'slot' => ['required', 'in:main,doors,frames'],
             'item_id' => ['nullable', 'exists:items,id'],
+            'category_id' => ['nullable', 'exists:categories,id', 'prohibits:item_id'],
             'images' => ['required', 'array', 'min:1'],
             'images.*' => ['required', 'image', 'max:4096'],
         ]);
@@ -70,6 +72,7 @@ class AdminBannerController extends Controller
             BannerImage::create([
                 'slot' => $slot,
                 'item_id' => $request->item_id,
+                'category_id' => $request->category_id,
                 'image_path' => $path,
                 'sort_order' => $nextOrder++,
             ]);

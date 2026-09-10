@@ -171,11 +171,15 @@ class AdminItemController extends Controller
             return response()->json([]);
         }
 
-        $categories = Category::where('name', 'like', "%{$q}%")
-            ->orWhere('code', 'like', "%{$q}%")
+        $categories = Category::where(fn ($query) => $query
+            ->where('code', 'like', "%{$q}%")
+            ->orWhere('name', 'like', "%{$q}%")
+            ->orWhere('name_en', 'like', "%{$q}%")
+            ->orWhere('name_ru', 'like', "%{$q}%")
+            ->orWhere('name_tr', 'like', "%{$q}%"))
             ->orderBy('name')
             ->limit(30)
-            ->get(['id', 'code', 'name', 'image']);
+            ->get(['id', 'code', 'name', 'name_en', 'name_ru', 'name_tr', 'image']);
 
         return response()->json($categories);
     }
