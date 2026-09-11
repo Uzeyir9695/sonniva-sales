@@ -5,6 +5,7 @@ namespace App\Rules;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Translation\PotentiallyTranslatedString;
 
 class RecaptchaV3 implements ValidationRule
 {
@@ -21,7 +22,7 @@ class RecaptchaV3 implements ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param  \Closure(string, ?string=): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param  Closure(string, ?string=): PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -37,21 +38,21 @@ class RecaptchaV3 implements ValidationRule
 
         // Validation: must succeed
         if (! ($response['success'] ?? false)) {
-            $fail('Recaptcha validation failed.');
+            $fail('Recaptcha validation failed.')->translate();
 
             return;
         }
 
         // Validate score (v3 only)
         if (($response['score'] ?? 0) < $this->minScore) {
-            $fail('Suspicious behavior detected.');
+            $fail('Suspicious behavior detected.')->translate();
 
             return;
         }
 
         // Validate action
         if (($response['action'] ?? '') !== $this->action) {
-            $fail('Invalid recaptcha action.');
+            $fail('Invalid recaptcha action.')->translate();
         }
     }
 }

@@ -66,14 +66,14 @@ class ForgotPasswordService
         if ($result['success']) {
             return [
                 'success' => true,
-                'otp'     => $otp,
+                'otp' => $otp,
                 'message' => __('Verification code sent. Please check you phone!'),
             ];
         }
 
         return [
             'success' => false,
-            'otp'     => null,
+            'otp' => null,
             'message' => $result['message'],
         ];
     }
@@ -92,9 +92,9 @@ class ForgotPasswordService
         OtpVerification::updateOrCreate(
             ['phone' => $phone->formatE164()],
             [
-                'otp'               => $otp,
+                'otp' => $otp,
                 'registration_data' => null, // not used for password reset
-                'expires_at'        => now()->addMinutes(5), // 5 min for password reset
+                'expires_at' => now()->addMinutes(5), // 5 min for password reset
             ]
         );
     }
@@ -116,24 +116,24 @@ class ForgotPasswordService
      */
     public function verifyOtpFromSession(?string $sessionOtp, ?string $sessionExpiresAt, string $submittedOtp): array
     {
-        if (!$sessionOtp) {
+        if (! $sessionOtp) {
             return [
-                'valid'   => false,
-                'message' => __('controller-messages.session_expired'),
+                'valid' => false,
+                'message' => __('Session expired. Please try again.'),
             ];
         }
 
         if (now()->greaterThan($sessionExpiresAt)) {
             return [
-                'valid'   => false,
-                'message' => __('controller-messages.verification_code_expired'),
+                'valid' => false,
+                'message' => __('Verification code expired. Please try again.'),
             ];
         }
 
         if ($sessionOtp !== $submittedOtp) {
             return [
-                'valid'   => false,
-                'message' => __('controller-messages.invalid_verification_code'),
+                'valid' => false,
+                'message' => __('Invalid verification code.'),
             ];
         }
 
@@ -160,28 +160,29 @@ class ForgotPasswordService
     {
         $record = OtpVerification::where('phone', $phoneE164)->latest()->first();
 
-        if (!$record) {
+        if (! $record) {
             return [
-                'valid'   => false,
-                'message' => __('controller-messages.session_expired'),
-                'phone'   => null,
+                'valid' => false,
+                'message' => __('Session expired. Please try again.'),
+                'phone' => null,
             ];
         }
 
         if (now()->greaterThan($record->expires_at)) {
             $record->delete();
+
             return [
-                'valid'   => false,
-                'message' => __('controller-messages.verification_code_expired'),
-                'phone'   => null,
+                'valid' => false,
+                'message' => __('Verification code expired. Please try again.'),
+                'phone' => null,
             ];
         }
 
         if ($record->otp !== $submittedOtp) {
             return [
-                'valid'   => false,
-                'message' => __('controller-messages.invalid_verification_code'),
-                'phone'   => null,
+                'valid' => false,
+                'message' => __('Invalid verification code.'),
+                'phone' => null,
             ];
         }
 
@@ -189,9 +190,9 @@ class ForgotPasswordService
         $record->delete(); // OTP used — clean it up
 
         return [
-            'valid'   => true,
+            'valid' => true,
             'message' => 'OTP verified',
-            'phone'   => $phone,
+            'phone' => $phone,
         ];
     }
 
@@ -217,7 +218,7 @@ class ForgotPasswordService
         PasswordResetToken::updateOrCreate(
             ['phone' => $phoneE164],
             [
-                'token'      => Hash::make($token), // hash token before storing
+                'token' => Hash::make($token), // hash token before storing
                 'expires_at' => now()->addMinutes(15), // 15 min to reset
             ]
         );
@@ -253,7 +254,7 @@ class ForgotPasswordService
     {
         $user = User::where('phone', $phoneE164)->first();
 
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 

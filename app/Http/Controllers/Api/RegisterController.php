@@ -46,8 +46,8 @@ class RegisterController extends Controller
 
         if ($this->registerService->phoneExists($phone)) {
             return response()->json([
-                'message' => __('controller-messages.phone_exists'),
-                'errors' => ['phone' => [__('controller-messages.phone_exists')]],
+                'message' => __('This phone number is already registered.'),
+                'errors' => ['phone' => [__('This phone number is already registered.')]],
             ], 422);
         }
 

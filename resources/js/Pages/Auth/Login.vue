@@ -35,10 +35,13 @@ function login() {
         <div class="bg-white mx-3 rounded-xl shadow-lg transition-shadow duration-500 ease-in-out border border-slate-200 p-8">
             <h1 class="text-2xl font-bold mb-6 text-center">{{ $t('auth.loginHeading') }}</h1>
 
-            <!-- Error Message -->
-            <Message v-if="$page.props.errors.message" class="mb-8" severity="error" icon="pi pi-exclamation-circle" :closable="true">
-                {{ $page.props.errors.message }}
-            </Message>
+            <!-- Form Validation Errors -->
+            <div v-if="Object.keys(errors).length > 0" class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex">
+                <i class="pi pi-exclamation-circle text-red-400 mr-3 mt-0.5"></i>
+                <div class="text-red-600 text-sm">
+                    <p v-for="(error, key) in errors" :key="key">{{ error }}</p>
+                </div>
+            </div>
 
             <!-- Success Message -->
             <Message v-if="$page.props.flash.message" class="mb-8" severity="success" icon="pi pi-check-circle" :closable="true">

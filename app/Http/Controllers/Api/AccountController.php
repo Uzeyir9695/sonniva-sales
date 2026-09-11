@@ -51,8 +51,8 @@ class AccountController extends Controller
             'tax_id' => 'required|string|max:30',
             'address' => 'nullable|string|max:100',
         ], [
-            'tax_id.required' => $user->user_type === 'individual' ? 'The ID number is required.' : 'The tax id is required.',
-            'lastname.required_if' => 'The lastname field is required for the individual users.',
+            'tax_id.required' => __($user->user_type === 'individual' ? 'The ID number is required.' : 'The tax id is required.'),
+            'lastname.required_if' => __('The lastname field is required for the individual users.'),
         ]);
 
         // BC rejects a customer update outright if the VAT number is already claimed by a
@@ -65,8 +65,8 @@ class AccountController extends Controller
 
                 if (! empty($bcCustomer['value']) && $bcCustomer['value'][0]['No'] !== $user->bc_customer_no) {
                     return response()->json([
-                        'message' => 'This tax ID is already registered to another customer.',
-                        'errors' => ['tax_id' => ['This tax ID is already registered to another customer.']],
+                        'message' => __('This tax ID is already registered to another customer.'),
+                        'errors' => ['tax_id' => [__('This tax ID is already registered to another customer.')]],
                     ], 422);
                 }
             } catch (\Exception) {
@@ -113,8 +113,8 @@ class AccountController extends Controller
 
         if (! Hash::check($validated['current_password'], $user->password)) {
             return response()->json([
-                'message' => 'Current password is incorrect.',
-                'errors' => ['current_password' => ['Current password is incorrect.']],
+                'message' => __('Current password is incorrect.'),
+                'errors' => ['current_password' => [__('Current password is incorrect.')]],
             ], 422);
         }
 

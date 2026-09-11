@@ -34,8 +34,8 @@ async function  forgotPassword(){
         <form @submit.prevent="forgotPassword" class="flex flex-col p-8 gap-6 self-center">
             <p class="text-center">{{ $t('auth.forgotHint') }}</p>
             <!-- Error Message -->
-            <Message v-if="Object.keys(errors)?.length > 0" severity="error" icon="pi pi-exclamation-circle" :closable="false">
-                {{ errors.phone }}
+            <Message v-for="(error, key) in errors" :key="key" severity="error" icon="pi pi-exclamation-circle" :closable="false">
+                {{ error }}
             </Message>
 
             <FloatLabel variant="on">

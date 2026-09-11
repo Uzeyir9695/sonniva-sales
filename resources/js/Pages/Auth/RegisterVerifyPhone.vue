@@ -41,7 +41,18 @@ async function resendCode(){
         <form @submit.prevent="verifyPhone" class="flex flex-col p-8 gap-6 self-center">
             <div class="flex flex-col items-center">
                 <p class="text-surface-500 dark:text-surface-400 block mb-8">{{ $t('auth.enterSixDigitCode') }}</p>
-                <InputOtp v-model="form.otp" :length="6" />
+                <!-- OTP Validation Error Messages -->
+                <Message v-if="errors?.otp" severity="error" icon="pi pi-exclamation-circle" :closable="false">
+                    {{ errors.otp }}
+                </Message>
+
+                <!-- Other Session Based Error Messages -->
+                <Message v-if="$page.props.errors.message" severity="error" icon="pi pi-exclamation-circle" :closable="false">
+                    {{ $page.props.errors.message }}
+                </Message>
+
+                <InputOtp v-model="form.otp" :length="6" class="mt-6" />
+                <div v-if="form.errors.otp" class="text-red-500">{{ form.errors.otp }}</div>
                 <div class="flex justify-between mt-8 self-stretch">
                     <Button :label="$t('auth.resendCode')" @click="resendCode" link class="p-0"></Button>
                 </div>

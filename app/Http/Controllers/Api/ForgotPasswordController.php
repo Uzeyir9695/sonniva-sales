@@ -26,21 +26,21 @@ class ForgotPasswordController extends Controller
     {
         $request->validate([
             'phone_country' => 'required|string',
-            'phone'         => 'required|phone:phone_country',
+            'phone' => 'required|phone:phone_country',
         ]);
 
         $phone = $this->forgotPasswordService->formatPhone($request->phone, $request->phone_country);
 
-        if (!$this->forgotPasswordService->phoneExists($phone)) {
+        if (! $this->forgotPasswordService->phoneExists($phone)) {
             return response()->json([
-                'message' => 'This phone number is not registered.',
-                'errors'  => ['phone' => ['This phone number is not registered.']],
+                'message' => __('This phone number is not registered.'),
+                'errors' => ['phone' => [__('This phone number is not registered.')]],
             ], 422);
         }
 
         $result = $this->forgotPasswordService->generateAndSendOtp($phone);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json(['message' => $result['message']], 500);
         }
 
@@ -59,21 +59,21 @@ class ForgotPasswordController extends Controller
     public function resendCode(Request $request): JsonResponse
     {
         $request->validate([
-            'phone'         => 'required|string',
+            'phone' => 'required|string',
             'phone_country' => 'required|string',
         ]);
 
         $phone = $this->forgotPasswordService->formatPhone($request->phone, $request->phone_country);
 
-        if (!$this->forgotPasswordService->phoneExists($phone)) {
+        if (! $this->forgotPasswordService->phoneExists($phone)) {
             return response()->json([
-                'message' => 'This phone number is not registered.',
+                'message' => __('This phone number is not registered.'),
             ], 422);
         }
 
         $result = $this->forgotPasswordService->generateAndSendOtp($phone);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return response()->json(['message' => $result['message']], 500);
         }
 
@@ -92,19 +92,19 @@ class ForgotPasswordController extends Controller
     public function verifyCode(Request $request): JsonResponse
     {
         $request->validate([
-            'phone'         => 'required|string',
+            'phone' => 'required|string',
             'phone_country' => 'required|string',
-            'otp'           => 'required|string|size:6',
+            'otp' => 'required|string|size:6',
         ]);
 
         $phone = $this->forgotPasswordService->formatPhone($request->phone, $request->phone_country);
 
         $verification = $this->forgotPasswordService->verifyOtpFromDb(
-            phoneE164:    $phone->formatE164(),
+            phoneE164: $phone->formatE164(),
             submittedOtp: $request->otp,
         );
 
-        if (!$verification['valid']) {
+        if (! $verification['valid']) {
             return response()->json(['message' => $verification['message']], 422);
         }
 
@@ -114,7 +114,7 @@ class ForgotPasswordController extends Controller
         $this->forgotPasswordService->storeResetToken($verification['phone'], $resetToken);
 
         return response()->json([
-            'message'     => 'OTP verified',
+            'message' => 'OTP verified',
             'reset_token' => $resetToken,
         ], 200);
     }
@@ -129,25 +129,25 @@ class ForgotPasswordController extends Controller
     {
         $request->validate([
             'reset_token' => 'required|string',
-            'password'    => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:6|confirmed',
         ]);
 
         $phone = $this->forgotPasswordService->validateResetToken($request->reset_token);
 
-        if (!$phone) {
+        if (! $phone) {
             return response()->json([
-                'message' => 'Invalid or expired reset token.',
+                'message' => __('Invalid or expired reset token.'),
             ], 422);
         }
 
         $success = $this->forgotPasswordService->resetPassword($phone, $request->password);
 
-        if (!$success) {
-            return response()->json(['message' => 'Failed to reset password.'], 500);
+        if (! $success) {
+            return response()->json(['message' => __('Failed to reset password.')], 500);
         }
 
         return response()->json([
-            'message' => 'Password reset successfully. Please login with your new password.',
+            'message' => __('Password reset successfully. Please login with your new password.'),
         ], 200);
     }
 }

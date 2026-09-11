@@ -36,9 +36,9 @@ class LoginService
             } catch (\Exception $e) {
                 return [
                     'success' => false,
-                    'user'    => null,
+                    'user' => null,
                     'message' => __('Use a valid email address or phone number.'),
-                    'locked'  => false,
+                    'locked' => false,
                     'seconds' => null,
                     'error_type' => 'invalid_phone',
                 ];
@@ -46,7 +46,7 @@ class LoginService
         }
 
         // Check rate limiter (3 attempts max)
-        $key = 'login-attempt:' . $login;
+        $key = 'login-attempt:'.$login;
 
         if (RateLimiter::tooManyAttempts($key, 3)) {
             $seconds = RateLimiter::availableIn($key);
@@ -54,9 +54,9 @@ class LoginService
 
             return [
                 'success' => false,
-                'user'    => null,
-                'message' => "Too many login attempts. Try again in {$minutes} minute(s).",
-                'locked'  => true,
+                'user' => null,
+                'message' => __('Too many login attempts. Try again in :minutes minute(s).', ['minutes' => $minutes]),
+                'locked' => true,
                 'seconds' => $seconds,
                 'error_type' => 'rate_limited',
             ];
@@ -71,9 +71,9 @@ class LoginService
 
             return [
                 'success' => true,
-                'user'    => $user,
+                'user' => $user,
                 'message' => 'Login successful',
-                'locked'  => false,
+                'locked' => false,
                 'seconds' => null,
                 'error_type' => null,
             ];
@@ -85,9 +85,9 @@ class LoginService
 
         return [
             'success' => false,
-            'user'    => null,
+            'user' => null,
             'message' => __('Invalid credentials. Please try again.'),
-            'locked'  => false,
+            'locked' => false,
             'seconds' => null,
             'error_type' => 'invalid_credentials',
         ];

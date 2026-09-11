@@ -30,7 +30,7 @@ class ForgotPasswordController extends Controller
     public function showFPVerifyPhone()
     {
         return Inertia::render('Auth/ForgotPasswordVerifyPhone', [
-            'success' => __('Verification code sent. Please check you phone!')
+            'success' => __('Verification code sent. Please check you phone!'),
         ]);
     }
 
@@ -49,25 +49,25 @@ class ForgotPasswordController extends Controller
     {
         $request->validate([
             'phone_country' => 'required|string',
-            'phone'         => 'required|phone:phone_country',
+            'phone' => 'required|phone:phone_country',
         ]);
 
         $phone = $this->forgotPasswordService->formatPhone($request->phone, $request->phone_country);
 
-        if (!$this->forgotPasswordService->phoneExists($phone)) {
-            return back()->withErrors(['phone' => 'This phone number is not registered.']);
+        if (! $this->forgotPasswordService->phoneExists($phone)) {
+            return back()->withErrors(['phone' => __('This phone number is not registered.')]);
         }
 
         $result = $this->forgotPasswordService->generateAndSendOtp($phone);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return back()->withErrors(['message' => $result['message']]);
         }
 
         // Store in session for web flow
         session([
-            'phone'          => $phone,
-            'otp'            => $result['otp'],
+            'phone' => $phone,
+            'otp' => $result['otp'],
             'otp_expires_at' => now()->addMinutes(5)->toDateTimeString(),
         ]);
 
@@ -84,19 +84,19 @@ class ForgotPasswordController extends Controller
     {
         $phone = session('phone');
 
-        if (!$phone) {
+        if (! $phone) {
             return back()->withErrors(['message' => __('Session expired. Please try resend code.')]);
         }
 
         $result = $this->forgotPasswordService->generateAndSendOtp($phone);
 
-        if (!$result['success']) {
+        if (! $result['success']) {
             return back()->withErrors(['message' => $result['message']]);
         }
 
         // Refresh OTP in session
         session([
-            'otp'            => $result['otp'],
+            'otp' => $result['otp'],
             'otp_expires_at' => now()->addMinutes(5)->toDateTimeString(),
         ]);
 
@@ -114,22 +114,23 @@ class ForgotPasswordController extends Controller
         $request->validate([
             'otp' => 'required|string|size:6',
         ], [
-            'otp.required' => 'The OTP code is required.',
-            'otp.size'     => 'The OTP code must be 6-digit.',
+            'otp.required' => __('The OTP code is required.'),
+            'otp.size' => __('The OTP code must be 6-digit.'),
         ]);
 
         $phone = session('phone');
 
         $verification = $this->forgotPasswordService->verifyOtpFromSession(
-            sessionOtp:       session('otp'),
+            sessionOtp: session('otp'),
             sessionExpiresAt: session('otp_expires_at'),
-            submittedOtp:     $request->otp,
+            submittedOtp: $request->otp,
         );
 
-        if (!$verification['valid']) {
+        if (! $verification['valid']) {
             if (str_contains($verification['message'], 'expired')) {
                 session()->forget(['otp', 'otp_expires_at']);
             }
+
             return back()->withErrors(['message' => $verification['message']]);
         }
 
@@ -158,7 +159,7 @@ class ForgotPasswordController extends Controller
 
         $verifiedPhone = session('verified_phone');
 
-        if (!$verifiedPhone) {
+        if (! $verifiedPhone) {
             return back()->withErrors(['message' => __('Session expired. Please try resend code.')]);
         }
 
@@ -167,8 +168,8 @@ class ForgotPasswordController extends Controller
             $request->password
         );
 
-        if (!$success) {
-            return back()->withErrors(['message' => 'Failed to reset password.']);
+        if (! $success) {
+            return back()->withErrors(['message' => __('Failed to reset password.')]);
         }
 
         // Clear all session data
