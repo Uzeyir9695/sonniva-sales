@@ -2,11 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Mail\OrderApprovedEmail;
+use App\Mail\OrderSendMail;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\User;
-use App\Mail\OrderSendMail;
-use App\Mail\OrderApprovedEmail;
 use App\Services\PDFGeneratorService;
 use App\Services\SmsService;
 use Illuminate\Bus\Queueable;
@@ -35,11 +35,11 @@ class SendOrderEmailJob implements ShouldQueue
         $payment = Payment::findOrFail($this->paymentId);
 
         $viewVars = [
-            'order'   => $order,
+            'order' => $order,
             'payment' => $payment,
         ];
 
-        $fileName = 'order_' . $this->invoiceNumber . '.pdf';
+        $fileName = 'order_'.$this->invoiceNumber.'.pdf';
 
         $pdfService->generate($viewVars, $fileName);
         $pdfUrl = route('download.file', ['filename' => $fileName]);
@@ -48,8 +48,11 @@ class SendOrderEmailJob implements ShouldQueue
 
         if ($this->customer) {
             $msg = Order::paymentConfirmedMessage($this->invoiceNumber);
-            Mail::to($this->customer->email)->send(new OrderApprovedEmail($msg));
             $smsService->send($this->customer->phone, $msg, true);
+
+            if ($this->customer->email) {
+                Mail::to($this->customer->email)->send(new OrderApprovedEmail($msg));
+            }
         }
     }
 }

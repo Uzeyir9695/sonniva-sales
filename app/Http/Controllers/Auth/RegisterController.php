@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Rules\RecaptchaV3;
 use App\Services\Auth\RegisterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class RegisterController extends Controller
@@ -54,7 +56,7 @@ class RegisterController extends Controller
             'lastname' => 'required_if:user_type,individual|max:30',
             'phone_country' => 'required|string',
             'phone' => 'required|phone:phone_country|unique:users,phone',
-            'email' => 'required|email|unique:users,email,max:255',
+            'email' => ['nullable', 'email', 'max:255', Rule::unique(User::class, 'email')],
             'password' => 'required|string|min:6|confirmed',
             'captcha_token' => array_filter([
                 'required',

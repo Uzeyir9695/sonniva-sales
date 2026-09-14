@@ -223,7 +223,10 @@ class AdminOrderController extends Controller
             };
 
             $this->smsService->send($order->user->phone, $message, true);
-            Mail::to($order->user->email)->queue(new ReadyOrderEmail($message));
+
+            if ($order->user->email) {
+                Mail::to($order->user->email)->queue(new ReadyOrderEmail($message));
+            }
         }
 
         return redirect()->back()->with('message', 'Order marked as ready.');

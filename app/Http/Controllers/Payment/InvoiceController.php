@@ -6,17 +6,16 @@ use App\Http\Controllers\Concerns\PlacesOrdersForCustomers;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendOrderEmailJob;
 use App\Jobs\SendOrderToBCJob;
-use App\Mail\PaymentInvoiceMail;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Services\Payments\OrderCalculatorService;
 use App\Services\PDFGeneratorService;
+use App\Services\SmsService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,6 +27,7 @@ class InvoiceController extends Controller
     public function __construct(
         protected PDFGeneratorService $pdfService,
         protected OrderCalculatorService $calculatorService,
+        protected SmsService $smsService,
     ) {}
 
     public function initiateInvoice(Request $request): RedirectResponse
@@ -180,7 +180,7 @@ class InvoiceController extends Controller
         dispatch(function () use ($viewVars, $invoiceNumber, $fileName, $user) {
             $this->pdfService->generate($viewVars, $fileName);
             $pdfUrl = route('download.file', ['filename' => $fileName]);
-            Mail::to($user->email)->send(new PaymentInvoiceMail($pdfUrl, $invoiceNumber));
+            $this->smsService->send($user->phone, "Your invoice #{$invoiceNumber} is ready. Download: {$pdfUrl}");
         });
     }
 

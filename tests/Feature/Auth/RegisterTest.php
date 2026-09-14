@@ -43,6 +43,18 @@ it('sends an OTP and redirects to phone verification on valid registration', fun
     $this->assertDatabaseMissing('users', ['email' => 'test@example.com']);
 });
 
+it('allows registration without an email', function () {
+    mockOtpSms();
+
+    $payload = validRegisterPayload();
+    unset($payload['email']);
+
+    $response = $this->post(route('register'), $payload);
+
+    $response->assertRedirect(route('register.verify-phone.show'));
+    $response->assertSessionHasNoErrors();
+});
+
 it('rejects registration when the phone is already registered', function () {
     User::factory()->create(['phone' => '+995555123456', 'phone_country' => 'GE']);
 

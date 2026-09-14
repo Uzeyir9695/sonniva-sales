@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\OtpVerification;
+use App\Models\User;
 use App\Services\Auth\RegisterService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class RegisterController extends Controller
 {
@@ -36,7 +38,7 @@ class RegisterController extends Controller
             'lastname' => 'required_if:user_type,individual|max:30',
             'phone_country' => 'required|string',
             'phone' => 'required|phone:phone_country',
-            'email' => 'required|email|unique:users,email|max:255',
+            'email' => ['nullable', 'email', 'max:255', Rule::unique(User::class, 'email')],
             'password' => 'required|string|min:6|confirmed',
         ], [
             'lastname.required_if' => __('The lastname field is required when user type is individual.'),

@@ -408,7 +408,7 @@ class BusinessCentralService
             'County' => '',
             'Post_Code' => '',
             'Phone_No' => $user->phone,
-            'E_Mail' => $user->email,
+            'E_Mail' => $user->email ?? 'Email not provided',
         ];
 
         $response = Http::withToken($token)

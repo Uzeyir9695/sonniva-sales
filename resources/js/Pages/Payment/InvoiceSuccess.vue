@@ -21,8 +21,7 @@
 
             <!-- Optional Information -->
             <div class="mb-6 text-gray-600 text-sm">
-                <p>{{ $t('payment.checkEmailForPdf') }}</p>
-                <p class="mt-1">{{ $t('payment.checkSpam') }}</p>
+                <p>{{ $t('payment.checkSmsForPdf') }}</p>
             </div>
 
             <!-- Actions -->

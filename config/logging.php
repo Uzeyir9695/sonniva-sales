@@ -58,6 +58,13 @@ return [
             'permission' => 0664,
         ],
 
+        'sms' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/sms.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'permission' => 0664,
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => explode(',', (string) env('LOG_STACK', 'single')),
