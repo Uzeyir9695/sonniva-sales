@@ -15,7 +15,9 @@ class SyncItemFromBcJob implements ShouldQueue
 
     public $timeout = 1800;
 
-    public $tries = 1;
+    public $tries = 3;
+
+    public $backoff = 60;
 
     public function __construct(protected ?string $itemNo = null) {}
 
