@@ -14,20 +14,20 @@ class AdminUserController extends Controller
     public function index(Request $request)
     {
         $start = Carbon::parse($request->start_date)->timezone('Asia/Tbilisi')->startOfDay();
-        $end   = Carbon::parse($request->end_date)->timezone('Asia/Tbilisi')->endOfDay();
+        $end = Carbon::parse($request->end_date)->timezone('Asia/Tbilisi')->endOfDay();
 
         $users = User::select('id', 'tax_id', 'phone', 'name', 'lastname', 'is_handyman', 'created_at')
             ->when($request->start_date && $request->end_date, function ($query) use ($start, $end) {
                 $query->whereBetween('created_at', [$start, $end]);
             })
             ->withCount(['orders as paid_orders_count' => function ($q) {
-                $q->where('status', 'paid');
+                $q->whereIn('status', ['paid', 'dispatched', 'delivered']);
             }])
             ->latest()
             ->get();
 
         return Inertia::render('Admin/users/Index', [
-            'users' => Inertia::defer(fn() => $users),
+            'users' => Inertia::defer(fn () => $users),
             'usersCount' => $users->count(),
             'onlineUsers' => $this->onlineCounts(),
         ]);
@@ -45,19 +45,19 @@ class AdminUserController extends Controller
         return redirect()->back()->with('success', 'User deleted successfully.');
     }
 
-    function onlineCounts(int $seconds = 120): int
+    public function onlineCounts(int $seconds = 120): int
     {
         $active = time() - $seconds;
 
         $authUsers = DB::table('sessions')
-        ->whereNotNull('user_id')
-        ->where('last_activity', '>=', $active)
-        ->count();
+            ->whereNotNull('user_id')
+            ->where('last_activity', '>=', $active)
+            ->count();
 
         $guestUsers = DB::table('sessions')
-        ->whereNull('user_id')
-        ->where('last_activity', '>=', $active)
-        ->count();
+            ->whereNull('user_id')
+            ->where('last_activity', '>=', $active)
+            ->count();
 
         return $authUsers + $guestUsers;
     }
