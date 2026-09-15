@@ -33,10 +33,14 @@ export function useWishlist() {
         const currentLoginState = isLoggedIn.value
 
         if (state.ready && lastSetupLoginState !== null && lastSetupLoginState !== currentLoginState) {
-            if (lastSetupLoginState === true) {
-                saveToStorage()
-            }
             clearState()
+
+            // Don't carry a logged-in user's wishlist into guestWishlist storage on
+            // logout — it would leak into whichever account logs in next on this
+            // browser (e.g. admin logging into a customer's account to help them).
+            if (!currentLoginState) {
+                localStorage.removeItem(STORAGE_KEYS.guestWishlist)
+            }
         }
 
         if (state.ready) return

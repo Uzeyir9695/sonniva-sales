@@ -44,6 +44,14 @@ export function useCart() {
         // module-level lastSetupLoginState which persists across navigations.
         if (state.ready && lastSetupLoginState !== null && lastSetupLoginState !== currentLoginState) {
             clearState()  // sets state.ready = false; falls through to re-initialize
+
+            // On logout, guestCart in localStorage may be mirroring this user's own
+            // cart (the deep watch below persists state.items regardless of auth
+            // state) — wipe it so it can't leak into whichever account logs in next
+            // on this browser (e.g. admin logging into a customer's account to help).
+            if (!currentLoginState) {
+                localStorage.removeItem(STORAGE_KEYS.guestCart)
+            }
         }
 
         if (state.ready) return
