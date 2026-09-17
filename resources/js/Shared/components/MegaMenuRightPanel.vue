@@ -57,14 +57,14 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
                     >
                         <picture class="block h-full w-full ring">
                             <source v-if="slide.mobile_image_url" :srcset="slide.mobile_image_url" media="(max-width: 639px)" />
-                            <img :src="slide.image_url" :alt="`main ${i + 1}`" class="w-full h-full object-fill" />
+                            <img :src="slide.image_url" :alt="`main ${i + 1}`" class="h-full w-auto max-w-none 2xl:w-full 2xl:object-fill" />
                         </picture>
                     </component>
                 </SwiperSlide>
             </Swiper>
             <picture v-else class="block h-full w-full">
                 <source v-if="mainSrc[0].mobile_image_url" :srcset="mainSrc[0].mobile_image_url" media="(max-width: 639px)" />
-                <img :src="mainSrc[0].image_url" alt="main" class="w-full h-full object-fill" />
+                <img :src="mainSrc[0].image_url" alt="main" class="h-full w-auto max-w-none 2xl:w-full 2xl:object-fill" />
             </picture>
         </div>
 
