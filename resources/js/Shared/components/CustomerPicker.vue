@@ -2,12 +2,19 @@
 import { ref } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 import { apiRoute } from '@/utils/apiRoute';
 
 const props = defineProps({
     modelValue: { type: Object, default: null },
 });
 const emit = defineEmits(['update:modelValue']);
+
+const { t } = useI18n();
+const userTypeOptions = [
+    { label: t('auth.individual'), value: 'individual' },
+    { label: t('auth.legalEntity'), value: 'legal_entity' },
+];
 
 const dialogVisible = ref(false);
 
@@ -55,7 +62,7 @@ function clear() {
 
 // ── New customer form ────────────────────────────────────────────────────────
 const showNewForm = ref(false);
-const form        = ref({ name: '', lastname: '', phone: '', email: '', tax_id: '', address: '' });
+const form        = ref({ user_type: 'individual', name: '', lastname: '', phone: '', email: '', tax_id: '', address: '' });
 const formErrors  = ref({});
 const saving      = ref(false);
 
@@ -65,7 +72,7 @@ async function saveCustomer() {
     try {
         const { data } = await axios.post(apiRoute('admin.customers.store'), form.value);
         selectCustomer(data.customer);
-        form.value    = { name: '', lastname: '', phone: '', email: '', tax_id: '', address: '' };
+        form.value    = { user_type: 'individual', name: '', lastname: '', phone: '', email: '', tax_id: '', address: '' };
         showNewForm.value = false;
     } catch (err) {
         if (err.response?.status === 422) {
@@ -223,13 +230,26 @@ async function saveCustomer() {
             </button>
 
             <div v-if="showNewForm" class="flex flex-col gap-4">
-                <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-medium text-gray-600">{{ $t('auth.individual') }} / {{ $t('auth.legalEntity') }}</label>
+                    <SelectButton
+                        v-model="form.user_type"
+                        :options="userTypeOptions"
+                        optionLabel="label"
+                        optionValue="value"
+                        :allowEmpty="false"
+                    />
+                </div>
+
+                <div class="grid gap-3" :class="form.user_type === 'individual' ? 'grid-cols-2' : 'grid-cols-1'">
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.firstName') }} <span class="text-red-500">*</span></label>
-                        <InputText v-model="form.name" class="w-full" :class="{ 'p-invalid': formErrors.name }" :placeholder="$t('customerPicker.firstName')" />
+                        <label class="text-xs font-medium text-gray-600">
+                            {{ form.user_type === 'individual' ? $t('customerPicker.firstName') : $t('auth.companyName') }} <span class="text-red-500">*</span>
+                        </label>
+                        <InputText v-model="form.name" class="w-full" :class="{ 'p-invalid': formErrors.name }" :placeholder="form.user_type === 'individual' ? $t('customerPicker.firstName') : $t('auth.companyName')" />
                         <small v-if="formErrors.name" class="text-red-500 text-xs">{{ formErrors.name[0] }}</small>
                     </div>
-                    <div class="flex flex-col gap-1">
+                    <div v-if="form.user_type === 'individual'" class="flex flex-col gap-1">
                         <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.lastName') }} <span class="text-red-500">*</span></label>
                         <InputText v-model="form.lastname" class="w-full" :class="{ 'p-invalid': formErrors.lastname }" :placeholder="$t('customerPicker.lastName')" />
                         <small v-if="formErrors.lastname" class="text-red-500 text-xs">{{ formErrors.lastname[0] }}</small>
@@ -249,7 +269,9 @@ async function saveCustomer() {
                         <small v-if="formErrors.email" class="text-red-500 text-xs">{{ formErrors.email[0] }}</small>
                     </div>
                     <div class="flex flex-col gap-1">
-                        <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.idCode') }} <span class="text-red-500">*</span></label>
+                        <label class="text-xs font-medium text-gray-600">
+                            {{ form.user_type === 'individual' ? $t('auth.personalId') : $t('auth.identificationNumber') }} <span class="text-red-500">*</span>
+                        </label>
                         <InputText v-model="form.tax_id" class="w-full" :class="{ 'p-invalid': formErrors.tax_id }" :placeholder="$t('customerPicker.idCodePlaceholder')" />
                         <small v-if="formErrors.tax_id" class="text-red-500 text-xs">{{ formErrors.tax_id[0] }}</small>
                     </div>

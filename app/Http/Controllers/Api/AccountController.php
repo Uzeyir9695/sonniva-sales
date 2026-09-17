@@ -47,7 +47,7 @@ class AccountController extends Controller
             'name' => 'required|string|max:30',
             'lastname' => 'required_if:user_type,individual|max:30',
             'phone' => 'required|string|min:9|max:13|unique:users,phone,'.$user->id,
-            'email' => 'required|email|unique:users,email,'.$user->id,
+            'email' => 'nullable|email|unique:users,email,'.$user->id,
             'tax_id' => 'required|string|max:30',
             'address' => 'nullable|string|max:100',
         ], [

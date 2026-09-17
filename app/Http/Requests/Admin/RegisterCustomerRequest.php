@@ -19,8 +19,9 @@ class RegisterCustomerRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'user_type' => ['required', 'string', 'in:individual,legal_entity'],
             'name' => ['required', 'string', 'max:100'],
-            'lastname' => ['required', 'string', 'max:100'],
+            'lastname' => ['required_if:user_type,individual', 'string', 'max:100'],
             'phone' => ['required', 'string', 'phone:GE'],
             'tax_id' => ['required', 'string', 'max:50'],
             'email' => ['nullable', 'email', 'max:255', Rule::unique(User::class, 'email')],

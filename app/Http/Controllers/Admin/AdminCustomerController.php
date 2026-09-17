@@ -53,13 +53,13 @@ class AdminCustomerController extends Controller
 
         $customer = User::create([
             'name' => $validated['name'],
-            'lastname' => $validated['lastname'],
+            'lastname' => $validated['lastname'] ?? null,
             'phone_country' => 'GE',
             'phone' => $phone->formatE164(),
             'email' => $validated['email'] ?? null,
             'tax_id' => $validated['tax_id'],
             'address' => $validated['address'] ?? null,
-            'user_type' => 'individual',
+            'user_type' => $validated['user_type'],
             'role' => 'user',
             'password' => Hash::make($validated['tax_id']),
             'phone_verified_at' => now(),
