@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
 class AdminCustomerController extends Controller
@@ -61,7 +62,7 @@ class AdminCustomerController extends Controller
             'address' => $validated['address'] ?? null,
             'user_type' => $validated['user_type'],
             'role' => 'user',
-            'password' => Hash::make($validated['tax_id']),
+            'password' => Hash::make(Str::after($phone->formatE164(), '+995')),
             'phone_verified_at' => now(),
             'email_verified_at' => isset($validated['email']) ? now() : null,
         ]);

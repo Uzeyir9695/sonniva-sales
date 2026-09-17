@@ -1,12 +1,10 @@
 <script setup>
-import { useForm, usePage, Head } from '@inertiajs/vue3';
+import { useForm, Head } from '@inertiajs/vue3';
 import {computed, ref, watch} from "vue";
 import { useI18n } from 'vue-i18n';
 import UpdatePassword from "./UpdatePassword.vue";
 
 const { t } = useI18n();
-const page = usePage();
-const isAdmin = computed(() => page.props.isAdmin);
 const props = defineProps(['user', 'editingByAdmin']);
 const emit = defineEmits(['closeEditor']);
 const editableUser = props.user;
@@ -42,11 +40,7 @@ async function updateAccount(){
         delete form.lastname
     }
 
-    if(!isAdmin.value) {
-        form.user_type = selectedUserType.value ? selectedUserType.value?.key : null
-    } else {
-        delete form.user_type
-    }
+    form.user_type = selectedUserType.value ? selectedUserType.value?.key : null
 
     form.put(route('account.update', editableUser?.id), {
         preserveScroll: true,
