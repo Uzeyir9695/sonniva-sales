@@ -335,7 +335,7 @@ export function useCart() {
         } catch {}
     }
 
-    setup()
+    if (!import.meta.env.SSR) setup()
 
     watch(
         () => ({ ...state.items }),
