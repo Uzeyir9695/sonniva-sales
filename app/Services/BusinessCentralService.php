@@ -208,7 +208,7 @@ class BusinessCentralService
             'Credit_Limit_LCY' => 0.01,
             'Salesperson_Code' => 'WEB SHOP',
             'Phone_No' => $user?->phone,
-            'E_Mail' => $user?->email ?? 'Email not provided',
+            'E_Mail' => $user?->email ?? '',
             'VAT_Registration_No' => $user?->tax_id,
             'Prices_Including_VAT' => true,
             'Gen_Bus_Posting_Group' => 'DOMESTIC',
@@ -408,7 +408,7 @@ class BusinessCentralService
             'County' => '',
             'Post_Code' => '',
             'Phone_No' => $user->phone,
-            'E_Mail' => $user->email ?? 'Email not provided',
+            'E_Mail' => $user->email ?? '',
         ];
 
         $response = Http::withToken($token)

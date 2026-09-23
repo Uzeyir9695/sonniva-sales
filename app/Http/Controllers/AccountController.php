@@ -107,7 +107,7 @@ class AccountController extends Controller
             'Address_2' => '',
             'City' => $user->city ?? '',
             'Phone_No' => $user->phone,
-            'E_Mail' => $user->email ?? 'Email not provided',
+            'E_Mail' => $user->email ?? '',
             'Prices_Including_VAT' => true,
             'VAT_Registration_No' => $user->tax_id,
             'Gen_Bus_Posting_Group' => 'DOMESTIC',
