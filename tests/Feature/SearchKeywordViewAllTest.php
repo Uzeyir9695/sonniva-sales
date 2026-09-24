@@ -55,3 +55,10 @@ it('does not crash when q is passed as an array', function () {
         ->assertSuccessful()
         ->assertInertia(fn ($page) => $page->where('query', ''));
 });
+
+it('matches items by georgian keywords', function () {
+    $category = makeSearchKeywordCategory();
+    $item = makeSearchKeywordItem($category->code, ['ka_keywords' => 'კარის საკეტი']);
+
+    expect(Item::search('საკეტი')->pluck('id'))->toContain($item->id);
+});

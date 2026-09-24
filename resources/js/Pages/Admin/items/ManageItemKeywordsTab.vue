@@ -8,6 +8,7 @@ import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 const toast = useToast()
 
 const flagMap = {
+    ka: 'https://flagcdn.com/w40/ge.png',
     en: 'https://flagcdn.com/w40/gb.png',
     ru: 'https://flagcdn.com/w40/ru.png',
     tr: 'https://flagcdn.com/w40/tr.png',
@@ -35,7 +36,7 @@ function onCategorySearchInput() {
 /* ---------------- Selected category & keywords ---------------- */
 const selectedCategory = ref(null)
 const savingKeywords = ref(false)
-const keywords = useHttp({ en_keywords: '', ru_keywords: '', tr_keywords: '' })
+const keywords = useHttp({ ka_keywords: '', en_keywords: '', ru_keywords: '', tr_keywords: '' })
 
 function selectCategory(category) {
     selectedCategory.value = category
@@ -44,6 +45,7 @@ function selectCategory(category) {
 
     keywords.get(route('admin.categories.keywords.show', category.id), {
         onSuccess: (data) => {
+            keywords.ka_keywords = data.ka_keywords
             keywords.en_keywords = data.en_keywords
             keywords.ru_keywords = data.ru_keywords
             keywords.tr_keywords = data.tr_keywords
@@ -56,6 +58,7 @@ function selectCategory(category) {
 
 function changeCategory() {
     selectedCategory.value = null
+    keywords.ka_keywords = ''
     keywords.en_keywords = ''
     keywords.ru_keywords = ''
     keywords.tr_keywords = ''
@@ -64,6 +67,7 @@ function changeCategory() {
 function saveKeywords() {
     savingKeywords.value = true
     router.post(route('admin.categories.keywords.update', selectedCategory.value.id), {
+        ka_keywords: keywords.ka_keywords,
         en_keywords: keywords.en_keywords,
         ru_keywords: keywords.ru_keywords,
         tr_keywords: keywords.tr_keywords,
@@ -171,6 +175,14 @@ function saveKeywords() {
             </div>
 
             <div v-else class="space-y-4">
+                <div>
+                    <label class="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1">
+                        <img :src="flagMap.ka" class="w-5 h-3.5 object-cover rounded-xs shrink-0" alt="" />
+                        Georgian keywords
+                    </label>
+                    <Textarea v-model="keywords.ka_keywords" rows="3" class="w-full rounded-xl text-sm" placeholder="e.g. სლაიდერი, კარის საკეტი, სახელური" />
+                </div>
+
                 <div>
                     <label class="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1">
                         <img :src="flagMap.en" class="w-5 h-3.5 object-cover rounded-xs shrink-0" alt="" />

@@ -186,9 +186,10 @@ class AdminItemController extends Controller
 
     public function getCategoryKeywords(Category $category): JsonResponse
     {
-        $item = Item::whereIn('category_code', $category->descendantCodes())->first(['en_keywords', 'ru_keywords', 'tr_keywords']);
+        $item = Item::whereIn('category_code', $category->descendantCodes())->first(['ka_keywords', 'en_keywords', 'ru_keywords', 'tr_keywords']);
 
         return response()->json([
+            'ka_keywords' => $item->ka_keywords ?? '',
             'en_keywords' => $item->en_keywords ?? '',
             'ru_keywords' => $item->ru_keywords ?? '',
             'tr_keywords' => $item->tr_keywords ?? '',
@@ -198,12 +199,14 @@ class AdminItemController extends Controller
     public function updateCategoryKeywords(Request $request, Category $category): RedirectResponse
     {
         $validated = $request->validate([
+            'ka_keywords' => ['nullable', 'string'],
             'en_keywords' => ['nullable', 'string'],
             'ru_keywords' => ['nullable', 'string'],
             'tr_keywords' => ['nullable', 'string'],
         ]);
 
         $updated = Item::whereIn('category_code', $category->descendantCodes())->update([
+            'ka_keywords' => $validated['ka_keywords'] ?: null,
             'en_keywords' => $validated['en_keywords'] ?: null,
             'ru_keywords' => $validated['ru_keywords'] ?: null,
             'tr_keywords' => $validated['tr_keywords'] ?: null,

@@ -19,7 +19,7 @@ class Item extends Model
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
     protected $hidden = [
-        'en_keywords', 'ru_keywords', 'tr_keywords',
+        'ka_keywords', 'en_keywords', 'ru_keywords', 'tr_keywords',
         'name_en', 'name_ru', 'name_tr',
         'description_en', 'description_ru', 'description_tr',
     ];
@@ -125,6 +125,7 @@ class Item extends Model
         return $query->where(function (Builder $query) use ($q) {
             $query->where('name', 'like', "%{$q}%")
                 ->orWhere('no', 'like', "%{$q}%")
+                ->orWhere('ka_keywords', 'like', "%{$q}%")
                 ->orWhere('en_keywords', 'like', "%{$q}%")
                 ->orWhere('ru_keywords', 'like', "%{$q}%")
                 ->orWhere('tr_keywords', 'like', "%{$q}%");
