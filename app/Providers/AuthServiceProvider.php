@@ -16,6 +16,10 @@ class AuthServiceProvider extends ServiceProvider
             return $user->role === 'admin' || $user->role === 'manager';
         });
 
+        Gate::define('manage-item-pricing', function ($user) {
+            return in_array($user->role, ['admin', 'manager', 'pricing_manager']);
+        });
+
         Gate::define('place-orders-for-customers', function ($user) {
             return $user->role === 'admin';
         });

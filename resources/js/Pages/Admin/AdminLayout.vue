@@ -26,7 +26,7 @@ watch([unseenOrdersCount, unseenStockCount], ([newOrders, newStock], [oldOrders,
     }
 });
 
-const menuItems = computed(() => [
+const allMenuItems = computed(() => [
     {
         name: 'Orders',
         route: 'admin.orders.index',
@@ -65,6 +65,10 @@ const menuItems = computed(() => [
         icon: 'pi-image',
     },
 ]);
+
+const menuItems = computed(() => page.props.isPricingManager
+    ? allMenuItems.value.filter(item => item.route === 'admin.items.index')
+    : allMenuItems.value);
 
 </script>
 

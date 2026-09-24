@@ -92,15 +92,11 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
 
         // ******** Admin Items ********//
-        Route::get('/items', [AdminItemController::class, 'index'])->name('items.index');
         Route::post('/items/sync', [AdminItemController::class, 'syncItems'])->name('items.sync');
         Route::post('/items/sync-category', [AdminItemController::class, 'syncCategory'])->name('items.sync-category');
         Route::post('/items/sync-attributes', [AdminItemController::class, 'syncAttributes'])->name('items.sync-attributes');
         Route::post('/items/fetch-missing-images', [AdminItemController::class, 'fetchMissingImages'])->name('items.fetch-missing-images');
         Route::post('/items/sync-inventory', [AdminItemController::class, 'syncInventory'])->name('items.sync-inventory');
-        Route::get('/items/search', [AdminItemController::class, 'search'])->name('items.search');
-        Route::get('/items/managed', [AdminItemController::class, 'managed'])->name('items.managed');
-        Route::put('/items/{item}', [AdminItemController::class, 'update'])->name('items.update');
         Route::get('/categories/search', [AdminItemController::class, 'searchCategories'])->name('categories.search');
         Route::post('/categories/{category}/fetch-image', [AdminItemController::class, 'updateCategoryImage'])->name('categories.fetch-image');
         Route::get('/categories/{category}/keywords', [AdminItemController::class, 'getCategoryKeywords'])->name('categories.keywords.show');
@@ -139,6 +135,13 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::get('/user/{user}', [AdminUserController::class, 'edit'])->name('users.get-user');
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.delete');
+    });
+
+    Route::name('admin.')->prefix('admin')->middleware(['can:manage-item-pricing'])->group(function () {
+        Route::get('/items', [AdminItemController::class, 'index'])->name('items.index');
+        Route::get('/items/search', [AdminItemController::class, 'search'])->name('items.search');
+        Route::get('/items/managed', [AdminItemController::class, 'managed'])->name('items.managed');
+        Route::put('/items/{item}', [AdminItemController::class, 'update'])->name('items.update');
     });
 
     // Customer picker used by an admin to place an order on a customer's behalf at checkout.

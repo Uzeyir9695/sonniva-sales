@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'primevue/usetoast'
 import { useDebounceFn } from '@vueuse/core'
 import axios from 'axios'
@@ -9,6 +9,7 @@ import ManageItemDialog from './ManageItemDialog.vue'
 import ItemsListing from './ItemsListing.vue'
 
 const toast = useToast()
+const isPricingManager = usePage().props.isPricingManager
 
 /* ---------------- Item video links ---------------- */
 const query = ref('')
@@ -169,99 +170,101 @@ function fetchMissingImages() {
             />
         </ul>
 
-        <hr class="my-6 border-gray-100" />
+        <template v-if="!isPricingManager">
+            <hr class="my-6 border-gray-100" />
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="flex flex-col rounded-2xl border-2 border-emerald-200 bg-emerald-50/50 p-5">
-                <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3">
-                    <i class="pi pi-cloud-download"></i>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex flex-col rounded-2xl border-2 border-emerald-200 bg-emerald-50/50 p-5">
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3">
+                        <i class="pi pi-cloud-download"></i>
+                    </div>
+                    <h2 class="text-base font-bold text-gray-900 mb-1">Fetch New Items</h2>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Fetches new items added in Business Central and adds them to the shop, with their category, images, prices and attributes. Existing items are left untouched. Leave the item number empty to check the full catalog, or enter one to fetch just that item.
+                    </p>
+                    <PrimeInputText
+                        v-model="itemNoToSync"
+                        size="small"
+                        class="text-sm mb-3 rounded-lg! py-1.5!"
+                        placeholder="Item No. (optional)"
+                    />
+                    <Button
+                        :loading="syncingItems"
+                        @click="syncItems"
+                        :label="syncingItems ? 'Fetching...' : (itemNoToSync ? 'Fetch Item' : 'Fetch New Items')"
+                        icon="pi pi-cloud-download"
+                        severity="success"
+                        class="mt-auto self-start"
+                    />
+                    <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
+                        <i class="pi pi-clock"></i>Seconds for a single item, about 4 minutes for the full catalog.
+                    </p>
                 </div>
-                <h2 class="text-base font-bold text-gray-900 mb-1">Fetch New Items</h2>
-                <p class="text-sm text-gray-500 mb-4">
-                    Fetches new items added in Business Central and adds them to the shop, with their category, images, prices and attributes. Existing items are left untouched. Leave the item number empty to check the full catalog, or enter one to fetch just that item.
-                </p>
-                <PrimeInputText
-                    v-model="itemNoToSync"
-                    size="small"
-                    class="text-sm mb-3 rounded-lg! py-1.5!"
-                    placeholder="Item No. (optional)"
-                />
-                <Button
-                    :loading="syncingItems"
-                    @click="syncItems"
-                    :label="syncingItems ? 'Fetching...' : (itemNoToSync ? 'Fetch Item' : 'Fetch New Items')"
-                    icon="pi pi-cloud-download"
-                    severity="success"
-                    class="mt-auto self-start"
-                />
-                <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
-                    <i class="pi pi-clock"></i>Seconds for a single item, about 4 minutes for the full catalog.
-                </p>
-            </div>
 
-            <div class="flex flex-col rounded-2xl border-2 border-amber-200 bg-amber-50/50 p-5">
-                <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-3">
-                    <i class="pi pi-tags"></i>
+                <div class="flex flex-col rounded-2xl border-2 border-amber-200 bg-amber-50/50 p-5">
+                    <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mb-3">
+                        <i class="pi pi-tags"></i>
+                    </div>
+                    <h2 class="text-base font-bold text-gray-900 mb-1">Item Attributes</h2>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Updates item attribute values (e.g. size, color) from Business Central.
+                    </p>
+                    <Button
+                        :loading="syncingAttributes"
+                        @click="syncAttributes"
+                        :label="syncingAttributes ? 'Updating...' : 'Update Attributes'"
+                        icon="pi pi-refresh"
+                        severity="warn"
+                        class="mt-auto self-start"
+                    />
+                    <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
+                        <i class="pi pi-clock"></i>Takes about 1-2 minutes to finish.
+                    </p>
                 </div>
-                <h2 class="text-base font-bold text-gray-900 mb-1">Item Attributes</h2>
-                <p class="text-sm text-gray-500 mb-4">
-                    Updates item attribute values (e.g. size, color) from Business Central.
-                </p>
-                <Button
-                    :loading="syncingAttributes"
-                    @click="syncAttributes"
-                    :label="syncingAttributes ? 'Updating...' : 'Update Attributes'"
-                    icon="pi pi-refresh"
-                    severity="warn"
-                    class="mt-auto self-start"
-                />
-                <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
-                    <i class="pi pi-clock"></i>Takes about 1-2 minutes to finish.
-                </p>
-            </div>
 
-            <div class="flex flex-col rounded-2xl border-2 border-blue-200 bg-blue-50/50 p-5">
-                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3">
-                    <i class="pi pi-box"></i>
+                <div class="flex flex-col rounded-2xl border-2 border-blue-200 bg-blue-50/50 p-5">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3">
+                        <i class="pi pi-box"></i>
+                    </div>
+                    <h2 class="text-base font-bold text-gray-900 mb-1">Inventory</h2>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Updates item stock levels from Business Central and notifies users waiting on restocked items.
+                    </p>
+                    <Button
+                        :loading="syncingInventory"
+                        @click="syncInventory"
+                        :label="syncingInventory ? 'Updating...' : 'Sync Inventory'"
+                        icon="pi pi-box"
+                        severity="info"
+                        class="mt-auto self-start"
+                    />
+                    <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
+                        <i class="pi pi-clock"></i>Takes about 1-2 minutes to finish.
+                    </p>
                 </div>
-                <h2 class="text-base font-bold text-gray-900 mb-1">Inventory</h2>
-                <p class="text-sm text-gray-500 mb-4">
-                    Updates item stock levels from Business Central and notifies users waiting on restocked items.
-                </p>
-                <Button
-                    :loading="syncingInventory"
-                    @click="syncInventory"
-                    :label="syncingInventory ? 'Updating...' : 'Sync Inventory'"
-                    icon="pi pi-box"
-                    severity="info"
-                    class="mt-auto self-start"
-                />
-                <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
-                    <i class="pi pi-clock"></i>Takes about 1-2 minutes to finish.
-                </p>
-            </div>
 
-            <div class="flex flex-col rounded-2xl border-2 border-purple-200 bg-purple-50/50 p-5">
-                <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mb-3">
-                    <i class="pi pi-images"></i>
+                <div class="flex flex-col rounded-2xl border-2 border-purple-200 bg-purple-50/50 p-5">
+                    <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mb-3">
+                        <i class="pi pi-images"></i>
+                    </div>
+                    <h2 class="text-base font-bold text-gray-900 mb-1">Missing Item Images</h2>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Fetches images from Business Central for in-stock items (inventory &gt; 0) that don't have any yet. Runs in the background.
+                    </p>
+                    <Button
+                        :loading="fetchingMissingImages"
+                        @click="fetchMissingImages"
+                        :label="fetchingMissingImages ? 'Starting...' : 'Fetch Missing Images'"
+                        icon="pi pi-images"
+                        severity="help"
+                        class="mt-auto self-start"
+                    />
+                    <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
+                        <i class="pi pi-clock"></i>Takes about 1-2 minutes to finish.
+                    </p>
                 </div>
-                <h2 class="text-base font-bold text-gray-900 mb-1">Missing Item Images</h2>
-                <p class="text-sm text-gray-500 mb-4">
-                    Fetches images from Business Central for in-stock items (inventory &gt; 0) that don't have any yet. Runs in the background.
-                </p>
-                <Button
-                    :loading="fetchingMissingImages"
-                    @click="fetchMissingImages"
-                    :label="fetchingMissingImages ? 'Starting...' : 'Fetch Missing Images'"
-                    icon="pi pi-images"
-                    severity="help"
-                    class="mt-auto self-start"
-                />
-                <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
-                    <i class="pi pi-clock"></i>Takes about 1-2 minutes to finish.
-                </p>
             </div>
-        </div>
+        </template>
 
         <ManageItemDialog ref="dialogRef" @saved="onSaved" />
     </div>

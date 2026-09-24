@@ -55,6 +55,10 @@ class LoginController extends Controller
             return to_route('admin.index');
         }
 
+        if ($user->role === 'pricing_manager') {
+            return to_route('admin.items.index');
+        }
+
         return redirect()->intended('home');
     }
 

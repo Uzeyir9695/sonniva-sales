@@ -13,37 +13,54 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        User::updateOrCreate(
-            [
-                'phone' => '+995574234084',
-            ],
-            [
-                'name' => 'Admin',
-                'lastname' => 'Panel',
-                'tax_id' => '12345678910',
-                'email' => 'frame@sonniva.ge',
-                'role' => 'admin',
-                'phone_country' => 'GE',
-                'phone_verified_at' => now(),
-                'email_verified_at' => now(),
-                'password' => Hash::make('adminFrame2026@'),
-            ]
-        );
+//        User::updateOrCreate(
+//            [
+//                'phone' => '+995574234084',
+//            ],
+//            [
+//                'name' => 'Admin',
+//                'lastname' => 'Panel',
+//                'tax_id' => '12345678910',
+//                'email' => 'frame@sonniva.ge',
+//                'role' => 'admin',
+//                'phone_country' => 'GE',
+//                'phone_verified_at' => now(),
+//                'email_verified_at' => now(),
+//                'password' => Hash::make('adminFrame2026@'),
+//            ]
+//        );
 
         // Manager
+//        User::updateOrCreate(
+//            [
+//                'phone' => '+995591008799'],
+//            [
+//                'name' => 'Manager',
+//                'lastname' => 'Panel',
+//                'tax_id' => '12345678910',
+//                'email' => 'manager@sonniva.ge',
+//                'role' => 'manager',
+//                'phone_country' => 'GE',
+//                'phone_verified_at' => now(),
+//                'email_verified_at' => now(),
+//                'password' => Hash::make('managerFrame2026@'),
+//            ]);
+
         User::updateOrCreate(
             [
-                'phone' => '+995591008799'],
+                'phone' => '+995592051554',
+            ],
             [
-                'name' => 'Manager',
-                'lastname' => 'Panel',
+                'name' => 'Price',
+                'lastname' => 'Manager',
                 'tax_id' => '12345678910',
-                'email' => 'manager@sonniva.ge',
-                'role' => 'manager',
+                'email' => 'pricemanager@sonniva.ge',
+                'role' => 'pricing_manager',
                 'phone_country' => 'GE',
                 'phone_verified_at' => now(),
                 'email_verified_at' => now(),
-                'password' => Hash::make('managerFrame2026@'),
-            ]);
+                'password' => Hash::make('priceManager2026'),
+            ]
+        );
     }
 }
