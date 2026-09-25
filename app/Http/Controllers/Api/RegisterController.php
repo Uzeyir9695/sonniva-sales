@@ -33,7 +33,7 @@ class RegisterController extends Controller
         $validated = $request->validate([
             'user_type' => 'required|string|max:20',
             'is_foreign_resident' => 'sometimes|boolean',
-            'tax_id' => ['required', 'string', 'min:'.($isForeignResident ? 6 : 9), 'max:50'],
+            'tax_id' => ['required', 'string', ...($isForeignResident ? ['min:7', 'max:20'] : ['size:'.($request->input('user_type') === 'individual' ? 11 : 9)])],
             'name' => 'required|string|max:30',
             'lastname' => 'required_if:user_type,individual|max:30',
             'phone_country' => 'required|string',

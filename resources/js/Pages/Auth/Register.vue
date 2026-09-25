@@ -147,7 +147,7 @@ async function register(){
                             v-keyfilter="{ pattern: /[\d+]+$/, validateOnly: true }"
                             id="id-number"
                             v-model="form.tax_id"
-                            :maxlength="11"
+                            :maxlength="form.is_foreign_resident ? 20 : (selectedUserType?.key === 'individual' ? 11 : 9)"
                             :invalid="!!form.errors.tax_id"
                         />
                         <label for="id-number">{{ selectedUserType?.key === 'individual' ? $t('auth.personalId') : $t('auth.identificationNumber') }}</label>

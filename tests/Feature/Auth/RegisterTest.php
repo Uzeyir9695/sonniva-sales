@@ -16,7 +16,7 @@ function validRegisterPayload(array $overrides = []): array
 {
     return array_merge([
         'user_type' => 'individual',
-        'tax_id' => '123456789',
+        'tax_id' => '12345678901',
         'name' => 'Test',
         'lastname' => 'User',
         'phone_country' => 'GE',
@@ -98,35 +98,29 @@ it('rejects verification with the wrong OTP and does not log in', function () {
     $this->assertDatabaseMissing('users', ['email' => 'test@example.com']);
 });
 
-it('rejects a tax_id shorter than 9 characters for residents', function () {
-    mockOtpSms();
-
-    $response = $this->post(route('register'), validRegisterPayload(['tax_id' => '12345']));
-
-    $response->assertSessionHasErrors('tax_id');
-});
-
-it('accepts a tax_id as short as 6 characters when foreign resident is checked', function () {
+it('validates tax_id length by user type and residency', function (string $userType, bool $isForeign, string $taxId, bool $valid) {
     mockOtpSms();
 
     $response = $this->post(route('register'), validRegisterPayload([
-        'tax_id' => '123456',
-        'is_foreign_resident' => true,
+        'user_type' => $userType,
+        'is_foreign_resident' => $isForeign,
+        'tax_id' => $taxId,
     ]));
 
-    $response->assertSessionDoesntHaveErrors('tax_id');
-});
-
-it('still rejects a tax_id shorter than 6 characters even when foreign resident is checked', function () {
-    mockOtpSms();
-
-    $response = $this->post(route('register'), validRegisterPayload([
-        'tax_id' => '12345',
-        'is_foreign_resident' => true,
-    ]));
-
-    $response->assertSessionHasErrors('tax_id');
-});
+    $valid
+        ? $response->assertSessionDoesntHaveErrors('tax_id')
+        : $response->assertSessionHasErrors('tax_id');
+})->with([
+    'individual resident 11' => ['individual', false, '12345678901', true],
+    'individual resident 9' => ['individual', false, '123456789', false],
+    'individual resident 12' => ['individual', false, '123456789012', false],
+    'legal resident 9' => ['legal_entity', false, '123456789', true],
+    'legal resident 11' => ['legal_entity', false, '12345678901', false],
+    'foreign individual 7' => ['individual', true, '1234567', true],
+    'foreign legal 20' => ['legal_entity', true, str_repeat('1', 20), true],
+    'foreign 6' => ['individual', true, '123456', false],
+    'foreign 21' => ['legal_entity', true, str_repeat('1', 21), false],
+]);
 
 it('resends a fresh OTP', function () {
     mockOtpSms();
