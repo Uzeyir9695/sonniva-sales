@@ -172,6 +172,7 @@ class AdminOrderController extends Controller
                     'item_no' => $oi->item?->no,
                     'item_name' => $oi->item?->name,
                     'quantity' => $oi->quantity,
+                    'unit_of_measure_code' => $oi->unit_of_measure_code,
                     'unit_price' => $oi->unit_price,
                     'unit_weight' => $oi->unit_weight,
                     'subtotal' => $oi->subtotal,

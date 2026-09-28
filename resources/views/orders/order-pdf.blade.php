@@ -131,7 +131,9 @@
                         </td>
                         <td class="px-4 py-4 text-center text-gray-700">
                             {{ $orderItem->quantity }}
-                            @if($orderItem->item->base_uom_desc)
+                            @if($orderItem->unit_of_measure_code)
+                                <span class="text-xs text-gray-400">× {{ $orderItem->unit_of_measure_code }}</span>
+                            @elseif($orderItem->item->base_uom_desc)
                                 <span class="text-xs text-gray-400">{{ $orderItem->item->base_uom_desc }}</span>
                             @endif
                         </td>
