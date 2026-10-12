@@ -132,17 +132,8 @@ defineExpose({ inputRef });
                 name="q"
                 :placeholder="placeholderText"
                 @keydown.escape="showDropdown = false"
-                class="w-full bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400"
+                class="w-full bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400 [&::-webkit-search-cancel-button]:cursor-pointer"
             />
-
-            <button
-                v-if="query"
-                type="button"
-                @click="query = ''; results = []; showDropdown = false"
-                class="text-gray-400 hover:text-gray-600 shrink-0 cursor-pointer"
-            >
-                <i class="pi pi-times text-xs"></i>
-            </button>
         </form>
 
         <!-- Dropdown -->
