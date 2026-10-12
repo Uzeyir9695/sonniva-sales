@@ -15,12 +15,9 @@ class SyncInventoryCommand extends Command
 
     protected $description = 'Sync item inventory from Business Central';
 
-    public function __construct(
-        protected BusinessCentralService $bc,
-        protected SmsService $sms,
-    ) {
-        parent::__construct();
-    }
+    protected BusinessCentralService $bc;
+
+    protected SmsService $sms;
 
     private function notifyWaitingUsers(array $itemNos): void
     {
@@ -54,8 +51,11 @@ class SyncInventoryCommand extends Command
         $this->info("Notified {$notifications->count()} user(s) about restocked items.");
     }
 
-    public function handle(): int
+    public function handle(BusinessCentralService $bc, SmsService $sms): int
     {
+        $this->bc = $bc;
+        $this->sms = $sms;
+
         $startedAt = now();
         $this->info('Starting inventory sync...');
 

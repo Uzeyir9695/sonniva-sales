@@ -16,13 +16,12 @@ class SyncItemAttributesCommand extends Command
 
     protected $description = 'Sync item attribute values from Business Central';
 
-    public function __construct(protected BusinessCentralService $bc)
-    {
-        parent::__construct();
-    }
+    protected BusinessCentralService $bc;
 
-    public function handle(): int
+    public function handle(BusinessCentralService $bc): int
     {
+        $this->bc = $bc;
+
         $startedAt = now();
         $this->info('Fetching item attribute values from Business Central...');
 

@@ -13,13 +13,12 @@ class FetchMissingItemImagesCommand extends Command
 
     protected $description = 'Fetch images from Business Central for in-stock items that have none yet';
 
-    public function __construct(protected BusinessCentralService $bc)
-    {
-        parent::__construct();
-    }
+    protected BusinessCentralService $bc;
 
-    public function handle(): int
+    public function handle(BusinessCentralService $bc): int
     {
+        $this->bc = $bc;
+
         $startedAt = now();
 
         $items = Item::where('inventory', '>', 0)

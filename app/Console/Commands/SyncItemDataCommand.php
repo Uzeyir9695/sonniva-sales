@@ -13,13 +13,12 @@ class SyncItemDataCommand extends Command
 
     protected $description = 'Sync item name, unit_price and wholesale prices from Business Central';
 
-    public function __construct(protected BusinessCentralService $bc)
-    {
-        parent::__construct();
-    }
+    protected BusinessCentralService $bc;
 
-    public function handle(): int
+    public function handle(BusinessCentralService $bc): int
     {
+        $this->bc = $bc;
+
         $startedAt = now();
         $this->info('Starting item data sync...');
 

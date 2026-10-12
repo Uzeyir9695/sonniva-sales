@@ -14,13 +14,12 @@ class SyncItemWeightsCommand extends Command
 
     protected $description = 'Sync item weights from Business Central ItemUnitOfMeasureAPI';
 
-    public function __construct(protected BusinessCentralService $bc)
-    {
-        parent::__construct();
-    }
+    protected BusinessCentralService $bc;
 
-    public function handle(): int
+    public function handle(BusinessCentralService $bc): int
     {
+        $this->bc = $bc;
+
         $startedAt = now();
         $this->info('Starting item weights sync...');
 

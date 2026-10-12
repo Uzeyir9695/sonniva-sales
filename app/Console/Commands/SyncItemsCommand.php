@@ -17,13 +17,12 @@ class SyncItemsCommand extends Command
 
     protected $description = 'Import new items from Business Central, and refresh category, images, prices and attributes for existing ones';
 
-    public function __construct(protected BusinessCentralService $bc)
-    {
-        parent::__construct();
-    }
+    protected BusinessCentralService $bc;
 
-    public function handle(): int
+    public function handle(BusinessCentralService $bc): int
     {
+        $this->bc = $bc;
+
         $startedAt = now();
 
         $token = $this->bc->getAccessToken();
