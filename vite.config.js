@@ -46,7 +46,7 @@ export default defineConfig(({ isSsrBuild }) => ({
         tailwindcss(),
     ],
     ssr: {
-        noExternal: ['primevue', 'vue-i18n', /^@intlify\//],
+        noExternal: ['primevue', 'vue-i18n', /^@intlify\//, 'swiper'],
     },
     resolve: {
         alias: {
