@@ -8,27 +8,114 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Detect frontend changes
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            frontend:
+              - 'resources/js/**'
+              - 'resources/css/**'
+              - 'resources/views/**'
+              - 'lang/**'
+              - 'routes/**'
+              - 'package.json'
+              - 'package-lock.json'
+              - 'vite.config.js'
+              - 'tailwind.config.js'
+              - '.github/workflows/deploy.yml'
+
+      - name: Set up PHP
+        if: steps.changes.outputs.frontend == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: Cache CI vendor
+        if: steps.changes.outputs.frontend == 'true'
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: vendor-${{ runner.os }}-php8.4-${{ hashFiles('composer.lock') }}
+
+      # vendor/ is needed for the ziggy-js alias and for `php artisan ziggy:generate` (npm prebuild).
+      - name: Install Composer dependencies
+        if: steps.changes.outputs.frontend == 'true'
+        run: composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader --no-scripts
+
+      - name: Set up Node
+        if: steps.changes.outputs.frontend == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Cache node_modules
+        if: steps.changes.outputs.frontend == 'true'
+        id: node-modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install npm dependencies
+        if: steps.changes.outputs.frontend == 'true' && steps.node-modules.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline --no-audit --no-fund
+
+      - name: Build assets
+        if: steps.changes.outputs.frontend == 'true'
+        env:
+          VITE_APP_NAME: Sonniva
+          VITE_GOOGLE_API_KEY: ${{ secrets.VITE_GOOGLE_API_KEY }}
+          VITE_COMPANY_WHATSAPP_LINK: https://wa.me/995511551134
+          VITE_COMPANY_PHONE: '+995511551134'
+        run: npm run build
 
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
 
-      - name: SSH into server and deploy
+      - name: Pull code and install PHP dependencies
         run: |
-          ssh ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} "
-          cd ${{ secrets.PROJECT_PATH }} &&
-          git pull &&
-          composer install --no-dev --prefer-dist --optimize-autoloader &&
-          php artisan migrate --force &&
-          php artisan optimize:clear &&
-          php artisan optimize &&
-          php artisan horizon:terminate &&
+          ssh -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=accept-new \
+            ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} "
+          set -e
+          cd ${{ secrets.PROJECT_PATH }}
+          git pull
+          composer install --no-dev --prefer-dist --optimize-autoloader
+          php artisan migrate --force
+          "
+
+      # public/build/ and bootstrap/ssr/ are gitignored, so they must ship together from the same build.
+      - name: Upload compiled assets
+        if: steps.changes.outputs.frontend == 'true'
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/id_rsa -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=accept-new" \
+            public/build/ \
+            ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:${{ secrets.PROJECT_PATH }}/public/build/
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/id_rsa -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=accept-new" \
+            bootstrap/ssr/ \
+            ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }}:${{ secrets.PROJECT_PATH }}/bootstrap/ssr/
+
+      - name: Optimize and restart services
+        run: |
+          ssh -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=accept-new \
+            ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} "
+          set -e
+          cd ${{ secrets.PROJECT_PATH }}
+          php artisan optimize:clear
+          php artisan optimize
+          php artisan horizon:terminate
           php artisan inertia:stop-ssr
           "
