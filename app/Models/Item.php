@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Image\Image;
 
@@ -122,14 +123,14 @@ class Item extends Model
 
     public function scopeSearch(Builder $query, string $q): Builder
     {
-        return $query->where(function (Builder $query) use ($q) {
-            $query->where('name', 'like', "%{$q}%")
-                ->orWhere('no', 'like', "%{$q}%")
-                ->orWhere('ka_keywords', 'like', "%{$q}%")
-                ->orWhere('en_keywords', 'like', "%{$q}%")
-                ->orWhere('ru_keywords', 'like', "%{$q}%")
-                ->orWhere('tr_keywords', 'like', "%{$q}%");
-        });
+        return $query->whereAny([
+            DB::raw('`name` COLLATE utf8mb4_0900_as_ci'),
+            DB::raw('`no` COLLATE utf8mb4_0900_as_ci'),
+            DB::raw('`ka_keywords` COLLATE utf8mb4_0900_as_ci'),
+            DB::raw('`en_keywords` COLLATE utf8mb4_0900_as_ci'),
+            DB::raw('`ru_keywords` COLLATE utf8mb4_0900_as_ci'),
+            DB::raw('`tr_keywords` COLLATE utf8mb4_0900_as_ci'),
+        ], 'like', "%{$q}%");
     }
 
     public function attributes(): HasMany
