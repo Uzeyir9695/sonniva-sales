@@ -15,6 +15,9 @@ class NoIndexMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        return $next($request)->header('X-Robots-Tag', 'noindex, nofollow');
+        $response = $next($request);
+        $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
+
+        return $response;
     }
 }

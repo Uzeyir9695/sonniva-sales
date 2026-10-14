@@ -104,6 +104,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
 
         // ******** Admin Payments ********//
         Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+        Route::get('/payments/export', [AdminPaymentController::class, 'export'])->name('payments.export');
 
         // ******** Admin Stock Notifications ********//
         Route::get('/stock-notifications', [AdminStockNotificationController::class, 'index'])->name('stock-notifications.index');
@@ -133,6 +134,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
 
         // ******** Admin Users Controllers ********//
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/users/export', [AdminUserController::class, 'export'])->name('users.export');
         Route::get('/user/{user}', [AdminUserController::class, 'edit'])->name('users.get-user');
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.delete');
     });

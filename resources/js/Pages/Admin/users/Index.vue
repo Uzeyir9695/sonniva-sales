@@ -7,6 +7,7 @@ import { useToast } from "primevue/usetoast";
 import {Deferred, router, usePage} from "@inertiajs/vue3";
 import TableSkeleton from '@/Shared/components/TableSkeleton.vue';
 import { FilterMatchMode } from '@primevue/core/api';
+import { useDebounceFn } from '@vueuse/core';
 import EditUser from "../../Account/Index.vue";
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue';
 
@@ -18,19 +19,49 @@ const toast = useToast();
 const isAdmin = computed(() => usePage().props.isAdmin);
 
 const props = defineProps({
-    users: Array,
-    usersCount: Number,
+    users: Object,
+    paidOrdersTotal: Number,
     onlineUsers: Number,
 });
 
 const user = ref(null)
 const visible = ref(false)
 const metaKey = ref(true);
-const dates = ref(null);
-const dt = ref();
-const exportCSV = () => {
-    dt.value.exportCSV();
-};
+const initialQuery = new URLSearchParams(usePage().url.split('?')[1] ?? '');
+
+const filters = ref({
+    tax_id:    { value: initialQuery.get('tax_id'), matchMode: FilterMatchMode.EQUALS },
+    full_name: { value: initialQuery.get('name'), matchMode: FilterMatchMode.CONTAINS },
+    phone:     { value: initialQuery.get('phone'), matchMode: FilterMatchMode.CONTAINS },
+});
+
+const currentFilterParams = computed(() => {
+    const params = {};
+    if (filters.value.full_name.value) params.name = filters.value.full_name.value;
+    if (filters.value.tax_id.value) params.tax_id = filters.value.tax_id.value;
+    if (filters.value.phone.value) params.phone = filters.value.phone.value;
+    return params;
+});
+
+const onFilter = useDebounceFn(() => {
+    router.get(route('admin.users.index'), currentFilterParams.value, {
+        only: ['users', 'paidOrdersTotal'],
+        preserveState: true,
+        preserveScroll: true,
+    });
+}, 350);
+
+function onPage(event) {
+    router.get(route('admin.users.index'), { ...currentFilterParams.value, page: event.page + 1, per_page: event.rows }, {
+        only: ['users'],
+        preserveState: true,
+        preserveScroll: true,
+    });
+}
+
+function exportCSV() {
+    window.location.href = route('admin.users.export', currentFilterParams.value);
+}
 
 function deleteUser(id) {
     confirm.require({
@@ -79,40 +110,6 @@ function userProfileUpdated(status) {
         toast.add({ severity: 'danger', summary: 'Error', detail: 'Something went wrong', life: 3000 })
     }
 }
-
-function filterByDate() {
-    const startDate = dates.value[0];
-    const endDate = dates.value[1];
-
-    if (dates.value && startDate && endDate) {
-        router.get(route('admin.users.index'),
-            {
-                start_date: startDate,
-                end_date: endDate,
-            },
-            {
-                preserveState: true,
-            }
-        );
-    }
-}
-
-function resetSelectedDate() {
-    dates.value = null;
-    router.get(route('admin.users.index'), {}, { preserveState: true });
-}
-
-const tableRows = computed(() =>
-    props.users.map(u => ({ ...u, full_name: `${u.name ?? ''} ${u.lastname ?? ''}`.trim() }))
-);
-
-const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    tax_id: { value: null, matchMode: FilterMatchMode.EQUALS },
-    full_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    phone: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    created_at: { value: null, matchMode: FilterMatchMode.EQUALS },
-});
 </script>
 
 <template>
@@ -127,32 +124,35 @@ const filters = ref({
         />
     </Dialog>
 
-    <Deferred data="users">
+    <Deferred :data="['users', 'paidOrdersTotal']">
         <template #fallback>
             <div class="p-4">
                 <TableSkeleton />
             </div>
         </template>
 
-        <div v-if="users.length > 0" class="rounded-xl overflow-hidden">
+        <div class="rounded-xl overflow-hidden">
             <DataTable
                 v-model:filters="filters"
                 filterDisplay="row"
-                :globalFilterFields="['tax_id', 'full_name', 'phone']"
-                :value="tableRows"
+                :value="users?.data ?? []"
+                lazy
                 paginator
-                :rows="15"
+                :rows="users?.per_page ?? 15"
+                :totalRecords="users?.total ?? 0"
+                :first="((users?.current_page ?? 1) - 1) * (users?.per_page ?? 15)"
                 :rowsPerPageOptions="[5, 10, 15, 20, 50]"
+                @page="onPage"
+                @filter="onFilter"
                 dataKey="id"
                 tableStyle="min-width: 50rem"
-                ref="dt"
                 class="text-sm"
             >
                 <template #header>
                     <div class="flex justify-between">
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <div>
-                                <h2 class="text-lg font-semibold text-gray-900">{{ usersCount }} Users</h2>
+                                <h2 class="text-lg font-semibold text-gray-900">{{ users?.total ?? 0 }} Users</h2>
                             </div>
 
                             <h1 class="text-lg text-green-500">- {{ onlineUsers }} Online</h1>
@@ -161,7 +161,7 @@ const filters = ref({
 
                         <div class="flex items-center gap-3">
                             <div class="text-end">
-                                <Button icon="pi pi-file-export" size="small" label="Export" @click="exportCSV($event)" />
+                                <Button icon="pi pi-file-export" size="small" label="Export" :disabled="!users?.total" @click="exportCSV" />
                             </div>
                         </div>
                     </div>
@@ -169,7 +169,7 @@ const filters = ref({
 
                 <Column header="#" headerStyle="width:3rem">
                     <template #body="slotProps">
-                        {{ slotProps.index + 1 }}
+                        {{ ((users?.current_page ?? 1) - 1) * (users?.per_page ?? 15) + slotProps.index + 1 }}
                     </template>
                 </Column>
 
@@ -209,11 +209,7 @@ const filters = ref({
                             <i class="pi pi-calculator text-sm"></i>
                             <span class="font-semibold text-gray-500">Totals</span>
                             <div class="font-semibold text-blue-500">
-                                {{
-                                    $formatNumber(
-                                        users.reduce((acc, user) => acc + user.paid_orders_count, 0)
-                                    )
-                                }}
+                                {{ $formatNumber(paidOrdersTotal ?? 0) }}
                             </div>
                         </div>
                     </template>
@@ -235,12 +231,14 @@ const filters = ref({
                         </div>
                     </template>
                 </Column>
-            </DataTable>
-        </div>
 
-        <div v-else class="flex flex-col items-center justify-center h-64">
-            <i class="pi pi-users text-6xl text-gray-400 mb-4"></i>
-            <h3 class="text-xl text-gray-600">No users found.</h3>
+                <template #empty>
+                    <div class="flex flex-col items-center justify-center h-40">
+                        <i class="pi pi-users text-5xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600">No users found.</p>
+                    </div>
+                </template>
+            </DataTable>
         </div>
     </Deferred>
 </template>

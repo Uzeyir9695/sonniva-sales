@@ -1,10 +1,10 @@
 <script setup>
 import AdminLayout from '../AdminLayout.vue';
 import { ref } from 'vue';
-import { router, usePoll } from '@inertiajs/vue3';
+import { router, usePage, usePoll } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
-import { FilterMatchMode } from '@primevue/core/api';
+import { useDebounceFn } from '@vueuse/core';
 
 defineOptions({ layout: AdminLayout });
 
@@ -22,12 +22,26 @@ usePoll(10000, {
         preserveScroll: true, preserveState: true
 });
 
-const filters = ref({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-});
+const search = ref(new URLSearchParams(usePage().url.split('?')[1] ?? '').get('search') ?? '');
+
+function reload(params = {}) {
+    router.get(route('admin.stock-notifications.index'), { tab: props.tab, search: search.value || undefined, ...params }, {
+        only: ['notifications', 'counts', 'tab'],
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+    });
+}
 
 function switchTab(t) {
-    router.get(route('admin.stock-notifications.index'), { tab: t }, { preserveState: true, replace: true });
+    search.value = '';
+    reload({ tab: t, search: undefined });
+}
+
+const onSearch = useDebounceFn(() => reload(), 350);
+
+function onPage(event) {
+    reload({ page: event.page + 1 });
 }
 
 function toggleCalled(notification) {
@@ -99,14 +113,23 @@ function deleteNotification(id) {
 
         <DataTable
             :value="notifications.data"
-            v-model:filters="filters"
-            :globalFilterFields="['user.name', 'user.lastname', 'user.phone', 'item.no', 'item.name']"
             :rowClass="(data) => data.called_at ? 'bg-amber-50' : null"
+            lazy
             paginator
-            :rows="50"
+            :rows="notifications.per_page"
+            :totalRecords="notifications.total"
+            :first="(notifications.current_page - 1) * notifications.per_page"
+            @page="onPage"
             dataKey="id"
             class="text-sm"
         >
+            <template #header>
+                <IconField>
+                    <InputIcon class="pi pi-search" />
+                    <InputText v-model="search" @input="onSearch" placeholder="Search customer, phone or item" size="small" class="w-full sm:w-80" />
+                </IconField>
+            </template>
+
             <template #empty>
                 <div class="flex flex-col items-center justify-center py-12 text-gray-400">
                     <i class="pi pi-bell text-3xl mb-3"></i>

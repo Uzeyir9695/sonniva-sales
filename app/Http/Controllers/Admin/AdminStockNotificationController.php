@@ -18,6 +18,15 @@ class AdminStockNotificationController extends Controller
             ->with(['user:id,name,lastname,phone', 'item:id,no,name'])
             ->when($tab === 'pending', fn ($q) => $q->whereNull('notified_at'))
             ->when($tab === 'sent', fn ($q) => $q->whereNotNull('notified_at'))
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $search = '%'.$request->string('search').'%';
+                $q->where(fn ($q) => $q
+                    ->whereHas('user', fn ($u) => $u->where('name', 'like', $search)
+                        ->orWhere('lastname', 'like', $search)
+                        ->orWhere('phone', 'like', $search)
+                        ->orWhereRaw("concat(name, ' ', lastname) like ?", [$search]))
+                    ->orWhereHas('item', fn ($i) => $i->where('no', 'like', $search)->orWhere('name', 'like', $search)));
+            })
             ->latest()
             ->paginate(50)
             ->withQueryString()
