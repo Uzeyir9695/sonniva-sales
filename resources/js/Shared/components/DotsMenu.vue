@@ -9,6 +9,7 @@ const menuRef = ref(null)
 
 const items = [
     { label: t('nav.favorites'), icon: 'fa-heart', route: 'wishlist.index', class: 'sm:hidden' },
+    { label: t('nav.brands'), icon: 'fa-tags', route: 'brands.index', class: 'lg:hidden' },
     { label: t('nav.aboutUs'), icon: 'fa-circle-info', route: 'about-us' },
     { label: t('nav.deliveryRates'), icon: 'fa-truck-fast', route: 'delivery-rates' },
     { label: t('nav.cookiePolicy'), icon: 'fa-cookie-bite', route: 'cookie-policy' },

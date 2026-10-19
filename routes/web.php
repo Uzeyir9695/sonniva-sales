@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
@@ -264,6 +265,8 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 
 Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
+Route::get('/brands', [BrandController::class, 'index'])->name('brands.index');
+Route::get('/brands/{brand}', [BrandController::class, 'show'])->name('brands.show');
 
 Route::get('/{grandparentSlug}/{parentSlug?}/{childSlug?}', [ItemController::class, 'index'])
     ->name('items.index');

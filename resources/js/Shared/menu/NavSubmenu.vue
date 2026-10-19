@@ -7,14 +7,13 @@ import { Link } from '@inertiajs/vue3'
         <!-- black panel, inset from the brand-colored edges, plain div + rounded-* -->
         <div class="absolute inset-y-0 left-0 right-0 lg:left-2 lg:right-2 xl:left-6 xl:right-6 bg-neutral-950 rounded-none lg:rounded-xl lg:-skew-x-12"></div>
 
-        <!-- decorative dot grid -->
-        <div
-            class="hidden lg:block absolute left-[4%] top-1/2 -translate-y-1/2 w-20 h-10 opacity-30 pointer-events-none"
-            style="background-image: radial-gradient(circle, #fbbf24 1px, transparent 1px); background-size: 10px 10px;"
-        ></div>
-
         <div class="relative z-10 w-full lg:max-w-11/12 2xl:max-w-9/12 mx-auto px-3 sm:px-7 flex justify-between items-center py-1">
-            <div class="hidden lg:block"></div>
+            <Link :href="route('brands.index')" class="group hidden lg:flex items-center gap-3 shrink-0 text-white">
+                <span class="flex items-center justify-center w-9 h-9 rounded-lg bg-brand-500 shrink-0 transition-colors duration-300 group-hover:bg-brand-400">
+                    <i class="pi pi-tags text-base text-neutral-950"></i>
+                </span>
+                <span class="font-bold text-lg whitespace-nowrap">{{ $t('nav.brands') }}</span>
+            </Link>
 
             <div class="flex items-center justify-center gap-4 lg:gap-6">
                 <!-- left flow lines -->
