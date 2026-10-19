@@ -62,6 +62,7 @@ class HandleInertiaRequests extends Middleware
             'isAdmin' => $isAdmin,
             'isCashier' => $isCashier,
             'isPricingManager' => auth()?->user()?->role === 'pricing_manager',
+            'isStaff' => in_array(auth()?->user()?->role, ['admin', 'manager', 'pricing_manager', 'cashier'], true),
             'user' => Auth::user(),
 
             // ── Wishlist IDs shared to every page ──────────────────────────
