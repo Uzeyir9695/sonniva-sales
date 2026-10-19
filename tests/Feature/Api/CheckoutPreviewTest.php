@@ -101,6 +101,12 @@ it('charges a whitelisted item the flat Tbilisi zone rate even under 50kg', func
     expect(previewTbilisiDeliveryCost($item))->toBe(50);
 });
 
+it('charges an item in a whitelisted category the flat Tbilisi zone rate even under 50kg', function () {
+    $item = checkoutPreviewTestItem(['category_code' => '1419', 'weights' => [['uom' => 'PCS', 'weight' => 10]]]);
+
+    expect(previewTbilisiDeliveryCost($item))->toBe(50);
+});
+
 it('bills Tbilisi delivery by zone rate when the length attribute exceeds 2 m', function (string $name, string $value, int|float $expected) {
     $item = checkoutPreviewTestItem(['weights' => [['uom' => 'PCS', 'weight' => 10]]]);
     Attribute::create(['item_id' => $item->id, 'bc_attribute_id' => 1, 'name' => $name, 'value' => $value]);

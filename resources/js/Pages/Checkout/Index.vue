@@ -113,10 +113,11 @@ function calcDeliveryPrice(weightKg, type) {
 }
 
 // Items that must always use the flat Tbilisi zone rate (40/50/60) for Tbilisi delivery,
-// never the weight-based tariff - regardless of cart weight. Same treatment for any item
-// whose "სიგრძე" (length) attribute exceeds 2 m. Regions delivery is unaffected in both cases.
+// never the weight-based tariff - regardless of cart weight. Same treatment for whitelisted
+// categories and any item whose "სიგრძე" (length) attribute exceeds 2 m. Regions delivery is unaffected.
 // Mirror of OrderCalculatorService::usesTbilisiZoneRate().
 const TBILISI_ZONE_ONLY_ITEM_NOS = ['ALU00865-010', 'ALU00865-011', 'ALU00865-012']
+const TBILISI_ZONE_ONLY_CATEGORY_CODES = ['1419']
 const TBILISI_ZONE_ONLY_LENGTH_M = 2
 
 // Pulls a length in meters out of free-form BC attribute values such as
@@ -146,6 +147,7 @@ function lengthAttributeMeters(item) {
 
 function usesTbilisiZoneRate(item) {
     if (TBILISI_ZONE_ONLY_ITEM_NOS.includes(item.no)) return true
+    if (TBILISI_ZONE_ONLY_CATEGORY_CODES.includes(item.category_code)) return true
     const meters = lengthAttributeMeters(item)
     return meters != null && meters > TBILISI_ZONE_ONLY_LENGTH_M
 }

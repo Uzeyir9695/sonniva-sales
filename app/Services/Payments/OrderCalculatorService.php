@@ -20,6 +20,9 @@ class OrderCalculatorService
      */
     const TBILISI_ZONE_ONLY_ITEM_NOS = ['ALU00865-010', 'ALU00865-011', 'ALU00865-012'];
 
+    /** @var list<string> */
+    const TBILISI_ZONE_ONLY_CATEGORY_CODES = ['1419'];
+
     const TBILISI_ZONE_ONLY_LENGTH_METERS = 2;
 
     const TBILISI_ZONE_RATES = [
@@ -247,13 +250,14 @@ class OrderCalculatorService
     }
 
     /**
-     * A whitelisted item, or one whose "სიგრძე" (length) attribute exceeds 2 m,
-     * always bills Tbilisi delivery at the flat zone rate instead of the
-     * weight-based tariff (OnWay overcharges for oversized items).
+     * A whitelisted item or category, or an item whose "სიგრძე" (length) attribute
+     * exceeds 2 m, always bills Tbilisi delivery at the flat zone rate instead of
+     * the weight-based tariff (OnWay overcharges for oversized items).
      */
     private function usesTbilisiZoneRate(Item $item): bool
     {
-        if (in_array($item->no, self::TBILISI_ZONE_ONLY_ITEM_NOS, true)) {
+        if (in_array($item->no, self::TBILISI_ZONE_ONLY_ITEM_NOS, true)
+            || in_array($item->category_code, self::TBILISI_ZONE_ONLY_CATEGORY_CODES, true)) {
             return true;
         }
 
