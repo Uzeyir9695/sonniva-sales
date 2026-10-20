@@ -93,6 +93,12 @@ class SyncInventoryCommand extends Command
 
         } while ($url);
 
+        if ($items->isEmpty()) {
+            $this->error('BC returned no items, skipping inventory sync.');
+
+            return self::FAILURE;
+        }
+
         // Snapshot items that are currently out of stock and have pending notifications
         $waitedItemNos = StockNotification::query()
             ->whereNull('notified_at')
@@ -106,9 +112,15 @@ class SyncInventoryCommand extends Command
             DB::table('items')
                 ->where('no', $item['no'])
                 ->update([
-                    'inventory' => (int) $item['inventory']
+                    'inventory' => (int) $item['inventory'],
                 ]);
         }
+
+        // BC omits out-of-stock items from the response instead of returning them with 0.
+        $zeroed = DB::table('items')
+            ->whereNotIn('no', $items->pluck('no'))
+            ->where('inventory', '>', 0)
+            ->update(['inventory' => 0]);
 
         // Find which of the waited items just got restocked
         if ($waitedItemNos->isNotEmpty()) {
@@ -116,7 +128,7 @@ class SyncInventoryCommand extends Command
         }
 
         $seconds = $startedAt->diffInSeconds(now());
-        $this->info("Done. Updated {$items->count()} items in {$seconds}s.");
+        $this->info("Done. Updated {$items->count()} items, zeroed {$zeroed} missing from BC, in {$seconds}s.");
 
         return self::SUCCESS;
     }
