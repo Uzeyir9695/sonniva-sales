@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AdminLayout from '../AdminLayout.vue'
 import ManageItemDialog from './ManageItemDialog.vue'
+import ManageItemDetailsDialog from './ManageItemDetailsDialog.vue'
 import ItemsListing from './ItemsListing.vue'
 
 defineOptions({ layout: AdminLayout })
@@ -15,6 +16,12 @@ const dialogRef = ref(null)
 
 function openManageDialog(item) {
     dialogRef.value.open(item)
+}
+
+const detailsDialogRef = ref(null)
+
+function openDetailsDialog(item) {
+    detailsDialogRef.value.open(item)
 }
 
 function backToItems() {
@@ -50,10 +57,12 @@ function backToItems() {
                     :key="item.id"
                     :item="item"
                     @manage="openManageDialog"
+                    @manage-details="openDetailsDialog"
                 />
             </ul>
         </div>
 
         <ManageItemDialog ref="dialogRef" />
+        <ManageItemDetailsDialog ref="detailsDialogRef" />
     </div>
 </template>

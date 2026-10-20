@@ -23,6 +23,8 @@ class Item extends Model
         'ka_keywords', 'en_keywords', 'ru_keywords', 'tr_keywords',
         'name_en', 'name_ru', 'name_tr',
         'description_en', 'description_ru', 'description_tr',
+        'notice_title_en', 'notice_title_ru', 'notice_title_tr',
+        'notice_description_en', 'notice_description_ru', 'notice_description_tr',
     ];
 
     protected $appends = ['storage_path', 'discounted_price', 'has_setup_service', 'setup_service_price', 'bc_unit_price'];
@@ -67,6 +69,16 @@ class Item extends Model
     protected function description(): AttributeCast
     {
         return AttributeCast::get(fn ($value) => $this->localized('description', $value));
+    }
+
+    protected function noticeTitle(): AttributeCast
+    {
+        return AttributeCast::get(fn ($value) => $this->localized('notice_title', $value));
+    }
+
+    protected function noticeDescription(): AttributeCast
+    {
+        return AttributeCast::get(fn ($value) => $this->localized('notice_description', $value));
     }
 
     /** Columns to add to a restricted select() so the localized name accessor can resolve. */

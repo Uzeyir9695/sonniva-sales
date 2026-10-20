@@ -20,6 +20,11 @@ use Inertia\Response;
 
 class AdminItemController extends Controller
 {
+    private const array NOTICE_COLUMNS = [
+        'notice_title', 'notice_title_en', 'notice_title_ru', 'notice_title_tr',
+        'notice_description', 'notice_description_en', 'notice_description_ru', 'notice_description_tr',
+    ];
+
     public function index(): Response
     {
         return Inertia::render('Admin/items/Index');
@@ -161,6 +166,30 @@ class AdminItemController extends Controller
         ]);
 
         return redirect()->back()->with('message', 'Item updated.');
+    }
+
+    public function getDetails(Item $item): JsonResponse
+    {
+        return response()->json(collect(self::NOTICE_COLUMNS)
+            ->mapWithKeys(fn (string $column) => [$column => $item->getRawOriginal($column) ?? ''])
+        );
+    }
+
+    public function updateDetails(Request $request, Item $item): RedirectResponse
+    {
+        $validated = $request->validate(collect(self::NOTICE_COLUMNS)
+            ->mapWithKeys(fn (string $column) => [
+                $column => ['nullable', 'string', str_starts_with($column, 'notice_title') ? 'max:255' : 'max:2000'],
+            ])
+            ->all()
+        );
+
+        $item->update(collect(self::NOTICE_COLUMNS)
+            ->mapWithKeys(fn (string $column) => [$column => $validated[$column] ?? null])
+            ->all()
+        );
+
+        return redirect()->back()->with('message', 'Item details updated.');
     }
 
     public function searchCategories(Request $request): JsonResponse

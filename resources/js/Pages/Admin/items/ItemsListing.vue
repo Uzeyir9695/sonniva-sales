@@ -6,7 +6,7 @@ defineProps({
     item: { type: Object, required: true },
 })
 
-defineEmits(['manage'])
+defineEmits(['manage', 'manage-details'])
 
 function imageUrl(item) {
     return `${item.storage_path}/${item.images[0]}`
@@ -60,12 +60,21 @@ function imageUrl(item) {
         </a>
 
         <Button
-            label="Manage"
-            icon="pi pi-pen-to-square"
+            label="Manage Discount"
+            icon="pi pi-percentage"
             size="small"
             severity="secondary"
             outlined
             @click="$emit('manage', item)"
+        />
+
+        <Button
+            label="Manage Details"
+            icon="pi pi-pen-to-square"
+            size="small"
+            severity="secondary"
+            outlined
+            @click="$emit('manage-details', item)"
         />
     </li>
 </template>

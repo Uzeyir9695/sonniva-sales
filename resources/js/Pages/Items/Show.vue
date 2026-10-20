@@ -196,6 +196,14 @@ const ogImage = computed(() => {
                         </span>
                     </div>
 
+                    <div v-if="item.notice_title || item.notice_description" class="flex gap-3 -mt-4 mb-6 bg-brand-50 border border-brand-200 rounded-2xl px-4 py-3">
+                        <i class="pi pi-exclamation-triangle text-brand-600 text-lg leading-none mt-0.5 shrink-0" aria-hidden="true"></i>
+                        <div class="min-w-0 space-y-1">
+                            <p v-if="item.notice_title" class="text-sm font-bold text-gray-900">{{ item.notice_title }}</p>
+                            <p v-if="item.notice_description" class="text-sm text-gray-700 whitespace-pre-line break-words">{{ item.notice_description }}</p>
+                        </div>
+                    </div>
+
                     <Deferred data="inventory">
                         <template #fallback>
                             <div class="flex items-center gap-3 mt-4 mb-6">

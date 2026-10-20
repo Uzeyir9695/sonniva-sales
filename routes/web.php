@@ -145,6 +145,8 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::get('/items/search', [AdminItemController::class, 'search'])->name('items.search');
         Route::get('/items/managed', [AdminItemController::class, 'managed'])->name('items.managed');
         Route::put('/items/{item}', [AdminItemController::class, 'update'])->name('items.update');
+        Route::get('/items/{item}/details', [AdminItemController::class, 'getDetails'])->name('items.details.show');
+        Route::put('/items/{item}/details', [AdminItemController::class, 'updateDetails'])->name('items.details.update');
     });
 
     // Customer picker used by an admin to place an order on a customer's behalf at checkout.

@@ -6,6 +6,7 @@ import { useDebounceFn } from '@vueuse/core'
 import axios from 'axios'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 import ManageItemDialog from './ManageItemDialog.vue'
+import ManageItemDetailsDialog from './ManageItemDetailsDialog.vue'
 import ItemsListing from './ItemsListing.vue'
 
 const toast = useToast()
@@ -44,6 +45,12 @@ const dialogRef = ref(null)
 
 function openManageDialog(item) {
     dialogRef.value.open(item)
+}
+
+const detailsDialogRef = ref(null)
+
+function openDetailsDialog(item) {
+    detailsDialogRef.value.open(item)
 }
 
 function onSaved() {
@@ -167,6 +174,7 @@ function fetchMissingImages() {
                 :key="item.id"
                 :item="item"
                 @manage="openManageDialog"
+                @manage-details="openDetailsDialog"
             />
         </ul>
 
@@ -267,5 +275,6 @@ function fetchMissingImages() {
         </template>
 
         <ManageItemDialog ref="dialogRef" @saved="onSaved" />
+        <ManageItemDetailsDialog ref="detailsDialogRef" />
     </div>
 </template>
