@@ -1,11 +1,15 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
+
+const branches = [
+    { address: 'footer.avchalaAddress', mapUrl: 'https://maps.app.goo.gl/3YwH55CnhUUfJoYQ9' },
+    { address: 'footer.didubeAddress', mapUrl: 'https://maps.app.goo.gl/mUedJ9Jf9j1tR9nt6' },
+];
 </script>
 
 <template>
     <footer class="flex flex-col lg:flex-row items-center justify-around gap-6 px-6 py-5 sm:py-10 bg-white border-t border-slate-200">
 
-        <!-- Social + FAQ -->
         <div class="flex flex-col items-center gap-3">
             <div class="flex items-center gap-3">
                 <Link href="#" target="_blank" rel="noopener noreferrer">
@@ -22,7 +26,6 @@ import { Link } from '@inertiajs/vue3';
             </div>
         </div>
 
-        <!-- Brand + legal links -->
         <div class="flex flex-col items-center space-y-3 order-3 sm:order-2">
             <div>
                 <p class="text-center text-sm text-gray-500">
@@ -37,12 +40,24 @@ import { Link } from '@inertiajs/vue3';
             </div>
         </div>
 
-        <!-- Working hours + hotline -->
-        <div class="flex flex-col items-center gap-2 order-2 sm:order-3">
-            <div class="flex items-center gap-2 text-sm text-gray-500">
-                <i class="pi pi-clock text-gray-500"></i>
-                <span>{{ $t('footer.workingHours') }}</span>
-            </div>
+        <div class="flex flex-col items-center gap-3 order-2 sm:order-3">
+            <a
+                v-for="branch in branches"
+                :key="branch.address"
+                :href="branch.mapUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="group flex items-start gap-3 w-full rounded-lg border border-slate-200 px-4 py-3 hover:border-[#c80a1d]/40 hover:bg-slate-50 transition-colors"
+            >
+                <i class="pi pi-map-marker text-[#c80a1d] mt-0.5"></i>
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-sm font-medium text-gray-700">{{ $t(branch.address) }}</span>
+                    <span class="text-xs text-gray-500">{{ $t('footer.workingHours') }}</span>
+                    <span class="text-xs text-[#c80a1d] group-hover:underline">
+                        {{ $t('footer.viewOnMap') }} <i class="pi pi-external-link text-[10px]"></i>
+                    </span>
+                </div>
+            </a>
             <a href="tel:032-269-36-99" class="flex items-center gap-2 text-sm text-gray-500 hover:text-brand-500 transition-colors">
                 <i class="pi pi-phone text-[#c80a1d]"></i>
                 <span class="font-medium">032 269 36 99</span>
