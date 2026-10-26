@@ -30,6 +30,23 @@ it('lets a pricing manager use the manage item pages', function () {
     $this->getJson(route('admin.items.search', ['q' => 'drill']))->assertOk();
 });
 
+it('finds items by translated name in admin search', function () {
+    $this->actingAs(pricingManager());
+
+    $item = Item::create([
+        'no' => 'PMSKU-EN',
+        'name' => 'კარის სახელური',
+        'name_en' => 'Sliding-door handle',
+        'slug' => 'item-'.Str::random(6),
+        'inventory' => 1,
+        'unit_price' => 100,
+    ]);
+
+    $this->getJson(route('admin.items.search', ['q' => 'Sliding-door']))
+        ->assertOk()
+        ->assertJsonPath('0.id', $item->id);
+});
+
 it('lets a pricing manager update an item discount', function () {
     $item = Item::create([
         'no' => 'PMSKU',

@@ -79,8 +79,7 @@ class AdminItemController extends Controller
             return response()->json([]);
         }
 
-        $items = Item::where('no', 'like', "%{$q}%")
-            ->orWhere('name', 'like', "%{$q}%")
+        $items = Item::whereAny(['no', 'name', ...Item::LOCALE_NAME_COLUMNS], 'like', "%{$q}%")
             ->orderBy('name')
             ->limit(30)
             ->get(['id', 'no', 'name', 'slug', 'images', 'video_url', 'unit_price', 'unit_price_override', 'discount', 'wholesale_discount_percent', 'vip_discount_percent', 'bc_discount_percent', 'fake_price']);

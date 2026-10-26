@@ -62,3 +62,10 @@ it('matches items by georgian keywords', function () {
 
     expect(Item::search('საკეტი')->pluck('id'))->toContain($item->id);
 });
+
+it('matches items by translated names', function (string $column) {
+    $category = makeSearchKeywordCategory();
+    $item = makeSearchKeywordItem($category->code, [$column => 'Aluminium Sliding-door handle']);
+
+    expect(Item::search('Sliding-door')->pluck('id'))->toContain($item->id);
+})->with(Item::LOCALE_NAME_COLUMNS);

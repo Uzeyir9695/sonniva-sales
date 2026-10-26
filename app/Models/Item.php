@@ -137,6 +137,9 @@ class Item extends Model
     {
         return $query->whereAny([
             DB::raw('`name` COLLATE utf8mb4_0900_as_ci'),
+            DB::raw('`name_en` COLLATE utf8mb4_0900_as_ci'),
+            DB::raw('`name_ru` COLLATE utf8mb4_0900_as_ci'),
+            DB::raw('`name_tr` COLLATE utf8mb4_0900_as_ci'),
             DB::raw('`no` COLLATE utf8mb4_0900_as_ci'),
             DB::raw('`ka_keywords` COLLATE utf8mb4_0900_as_ci'),
             DB::raw('`en_keywords` COLLATE utf8mb4_0900_as_ci'),
