@@ -12,6 +12,7 @@ const items = [
     { label: t('nav.brands'), icon: 'fa-tags', route: 'brands.index', class: 'lg:hidden' },
     { label: t('nav.aboutUs'), icon: 'fa-circle-info', route: 'about-us' },
     { label: t('nav.deliveryRates'), icon: 'fa-truck-fast', route: 'delivery-rates' },
+    { label: t('nav.ourBranches'), icon: 'fa-location-dot', route: 'branches' },
     { label: t('nav.cookiePolicy'), icon: 'fa-cookie-bite', route: 'cookie-policy' },
     { label: t('nav.privacyPolicy'), icon: 'fa-shield-halved', route: 'privacy-policy' },
     { label: t('nav.termsOfService'), icon: 'fa-file-lines', route: 'terms-of-service' },

@@ -254,6 +254,10 @@ Route::get('/delivery-rates', function () {
     return Inertia::render('Policies/DeliveryRates');
 })->name('delivery-rates');
 
+Route::get('/our-branches', function () {
+    return Inertia::render('Branches/Index');
+})->name('branches');
+
 /*******************************************************************************************************************
  * Items Routes
  * *****************************************************************************************************************/

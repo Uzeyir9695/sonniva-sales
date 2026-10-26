@@ -49,6 +49,7 @@ class GenerateSitemapCommand extends Command
             ['/about-us', 0.6, Url::CHANGE_FREQUENCY_MONTHLY],
             ['/read-more', 0.5, Url::CHANGE_FREQUENCY_MONTHLY],
             ['/delivery-rates', 0.4, Url::CHANGE_FREQUENCY_MONTHLY],
+            ['/our-branches', 0.4, Url::CHANGE_FREQUENCY_MONTHLY],
             ['/terms-of-service', 0.3, Url::CHANGE_FREQUENCY_YEARLY],
             ['/privacy-policy', 0.3, Url::CHANGE_FREQUENCY_YEARLY],
             ['/cookie-policy', 0.3, Url::CHANGE_FREQUENCY_YEARLY],
