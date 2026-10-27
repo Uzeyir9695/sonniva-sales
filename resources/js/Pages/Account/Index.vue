@@ -195,7 +195,7 @@ watch(() => props.user, (user) => {
                             </FloatLabel>
 
 
-                            <FloatLabel v-if="editingByAdmin" variant="on" class="w-full">
+                            <FloatLabel v-if="editingByAdmin && $page.props.isAdmin" variant="on" class="w-full">
                                 <InputText class="w-full"
                                     id="bc_customer_no"
                                     v-model="form.bc_customer_no"
@@ -204,7 +204,7 @@ watch(() => props.user, (user) => {
                                 <label for="bc_customer_no">BC customer no.</label>
                             </FloatLabel>
 
-                            <div v-if="editingByAdmin" class="space-y-2">
+                            <div v-if="editingByAdmin && $page.props.isAdmin" class="space-y-2">
                                 <p class="text-sm sm:text-lg font-bold text-gray-500 mb-1">Permissions</p>
 
                                 <div class="flex items-center gap-2">
