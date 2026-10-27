@@ -26,6 +26,7 @@ const form = useForm({
   can_view_inventory: false,
   allow_cash_payment: false,
   has_free_delivery: false,
+  bc_customer_no: null,
   is_handyman: false,
   is_entrepreneur: false,
   tax_id: null,
@@ -86,6 +87,7 @@ watch(() => props.user, (user) => {
     form.can_view_inventory = user.can_view_inventory;
     form.allow_cash_payment = user.allow_cash_payment;
     form.has_free_delivery = user.has_free_delivery;
+    form.bc_customer_no = user.bc_customer_no;
     form.tax_id = user.tax_id;
     form.phone = user.phone;
     form.address = user.address;
@@ -192,6 +194,15 @@ watch(() => props.user, (user) => {
                                 <label for="user_type">{{ $t('account.userType') }}</label>
                             </FloatLabel>
 
+
+                            <FloatLabel v-if="editingByAdmin" variant="on" class="w-full">
+                                <InputText class="w-full"
+                                    id="bc_customer_no"
+                                    v-model="form.bc_customer_no"
+                                    :invalid="!!form.errors.bc_customer_no"
+                                />
+                                <label for="bc_customer_no">BC customer no.</label>
+                            </FloatLabel>
 
                             <div v-if="editingByAdmin" class="space-y-2">
                                 <p class="text-sm sm:text-lg font-bold text-gray-500 mb-1">Permissions</p>

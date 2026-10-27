@@ -8,6 +8,7 @@ use App\Services\BusinessCentralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class AccountController extends Controller
@@ -79,18 +80,22 @@ class AccountController extends Controller
                 'can_view_inventory',
                 'allow_cash_payment',
                 'has_free_delivery',
+            ]), $request->validate([
+                'bc_customer_no' => ['nullable', 'string', 'max:50', Rule::unique(User::class, 'bc_customer_no')->ignore($user->id)],
             ]));
         }
+
+        $bcCustomerNo = array_key_exists('bc_customer_no', $validated) ? $validated['bc_customer_no'] : $user->bc_customer_no;
 
         // BC rejects a customer update outright if the VAT number is already claimed by a
         // different customer record - check for that up front instead of letting the queued
         // sync job fail silently after "updated successfully" has already been shown.
-        if ($validated['tax_id'] !== $user->tax_id && $user->bc_customer_no) {
+        if ($validated['tax_id'] !== $user->tax_id && $bcCustomerNo) {
             try {
                 $vatCheckEndpoint = "Customers?\$filter=VAT_Registration_No eq '".$validated['tax_id']."'";
                 $bcCustomer = $this->bcService->getCustomer($vatCheckEndpoint);
 
-                if (! empty($bcCustomer['value']) && $bcCustomer['value'][0]['No'] !== $user->bc_customer_no) {
+                if (! empty($bcCustomer['value']) && $bcCustomer['value'][0]['No'] !== $bcCustomerNo) {
                     return back()->withErrors(['tax_id' => __('This tax ID is already registered to another customer.')]);
                 }
             } catch (\Exception) {

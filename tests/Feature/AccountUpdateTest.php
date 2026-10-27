@@ -127,3 +127,43 @@ it('ignores has_free_delivery sent by a non-admin editing their own profile', fu
 
     expect($user->fresh()->has_free_delivery)->toBeFalse();
 });
+
+it('lets an admin set a user\'s BC customer number', function () {
+    Queue::fake();
+
+    $admin = User::factory()->create(['role' => 'admin']);
+    $user = User::factory()->create(['tax_id' => '111', 'bc_customer_no' => null, 'phone_country' => 'GE']);
+
+    $this->actingAs($admin)
+        ->put(route('account.update', $user), validPayload($user, ['bc_customer_no' => 'C124280']))
+        ->assertSessionDoesntHaveErrors();
+
+    expect($user->fresh()->bc_customer_no)->toBe('C124280');
+    Queue::assertPushed(UpdateBusinessCentralCustomer::class, fn ($job) => $job->endpoint === "Customers(No='C124280')");
+});
+
+it('rejects a BC customer number already linked to another user', function () {
+    Queue::fake();
+
+    $admin = User::factory()->create(['role' => 'admin']);
+    User::factory()->create(['bc_customer_no' => 'C124280']);
+    $user = User::factory()->create(['tax_id' => '111', 'bc_customer_no' => 'C001', 'phone_country' => 'GE']);
+
+    $this->actingAs($admin)
+        ->put(route('account.update', $user), validPayload($user, ['bc_customer_no' => 'C124280']))
+        ->assertSessionHasErrors('bc_customer_no');
+
+    expect($user->fresh()->bc_customer_no)->toBe('C001');
+});
+
+it('ignores a BC customer number sent by a non-admin', function () {
+    Queue::fake();
+
+    $user = User::factory()->create(['tax_id' => '111', 'bc_customer_no' => 'C001', 'phone_country' => 'GE']);
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user, ['bc_customer_no' => 'C999']))
+        ->assertSessionDoesntHaveErrors();
+
+    expect($user->fresh()->bc_customer_no)->toBe('C001');
+});
