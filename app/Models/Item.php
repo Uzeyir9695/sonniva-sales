@@ -86,8 +86,6 @@ class Item extends Model
 
     const SETUP_SERVICE_CATEGORY_CODE = '2300-02';
 
-    const SETUP_SERVICE_PRICE = 130.00;
-
     /**
      * Categories where the Wholesale tier is opt-in: it only applies to buyers an admin
      * has granted "Can view wholesales". Every other category applies wholesale to all
@@ -119,7 +117,7 @@ class Item extends Model
 
     public function getSetupServicePriceAttribute(): ?float
     {
-        return $this->hasSetupService() ? self::SETUP_SERVICE_PRICE : null;
+        return $this->hasSetupService() ? Service::setupPrice() : null;
     }
 
     public function getDiscountedPriceAttribute(): ?string

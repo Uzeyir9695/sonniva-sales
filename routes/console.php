@@ -14,3 +14,9 @@ Schedule::command('items:sync-data')
     ->between('09:00', '18:00')
     ->timezone('Asia/Tbilisi')
     ->withoutOverlapping();
+
+Schedule::command('services:sync')
+    ->everyThirtyMinutes()
+    ->between('09:00', '18:00')
+    ->timezone('Asia/Tbilisi')
+    ->withoutOverlapping();

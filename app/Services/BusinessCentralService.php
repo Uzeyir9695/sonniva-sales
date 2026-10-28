@@ -3,13 +3,12 @@
 namespace App\Services;
 
 use App\Models\BusinessCentralToken;
+use App\Models\Service;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 
 class BusinessCentralService
 {
-    const SETUP_SERVICE_ITEM_NO = 'NONINV331';
-
     protected string $clientId;
 
     protected string $clientSecret;
@@ -353,7 +352,7 @@ class BusinessCentralService
                     'Document_No' => $orderNo,
                     'Line_Discount_Percent' => 0.0,
                     'Type' => 'Item',
-                    'No' => self::SETUP_SERVICE_ITEM_NO,
+                    'No' => Service::SETUP_NO,
                     'Quantity' => $orderItem->quantity,
                     'Unit_of_Measure_Code' => 'ცალი/UNIT',
                 ];

@@ -4,6 +4,7 @@ namespace App\Services\Payments;
 
 use App\Models\Cart;
 use App\Models\Item;
+use App\Models\Service;
 use App\Models\User;
 
 class OrderCalculatorService
@@ -93,7 +94,7 @@ class OrderCalculatorService
         foreach ($cartRows as $cartRow) {
             $qty = $cartRow->quantity;
             [$unitPrice, $appliedDiscountPercent, $bcDiscountPercent] = $this->tierPrice($cartRow->item, $qty, $cartRow->selected_uom, $isVip, $canViewWholesales);
-            $serviceUnitPrice = $cartRow->with_service ? (float) Item::SETUP_SERVICE_PRICE : 0.0;
+            $serviceUnitPrice = $cartRow->with_service ? Service::setupPrice() : 0.0;
             $rowTotal = ($unitPrice + $serviceUnitPrice) * $qty;
             $subtotal += $rowTotal;
 
