@@ -1151,7 +1151,7 @@ function initiatePayment() {
                                             v-tooltip.top="$t('checkout.editDeliveryCost')"
                                             @click="editDeliveryCost"
                                         >
-                                            <i class="pi pi-pencil text-xs"></i>
+                                            <i class="pi pi-pen-to-square text-xs"></i>
                                         </button>
                                         <button
                                             v-if="deliveryCostOverride !== null"
