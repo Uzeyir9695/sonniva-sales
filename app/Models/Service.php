@@ -8,6 +8,8 @@ class Service extends Model
 {
     const SETUP_NO = 'NONINV331';
 
+    const CUTTING_NO = 'NONINV261';
+
     protected $fillable = ['no', 'name', 'uom', 'unit_price'];
 
     protected $casts = [

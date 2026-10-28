@@ -149,7 +149,9 @@
         "insufficientBranchStockText": "В выбранном филиале недостаточно следующих товаров. Пожалуйста, измените филиал или количество:",
         "inStockShort": "В наличии:",
         "desiredShort": "Нужно:",
-        "understood": "Понятно"
+        "understood": "Понятно",
+        "cuttingQuantity": "Количество резов",
+        "cuttingPricePerUnit": "{price} ₾ за один рез"
     },
     "common": {
         "search": "Поиск",
@@ -773,5 +775,8 @@
         "savedMany": "сохранено",
         "emptyHeading": "Ваш список избранного пуст",
         "emptyText": "Сохраняйте то, что нравится, и возвращайтесь в любое время."
+    },
+    "services": {
+        "NONINV261": "Услуга резки алюминия"
     }
 }

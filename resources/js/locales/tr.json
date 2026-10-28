@@ -149,7 +149,9 @@
         "insufficientBranchStockText": "Seçilen şubede aşağıdaki ürünlerin stoğu yeterli değil. Lütfen şubeyi veya miktarı değiştirin:",
         "inStockShort": "Stokta:",
         "desiredShort": "İstenen:",
-        "understood": "Anladım"
+        "understood": "Anladım",
+        "cuttingQuantity": "Kesim sayısı",
+        "cuttingPricePerUnit": "Kesim başına {price} ₾"
     },
     "common": {
         "search": "Ara",
@@ -773,5 +775,8 @@
         "savedMany": "kaydedildi",
         "emptyHeading": "Favori listeniz boş",
         "emptyText": "Beğendiklerinizi kaydedin ve istediğiniz zaman geri dönün."
+    },
+    "services": {
+        "NONINV261": "Alüminyum kesim hizmeti"
     }
 }

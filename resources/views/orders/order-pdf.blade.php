@@ -159,6 +159,19 @@
                         <td class="px-6 py-4 text-right font-bold text-gray-900 whitespace-nowrap">{{ number_format($orderItem->subtotal, 2) }} ლარი</td>
                     </tr>
                 @endforeach
+                @foreach($order->services as $orderService)
+                    <tr class="bg-white border-b border-gray-50">
+                        <td class="px-6 py-4 font-mono text-xs text-gray-400">{{ $orderService->service->no }}</td>
+                        <td class="px-6 py-4 font-medium text-gray-800">{{ $orderService->service->name }}</td>
+                        <td class="px-4 py-4 text-center text-gray-700">
+                            {{ $orderService->quantity }}
+                            <span class="text-xs text-gray-400">{{ $orderService->service->uom }}</span>
+                        </td>
+                        <td class="px-6 py-4"></td>
+                        <td class="px-6 py-4 text-right text-gray-600 whitespace-nowrap">{{ number_format($orderService->unit_price, 2) }} ლარი</td>
+                        <td class="px-6 py-4 text-right font-bold text-gray-900 whitespace-nowrap">{{ number_format($orderService->subtotal, 2) }} ლარი</td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
     </div>
@@ -179,6 +192,12 @@
                 <div class="flex justify-between w-72 text-emerald-600">
                     <span>საბითუმო ფასდაკლება</span>
                     <span>-{{ number_format($order->wholesale_discount, 2) }} ლარი</span>
+                </div>
+            @endif
+            @if($order->services->isNotEmpty())
+                <div class="flex justify-between w-72 text-gray-500">
+                    <span class="font-semibold">დაჭრის მომსახურება</span>
+                    <span>{{ number_format($order->services->sum('subtotal'), 2) }} ლარი</span>
                 </div>
             @endif
             <div class="flex justify-between w-72 text-gray-500">

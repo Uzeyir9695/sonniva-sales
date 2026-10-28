@@ -9,9 +9,11 @@ import PlacesAutocomplete from '@/Shared/components/PlacesAutocomplete.vue'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 import CustomerPicker from '@/Shared/components/CustomerPicker.vue'
 import AutoComplete from 'primevue/autocomplete'
+import InputNumber from 'primevue/inputnumber'
 
 const props = defineProps({
     cartItems: { type: Array, required: true },
+    cuttingService: { type: Object, default: null },
 })
 
 const { t } = useI18n()
@@ -65,6 +67,11 @@ watch(() => items.value.length, (len) => {
 
 const subtotal = computed(() =>
     items.value.reduce((sum, c) => sum + c.rowTotal, 0)
+)
+
+const cuttingQuantity = ref(null)
+const cuttingTotal = computed(() =>
+    props.cuttingService ? (cuttingQuantity.value ?? 0) * Number(props.cuttingService.unit_price) : 0
 )
 
 const totalSavings = computed(() =>
@@ -345,6 +352,8 @@ const hasTbilisiZoneOnlyItem = computed(() =>
     items.value.some(c => usesTbilisiZoneRate(c.item))
 )
 
+const qualifiesForFreeDelivery = computed(() => subtotal.value + cuttingTotal.value >= TBILISI_FREE_THRESHOLD)
+
 const deliveryCost = computed(() => {
     const key = selectedDelivery.value?.key
     if (!key) return null
@@ -352,7 +361,7 @@ const deliveryCost = computed(() => {
     if (key === 'office') return 0
     if (key === 'tbilisi') {
         if (!selectedTbilisiZone.value) return null
-        if (subtotal.value >= TBILISI_FREE_THRESHOLD) return 0
+        if (qualifiesForFreeDelivery.value) return 0
         return totalWeightKg.value >= 50 || hasTbilisiZoneOnlyItem.value
             ? selectedTbilisiZone.value.price
             : calcDeliveryPrice(totalWeightKg.value, 'tbilisi')
@@ -362,7 +371,7 @@ const deliveryCost = computed(() => {
     return calcDeliveryPrice(totalWeightKg.value, type)
 })
 
-const total = computed(() => subtotal.value + (deliveryCost.value ?? 0))
+const total = computed(() => subtotal.value + cuttingTotal.value + (deliveryCost.value ?? 0))
 
 const showAddressField = computed(() =>
     selectedDelivery.value?.key === 'tbilisi' ||
@@ -550,6 +559,7 @@ function initiatePayment() {
         provider:         selectedProvider.value.code,
         cart_ids: items.value.map(c => c.id),
         customer_id: isAdmin.value ? selectedCustomer.value?.id ?? null : null,
+        cutting_quantity: cuttingQuantity.value,
     }
 
     if (selectedProvider.value.code === 'invoice') {
@@ -627,6 +637,28 @@ function initiatePayment() {
                         <p v-if="errors.customer" class="mt-2 text-xs text-red-500">{{ errors.customer }}</p>
                         <p v-else-if="selectedCustomer" class="mt-2 text-xs text-emerald-600">
                             {{ $t('customerPicker.orderingFor', { name: `${selectedCustomer.name} ${selectedCustomer.lastname ?? ''}`.trim() }) }}
+                        </p>
+                    </div>
+
+                    <div v-if="cuttingService" class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                        <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <i class="pi pi-wrench text-brand-500"></i>
+                            {{ $t('services.NONINV261') }}
+                        </h2>
+                        <label for="cutting-quantity" class="text-sm font-semibold text-gray-500 mb-1 block">{{ $t('checkout.cuttingQuantity') }}</label>
+                        <InputNumber
+                            v-model="cuttingQuantity"
+                            input-id="cutting-quantity"
+                            :min="0"
+                            :max="10000"
+                            :use-grouping="false"
+                            placeholder="0"
+                            showClear
+                            fluid
+                        />
+                        <p class="mt-2 text-xs text-gray-400">
+                            {{ $t('checkout.cuttingPricePerUnit', { price: formatted(cuttingService.unit_price) }) }}
+                            <span v-if="cuttingTotal > 0" class="font-semibold text-gray-700"> · {{ formatted(cuttingTotal) }} ₾</span>
                         </p>
                     </div>
 
@@ -780,11 +812,11 @@ function initiatePayment() {
                                 <template #optiongroup="{ option }">
                                     <div class="flex items-center justify-between py-1">
                                         <span class="font-semibold text-gray-800 text-sm">{{ option.label }}</span>
-                                        <span v-if="subtotal >= TBILISI_FREE_THRESHOLD" class="text-xs text-emerald-600 font-medium">{{ $t('checkout.free') }}</span>
+                                        <span v-if="qualifiesForFreeDelivery" class="text-xs text-emerald-600 font-medium">{{ $t('checkout.free') }}</span>
                                     </div>
                                 </template>
                             </Select>
-                            <p v-if="subtotal >= TBILISI_FREE_THRESHOLD" class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1">
+                            <p v-if="qualifiesForFreeDelivery" class="mt-1.5 text-xs text-emerald-600 flex items-center gap-1">
                                 <i class="pi pi-check-circle text-sm"></i>
                                 {{ $t('checkout.orderOver500FreeTbilisi') }}
                             </p>
@@ -1060,6 +1092,11 @@ function initiatePayment() {
                                     {{ $t('checkout.totalSavings') }}
                                 </span>
                                 <span class="font-medium">-{{ formatted(totalSavings) }} ₾</span>
+                            </div>
+
+                            <div v-if="cuttingTotal > 0" class="flex justify-between text-gray-500">
+                                <span>{{ $t('services.NONINV261') }} × {{ cuttingQuantity }}</span>
+                                <span class="font-medium text-gray-700">{{ formatted(cuttingTotal) }} ₾</span>
                             </div>
 
                             <div class="flex justify-between text-gray-500">

@@ -149,7 +149,9 @@
         "insufficientBranchStockText": "There is not enough stock of the following products at the selected branch. Please change the branch or the quantity:",
         "inStockShort": "In stock:",
         "desiredShort": "Wanted:",
-        "understood": "Got it"
+        "understood": "Got it",
+        "cuttingQuantity": "Number of cuts",
+        "cuttingPricePerUnit": "{price} ₾ per cut"
     },
     "common": {
         "search": "Search",
@@ -773,5 +775,8 @@
         "savedMany": "saved",
         "emptyHeading": "Your wishlist is empty",
         "emptyText": "Save what you like and come back to it any time."
+    },
+    "services": {
+        "NONINV261": "Aluminium cutting service"
     }
 }

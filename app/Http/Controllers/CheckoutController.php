@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Service;
 use App\Models\User;
 use App\Services\BusinessCentralService;
 use Illuminate\Http\JsonResponse;
@@ -37,6 +38,9 @@ class CheckoutController extends Controller
 
         return Inertia::render('Checkout/Index', [
             'cartItems' => $cartItems,
+            'cuttingService' => $request->user()->can('place-orders-for-customers')
+                ? Service::where('no', Service::CUTTING_NO)->first(['no', 'name', 'unit_price'])
+                : null,
         ]);
     }
 

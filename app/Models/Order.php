@@ -75,6 +75,11 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function services(): HasMany
+    {
+        return $this->hasMany(OrderService::class);
+    }
+
     /**
      * Combined wholesale + normal (fake_price/discount) savings for this order. The wholesale
      * portion is read from the order-level column rather than summed from order_items.wholesale_discount:

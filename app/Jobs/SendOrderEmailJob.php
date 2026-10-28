@@ -31,7 +31,7 @@ class SendOrderEmailJob implements ShouldQueue
 
     public function handle(PDFGeneratorService $pdfService, SmsService $smsService)
     {
-        $order = Order::with(['items.item', 'user'])->findOrFail($this->orderId);
+        $order = Order::with(['items.item', 'user', 'services.service'])->findOrFail($this->orderId);
         $payment = Payment::findOrFail($this->paymentId);
 
         $viewVars = [

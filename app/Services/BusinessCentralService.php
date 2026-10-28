@@ -347,16 +347,12 @@ class BusinessCentralService
             ];
 
             if ($orderItem->with_service) {
-                $salesOrderLines[] = [
-                    'Document_Type' => 'Order',
-                    'Document_No' => $orderNo,
-                    'Line_Discount_Percent' => 0.0,
-                    'Type' => 'Item',
-                    'No' => Service::SETUP_NO,
-                    'Quantity' => $orderItem->quantity,
-                    'Unit_of_Measure_Code' => 'ცალი/UNIT',
-                ];
+                $salesOrderLines[] = $this->serviceLine($orderNo, Service::SETUP_NO, $orderItem->quantity, 'ცალი/UNIT');
             }
+        }
+
+        foreach ($order->services as $orderService) {
+            $salesOrderLines[] = $this->serviceLine($orderNo, $orderService->service->no, $orderService->quantity, $orderService->service->uom);
         }
 
         foreach ($salesOrderLines as $data) {
@@ -369,6 +365,19 @@ class BusinessCentralService
 
             usleep(200000); // 0.2 seconds delay to avoid overwhelming the API
         }
+    }
+
+    private function serviceLine(string $orderNo, string $no, int $quantity, string $uom): array
+    {
+        return [
+            'Document_Type' => 'Order',
+            'Document_No' => $orderNo,
+            'Line_Discount_Percent' => 0.0,
+            'Type' => 'Item',
+            'No' => $no,
+            'Quantity' => $quantity,
+            'Unit_of_Measure_Code' => $uom,
+        ];
     }
 
     public function addShipToAddress($orderItem)

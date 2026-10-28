@@ -260,6 +260,10 @@ function providerText(provider) {
                         <span>{{ $t('orders.wholesaleDiscount') }}</span>
                         <span class="font-medium">-{{ order.wholesale_discount }} ₾</span>
                     </div>
+                    <div v-for="service in order.services" :key="service.id" class="flex justify-between text-sm text-gray-500">
+                        <span>{{ $te(`services.${service.no}`) ? $t(`services.${service.no}`) : service.name }} <span class="text-xs text-gray-400">· {{ service.quantity }} × {{ service.unit_price }} ₾</span></span>
+                        <span class="font-medium text-gray-700">{{ service.subtotal }} ₾</span>
+                    </div>
                     <div class="flex justify-between text-sm text-gray-500">
                         <span>{{ $t('orders.delivery') }}</span>
                         <span class="font-medium text-gray-700">{{ order.delivery_cost }} ₾</span>

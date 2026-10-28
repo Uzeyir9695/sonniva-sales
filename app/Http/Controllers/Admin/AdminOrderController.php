@@ -140,6 +140,7 @@ class AdminOrderController extends Controller
     {
         $order->load([
             'items.item:id,no,name',
+            'services.service:id,no,name',
             'payment',
             'user:id,name,lastname,phone,tax_id',
         ]);
@@ -181,6 +182,14 @@ class AdminOrderController extends Controller
                     'fake_price' => $oi->fake_price,
                     'with_service' => $oi->with_service,
                     'service_price' => $oi->service_price,
+                ]),
+                'services' => $order->services->map(fn ($os) => [
+                    'id' => $os->id,
+                    'no' => $os->service->no,
+                    'name' => $os->service->name,
+                    'quantity' => $os->quantity,
+                    'unit_price' => $os->unit_price,
+                    'subtotal' => $os->subtotal,
                 ]),
             ],
         ]);

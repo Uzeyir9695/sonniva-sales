@@ -61,8 +61,10 @@ class OrderCalculatorService
      * $cartOwnerId owns the cart rows; $buyerId (defaults to the cart owner) is
      * who the order is priced for — they differ when an admin checks out on a
      * customer's behalf, using the admin's cart but the customer's price tier.
+     *
+     * @param  list<array{service: Service, quantity: int}>  $services  order-level services, e.g. cutting
      */
-    public function calculate(array $cartIds, string $deliveryType, int|string $cartOwnerId, ?string $deliveryPriceType = null, ?string $city = null, int|string|null $buyerId = null): array
+    public function calculate(array $cartIds, string $deliveryType, int|string $cartOwnerId, ?string $deliveryPriceType = null, ?string $city = null, int|string|null $buyerId = null, array $services = []): array
     {
         $buyer = User::find($buyerId ?? $cartOwnerId);
         $isVip = $buyer?->can_view_vip ?? false;
@@ -121,18 +123,27 @@ class OrderCalculatorService
             ];
         }
 
+        $servicesData = array_map(fn (array $line) => [
+            'service_id' => $line['service']->id,
+            'quantity' => $line['quantity'],
+            'unit_price' => (float) $line['service']->unit_price,
+            'subtotal' => (float) $line['service']->unit_price * $line['quantity'],
+        ], $services);
+        $servicesTotal = array_sum(array_column($servicesData, 'subtotal'));
+
         $forceTbilisiZoneRate = $cartRows->contains(fn ($row) => $this->usesTbilisiZoneRate($row->item));
 
         $deliveryCost = $buyer?->has_free_delivery
             ? 0.0
-            : $this->deliveryCost($deliveryType, $subtotal, $deliveryPriceType, $totalWeightKg, $city, $forceTbilisiZoneRate);
+            : $this->deliveryCost($deliveryType, $subtotal + $servicesTotal, $deliveryPriceType, $totalWeightKg, $city, $forceTbilisiZoneRate);
 
         return [
             'subtotal' => $subtotal,
             'wholesale_discount' => $wholesaleDiscount,
             'delivery_cost' => $deliveryCost,
-            'total' => $subtotal + $deliveryCost,
+            'total' => $subtotal + $servicesTotal + $deliveryCost,
             'items' => $itemsData,
+            'services' => $servicesData,
         ];
     }
 

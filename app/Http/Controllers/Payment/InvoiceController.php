@@ -38,7 +38,7 @@ class InvoiceController extends Controller
             return back()->withErrors(['message' => $e->getMessage()]);
         }
 
-        $this->generatePDF($result['order']->load('items', 'user'), $result['invoiceNo'], $result['payment']);
+        $this->generatePDF($result['order']->load('items', 'user', 'services.service'), $result['invoiceNo'], $result['payment']);
 
         return to_route('payment.invoice.success', ['invoice' => $result['invoiceNo']]);
     }
@@ -79,6 +79,7 @@ class InvoiceController extends Controller
         $actingUser = $request->user();
         $buyer = $this->resolveOrderBuyer($request);
         $placedById = $buyer->is($actingUser) ? null : $actingUser->id;
+        $services = $this->resolveOrderServices($request);
 
         $calc = $this->calculatorService->calculate(
             $request->cart_ids,
@@ -87,6 +88,7 @@ class InvoiceController extends Controller
             $request->delivery_price_type,
             $request->city,
             $buyer->id,
+            $services,
         );
 
         do {
@@ -141,6 +143,8 @@ class InvoiceController extends Controller
                     'service_price' => $item['service_price'],
                 ]);
             }
+
+            $order->services()->createMany($calc['services']);
 
             $payment = Payment::create([
                 'user_id' => $buyer->id,

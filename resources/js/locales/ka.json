@@ -149,7 +149,9 @@
         "insufficientBranchStockText": "შემდეგი პროდუცქიის მარაგი არჩეულ ფილიალში საკმარისი არ არის. გთხოვთ შეცვალოთ ფილიალი ან რაოდენობა:",
         "inStockShort": "მარაგშია:",
         "desiredShort": "სასურველი:",
-        "understood": "გასაგებია"
+        "understood": "გასაგებია",
+        "cuttingQuantity": "ჭრის რაოდენობა",
+        "cuttingPricePerUnit": "{price} ₾ ერთ ჭრაზე"
     },
     "common": {
         "search": "ძებნა",
@@ -773,5 +775,8 @@
         "savedMany": "შენახული",
         "emptyHeading": "თქვენი სურვილების სია ცარიელია",
         "emptyText": "შეინახე ის რაც მოგწონს და დაუბრუნდი ნებისმიერ დროს."
+    },
+    "services": {
+        "NONINV261": "ალუმინის დაჭრის მომსახურება"
     }
 }

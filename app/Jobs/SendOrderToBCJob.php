@@ -27,7 +27,7 @@ class SendOrderToBCJob implements ShouldQueue
 
     public function handle(BusinessCentralService $bcService)
     {
-        $order = Order::with(['items.item', 'user'])->findOrFail($this->order->id);
+        $order = Order::with(['items.item', 'user', 'services.service'])->findOrFail($this->order->id);
 
         // A customer an admin registered at checkout may not have their BC
         // customer record yet — that sync is queued too. Wait for it rather
