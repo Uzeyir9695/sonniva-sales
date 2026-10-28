@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, reactive, watch } from 'vue'
+import { ref, computed, reactive, watch, nextTick } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
@@ -354,7 +354,7 @@ const hasTbilisiZoneOnlyItem = computed(() =>
 
 const qualifiesForFreeDelivery = computed(() => subtotal.value + cuttingTotal.value >= TBILISI_FREE_THRESHOLD)
 
-const deliveryCost = computed(() => {
+const calculatedDeliveryCost = computed(() => {
     const key = selectedDelivery.value?.key
     if (!key) return null
     if (hasFreeDelivery.value) return 0
@@ -370,6 +370,27 @@ const deliveryCost = computed(() => {
     if (!type) return null
     return calcDeliveryPrice(totalWeightKg.value, type)
 })
+
+const deliveryCostOverride = ref(null)
+const editingDeliveryCost = ref(false)
+const deliveryCostInput = ref(null)
+
+const deliveryCost = computed(() =>
+    calculatedDeliveryCost.value === null ? null : (deliveryCostOverride.value ?? calculatedDeliveryCost.value)
+)
+
+async function editDeliveryCost() {
+    editingDeliveryCost.value = true
+    await nextTick()
+    deliveryCostInput.value?.$el.querySelector('input')?.focus()
+}
+
+function resetDeliveryCost() {
+    deliveryCostOverride.value = null
+    editingDeliveryCost.value = false
+}
+
+watch([selectedDelivery, selectedRegionOption], resetDeliveryCost)
 
 const total = computed(() => subtotal.value + cuttingTotal.value + (deliveryCost.value ?? 0))
 
@@ -550,7 +571,6 @@ function initiatePayment() {
     const data = {
         delivery_type:       selectedDelivery.value.key,
         delivery_price_type: deliveryPriceType.value,
-        delivery_cost:       deliveryCost.value ?? 0,
         city:             city,
         branch:           branch,
         address:          form.address,
@@ -560,6 +580,7 @@ function initiatePayment() {
         cart_ids: items.value.map(c => c.id),
         customer_id: isAdmin.value ? selectedCustomer.value?.id ?? null : null,
         cutting_quantity: cuttingQuantity.value,
+        delivery_cost_override: deliveryCostOverride.value,
     }
 
     if (selectedProvider.value.code === 'invoice') {
@@ -1099,14 +1120,50 @@ function initiatePayment() {
                                 <span class="font-medium text-gray-700">{{ formatted(cuttingTotal) }} ₾</span>
                             </div>
 
-                            <div class="flex justify-between text-gray-500">
+                            <div class="flex justify-between items-center gap-2 text-gray-500">
                                 <span>{{ $t('checkout.delivery') }}</span>
-                                <span
-                                    :class="deliveryCost === 0 ? 'text-emerald-600 font-medium' : 'font-medium text-gray-700'"
-                                >
-                                    <template v-if="deliveryCost === null">—</template>
-                                    <template v-else-if="deliveryCost === 0">{{ $t('checkout.free') }}</template>
-                                    <template v-else>{{ formatted(deliveryCost) }} ₾</template>
+                                <InputNumber
+                                    v-if="editingDeliveryCost"
+                                    v-model="deliveryCostOverride"
+                                    :min="0"
+                                    :max="10000"
+                                    :min-fraction-digits="0"
+                                    :max-fraction-digits="2"
+                                    suffix=" ₾"
+                                    ref="deliveryCostInput"
+                                    size="small"
+                                    :aria-label="$t('checkout.editDeliveryCost')"
+                                    :input-style="{ width: '7rem', textAlign: 'right' }"
+                                    @blur="editingDeliveryCost = false"
+                                    @keydown.enter="editingDeliveryCost = false"
+                                />
+                                <span v-else class="flex items-center gap-2">
+                                    <span :class="deliveryCost === 0 ? 'text-emerald-600 font-medium' : 'font-medium text-gray-700'">
+                                        <template v-if="deliveryCost === null">—</template>
+                                        <template v-else-if="deliveryCost === 0">{{ $t('checkout.free') }}</template>
+                                        <template v-else>{{ formatted(deliveryCost) }} ₾</template>
+                                    </span>
+                                    <template v-if="isAdmin && deliveryCost !== null">
+                                        <button
+                                            type="button"
+                                            class="text-gray-400 hover:text-brand-500 transition-colors cursor-pointer"
+                                            :aria-label="$t('checkout.editDeliveryCost')"
+                                            v-tooltip.top="$t('checkout.editDeliveryCost')"
+                                            @click="editDeliveryCost"
+                                        >
+                                            <i class="pi pi-pencil text-xs"></i>
+                                        </button>
+                                        <button
+                                            v-if="deliveryCostOverride !== null"
+                                            type="button"
+                                            class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                                            :aria-label="$t('checkout.resetDeliveryCost')"
+                                            v-tooltip.top="$t('checkout.resetDeliveryCost')"
+                                            @click="resetDeliveryCost"
+                                        >
+                                            <i class="pi pi-undo text-xs"></i>
+                                        </button>
+                                    </template>
                                 </span>
                             </div>
                         </div>

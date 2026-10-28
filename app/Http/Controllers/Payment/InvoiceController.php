@@ -80,6 +80,7 @@ class InvoiceController extends Controller
         $buyer = $this->resolveOrderBuyer($request);
         $placedById = $buyer->is($actingUser) ? null : $actingUser->id;
         $services = $this->resolveOrderServices($request);
+        $deliveryCostOverride = $this->resolveDeliveryCostOverride($request);
 
         $calc = $this->calculatorService->calculate(
             $request->cart_ids,
@@ -89,6 +90,7 @@ class InvoiceController extends Controller
             $request->city,
             $buyer->id,
             $services,
+            $deliveryCostOverride,
         );
 
         do {

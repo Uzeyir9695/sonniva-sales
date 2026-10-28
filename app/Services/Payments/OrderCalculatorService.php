@@ -63,8 +63,9 @@ class OrderCalculatorService
      * customer's behalf, using the admin's cart but the customer's price tier.
      *
      * @param  list<array{service: Service, quantity: int}>  $services  order-level services, e.g. cutting
+     * @param  float|null  $deliveryCostOverride  an admin-entered delivery cost that replaces the calculated one
      */
-    public function calculate(array $cartIds, string $deliveryType, int|string $cartOwnerId, ?string $deliveryPriceType = null, ?string $city = null, int|string|null $buyerId = null, array $services = []): array
+    public function calculate(array $cartIds, string $deliveryType, int|string $cartOwnerId, ?string $deliveryPriceType = null, ?string $city = null, int|string|null $buyerId = null, array $services = [], ?float $deliveryCostOverride = null): array
     {
         $buyer = User::find($buyerId ?? $cartOwnerId);
         $isVip = $buyer?->can_view_vip ?? false;
@@ -133,9 +134,9 @@ class OrderCalculatorService
 
         $forceTbilisiZoneRate = $cartRows->contains(fn ($row) => $this->usesTbilisiZoneRate($row->item));
 
-        $deliveryCost = $buyer?->has_free_delivery
+        $deliveryCost = $deliveryCostOverride ?? ($buyer?->has_free_delivery
             ? 0.0
-            : $this->deliveryCost($deliveryType, $subtotal + $servicesTotal, $deliveryPriceType, $totalWeightKg, $city, $forceTbilisiZoneRate);
+            : $this->deliveryCost($deliveryType, $subtotal + $servicesTotal, $deliveryPriceType, $totalWeightKg, $city, $forceTbilisiZoneRate));
 
         return [
             'subtotal' => $subtotal,

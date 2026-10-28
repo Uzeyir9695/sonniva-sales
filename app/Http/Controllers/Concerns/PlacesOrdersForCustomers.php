@@ -51,4 +51,19 @@ trait PlacesOrdersForCustomers
             'quantity' => $quantity,
         ]];
     }
+
+    protected function resolveDeliveryCostOverride(Request $request): ?float
+    {
+        $request->validate([
+            'delivery_cost_override' => ['nullable', 'numeric', 'min:0', 'max:10000'],
+        ]);
+
+        if ($request->isNotFilled('delivery_cost_override')) {
+            return null;
+        }
+
+        abort_unless($request->user()->can('place-orders-for-customers'), 403);
+
+        return round($request->float('delivery_cost_override'), 2);
+    }
 }
