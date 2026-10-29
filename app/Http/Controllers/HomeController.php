@@ -89,10 +89,15 @@ class HomeController extends Controller
      */
     private function mobileBanners(array $banners): array
     {
-        $banners['main'] = collect($banners['main'] ?? [])
-            ->filter(fn (array $slide) => ! empty($slide['mobile_image_url']))
+        $slides = collect($banners['main'] ?? [])
+            ->filter(fn (array $slide) => ! empty($slide['mobile_image_url']));
+
+        $itemIds = Item::whereIn('slug', $slides->pluck('item_slug')->filter())->pluck('id', 'slug');
+
+        $banners['main'] = $slides
             ->map(fn (array $slide) => [
                 'image_url' => $slide['mobile_image_url'],
+                'item_id' => $itemIds[$slide['item_slug']] ?? null,
                 'item_slug' => $slide['item_slug'],
                 'category_slug' => $slide['category_slug'],
             ])
