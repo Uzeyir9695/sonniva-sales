@@ -46,6 +46,7 @@ class GenerateSitemapCommand extends Command
         $pages = [
             ['/', 1.0, Url::CHANGE_FREQUENCY_DAILY],
             ['/sales', 0.7, Url::CHANGE_FREQUENCY_DAILY],
+            ['/liquidation', 0.7, Url::CHANGE_FREQUENCY_DAILY],
             ['/about-us', 0.6, Url::CHANGE_FREQUENCY_MONTHLY],
             ['/read-more', 0.5, Url::CHANGE_FREQUENCY_MONTHLY],
             ['/delivery-rates', 0.4, Url::CHANGE_FREQUENCY_MONTHLY],

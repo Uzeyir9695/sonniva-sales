@@ -148,6 +148,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::put('/items/{item}', [AdminItemController::class, 'update'])->name('items.update');
         Route::get('/items/{item}/details', [AdminItemController::class, 'getDetails'])->name('items.details.show');
         Route::put('/items/{item}/details', [AdminItemController::class, 'updateDetails'])->name('items.details.update');
+        Route::get('/items/liquidation', [AdminItemController::class, 'liquidation'])->name('items.liquidation');
         Route::post('/items/{item}/liquidation', [AdminItemController::class, 'toggleLiquidation'])->name('items.liquidation.toggle');
     });
 
@@ -273,7 +274,7 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 
 Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
-Route::get('/liquidation', [LiquidationController::class, 'index'])->middleware(['auth', 'can:view-liquidation'])->name('liquidation.index');
+Route::get('/liquidation', [LiquidationController::class, 'index'])->name('liquidation.index');
 Route::get('/brands', [BrandController::class, 'index'])->name('brands.index');
 Route::get('/brands/{brand}', [BrandController::class, 'show'])->name('brands.show');
 

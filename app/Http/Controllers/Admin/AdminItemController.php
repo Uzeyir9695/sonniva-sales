@@ -107,6 +107,22 @@ class AdminItemController extends Controller
         ]);
     }
 
+    public function liquidation(): Response
+    {
+        $items = Item::whereHas('liquidation')
+            ->orderBy('name')
+            ->select(self::LISTING_COLUMNS)
+            ->withExists('liquidation as is_liquidation')
+            ->get();
+
+        return Inertia::render('Admin/items/DiscountedItems', [
+            'items' => $items,
+            'title' => 'Liquidation Items',
+            'description' => 'Items currently on the public liquidation page. Use the Liquidation button to remove an item from the list.',
+            'emptyText' => 'No items are on the liquidation list yet.',
+        ]);
+    }
+
     public function update(Request $request, Item $item): RedirectResponse
     {
         $bcUnitPrice = $item->bc_unit_price;

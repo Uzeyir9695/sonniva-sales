@@ -48,15 +48,14 @@ it('forbids customers from toggling liquidation', function () {
     $this->postJson(route('admin.items.liquidation.toggle', $item))->assertForbidden();
 });
 
-it('shows only liquidation items to an admin, in-stock first', function () {
+it('shows only liquidation items to any visitor, in-stock first', function () {
     $outOfStock = liquidationItem(['inventory' => 0]);
     $outOfStock->liquidation()->create();
     $inStock = liquidationItem();
     $inStock->liquidation()->create();
     liquidationItem();
 
-    $this->actingAs(User::factory()->create(['role' => 'admin']))
-        ->get(route('liquidation.index'))
+    $this->get(route('liquidation.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page
             ->component('Liquidation/Index')
@@ -68,12 +67,25 @@ it('shows only liquidation items to an admin, in-stock first', function () {
         );
 });
 
-it('hides the liquidation page from non-admins', function (string $role) {
-    $this->actingAs(User::factory()->create(['role' => $role]))
-        ->get(route('liquidation.index'))
-        ->assertForbidden();
-})->with(['customer', 'manager', 'cashier']);
+it('lists liquidation items on the admin liquidation page', function () {
+    $listed = liquidationItem(['name' => 'Listed']);
+    $listed->liquidation()->create();
+    liquidationItem(['name' => 'Not listed']);
 
-it('sends guests to login from the liquidation page', function () {
-    $this->get(route('liquidation.index'))->assertRedirect(route('login'));
+    $this->actingAs(User::factory()->create(['role' => 'pricing_manager']))
+        ->get(route('admin.items.liquidation'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Admin/items/DiscountedItems')
+            ->where('title', 'Liquidation Items')
+            ->has('items', 1)
+            ->where('items.0.id', $listed->id)
+            ->where('items.0.is_liquidation', true)
+        );
+});
+
+it('hides the admin liquidation page from customers', function () {
+    $this->actingAs(User::factory()->create(['role' => 'customer']))
+        ->get(route('admin.items.liquidation'))
+        ->assertForbidden();
 });

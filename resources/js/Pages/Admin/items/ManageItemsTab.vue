@@ -137,14 +137,24 @@ function fetchMissingImages() {
     <div>
         <div class="flex items-center justify-between mb-1">
             <h2 class="text-base font-bold text-gray-900">Manage Item</h2>
-            <Button
-                label="View Discounted Items"
-                icon="pi pi-list"
-                size="small"
-                severity="info"
-                outlined
-                @click="router.visit(route('admin.items.managed'))"
-            />
+            <div class="flex flex-col items-end gap-2">
+                <Button
+                    label="View Discounted Items"
+                    icon="pi pi-list"
+                    size="small"
+                    severity="info"
+                    outlined
+                    @click="router.visit(route('admin.items.managed'))"
+                />
+                <Button
+                    label="View Liquidation Items"
+                    icon="pi pi-box"
+                    size="small"
+                    severity="warn"
+                    outlined
+                    @click="router.visit(route('admin.items.liquidation'))"
+                />
+            </div>
         </div>
         <p class="text-sm text-gray-500 mb-4 max-w-xl">
             Search for an item by No. or name to manage its video link, pricing and discounts. The video link shows up as the last slide in the item's image gallery.

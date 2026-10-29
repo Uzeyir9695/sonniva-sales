@@ -10,6 +10,9 @@ defineOptions({ layout: AdminLayout })
 
 defineProps({
     items: { type: Array, default: () => [] },
+    title: { type: String, default: 'Managed Items' },
+    description: { type: String, default: 'Items that currently have a discount or a video link assigned. Manage them directly here.' },
+    emptyText: { type: String, default: 'No items have a discount or video link assigned yet.' },
 })
 
 const dialogRef = ref(null)
@@ -32,7 +35,7 @@ function backToItems() {
 <template>
     <div class="p-4 sm:p-6">
         <div class="flex items-center justify-between mb-1">
-            <h1 class="text-xl font-bold text-gray-900">Managed Items</h1>
+            <h1 class="text-xl font-bold text-gray-900">{{ title }}</h1>
             <Button
                 label="Back to Manage Items"
                 icon="pi pi-arrow-left"
@@ -42,13 +45,11 @@ function backToItems() {
                 @click="backToItems"
             />
         </div>
-        <p class="text-sm text-gray-500 mb-4">
-            Items that currently have a discount or a video link assigned. Manage them directly here.
-        </p>
+        <p class="text-sm text-gray-500 mb-4">{{ description }}</p>
 
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6">
             <div v-if="!items.length" class="text-sm text-gray-400 py-4">
-                No items have a discount or video link assigned yet.
+                {{ emptyText }}
             </div>
 
             <ul v-else class="divide-y divide-gray-100">

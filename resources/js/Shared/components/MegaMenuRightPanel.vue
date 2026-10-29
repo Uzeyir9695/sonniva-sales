@@ -13,7 +13,6 @@ const mounted = ref(false)
 onMounted(() => { mounted.value = true })
 
 const page = usePage()
-const isAdmin = computed(() => page.props.isAdmin)
 const banners = computed(() => page.props.banners ?? {})
 
 const mainImages  = computed(() => banners.value.main   ?? [])
@@ -68,21 +67,16 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-0 min-w-0">
 
-            <component
-                :is="isAdmin ? Link : 'div'"
-                :href="isAdmin ? route('liquidation.index') : undefined"
-                :aria-disabled="!isAdmin || undefined"
+            <Link
+                :href="route('liquidation.index')"
                 class="relative block rounded-xl overflow-hidden min-h-0 max-sm:h-56"
-                :class="{ 'pointer-events-none select-none': !isAdmin }"
             >
-                <div class="h-full w-full" :class="{ 'blur-sm': !isAdmin }">
-                    <img src="/banners/liquidation-new.png" :alt="$t('promo.liquidationTitle')" class="w-full h-full object-cover" />
-                    <div class="absolute bottom-0 left-0 right-0 p-4 z-10 bg-black/50">
-                        <p class="text-white font-semibold text-sm">{{ $t('promo.liquidationTitle') }}</p>
-                        <p class="text-white/90 text-xs">{{ $t('promo.liquidationText') }}</p>
-                    </div>
+                <img src="/banners/liquidation-new.png" :alt="$t('promo.liquidationTitle')" class="w-full h-full object-cover" />
+                <div class="absolute bottom-0 left-0 right-0 p-4 z-10 bg-black/50">
+                    <p class="text-white font-semibold text-sm">{{ $t('promo.liquidationTitle') }}</p>
+                    <p class="text-white/90 text-xs">{{ $t('promo.liquidationText') }}</p>
                 </div>
-            </component>
+            </Link>
 
             <!-- Frames carousel -->
             <div class="relative rounded-xl overflow-hidden min-h-0 max-sm:h-56">
