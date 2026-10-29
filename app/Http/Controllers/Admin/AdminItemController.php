@@ -25,6 +25,11 @@ class AdminItemController extends Controller
         'notice_description', 'notice_description_en', 'notice_description_ru', 'notice_description_tr',
     ];
 
+    private const array LISTING_COLUMNS = [
+        'id', 'no', 'name', 'slug', 'images', 'video_url', 'unit_price', 'unit_price_override',
+        'discount', 'wholesale_discount_percent', 'vip_discount_percent', 'bc_discount_percent', 'fake_price',
+    ];
+
     public function index(): Response
     {
         return Inertia::render('Admin/items/Index');
@@ -82,7 +87,9 @@ class AdminItemController extends Controller
         $items = Item::whereAny(['no', 'name', ...Item::LOCALE_NAME_COLUMNS], 'like', "%{$q}%")
             ->orderBy('name')
             ->limit(30)
-            ->get(['id', 'no', 'name', 'slug', 'images', 'video_url', 'unit_price', 'unit_price_override', 'discount', 'wholesale_discount_percent', 'vip_discount_percent', 'bc_discount_percent', 'fake_price']);
+            ->select(self::LISTING_COLUMNS)
+            ->withExists('liquidation as is_liquidation')
+            ->get();
 
         return response()->json($items);
     }
@@ -91,7 +98,9 @@ class AdminItemController extends Controller
     {
         $items = Item::where('discount', '>', 0)
             ->orderBy('name')
-            ->get(['id', 'no', 'name', 'slug', 'images', 'video_url', 'unit_price', 'unit_price_override', 'discount', 'wholesale_discount_percent', 'vip_discount_percent', 'bc_discount_percent', 'fake_price']);
+            ->select(self::LISTING_COLUMNS)
+            ->withExists('liquidation as is_liquidation')
+            ->get();
 
         return Inertia::render('Admin/items/DiscountedItems', [
             'items' => $items,
@@ -165,6 +174,17 @@ class AdminItemController extends Controller
         ]);
 
         return redirect()->back()->with('message', 'Item updated.');
+    }
+
+    public function toggleLiquidation(Item $item): JsonResponse
+    {
+        $deleted = $item->liquidation()->delete();
+
+        if (! $deleted) {
+            $item->liquidation()->create();
+        }
+
+        return response()->json(['is_liquidation' => ! $deleted]);
     }
 
     public function getDetails(Item $item): JsonResponse

@@ -1,12 +1,37 @@
 <script setup>
+import { ref } from 'vue'
+import { useToast } from 'primevue/usetoast'
+import axios from 'axios'
 import { getOriginalPrice, getDisplayPrice } from '@/composables/usePricing.js'
 import { formatDiscount } from '@/utils/numberFormat.js'
 
-defineProps({
+const props = defineProps({
     item: { type: Object, required: true },
 })
 
 defineEmits(['manage', 'manage-details'])
+
+const toast = useToast()
+const inLiquidation = ref(props.item.is_liquidation)
+const togglingLiquidation = ref(false)
+
+async function toggleLiquidation() {
+    togglingLiquidation.value = true
+    try {
+        const res = await axios.post(route('admin.items.liquidation.toggle', props.item.id))
+        inLiquidation.value = res.data.is_liquidation
+        toast.add({
+            severity: 'success',
+            summary: inLiquidation.value ? 'Added to Liquidation' : 'Removed from Liquidation',
+            detail: props.item.name,
+            life: 3000,
+        })
+    } catch {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Could not update the liquidation list, please try again.', life: 4000 })
+    } finally {
+        togglingLiquidation.value = false
+    }
+}
 
 function imageUrl(item) {
     return `${item.storage_path}/${item.images[0]}`
@@ -75,6 +100,17 @@ function imageUrl(item) {
             severity="secondary"
             outlined
             @click="$emit('manage-details', item)"
+        />
+
+        <Button
+            :label="inLiquidation ? 'In Liquidation' : 'Liquidation'"
+            :icon="inLiquidation ? 'pi pi-check' : 'pi pi-box'"
+            size="small"
+            :severity="inLiquidation ? 'warn' : 'secondary'"
+            :outlined="!inLiquidation"
+            :loading="togglingLiquidation"
+            v-tooltip.top="inLiquidation ? 'Remove from the liquidation list' : 'Add to the liquidation list'"
+            @click="toggleLiquidation"
         />
     </li>
 </template>

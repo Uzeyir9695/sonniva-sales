@@ -13,15 +13,14 @@ const mounted = ref(false)
 onMounted(() => { mounted.value = true })
 
 const page = usePage()
+const isAdmin = computed(() => page.props.isAdmin)
 const banners = computed(() => page.props.banners ?? {})
 
 const mainImages  = computed(() => banners.value.main   ?? [])
-const doorImages  = computed(() => banners.value.doors  ?? [])
 const frameImages = computed(() => banners.value.frames ?? [])
 
 // Fallback static images when nothing uploaded yet
 const FALLBACK_MAIN   = [{ image_url: '/frame-examples/fur1.jpeg', mobile_image_url: null, item_slug: null, category_slug: null }]
-const FALLBACK_DOORS  = ['/door-examples/picture1.png', '/door-examples/picture2.png', '/door-examples/picture3.png']
 const FALLBACK_FRAMES = ['/frame-examples/fur1.jpeg', '/frame-examples/fur2.jpeg', '/frame-examples/fur3.jpeg']
 
 const mainSrc = computed(() => mainImages.value.length ? mainImages.value : FALLBACK_MAIN)
@@ -31,7 +30,6 @@ function slideHref(slide) {
     if (slide.category_slug) return route('items.index', slide.category_slug)
     return undefined
 }
-const doorSrc   = computed(() => doorImages.value.length   ? doorImages.value   : FALLBACK_DOORS)
 const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  : FALLBACK_FRAMES)
 </script>
 
@@ -68,37 +66,23 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
             </picture>
         </div>
 
-        <!-- Promo banners row: doors + frames side by side. Add a third here and
-             bump this to sm:grid-cols-3. Stacked on small screens. -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-0 min-w-0">
 
-            <!-- Doors carousel -->
-            <div class="relative rounded-xl overflow-hidden min-h-0 max-sm:h-56">
-                <Swiper
-                    v-if="mounted"
-                    :modules="modules"
-                    :slides-per-view="1"
-                    :loop="doorSrc.length > 1"
-                    :autoplay="doorSrc.length > 1 ? { delay: 5000, disableOnInteraction: false } : false"
-                    class="h-full w-full"
-                >
-                    <SwiperSlide v-for="(src, i) in doorSrc" :key="i" class="h-full!">
-                        <img :src="src" :alt="`door ${i + 1}`" class="w-full h-full object-cover" />
-                    </SwiperSlide>
-                </Swiper>
-                <img v-else :src="doorSrc[0]" alt="door" class="w-full h-full object-cover" />
-                <div class="absolute bottom-0 left-0 right-0 p-4 z-10 flex items-center justify-between bg-black/50">
-                    <div>
-                        <p class="text-white font-semibold text-sm">{{ $t('promo.doorsTitle') }}</p>
-                        <p class="text-white/90 text-xs">{{ $t('promo.doorsText') }}</p>
+            <component
+                :is="isAdmin ? Link : 'div'"
+                :href="isAdmin ? route('liquidation.index') : undefined"
+                :aria-disabled="!isAdmin || undefined"
+                class="relative block rounded-xl overflow-hidden min-h-0 max-sm:h-56"
+                :class="{ 'pointer-events-none select-none': !isAdmin }"
+            >
+                <div class="h-full w-full" :class="{ 'blur-sm': !isAdmin }">
+                    <img src="/liquidation/liquidation.png" :alt="$t('promo.liquidationTitle')" class="w-full h-full object-cover" />
+                    <div class="absolute bottom-0 left-0 right-0 p-4 z-10 bg-black/50">
+                        <p class="text-white font-semibold text-sm">{{ $t('promo.liquidationTitle') }}</p>
+                        <p class="text-white/90 text-xs">{{ $t('promo.liquidationText') }}</p>
                     </div>
-                    <a href="https://frame.sonniva.ge/ka/doors" target="_blank" rel="noopener noreferrer"
-                       class="flex items-center gap-x-1.5 shrink-0 bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-white/30 transition-colors">
-                        <span>{{ $t('common.view') }}</span>
-                        <i class="pi pi-external-link text-xs"></i>
-                    </a>
                 </div>
-            </div>
+            </component>
 
             <!-- Frames carousel -->
             <div class="relative rounded-xl overflow-hidden min-h-0 max-sm:h-56">

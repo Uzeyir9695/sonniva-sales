@@ -19,6 +19,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LiquidationController;
 use App\Http\Controllers\Payment\InvoiceController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\SalesController;
@@ -147,6 +148,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::put('/items/{item}', [AdminItemController::class, 'update'])->name('items.update');
         Route::get('/items/{item}/details', [AdminItemController::class, 'getDetails'])->name('items.details.show');
         Route::put('/items/{item}/details', [AdminItemController::class, 'updateDetails'])->name('items.details.update');
+        Route::post('/items/{item}/liquidation', [AdminItemController::class, 'toggleLiquidation'])->name('items.liquidation.toggle');
     });
 
     // Customer picker used by an admin to place an order on a customer's behalf at checkout.
@@ -271,6 +273,7 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 
 Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
+Route::get('/liquidation', [LiquidationController::class, 'index'])->middleware(['auth', 'can:view-liquidation'])->name('liquidation.index');
 Route::get('/brands', [BrandController::class, 'index'])->name('brands.index');
 Route::get('/brands/{brand}', [BrandController::class, 'show'])->name('brands.show');
 

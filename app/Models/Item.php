@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute as AttributeCast;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -149,6 +150,11 @@ class Item extends Model
     public function attributes(): HasMany
     {
         return $this->hasMany(Attribute::class);
+    }
+
+    public function liquidation(): HasOne
+    {
+        return $this->hasOne(LiquidationItem::class);
     }
 
     public function carts(): HasMany
