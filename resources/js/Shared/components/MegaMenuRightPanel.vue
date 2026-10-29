@@ -76,7 +76,7 @@ const frameSrc  = computed(() => frameImages.value.length  ? frameImages.value  
                 :class="{ 'pointer-events-none select-none': !isAdmin }"
             >
                 <div class="h-full w-full" :class="{ 'blur-sm': !isAdmin }">
-                    <img src="/liquidation/liquidation-new.png" :alt="$t('promo.liquidationTitle')" class="w-full h-full object-cover" />
+                    <img src="/banners/liquidation-new.png" :alt="$t('promo.liquidationTitle')" class="w-full h-full object-cover" />
                     <div class="absolute bottom-0 left-0 right-0 p-4 z-10 bg-black/50">
                         <p class="text-white font-semibold text-sm">{{ $t('promo.liquidationTitle') }}</p>
                         <p class="text-white/90 text-xs">{{ $t('promo.liquidationText') }}</p>
