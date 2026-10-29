@@ -26,7 +26,7 @@ const perks = [
             <i class="pi pi-box absolute right-6 top-1/2 -translate-y-1/2 text-[11rem] text-white/5 -rotate-12 max-sm:hidden"></i>
 
             <div class="relative max-w-2xl">
-                <span class="inline-flex items-center gap-2 bg-brand-500/15 ring-1 ring-brand-400/40 text-brand-400 text-xs sm:text-sm font-semibold px-3 py-1 rounded-full mb-4">
+                <span class="inline-flex items-center gap-2 bg-brand-500/15 ring-1 ring-brand-400/40 text-brand-400 text-xs sm:text-sm font-semibold tracking-wider px-3 py-1 rounded-full mb-4">
                     <span class="relative flex size-2">
                         <span class="absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75 animate-ping"></span>
                         <span class="relative inline-flex size-2 rounded-full bg-brand-400"></span>
@@ -34,10 +34,10 @@ const perks = [
                     {{ $t('liquidation.badge') }}
                 </span>
 
-                <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3">
+                <h1 class="text-3xl sm:text-5xl font-extrabold tracking-wider text-white mb-3">
                     {{ $t('liquidation.heading') }}
                 </h1>
-                <p class="text-white/75 text-sm sm:text-lg leading-relaxed mb-6">
+                <p class="text-white/75 text-sm sm:text-lg leading-relaxed tracking-wide mb-6">
                     {{ $t('liquidation.subheading') }}
                 </p>
 
@@ -45,7 +45,7 @@ const perks = [
                     <li
                         v-for="perk in perks"
                         :key="perk.key"
-                        class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white text-xs sm:text-sm font-medium px-3 py-1.5 rounded-xl"
+                        class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white text-xs sm:text-sm font-medium tracking-wide px-3 py-1.5 rounded-xl"
                     >
                         <i :class="perk.icon" class="text-brand-400 text-sm"></i>
                         {{ $t(perk.key) }}
@@ -60,7 +60,7 @@ const perks = [
                     <template v-if="items.data?.length">
                         <div class="flex items-center gap-3 mb-4">
                             <span class="h-6 w-1 rounded-full bg-brand-500"></span>
-                            <p class="text-sm font-semibold text-gray-700">
+                            <p class="text-sm font-semibold tracking-wide text-gray-700">
                                 {{ $t('liquidation.count', { count: items.total }) }}
                             </p>
                         </div>
@@ -71,7 +71,7 @@ const perks = [
                         <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                             <i class="pi pi-box text-3xl text-gray-300"></i>
                         </div>
-                        <h3 class="text-lg font-medium text-gray-500">{{ $t('liquidation.empty') }}</h3>
+                        <h3 class="text-lg font-medium tracking-wide text-gray-500">{{ $t('liquidation.empty') }}</h3>
                     </div>
                 </template>
                 <template #fallback>
