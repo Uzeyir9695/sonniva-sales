@@ -59,8 +59,9 @@ it('adds the cutting service to an admin order total', function () {
 
 it('snapshots the cutting price at order time', function () {
     $admin = User::factory()->create(['role' => 'admin']);
+    $customer = User::factory()->create(['role' => 'user']);
 
-    placeInvoiceOrder($admin, cuttingCart($admin), ['cutting_quantity' => 2])->assertRedirect();
+    placeInvoiceOrder($admin, cuttingCart($admin), ['customer_id' => $customer->id, 'cutting_quantity' => 2])->assertRedirect();
 
     Service::where('no', Service::CUTTING_NO)->update(['unit_price' => 50]);
 
@@ -88,8 +89,9 @@ it('counts the cutting service toward the free Tbilisi delivery threshold', func
 
 it('places no service when the cutting quantity is empty or zero', function (?int $quantity) {
     $admin = User::factory()->create(['role' => 'admin']);
+    $customer = User::factory()->create(['role' => 'user']);
 
-    placeInvoiceOrder($admin, cuttingCart($admin), ['cutting_quantity' => $quantity])->assertRedirect();
+    placeInvoiceOrder($admin, cuttingCart($admin), ['customer_id' => $customer->id, 'cutting_quantity' => $quantity])->assertRedirect();
 
     $order = Order::latest()->firstOrFail();
 
@@ -107,8 +109,9 @@ it('forbids a non-admin from adding the cutting service', function () {
 
 it('rejects an invalid cutting quantity', function (mixed $quantity) {
     $admin = User::factory()->create(['role' => 'admin']);
+    $customer = User::factory()->create(['role' => 'user']);
 
-    placeInvoiceOrder($admin, cuttingCart($admin), ['cutting_quantity' => $quantity])
+    placeInvoiceOrder($admin, cuttingCart($admin), ['customer_id' => $customer->id, 'cutting_quantity' => $quantity])
         ->assertSessionHasErrors('cutting_quantity');
 
     expect(Order::count())->toBe(0);

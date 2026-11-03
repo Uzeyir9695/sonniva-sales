@@ -25,6 +25,19 @@ function onBehalfItem(array $overrides = []): Item
 
 beforeEach(fn () => Queue::fake());
 
+it('rejects an admin order without a selected customer', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $cart = Cart::create(['user_id' => $admin->id, 'item_id' => onBehalfItem()->id, 'quantity' => 1]);
+
+    $this->actingAs($admin)->post(route('initiate.payment.invoice'), [
+        'delivery_type' => 'office',
+        'cart_ids' => [$cart->id],
+        'provider' => 'invoice',
+    ])->assertSessionHasErrors('customer_id');
+
+    expect(Order::count())->toBe(0);
+});
+
 it('places an invoice order for the selected customer, attributed to the admin', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $customer = User::factory()->create(['role' => 'user', 'has_free_delivery' => true]);

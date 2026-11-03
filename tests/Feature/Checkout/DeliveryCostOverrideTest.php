@@ -88,8 +88,9 @@ it('forbids a non-admin from overriding the delivery cost', function () {
 
 it('rejects an invalid delivery cost override', function (mixed $override) {
     $admin = User::factory()->create(['role' => 'admin']);
+    $customer = User::factory()->create(['role' => 'user']);
 
-    placeTbilisiInvoiceOrder($admin, deliveryOverrideCart($admin), ['delivery_cost_override' => $override])
+    placeTbilisiInvoiceOrder($admin, deliveryOverrideCart($admin), ['customer_id' => $customer->id, 'delivery_cost_override' => $override])
         ->assertSessionHasErrors('delivery_cost_override');
 
     expect(Order::count())->toBe(0);
