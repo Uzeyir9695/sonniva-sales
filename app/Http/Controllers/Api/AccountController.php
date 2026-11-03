@@ -43,7 +43,7 @@ class AccountController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'user_type' => 'required_if:user_type,individual,legal_entity|string',
+            'user_type' => 'nullable|string|in:individual,legal_entity',
             'name' => 'required|string|max:30',
             'lastname' => 'required_if:user_type,individual|max:30',
             'phone' => 'required|string|min:9|max:13|unique:users,phone,'.$user->id,

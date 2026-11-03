@@ -117,6 +117,30 @@ it('lets an admin grant free delivery to a user', function () {
     expect($target->fresh()->has_free_delivery)->toBeTrue();
 });
 
+it('saves permissions for an account without a user type', function () {
+    Queue::fake();
+
+    $admin = User::factory()->create(['role' => 'admin', 'phone_country' => 'GE', 'tax_id' => '111', 'user_type' => null]);
+
+    $this->actingAs($admin)
+        ->put(route('account.update', $admin), validPayload($admin, ['can_view_vip' => true, 'can_view_wholesales' => true]))
+        ->assertSessionDoesntHaveErrors();
+
+    expect($admin->fresh())
+        ->can_view_vip->toBeTruthy()
+        ->can_view_wholesales->toBeTruthy();
+});
+
+it('rejects an unknown user type', function () {
+    Queue::fake();
+
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE']);
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user, ['user_type' => 'admin']))
+        ->assertSessionHasErrors('user_type');
+});
+
 it('ignores has_free_delivery sent by a non-admin editing their own profile', function () {
     Queue::fake();
 
@@ -154,6 +178,19 @@ it('rejects a BC customer number already linked to another user', function () {
         ->assertSessionHasErrors('bc_customer_no');
 
     expect($user->fresh()->bc_customer_no)->toBe('C001');
+});
+
+it('saves an account whose unchanged BC customer number is shared with another user', function () {
+    Queue::fake();
+
+    $admin = User::factory()->create(['role' => 'admin', 'tax_id' => '111', 'phone_country' => 'GE', 'bc_customer_no' => 'C107510']);
+    User::factory()->create(['bc_customer_no' => 'C107510']);
+
+    $this->actingAs($admin)
+        ->put(route('account.update', $admin), validPayload($admin, ['bc_customer_no' => 'C107510', 'can_view_vip' => true]))
+        ->assertSessionDoesntHaveErrors();
+
+    expect($admin->fresh()->can_view_vip)->toBeTruthy();
 });
 
 it('ignores a BC customer number sent by a non-admin', function () {

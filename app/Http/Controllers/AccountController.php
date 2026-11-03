@@ -57,7 +57,7 @@ class AccountController extends Controller
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
-            'user_type' => 'required_if:user_type,individual,legal_entity|string',
+            'user_type' => 'nullable|string|in:individual,legal_entity',
             'name' => 'required|string|max:30',
             'lastname' => 'required_if:user_type,individual|max:30',
             'phone_country' => 'required|string',
@@ -81,7 +81,12 @@ class AccountController extends Controller
                 'allow_cash_payment',
                 'has_free_delivery',
             ]), $request->validate([
-                'bc_customer_no' => ['nullable', 'string', 'max:50', Rule::unique(User::class, 'bc_customer_no')->ignore($user->id)],
+                'bc_customer_no' => [
+                    'nullable', 'string', 'max:50',
+                    Rule::when($request->input('bc_customer_no') !== $user->bc_customer_no, [
+                        Rule::unique(User::class, 'bc_customer_no')->ignore($user->id),
+                    ]),
+                ],
             ]));
         }
 
