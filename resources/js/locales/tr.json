@@ -14,7 +14,29 @@
         "changePassword": "Şifre değiştir",
         "currentPassword": "Mevcut şifre",
         "newPassword": "Yeni şifre",
-        "repeatNewPassword": "Yeni şifreyi tekrarla"
+        "repeatNewPassword": "Yeni şifreyi tekrarla",
+        "delete": {
+            "title": "Sonniva hesabınızı silin",
+            "intro": "Sonniva hesabınızı istediğiniz zaman web sitesinden veya Sonniva mobil uygulamasından kalıcı olarak silebilirsiniz.",
+            "deletedTitle": "Neler silinir",
+            "deletedItems": [
+                "Adınız, telefon numaranız, e-postanız, kimlik / vergi numaranız ve adresiniz",
+                "Şifreniz ve tüm cihazlardaki aktif oturumlarınız",
+                "Sepetiniz, favori listeniz ve stok bildirimleriniz"
+            ],
+            "keptTitle": "Neleri saklıyoruz",
+            "keptText": "Verdiğiniz siparişlerin ve ödemelerinin kayıtları, kişisel iletişim bilgileriniz olmadan muhasebe ve yasal nedenlerle saklanır. Devam eden siparişi olan hesaplar, bu siparişler tamamlandıktan sonra silinebilir.",
+            "appTitle": "Mobil uygulamadan silme",
+            "appText": "Sonniva uygulamasını açın, Hesabım → Güvenlik bölümüne gidin ve Hesabımı sil düğmesine basın.",
+            "password": "Onaylamak için şifrenizi girin",
+            "button": "Hesabımı sil",
+            "loginRequired": "Hesabınızı silmek için giriş yapın.",
+            "login": "Giriş yap",
+            "confirmTitle": "Hesabınız silinsin mi?",
+            "confirmMessage": "Bu işlem geri alınamaz. Tüm cihazlarda oturumunuz kapatılacak.",
+            "cancel": "İptal",
+            "confirm": "Sil"
+        }
     },
     "auth": {
         "loginTitle": "Giriş",

@@ -165,6 +165,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         Route::get('/', [AccountController::class, 'index'])->name('index');
         Route::put('/update/{user}', [AccountController::class, 'update'])->name('update');
         Route::put('/change-password', [AccountController::class, 'changePassword'])->name('change-password');
+        Route::delete('/', [AccountController::class, 'destroy'])->name('destroy');
     });
 
     Route::name('user-orders.')->prefix('user-orders')->group(function () {
@@ -248,6 +249,10 @@ Route::get('/terms-of-service', function () {
 Route::get('/privacy-policy', function () {
     return Inertia::render('Policies/PrivacyPolicy');
 })->name('privacy-policy');
+
+Route::get('/delete-account', function () {
+    return Inertia::render('Account/Delete');
+})->name('account.delete');
 
 Route::get('/cookie-policy', function () {
     return Inertia::render('Policies/CookiePolicy');

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -18,7 +19,7 @@ use Propaganistas\LaravelPhone\Casts\E164PhoneNumberCast;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasUuids, Notifiable;
+    use HasApiTokens, HasFactory, HasUuids, Notifiable, SoftDeletes;
 
     public $incrementing = false;
 
@@ -133,6 +134,11 @@ class User extends Authenticatable
         $this->wishlists()->create(['item_id' => $itemId]);
 
         return true; // added
+    }
+
+    public function stockNotifications(): HasMany
+    {
+        return $this->hasMany(StockNotification::class);
     }
 
     public function carts(): HasMany

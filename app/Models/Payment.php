@@ -9,18 +9,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Payment extends Model
 {
-    use HasUuids, HasFactory;
+    use HasFactory, HasUuids;
 
     protected $guarded = ['created_at', 'updated_at'];
 
     protected $casts = [
         'response_data' => 'array',
-        'processed_at'  => 'datetime',
+        'processed_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function order(): BelongsTo

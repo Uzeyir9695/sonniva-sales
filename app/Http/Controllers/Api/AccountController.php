@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\UpdateBusinessCentralCustomer;
+use App\Services\Account\DeleteAccountService;
 use App\Services\BusinessCentralService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -122,5 +123,31 @@ class AccountController extends Controller
         $user->tokens()->delete();
 
         return response()->json(['message' => 'Password changed successfully. Please log in again.']);
+    }
+
+    public function destroy(Request $request, DeleteAccountService $deleteAccount): JsonResponse
+    {
+        $validated = $request->validate([
+            'password' => 'required|string',
+        ]);
+
+        $user = $request->user();
+
+        if (! Hash::check($validated['password'], $user->password)) {
+            return response()->json([
+                'message' => __('Current password is incorrect.'),
+                'errors' => ['password' => [__('Current password is incorrect.')]],
+            ], 422);
+        }
+
+        if ($deleteAccount->hasActiveOrders($user)) {
+            return response()->json([
+                'message' => __('You have orders in progress. You can delete your account once they are completed.'),
+            ], 409);
+        }
+
+        $deleteAccount->delete($user);
+
+        return response()->json(['message' => __('Your account has been deleted.')]);
     }
 }

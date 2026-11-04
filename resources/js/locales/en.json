@@ -14,7 +14,29 @@
         "changePassword": "Change password",
         "currentPassword": "Current password",
         "newPassword": "New password",
-        "repeatNewPassword": "Repeat new password"
+        "repeatNewPassword": "Repeat new password",
+        "delete": {
+            "title": "Delete your Sonniva account",
+            "intro": "You can permanently delete your Sonniva account at any time, from the website or from the Sonniva mobile app.",
+            "deletedTitle": "What gets deleted",
+            "deletedItems": [
+                "Your name, phone number, email, ID / tax number and address",
+                "Your password and all active sessions on every device",
+                "Your cart, wishlist and stock notifications"
+            ],
+            "keptTitle": "What we keep",
+            "keptText": "Records of orders you have placed and their payments are kept for accounting and legal reasons, without your personal contact details. Accounts with orders still in progress can be deleted once those orders are completed.",
+            "appTitle": "Deleting from the mobile app",
+            "appText": "Open the Sonniva app, go to My Account → Security and press Delete my account.",
+            "password": "Enter your password to confirm",
+            "button": "Delete my account",
+            "loginRequired": "Log in to your account to delete it.",
+            "login": "Log in",
+            "confirmTitle": "Delete your account?",
+            "confirmMessage": "This can't be undone. You will be signed out on all devices.",
+            "cancel": "Cancel",
+            "confirm": "Delete"
+        }
     },
     "auth": {
         "loginTitle": "Sign in",

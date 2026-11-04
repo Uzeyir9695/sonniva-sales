@@ -1,5 +1,5 @@
 <script setup>
-import { useForm, usePage, Head } from '@inertiajs/vue3';
+import { useForm, usePage, Head, Link } from '@inertiajs/vue3';
 const page = usePage();
 
 const passwordForm = useForm({
@@ -91,6 +91,10 @@ async function changePassword(){
                     :icon="passwordForm.processing ? 'pi pi-spin pi-spinner' :''"
             />
         </form>
+
+        <Link :href="route('account.delete')" class="self-start text-sm text-red-600 hover:underline">
+            <i class="pi pi-trash mr-1 text-xs"></i>{{ $t('account.delete.button') }}
+        </Link>
     </div>
 </template>
 

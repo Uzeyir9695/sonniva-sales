@@ -1,10 +1,13 @@
 <?php
 
 use App\Jobs\UpdateBusinessCentralCustomer;
+use App\Models\Item;
+use App\Models\Order;
 use App\Models\User;
 use App\Services\BusinessCentralService;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 
 function validAccountPayload(User $user, array $overrides = []): array
@@ -151,5 +154,75 @@ describe('change password', function () {
             ->assertJsonValidationErrors('current_password');
 
         expect(Hash::check('old-password', $user->fresh()->password))->toBeTrue();
+    });
+});
+
+describe('destroy', function () {
+    it('anonymizes and soft-deletes the user but keeps their orders', function () {
+        $user = User::factory()->create(['password' => 'secret123', 'phone_country' => 'GE']);
+        $order = Order::factory()->for($user)->state(['status' => 'delivered'])->create();
+        $item = Item::create([
+            'no' => Str::random(10),
+            'category_code' => 'test-category',
+            'name' => 'Test Item',
+            'slug' => 'test-item-'.Str::random(8),
+            'inventory' => 0,
+            'unit_price' => 100,
+            'discount' => 0,
+            'prices' => [],
+        ]);
+        $user->wishlists()->create(['item_id' => $item->id]);
+        $user->createToken('nativephp-mobile');
+
+        Sanctum::actingAs($user);
+
+        $this->deleteJson('/api/v1/account', ['password' => 'secret123'])->assertOk();
+
+        $deleted = User::withTrashed()->find($user->id);
+
+        expect($deleted->trashed())->toBeTrue()
+            ->and($deleted->name)->toBeNull()
+            ->and($deleted->phone)->toBeNull()
+            ->and($deleted->email)->toBeNull()
+            ->and($deleted->tax_id)->toBeNull()
+            ->and($deleted->tokens()->count())->toBe(0)
+            ->and($deleted->wishlists()->count())->toBe(0)
+            ->and($order->fresh()->user->id)->toBe($user->id);
+    });
+
+    it('rejects a wrong password', function () {
+        $user = User::factory()->create(['password' => 'secret123']);
+
+        Sanctum::actingAs($user);
+
+        $this->deleteJson('/api/v1/account', ['password' => 'wrong-password'])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('password');
+
+        expect($user->fresh()->trashed())->toBeFalse();
+    });
+
+    it('refuses while an order is in progress', function () {
+        $user = User::factory()->create(['password' => 'secret123']);
+        Order::factory()->for($user)->paid()->create();
+
+        Sanctum::actingAs($user);
+
+        $this->deleteJson('/api/v1/account', ['password' => 'secret123'])->assertConflict();
+
+        expect($user->fresh()->trashed())->toBeFalse();
+    });
+
+    it('lets the phone number register again', function () {
+        $user = User::factory()->create(['password' => 'secret123', 'phone_country' => 'GE']);
+        $phone = $user->getRawOriginal('phone');
+
+        Sanctum::actingAs($user);
+
+        $this->deleteJson('/api/v1/account', ['password' => 'secret123'])->assertOk();
+
+        expect(User::where('phone', $phone)->exists())->toBeFalse();
+
+        User::factory()->create(['phone' => $phone, 'phone_country' => 'GE']);
     });
 });

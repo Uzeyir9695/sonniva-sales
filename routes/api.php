@@ -74,6 +74,7 @@ Route::prefix('v1')->middleware(SetApiLocale::class)->group(function () {
         Route::get('account', [AccountController::class, 'show'])->name('api.account.show');
         Route::put('account', [AccountController::class, 'update'])->name('api.account.update');
         Route::put('account/change-password', [AccountController::class, 'changePassword'])->name('api.account.change-password');
+        Route::delete('account', [AccountController::class, 'destroy'])->name('api.account.destroy');
 
         // ── Orders ───────────────────────────────────────────────────────
         // index() branches to JSON via $request->wantsJson(); show()/reorder()

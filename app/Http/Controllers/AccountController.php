@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\UpdateBusinessCentralCustomer;
 use App\Models\User;
+use App\Services\Account\DeleteAccountService;
 use App\Services\BusinessCentralService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -131,5 +132,32 @@ class AccountController extends Controller
         UpdateBusinessCentralCustomer::dispatch($userId, $payload, $endpoint)->afterCommit();
 
         return back()->with('message', __('Account updated successfully!'));
+    }
+
+    public function destroy(Request $request, DeleteAccountService $deleteAccount)
+    {
+        $request->validate([
+            'password' => 'required|string',
+        ]);
+
+        $user = $request->user();
+
+        if (! Hash::check($request->password, $user->password)) {
+            return back()->withErrors(['password' => __('Current password is incorrect.')]);
+        }
+
+        if ($deleteAccount->hasActiveOrders($user)) {
+            return back()->withErrors(['message' => __('You have orders in progress. You can delete your account once they are completed.')]);
+        }
+
+        $deleteAccount->delete($user);
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        inertia()->clearHistory();
+
+        return to_route('home')->with(['message' => __('Your account has been deleted.')]);
     }
 }

@@ -62,12 +62,12 @@ class Order extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function placedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'placed_by_id');
+        return $this->belongsTo(User::class, 'placed_by_id')->withTrashed();
     }
 
     public function items(): HasMany
