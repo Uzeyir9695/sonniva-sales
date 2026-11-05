@@ -156,3 +156,42 @@ it('gives a renamed existing item a fresh slug instead of colliding with itself'
 
     expect($item->fresh()->slug)->toBe('new-name');
 });
+
+it('gives a new item a suffixed slug when a soft-deleted item already holds the slug', function () {
+    $category = makeSyncItemsCategory();
+
+    $trashed = Item::create([
+        'no' => 'ITEM004885',
+        'category_code' => $category->code,
+        'name' => 'Same Name',
+        'slug' => 'same-name',
+        'inventory' => 1,
+        'unit_price' => 10,
+    ]);
+    $trashed->delete();
+
+    $this->mock(BusinessCentralService::class, function ($mock) {
+        $mock->shouldReceive('getAccessToken')->andReturn('fake-token');
+    });
+
+    Http::fake([
+        '*/items?*' => Http::response(['value' => [[
+            'no' => 'ITEM004888-1',
+            'itemCategoryCode' => $category->code,
+            'description' => 'Same Name',
+            'itemReview' => null,
+            'inventory' => 2,
+            'baseUOMDesc' => null,
+            'unitPrice' => 39.3,
+            'minQtyUnitPrice' => 39.3,
+            'itemAttributeValues' => [],
+        ]]]),
+        '*itemsDetailed*' => Http::response(['itemUnitPrices' => []]),
+    ]);
+
+    $this->artisan('items:sync', ['no' => 'ITEM004888-1'])->assertSuccessful();
+
+    expect(Item::where('no', 'ITEM004888-1')->firstOrFail()->slug)->toBe('same-name-item004888-1');
+    expect($trashed->fresh()->slug)->toBe('same-name');
+    expect($trashed->fresh()->trashed())->toBeTrue();
+});

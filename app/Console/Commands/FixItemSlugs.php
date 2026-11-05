@@ -25,7 +25,7 @@ class FixItemSlugs extends Command
         foreach ($items as $item) {
             $clean = $this->makeSlug($item->name);
 
-            if (Item::where('slug', $clean)->where('id', '!=', $item->id)->exists()) {
+            if (Item::withTrashed()->where('slug', $clean)->where('id', '!=', $item->id)->exists()) {
                 $clean = $clean.'-'.mb_strtolower($item->no);
             }
 

@@ -242,7 +242,7 @@ class SyncItemsCommand extends Command
     {
         $base = $this->makeSlug($text);
 
-        $taken = Item::where('slug', $base)
+        $taken = Item::withTrashed()->where('slug', $base)
             ->when($excludeId, fn ($query) => $query->where('id', '!=', $excludeId))
             ->exists();
 
