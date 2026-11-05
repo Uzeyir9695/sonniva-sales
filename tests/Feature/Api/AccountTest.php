@@ -23,6 +23,66 @@ function validAccountPayload(User $user, array $overrides = []): array
     ], $overrides);
 }
 
+it('clears the last name when a user becomes a legal entity through the API', function () {
+    Queue::fake();
+
+    $user = User::factory()->create(['user_type' => 'individual', 'lastname' => 'Doe', 'tax_id' => '111', 'phone_country' => 'GE']);
+    Sanctum::actingAs($user);
+
+    $this->putJson('/api/v1/account', validAccountPayload($user, ['user_type' => 'legal_entity']))->assertOk();
+
+    expect($user->fresh()->lastname)->toBeNull();
+});
+
+it('rejects an invalid or taken phone through the API', function (string $phone) {
+    User::factory()->create(['phone' => '+995599112233', 'phone_country' => 'GE']);
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE']);
+    Sanctum::actingAs($user);
+
+    $this->putJson('/api/v1/account', validAccountPayload($user, ['phone' => $phone]))
+        ->assertJsonValidationErrors('phone');
+})->with([
+    'invalid' => '123456789',
+    'taken, local format' => '599112233',
+    'taken, international format' => '+995599112233',
+]);
+
+it('validates a foreign user\'s new phone against their own country', function () {
+    Queue::fake();
+
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'TR', 'phone' => '+905321234567']);
+    Sanctum::actingAs($user);
+
+    $this->putJson('/api/v1/account', validAccountPayload($user, ['phone' => '5321234568']))->assertOk();
+
+    expect($user->fresh())
+        ->phone_country->toBe('TR')
+        ->and($user->fresh()->getRawOriginal('phone'))->toBe('+905321234568');
+});
+
+it('lets a user with an old invalid phone save other fields through the API', function () {
+    Queue::fake();
+
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE']);
+    DB::table('users')->where('id', $user->id)->update(['phone' => '+995123456789']);
+    Sanctum::actingAs($user->fresh());
+
+    $this->putJson('/api/v1/account', validAccountPayload($user, ['name' => 'Jane', 'phone' => '+995123456789']))->assertOk();
+
+    expect($user->fresh()->name)->toBe('Jane');
+});
+
+it('does not send a city to BC through the API', function () {
+    Queue::fake();
+
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE']);
+    Sanctum::actingAs($user);
+
+    $this->putJson('/api/v1/account', validAccountPayload($user))->assertOk();
+
+    Queue::assertPushed(UpdateBusinessCentralCustomer::class, fn ($job) => ! array_key_exists('City', $job->payload));
+});
+
 it('requires an address when updating a profile through the API', function (?string $address) {
     Queue::fake();
 

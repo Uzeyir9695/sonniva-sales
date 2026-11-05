@@ -10,7 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Propaganistas\LaravelPhone\PhoneNumber;
 
 class AccountController extends Controller
 {
@@ -59,12 +61,14 @@ class AccountController extends Controller
     {
         abort_unless($user->id === Auth::id() || Auth::user()->role === 'admin', 403);
 
+        $phoneChanged = $request->input('phone') !== $user->getRawOriginal('phone');
+
         $validated = $request->validate([
             'user_type' => 'nullable|string|in:individual,legal_entity',
             'name' => 'required|string|max:30',
             'lastname' => 'required_if:user_type,individual|max:30',
             'phone_country' => 'required|string',
-            'phone' => 'required|string|min:9|max:13|unique:users,phone,'.$user->id,
+            'phone' => ['required', 'string', ...($phoneChanged ? ['phone:phone_country'] : [])],
             'email' => 'nullable|email|unique:users,email,'.$user->id,
             'tax_id' => 'required|string|max:30',
             'address' => [$user->role === 'admin' ? 'nullable' : 'required', 'string', 'max:100'],
@@ -73,6 +77,14 @@ class AccountController extends Controller
                 'tax_id.required' => __($user->user_type === 'individual' ? 'The ID number is required.' : 'The tax id is required.'),
                 'lastname.required_if' => __('The lastname field is required for the individual users.'),
             ]);
+
+        if ($phoneChanged) {
+            $phone = new PhoneNumber($validated['phone'], $validated['phone_country']);
+
+            if (User::where('phone', $phone->formatE164())->whereKeyNot($user->id)->exists()) {
+                throw ValidationException::withMessages(['phone' => __('This phone number is already registered.')]);
+            }
+        }
 
         if (Auth::user()->role === 'admin') {
             $validated = array_merge($validated, $request->only([
@@ -112,13 +124,16 @@ class AccountController extends Controller
             }
         }
 
+        if (($validated['user_type'] ?? $user->user_type) === 'legal_entity') {
+            $validated['lastname'] = null;
+        }
+
         $user->update($validated);
         $user->refresh();
 
         $payload = [
             'Address' => $user->address ?? '',
             'Address_2' => '',
-            'City' => $user->city ?? '',
             'Phone_No' => $user->phone,
             'E_Mail' => $user->email ?? '',
             'Prices_Including_VAT' => true,

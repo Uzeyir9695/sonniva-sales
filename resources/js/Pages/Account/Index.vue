@@ -89,6 +89,7 @@ watch(() => props.user, (user) => {
     form.has_free_delivery = user.has_free_delivery;
     form.bc_customer_no = user.bc_customer_no;
     form.tax_id = user.tax_id;
+    form.phone_country = user.phone_country;
     form.phone = user.phone;
     form.address = user.address;
 }, { immediate: true });

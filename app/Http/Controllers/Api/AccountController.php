@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\UpdateBusinessCentralCustomer;
+use App\Models\User;
 use App\Services\Account\DeleteAccountService;
 use App\Services\BusinessCentralService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+use Propaganistas\LaravelPhone\PhoneNumber;
 
 class AccountController extends Controller
 {
@@ -43,11 +46,13 @@ class AccountController extends Controller
     {
         $user = $request->user();
 
+        $phoneChanged = $request->input('phone') !== $user->getRawOriginal('phone');
+
         $validated = $request->validate([
             'user_type' => 'nullable|string|in:individual,legal_entity',
             'name' => 'required|string|max:30',
             'lastname' => 'required_if:user_type,individual|max:30',
-            'phone' => 'required|string|min:9|max:13|unique:users,phone,'.$user->id,
+            'phone' => ['required', 'string', ...($phoneChanged ? ['phone:'.$user->phone_country] : [])],
             'email' => 'nullable|email|unique:users,email,'.$user->id,
             'tax_id' => 'required|string|max:30',
             'address' => [$user->role === 'admin' ? 'nullable' : 'required', 'string', 'max:100'],
@@ -55,6 +60,14 @@ class AccountController extends Controller
             'tax_id.required' => __($user->user_type === 'individual' ? 'The ID number is required.' : 'The tax id is required.'),
             'lastname.required_if' => __('The lastname field is required for the individual users.'),
         ]);
+
+        if ($phoneChanged) {
+            $phone = new PhoneNumber($validated['phone'], $user->phone_country);
+
+            if (User::where('phone', $phone->formatE164())->whereKeyNot($user->id)->exists()) {
+                throw ValidationException::withMessages(['phone' => __('This phone number is already registered.')]);
+            }
+        }
 
         // BC rejects a customer update outright if the VAT number is already claimed by a
         // different customer record - check for that up front instead of letting the queued
@@ -76,13 +89,16 @@ class AccountController extends Controller
             }
         }
 
+        if (($validated['user_type'] ?? $user->user_type) === 'legal_entity') {
+            $validated['lastname'] = null;
+        }
+
         $user->update($validated);
         $user->refresh();
 
         $payload = [
             'Address' => $user->address ?? '',
             'Address_2' => '',
-            'City' => $user->city ?? '',
             'Phone_No' => $user->phone,
             'E_Mail' => $user->email ?? '',
             'Prices_Including_VAT' => true,

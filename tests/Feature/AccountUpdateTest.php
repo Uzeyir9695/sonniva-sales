@@ -146,6 +146,86 @@ it('forbids non-admins from updating another user', function (string $role) {
     Queue::assertNothingPushed();
 })->with(['user', 'manager', 'cashier']);
 
+it('clears the last name when a user becomes a legal entity', function () {
+    Queue::fake();
+
+    $user = User::factory()->create(['user_type' => 'individual', 'lastname' => 'Doe', 'tax_id' => '111', 'phone_country' => 'GE']);
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user, ['user_type' => 'legal_entity']))
+        ->assertSessionDoesntHaveErrors();
+
+    expect($user->fresh()->lastname)->toBeNull();
+});
+
+it('keeps a foreign user\'s phone country when it is sent back', function () {
+    Queue::fake();
+
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'TR', 'phone' => '+905321234567']);
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user))
+        ->assertSessionDoesntHaveErrors();
+
+    expect($user->fresh()->phone_country)->toBe('TR');
+});
+
+it('rejects a changed phone that is not a valid number', function () {
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE']);
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user, ['phone' => '123456789']))
+        ->assertSessionHasErrors('phone');
+});
+
+it('rejects another user\'s phone in both local and international format', function (string $phone) {
+    User::factory()->create(['phone' => '+995599112233', 'phone_country' => 'GE']);
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE']);
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user, ['phone' => $phone]))
+        ->assertSessionHasErrors('phone');
+})->with(['599112233', '+995599112233']);
+
+it('accepts the user\'s own phone typed in local format', function () {
+    Queue::fake();
+
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE', 'phone' => '+995599112233']);
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user, ['phone' => '599112233']))
+        ->assertSessionDoesntHaveErrors();
+
+    expect($user->fresh()->getRawOriginal('phone'))->toBe('+995599112233');
+});
+
+it('lets a user with an old invalid phone save other fields', function () {
+    Queue::fake();
+
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE']);
+    DB::table('users')->where('id', $user->id)->update(['phone' => '+995123456789']);
+
+    expect(Validator::make(['phone' => '+995123456789'], ['phone' => 'phone:GE'])->fails())->toBeTrue();
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user, ['name' => 'Jane', 'phone' => '+995123456789']))
+        ->assertSessionDoesntHaveErrors();
+
+    expect($user->fresh()->name)->toBe('Jane');
+});
+
+it('does not send a city to BC', function () {
+    Queue::fake();
+
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE']);
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user))
+        ->assertSessionDoesntHaveErrors();
+
+    Queue::assertPushed(UpdateBusinessCentralCustomer::class, fn ($job) => ! array_key_exists('City', $job->payload));
+});
+
 it('requires an address when updating a profile', function (?string $address) {
     $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE', 'Address' => 'Old address']);
 
