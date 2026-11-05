@@ -26,6 +26,7 @@ const form = useForm({
     tax_id: null,
     is_foreign_resident: false,
     email: null,
+    address: null,
     password: null,
     password_confirmation: null,
     captcha_token: null,
@@ -166,6 +167,21 @@ async function register(){
                             :invalid="!!form.errors.email"
                         />
                         <label for="email">{{ $t('auth.email') }}</label>
+                    </FloatLabel>
+                </InputGroup>
+
+                <InputGroup>
+                    <InputGroupAddon>
+                        <i class="pi pi-map-marker text-gray-400"></i>
+                    </InputGroupAddon>
+                    <FloatLabel variant="on">
+                        <InputText
+                            id="address"
+                            v-model="form.address"
+                            :maxlength="100"
+                            :invalid="!!form.errors.address"
+                        />
+                        <label for="address">{{ $t('account.address') }}</label>
                     </FloatLabel>
                 </InputGroup>
 

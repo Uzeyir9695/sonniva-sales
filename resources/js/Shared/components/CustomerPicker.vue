@@ -278,8 +278,9 @@ async function saveCustomer() {
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.address') }}</label>
-                    <InputText v-model="form.address" class="w-full" :placeholder="$t('customerPicker.addressPlaceholder')" />
+                    <label class="text-xs font-medium text-gray-600">{{ $t('customerPicker.address') }} <span class="text-red-500">*</span></label>
+                    <InputText v-model="form.address" :maxlength="100" class="w-full" :class="{ 'p-invalid': formErrors.address }" :placeholder="$t('customerPicker.addressPlaceholder')" />
+                    <small v-if="formErrors.address" class="text-red-500 text-xs">{{ formErrors.address[0] }}</small>
                 </div>
 
                 <Button

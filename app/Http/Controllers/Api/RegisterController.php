@@ -39,6 +39,7 @@ class RegisterController extends Controller
             'phone_country' => 'required|string',
             'phone' => 'required|phone:phone_country',
             'email' => ['nullable', 'email', 'max:255', Rule::unique(User::class, 'email')],
+            'address' => 'required|string|max:100',
             'password' => 'required|string|min:6|confirmed',
         ], [
             'lastname.required_if' => __('The lastname field is required when user type is individual.'),
@@ -68,6 +69,7 @@ class RegisterController extends Controller
             'lastname' => $validated['lastname'] ?? null,
             'phone_country' => $validated['phone_country'],
             'email' => $validated['email'] ?? null,
+            'address' => $validated['address'],
             'password' => Hash::make($validated['password']), // hash before storing in DB
         ]);
 

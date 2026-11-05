@@ -59,7 +59,7 @@ class AdminCustomerController extends Controller
             'phone' => $phone->formatE164(),
             'email' => $validated['email'] ?? null,
             'tax_id' => $validated['tax_id'],
-            'address' => $validated['address'] ?? null,
+            'address' => $validated['address'],
             'user_type' => $validated['user_type'],
             'role' => 'user',
             'password' => Hash::make(Str::after($phone->formatE164(), '+995')),

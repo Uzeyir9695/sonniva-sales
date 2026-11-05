@@ -81,3 +81,34 @@ it('rejects a phone that already belongs to a user', function () {
         'tax_id' => '01001012345',
     ])->assertStatus(422)->assertJsonValidationErrors(['phone']);
 });
+
+it('saves the address of a customer registered by an admin', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $response = $this->actingAs($admin)->postJson(route('admin.customers.store'), [
+        'user_type' => 'individual',
+        'name' => 'Giorgi',
+        'lastname' => 'Kapanadze',
+        'phone' => '599123456',
+        'tax_id' => '01001012345',
+        'address' => 'Tbilisi, Rustaveli 1',
+    ])->assertCreated();
+
+    expect(User::find($response->json('customer.id'))->address)->toBe('Tbilisi, Rustaveli 1');
+});
+
+it('requires an address when an admin registers a customer', function (?string $address) {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $this->actingAs($admin)->postJson(route('admin.customers.store'), [
+        'user_type' => 'individual',
+        'name' => 'Giorgi',
+        'lastname' => 'Kapanadze',
+        'phone' => '599123456',
+        'tax_id' => '01001012345',
+        'address' => $address,
+    ])->assertStatus(422)->assertJsonValidationErrors(['address']);
+})->with([
+    'missing' => null,
+    'blank' => '   ',
+]);

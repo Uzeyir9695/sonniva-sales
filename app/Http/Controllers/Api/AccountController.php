@@ -50,7 +50,7 @@ class AccountController extends Controller
             'phone' => 'required|string|min:9|max:13|unique:users,phone,'.$user->id,
             'email' => 'nullable|email|unique:users,email,'.$user->id,
             'tax_id' => 'required|string|max:30',
-            'address' => 'nullable|string|max:100',
+            'address' => [$user->role === 'admin' ? 'nullable' : 'required', 'string', 'max:100'],
         ], [
             'tax_id.required' => __($user->user_type === 'individual' ? 'The ID number is required.' : 'The tax id is required.'),
             'lastname.required_if' => __('The lastname field is required for the individual users.'),

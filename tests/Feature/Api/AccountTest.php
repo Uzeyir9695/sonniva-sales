@@ -19,9 +19,33 @@ function validAccountPayload(User $user, array $overrides = []): array
         'phone' => $user->phone->formatE164(),
         'email' => $user->email,
         'tax_id' => (string) $user->tax_id,
-        'address' => $user->address,
+        'address' => 'Tbilisi, Rustaveli 1',
     ], $overrides);
 }
+
+it('requires an address when updating a profile through the API', function (?string $address) {
+    Queue::fake();
+
+    $user = User::factory()->create(['phone_country' => 'GE', 'tax_id' => '111', 'Address' => 'Old address']);
+    Sanctum::actingAs($user);
+
+    $this->putJson('/api/v1/account', validAccountPayload($user, ['address' => $address]))
+        ->assertJsonValidationErrors('address');
+
+    expect($user->fresh()->address)->toBe('Old address');
+})->with([
+    'missing' => null,
+    'blank' => '   ',
+]);
+
+it('lets an admin account save through the API without an address', function () {
+    Queue::fake();
+
+    $admin = User::factory()->create(['role' => 'admin', 'phone_country' => 'GE', 'tax_id' => '111', 'Address' => null]);
+    Sanctum::actingAs($admin);
+
+    $this->putJson('/api/v1/account', validAccountPayload($admin, ['address' => null]))->assertOk();
+});
 
 describe('show', function () {
     it('returns the authenticated user\'s profile fields', function () {

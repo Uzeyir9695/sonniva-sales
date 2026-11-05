@@ -25,7 +25,7 @@ class RegisterCustomerRequest extends FormRequest
             'phone' => ['required', 'string', 'phone:GE'],
             'tax_id' => ['required', 'string', 'max:50'],
             'email' => ['nullable', 'email', 'max:255', Rule::unique(User::class, 'email')],
-            'address' => ['nullable', 'string', 'max:255'],
+            'address' => ['required', 'string', 'max:100'],
         ];
     }
 }

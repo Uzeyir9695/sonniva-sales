@@ -15,7 +15,7 @@ function validPayload(User $user, array $overrides = []): array
         'phone' => $user->phone->formatE164(),
         'email' => $user->email,
         'tax_id' => $user->tax_id,
-        'address' => $user->address,
+        'address' => 'Tbilisi, Rustaveli 1',
     ], $overrides);
 }
 
@@ -129,6 +129,44 @@ it('saves permissions for an account without a user type', function () {
     expect($admin->fresh())
         ->can_view_vip->toBeTruthy()
         ->can_view_wholesales->toBeTruthy();
+});
+
+it('forbids non-admins from updating another user', function (string $role) {
+    Queue::fake();
+
+    $customer = User::factory()->create(['name' => 'Original', 'tax_id' => '111', 'phone_country' => 'GE']);
+    $phone = $customer->fresh()->getRawOriginal('phone');
+
+    $this->actingAs(User::factory()->create(['role' => $role]))
+        ->put(route('account.update', $customer), validPayload($customer, ['name' => 'Changed', 'phone' => '+995599000111']))
+        ->assertForbidden();
+
+    expect($customer->fresh()->name)->toBe('Original')
+        ->and($customer->fresh()->getRawOriginal('phone'))->toBe($phone);
+    Queue::assertNothingPushed();
+})->with(['user', 'manager', 'cashier']);
+
+it('requires an address when updating a profile', function (?string $address) {
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE', 'Address' => 'Old address']);
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user, ['address' => $address]))
+        ->assertSessionHasErrors('address');
+
+    expect($user->fresh()->address)->toBe('Old address');
+})->with([
+    'missing' => null,
+    'blank' => '   ',
+]);
+
+it('lets an admin account save without an address', function () {
+    Queue::fake();
+
+    $admin = User::factory()->create(['role' => 'admin', 'phone_country' => 'GE', 'tax_id' => '111', 'Address' => null]);
+
+    $this->actingAs($admin)
+        ->put(route('account.update', $admin), validPayload($admin, ['address' => null]))
+        ->assertSessionDoesntHaveErrors();
 });
 
 it('rejects an unknown user type', function () {

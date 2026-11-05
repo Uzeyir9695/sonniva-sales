@@ -57,6 +57,8 @@ class AccountController extends Controller
 
     public function update(Request $request, User $user)
     {
+        abort_unless($user->id === Auth::id() || Auth::user()->role === 'admin', 403);
+
         $validated = $request->validate([
             'user_type' => 'nullable|string|in:individual,legal_entity',
             'name' => 'required|string|max:30',
@@ -65,7 +67,7 @@ class AccountController extends Controller
             'phone' => 'required|string|min:9|max:13|unique:users,phone,'.$user->id,
             'email' => 'nullable|email|unique:users,email,'.$user->id,
             'tax_id' => 'required|string|max:30',
-            'address' => 'nullable|string|max:100',
+            'address' => [$user->role === 'admin' ? 'nullable' : 'required', 'string', 'max:100'],
         ],
             [
                 'tax_id.required' => __($user->user_type === 'individual' ? 'The ID number is required.' : 'The tax id is required.'),

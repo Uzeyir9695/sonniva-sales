@@ -57,6 +57,7 @@ class RegisterController extends Controller
             'phone_country' => 'required|string',
             'phone' => 'required|phone:phone_country|unique:users,phone',
             'email' => ['nullable', 'email', 'max:255', Rule::unique(User::class, 'email')],
+            'address' => 'required|string|max:100',
             'password' => 'required|string|min:6|confirmed',
             'captcha_token' => array_filter([
                 'required',
@@ -90,6 +91,7 @@ class RegisterController extends Controller
                 'phone_country' => $validated['phone_country'],
                 'phone' => $phone,
                 'email' => $validated['email'] ?? null,
+                'address' => $validated['address'],
                 'password' => $validated['password'], // hash later
             ],
             'phone' => $phone,

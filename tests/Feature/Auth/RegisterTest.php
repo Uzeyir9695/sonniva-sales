@@ -22,11 +22,21 @@ function validRegisterPayload(array $overrides = []): array
         'phone_country' => 'GE',
         'phone' => '555123456',
         'email' => 'test@example.com',
+        'address' => 'Tbilisi, Rustaveli 1',
         'password' => 'password',
         'password_confirmation' => 'password',
         'captcha_token' => 'test-token',
     ], $overrides);
 }
+
+it('requires an address and rejects a too long one', function (?string $address) {
+    $this->post(route('register'), validRegisterPayload(['address' => $address]))
+        ->assertSessionHasErrors('address');
+})->with([
+    'missing' => null,
+    'blank' => '   ',
+    'too long' => str_repeat('a', 101),
+]);
 
 it('shows the register form', function () {
     $this->get(route('register.show'))->assertOk();
@@ -84,6 +94,7 @@ it('creates the user, links the BC customer, and logs in on correct OTP', functi
     $user = User::where('email', 'test@example.com')->first();
     expect($user)->not->toBeNull();
     expect($user->bc_customer_no)->toBe('C100');
+    expect($user->address)->toBe('Tbilisi, Rustaveli 1');
 });
 
 it('rejects verification with the wrong OTP and does not log in', function () {

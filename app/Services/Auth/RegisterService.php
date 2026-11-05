@@ -215,6 +215,7 @@ class RegisterService
             'phone_country' => $data['phone_country'],
             'phone' => $phone->formatE164(),
             'email' => $data['email'] ?? null,
+            'address' => $data['address'] ?? null,
             'password' => $passwordAlreadyHashed ? $data['password'] : Hash::make($data['password']),
             'phone_verified_at' => now(),
         ]);
