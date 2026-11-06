@@ -43,7 +43,7 @@ class AdminItemController extends Controller
 
         $message = $no
             ? "Fetching item {$no} from Business Central. It should appear in the shop within a minute."
-            : 'Fetching new items from Business Central in the background. This checks the full catalog and can take a few minutes.';
+            : 'Fetching new items from Business Central in the background. This can take a few minutes depending on how many are new.';
 
         return redirect()->back()->with('message', $message);
     }

@@ -198,7 +198,7 @@ function fetchMissingImages() {
                     </div>
                     <h2 class="text-base font-bold text-gray-900 mb-1">Fetch New Items</h2>
                     <p class="text-sm text-gray-500 mb-4">
-                        Fetches new items added in Business Central and adds them to the shop, with their category, images, prices and attributes. Existing items are left untouched. Leave the item number empty to check the full catalog, or enter one to fetch just that item.
+                        Fetches new items added in Business Central and adds them to the shop, with their category, images, prices and attributes. Existing items are left untouched. Leave the item number empty to fetch everything that's new, or enter one to fetch or refresh just that item.
                     </p>
                     <PrimeInputText
                         v-model="itemNoToSync"
@@ -215,7 +215,7 @@ function fetchMissingImages() {
                         class="mt-auto self-start"
                     />
                     <p class="text-sm text-gray-400 mt-3 flex items-center gap-1">
-                        <i class="pi pi-clock"></i>Seconds for a single item, about 4 minutes for the full catalog.
+                        <i class="pi pi-clock"></i>Seconds for a single item, a few seconds per item when fetching everything new.
                     </p>
                 </div>
 

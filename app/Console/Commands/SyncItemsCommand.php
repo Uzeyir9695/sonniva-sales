@@ -13,9 +13,15 @@ use Illuminate\Support\Facades\Http;
 
 class SyncItemsCommand extends Command
 {
-    protected $signature = 'items:sync {no? : Only fetch this specific Business Central item number}';
+    private const array LEAF_LEVELS = [2, 3];
 
-    protected $description = 'Import new items from Business Central, and refresh category, images, prices and attributes for existing ones';
+    private const string ITEMS_URL = 'Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items';
+
+    protected $signature = 'items:sync
+        {no? : Only fetch this specific Business Central item number}
+        {--all : Refresh every item in the leaf categories instead of importing only the new ones}';
+
+    protected $description = 'Import items missing from the shop, or refresh a single item or the whole catalog from Business Central';
 
     protected BusinessCentralService $bc;
 
@@ -33,7 +39,7 @@ class SyncItemsCommand extends Command
         if ($no) {
             $this->info("Fetching item {$no} from Business Central...");
 
-            $item = $this->fetchItem($token, $no);
+            $item = $this->fetchItems($token, $tokenFetchedAt, [$no])->first();
 
             if (! $item) {
                 $this->error("Item {$no} was not found in Business Central.");
@@ -48,8 +54,19 @@ class SyncItemsCommand extends Command
             return self::SUCCESS;
         }
 
-        // Get only leaf categories (level 2)
-        $categories = Category::select('code')->whereIn('level', [2, 3])->get();
+        $failed = $this->option('all')
+            ? $this->refreshAllItems($token, $tokenFetchedAt)
+            : $this->importNewItems($token, $tokenFetchedAt);
+
+        $elapsed = $startedAt->diffInSeconds(now());
+        $this->info("Items synced successfully. Time taken: {$elapsed}s (".gmdate('H:i:s', $elapsed).')');
+
+        return $failed > 0 ? self::FAILURE : self::SUCCESS;
+    }
+
+    private function refreshAllItems(string &$token, Carbon &$tokenFetchedAt): int
+    {
+        $categories = Category::select('code')->whereIn('level', self::LEAF_LEVELS)->get();
 
         $this->info("Found {$categories->count()} leaf categories.");
 
@@ -65,10 +82,49 @@ class SyncItemsCommand extends Command
             }
         }
 
-        $elapsed = $startedAt->diffInSeconds(now());
-        $this->info("Items synced successfully. Time taken: {$elapsed}s (".gmdate('H:i:s', $elapsed).')');
+        return 0;
+    }
 
-        return self::SUCCESS;
+    private function importNewItems(string &$token, Carbon &$tokenFetchedAt): int
+    {
+        $newItemNos = $this->findNewItemNos($token, $tokenFetchedAt);
+
+        $this->info('Found '.count($newItemNos).' new items.');
+
+        $failed = 0;
+
+        foreach (array_chunk($newItemNos, 30) as $chunk) {
+            foreach ($this->fetchItems($token, $tokenFetchedAt, $chunk) as $item) {
+                try {
+                    $this->processItem($item, $token, $tokenFetchedAt);
+                } catch (\Exception $e) {
+                    report($e);
+                    $this->error("  → Failed to import {$item['no']}: {$e->getMessage()}");
+                    $failed++;
+                }
+            }
+        }
+
+        return $failed;
+    }
+
+    /**
+     * Soft-deleted items count as new, so they get restored when they're back in BC.
+     *
+     * @return array<int, string>
+     */
+    private function findNewItemNos(string &$token, Carbon &$tokenFetchedAt): array
+    {
+        $leafCodes = Category::whereIn('level', self::LEAF_LEVELS)->pluck('code')->flip();
+        $existingNos = Item::pluck('no')->flip();
+
+        $url = config('bc.api_base_url').self::ITEMS_URL.'?$select=no,itemCategoryCode';
+
+        return $this->fetchAllPages($token, $tokenFetchedAt, $url)
+            ->filter(fn (array $item) => ! $existingNos->has($item['no'])
+                && $leafCodes->has(trim($item['itemCategoryCode'] ?? '')))
+            ->pluck('no')
+            ->all();
     }
 
     /**
@@ -103,7 +159,6 @@ class SyncItemsCommand extends Command
 
         $detailed = $response->json();
 
-        // Collect and store images
         $images = [];
         foreach (['image1', 'image2', 'image3', 'image4', 'image5'] as $imageKey) {
             $base64 = $detailed[$imageKey] ?? '';
@@ -113,9 +168,6 @@ class SyncItemsCommand extends Command
             }
         }
 
-        // Keep the existing slug when the name hasn't changed, so re-syncing an
-        // already-imported item doesn't rewrite its URL (makeUniqueSlug would
-        // otherwise see the item's own current slug as "taken").
         $slug = ($existing && $existing->name === ($item['description'] ?? null))
             ? $existing->slug
             : $this->makeUniqueSlug($item['description'], $item['no'], $existing?->id);
@@ -138,9 +190,7 @@ class SyncItemsCommand extends Command
             ]
         );
 
-        // Replace attributes wholesale rather than appending, so re-syncing an
-        // existing item doesn't pile up duplicate rows (there's no unique
-        // constraint on item_id + bc_attribute_id to upsert against).
+        // No unique constraint on item_id + bc_attribute_id to upsert against.
         Attribute::where('item_id', $created->id)->delete();
 
         $attrs = $item['itemAttributeValues'] ?? [];
@@ -181,28 +231,30 @@ class SyncItemsCommand extends Command
         return $columns;
     }
 
-    private function fetchItem(string $token, string $no): ?array
+    /**
+     * @param  array<int, string>  $nos
+     */
+    private function fetchItems(string &$token, Carbon &$tokenFetchedAt, array $nos): Collection
     {
-        $base = config('bc.api_base_url');
-        $url = $base."Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items?\$select=no,itemCategoryCode,description,itemReview,inventory,baseUOMDesc,unitPrice,minQtyUnitPrice&\$expand=itemAttributeValues(\$select=itemAttributeId,attributeName,attributeValue),itemDescriptions(\$select=languageCode,translation),itemReviews(\$select=languageCode,translation)&\$filter=no eq '{$no}'";
+        $url = config('bc.api_base_url').self::ITEMS_URL.'?'.http_build_query([
+            '$select' => 'no,itemCategoryCode,description,itemReview,inventory,baseUOMDesc,unitPrice,minQtyUnitPrice',
+            '$expand' => 'itemAttributeValues($select=itemAttributeId,attributeName,attributeValue),itemDescriptions($select=languageCode,translation),itemReviews($select=languageCode,translation)',
+            '$filter' => collect($nos)->map(fn (string $no) => "no eq '{$no}'")->implode(' or '),
+        ], encoding_type: PHP_QUERY_RFC3986);
 
-        $response = Http::withToken($token)
-            ->timeout(180)
-            ->retry(3, 2000)
-            ->get($url);
-
-        if ($response->failed()) {
-            throw new \RuntimeException("BC API error for item {$no}: ".$response->body());
-        }
-
-        return $response->json()['value'][0] ?? null;
+        return $this->fetchAllPages($token, $tokenFetchedAt, $url);
     }
 
     private function fetchItemsForCategory(string &$token, Carbon &$tokenFetchedAt, string $categoryCode): Collection
     {
+        $url = config('bc.api_base_url').self::ITEMS_URL."?\$select=no,itemCategoryCode,description,itemReview,inventory,baseUOMDesc,unitPrice,minQtyUnitPrice&\$expand=itemAttributeValues(\$select=itemAttributeId,attributeName,attributeValue)&\$filter=itemCategoryCode eq '{$categoryCode}'";
+
+        return $this->fetchAllPages($token, $tokenFetchedAt, $url);
+    }
+
+    private function fetchAllPages(string &$token, Carbon &$tokenFetchedAt, string $url): Collection
+    {
         $all = collect();
-        $base = config('bc.api_base_url');
-        $url = $base."Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items?\$select=no,itemCategoryCode,description,itemReview,inventory,baseUOMDesc,unitPrice,minQtyUnitPrice&\$expand=itemAttributeValues(\$select=itemAttributeId,attributeName,attributeValue)&\$filter=itemCategoryCode eq '{$categoryCode}'";
 
         do {
             if (now()->diffInMinutes($tokenFetchedAt) >= 55) {
@@ -216,7 +268,7 @@ class SyncItemsCommand extends Command
                 ->get($url);
 
             if ($response->failed()) {
-                throw new \RuntimeException("BC API error for {$categoryCode}: ".$response->body());
+                throw new \RuntimeException('BC API error: '.$response->body());
             }
 
             $data = $response->json();
