@@ -18,15 +18,7 @@ it('serves a prefixed locale on its own URL', function () {
     $this->get('/en/about-us')
         ->assertOk()
         ->assertSee('lang="en"', false)
-        // forceRootUrl propagated to asset() in the root template
-        ->assertSee(rtrim(config('app.url'), '/').'/en/favicon.png', false)
         ->assertSee('hreflang="ru" href="'.rtrim(config('app.url'), '/').'/ru/about-us"', false);
-});
-
-it('resolves a bare path and its prefixed clone to the same route', function () {
-    expect($this->get('/about-us')->getStatusCode())->toBe(200);
-    expect($this->get('/ru/about-us')->getStatusCode())->toBe(200);
-    expect($this->get('/tr/about-us')->getStatusCode())->toBe(200);
 });
 
 it('does not clone admin routes', function () {

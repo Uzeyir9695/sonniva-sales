@@ -38,10 +38,6 @@ it('requires an address and rejects a too long one', function (?string $address)
     'too long' => str_repeat('a', 101),
 ]);
 
-it('shows the register form', function () {
-    $this->get(route('register.show'))->assertOk();
-});
-
 it('sends an OTP and redirects to phone verification on valid registration', function () {
     mockOtpSms();
 

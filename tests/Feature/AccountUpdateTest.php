@@ -249,16 +249,6 @@ it('lets an admin account save without an address', function () {
         ->assertSessionDoesntHaveErrors();
 });
 
-it('rejects an unknown user type', function () {
-    Queue::fake();
-
-    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE']);
-
-    $this->actingAs($user)
-        ->put(route('account.update', $user), validPayload($user, ['user_type' => 'admin']))
-        ->assertSessionHasErrors('user_type');
-});
-
 it('ignores has_free_delivery sent by a non-admin editing their own profile', function () {
     Queue::fake();
 

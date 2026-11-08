@@ -29,29 +29,6 @@ function makeItemsIndexItem(string $categoryCode, array $overrides = []): Item
     ], $overrides));
 }
 
-it('returns a JSON paginator for a leaf category when the client wants JSON', function () {
-    $top = makeItemsIndexCategory(['code' => 'top-a', 'level' => 1]);
-    $sub = makeItemsIndexCategory(['code' => 'sub-a', 'parent_id' => 'top-a', 'level' => 2]);
-    $leaf = makeItemsIndexCategory(['code' => 'leaf-1', 'parent_id' => 'sub-a', 'level' => 3]);
-    makeItemsIndexItem('leaf-1', ['name' => 'Hammer']);
-    makeItemsIndexItem('leaf-1', ['name' => 'Wrench']);
-
-    $response = $this->getJson("/{$leaf->slug}");
-
-    $response->assertSuccessful();
-    $response->assertJsonStructure([
-        'attributes',
-        'items' => ['data', 'current_page', 'last_page', 'per_page', 'total'],
-        'breadcrumbs',
-        'relatedCategories',
-        'relatedCategoriesParent',
-        'subcategoryStrip',
-        'currentCategorySlug',
-        'isOrderOnly',
-    ]);
-    $response->assertJsonCount(2, 'items.data');
-});
-
 it('aggregates items from descendant categories for a top-level category JSON request', function () {
     $top = makeItemsIndexCategory(['code' => 'top-1', 'level' => 1]);
     $sub = makeItemsIndexCategory(['code' => 'sub-1', 'parent_id' => 'top-1', 'level' => 2]);

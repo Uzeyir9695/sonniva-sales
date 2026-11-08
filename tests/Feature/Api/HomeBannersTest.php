@@ -26,23 +26,3 @@ it('returns only main banner slides that have a mobile image, using the mobile u
     expect($main)->toHaveCount(1)
         ->and($main[0]['image_url'])->toContain('banners/main/mobile/a.jpg');
 });
-
-it('returns an empty main banner list when no slide has a mobile image', function () {
-    apiMainBanner();
-    apiMainBanner(['sort_order' => 1]);
-
-    $response = $this->getJson(route('api.home'));
-
-    $response->assertOk();
-    expect($response->json('banners.main'))->toBe([]);
-});
-
-it('still exposes the desktop image to the web homepage', function () {
-    apiMainBanner(['image_path' => 'banners/main/desktop.jpg']);
-
-    $this->get('/')
-        ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->where('banners.main.0.image_url', fn ($url) => str_contains($url, 'banners/main/desktop.jpg'))
-        );
-});

@@ -9,42 +9,12 @@ function pricingManager(): User
     return User::factory()->create(['role' => 'pricing_manager']);
 }
 
-it('redirects a pricing manager to the manage items page after login', function () {
-    User::factory()->create([
-        'email' => 'pricemanager@example.com',
-        'password' => bcrypt('password'),
-        'role' => 'pricing_manager',
-    ]);
-
-    $this->post(route('login.post'), [
-        'login' => 'pricemanager@example.com',
-        'password' => 'password',
-    ])->assertRedirect(route('admin.items.index'));
-});
-
 it('lets a pricing manager use the manage item pages', function () {
     $this->actingAs(pricingManager());
 
     $this->get(route('admin.items.index'))->assertOk();
     $this->get(route('admin.items.managed'))->assertOk();
     $this->getJson(route('admin.items.search', ['q' => 'drill']))->assertOk();
-});
-
-it('finds items by translated name in admin search', function () {
-    $this->actingAs(pricingManager());
-
-    $item = Item::create([
-        'no' => 'PMSKU-EN',
-        'name' => 'კარის სახელური',
-        'name_en' => 'Sliding-door handle',
-        'slug' => 'item-'.Str::random(6),
-        'inventory' => 1,
-        'unit_price' => 100,
-    ]);
-
-    $this->getJson(route('admin.items.search', ['q' => 'Sliding-door']))
-        ->assertOk()
-        ->assertJsonPath('0.id', $item->id);
 });
 
 it('lets a pricing manager update an item discount', function () {

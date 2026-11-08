@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\SyncItemFromBcJob;
 use Illuminate\Support\Facades\Schedule;
 
 // Schedule::command('sitemap:generate')->daily();
@@ -20,3 +21,7 @@ Schedule::command('services:sync')
     ->between('09:00', '18:00')
     ->timezone('Asia/Tbilisi')
     ->withoutOverlapping();
+
+Schedule::job(new SyncItemFromBcJob)
+    ->dailyAt('03:00')
+    ->timezone('Asia/Tbilisi');

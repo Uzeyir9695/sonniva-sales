@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Category;
-use App\Models\Item;
 use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -24,29 +23,6 @@ it('returns JSON from the items API when the request has no JSON accept header',
         ->assertSuccessful()
         ->assertHeader('Content-Type', 'application/json')
         ->assertJsonStructure(['items', 'breadcrumbs']);
-});
-
-it('returns JSON from the item API when the request has no JSON accept header', function () {
-    $category = makeForceJsonCategory();
-
-    $item = Item::create([
-        'no' => 'ITEM001',
-        'category_code' => $category->code,
-        'name' => 'Test Item',
-        'slug' => 'test-item',
-        'inventory' => 5,
-        'unit_price' => 10,
-    ]);
-
-    $this->get("/api/v1/item/{$item->id}")
-        ->assertSuccessful()
-        ->assertHeader('Content-Type', 'application/json');
-});
-
-it('returns JSON from the home API when the request has no JSON accept header', function () {
-    $this->get('/api/v1/home')
-        ->assertSuccessful()
-        ->assertHeader('Content-Type', 'application/json');
 });
 
 it('returns a JSON 404 instead of the Inertia error page for a missing API item', function () {

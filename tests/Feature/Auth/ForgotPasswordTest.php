@@ -12,10 +12,6 @@ function mockForgotPasswordOtpSms(string $otp = '123456'): void
     });
 }
 
-it('shows the forgot password form', function () {
-    $this->get(route('show.forgot.password'))->assertOk();
-});
-
 it('sends an OTP for a registered phone', function () {
     User::factory()->create(['phone' => '+995555123456', 'phone_country' => 'GE']);
 

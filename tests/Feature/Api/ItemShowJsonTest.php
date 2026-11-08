@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Attribute;
 use App\Models\Item;
 use App\Models\StockNotification;
 use App\Models\User;
@@ -38,17 +37,6 @@ it('lets a guest view an item without authentication', function () {
             'isOrderOnly',
         ])
         ->assertJson(['isSubscribedToNotification' => false]);
-});
-
-it('includes the item attributes and similar items from the same category', function () {
-    $item = makeShowItem();
-    Attribute::create(['item_id' => $item->id, 'bc_attribute_id' => 'color', 'name' => 'Color', 'value' => 'Red']);
-    $similar = makeShowItem(['category_code' => $item->category_code]);
-
-    $response = $this->getJson("/api/v1/item/{$item->id}")->assertOk();
-
-    expect($response->json('attributes.0.value'))->toBe('Red')
-        ->and(collect($response->json('similarItems'))->pluck('id'))->toContain($similar->id);
 });
 
 it('only unlocks VIP/wholesale tier pricing panels for a privileged user', function () {

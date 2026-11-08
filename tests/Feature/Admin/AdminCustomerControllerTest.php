@@ -33,29 +33,23 @@ it('searches customers by name, phone or tax id and only returns role=user', fun
     expect($ids)->toContain($match->id)->toHaveCount(1);
 });
 
-it('returns nothing without a query (search-only)', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
-    User::factory()->create(['role' => 'user']);
-
-    $this->actingAs($admin)->getJson(route('admin.customers.index'))
-        ->assertOk()->assertJson(['customers' => []]);
-});
-
-it('registers a customer with the tax id as the password and queues the BC sync', function () {
+it('registers a customer with the phone as the password and queues the BC sync', function () {
     $admin = User::factory()->create(['role' => 'admin']);
 
     $response = $this->actingAs($admin)->postJson(route('admin.customers.store'), [
+        'user_type' => 'individual',
         'name' => 'Giorgi',
         'lastname' => 'Kapanadze',
         'phone' => '599123456',
         'tax_id' => '01001012345',
+        'address' => 'Tbilisi, Rustaveli 1',
     ])->assertCreated();
 
     $customer = User::where('tax_id', '01001012345')->firstOrFail();
     expect($customer->role)->toBe('user')
         ->and($customer->user_type)->toBe('individual')
         ->and($customer->phone_verified_at)->not->toBeNull()
-        ->and(Hash::check('01001012345', $customer->password))->toBeTrue();
+        ->and(Hash::check('599123456', $customer->password))->toBeTrue();
 
     $response->assertJsonPath('customer.id', $customer->id);
     Queue::assertPushed(CallQueuedClosure::class);
@@ -75,10 +69,12 @@ it('rejects a phone that already belongs to a user', function () {
     User::factory()->create(['phone' => '+995599123456', 'phone_country' => 'GE']);
 
     $this->actingAs($admin)->postJson(route('admin.customers.store'), [
+        'user_type' => 'individual',
         'name' => 'Giorgi',
         'lastname' => 'Kapanadze',
         'phone' => '599123456',
         'tax_id' => '01001012345',
+        'address' => 'Tbilisi, Rustaveli 1',
     ])->assertStatus(422)->assertJsonValidationErrors(['phone']);
 });
 

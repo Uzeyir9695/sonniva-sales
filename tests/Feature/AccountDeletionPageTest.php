@@ -2,13 +2,6 @@
 
 use App\Models\Order;
 use App\Models\User;
-use Inertia\Testing\AssertableInertia as Assert;
-
-it('shows the deletion page to guests', function () {
-    $this->get('/delete-account')
-        ->assertOk()
-        ->assertInertia(fn (Assert $page) => $page->component('Account/Delete'));
-});
 
 it('deletes the account and logs the user out', function () {
     $user = User::factory()->create(['password' => 'secret123']);

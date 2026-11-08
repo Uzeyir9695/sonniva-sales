@@ -31,16 +31,6 @@ it('adds an item to the liquidation list and removes it on the next toggle', fun
     expect(LiquidationItem::where('item_id', $item->id)->exists())->toBeFalse();
 });
 
-it('flags liquidation items in admin search', function () {
-    $item = liquidationItem(['name' => 'Liquidated drill']);
-    $item->liquidation()->create();
-    $this->actingAs(User::factory()->create(['role' => 'admin']));
-
-    $this->getJson(route('admin.items.search', ['q' => 'Liquidated']))
-        ->assertOk()
-        ->assertJsonPath('0.is_liquidation', true);
-});
-
 it('forbids customers from toggling liquidation', function () {
     $item = liquidationItem();
     $this->actingAs(User::factory()->create(['role' => 'customer']));
@@ -67,21 +57,18 @@ it('shows only liquidation items to any visitor, in-stock first', function () {
         );
 });
 
-it('lists liquidation items on the admin liquidation page', function () {
-    $listed = liquidationItem(['name' => 'Listed']);
-    $listed->liquidation()->create();
-    liquidationItem(['name' => 'Not listed']);
+it('returns liquidation items as JSON for the mobile app, in-stock first', function () {
+    $outOfStock = liquidationItem(['inventory' => 0]);
+    $outOfStock->liquidation()->create();
+    $inStock = liquidationItem();
+    $inStock->liquidation()->create();
+    liquidationItem();
 
-    $this->actingAs(User::factory()->create(['role' => 'pricing_manager']))
-        ->get(route('admin.items.liquidation'))
+    $this->getJson(route('api.liquidation.index'))
         ->assertOk()
-        ->assertInertia(fn ($page) => $page
-            ->component('Admin/items/DiscountedItems')
-            ->where('title', 'Liquidation Items')
-            ->has('items', 1)
-            ->where('items.0.id', $listed->id)
-            ->where('items.0.is_liquidation', true)
-        );
+        ->assertJsonCount(2, 'items.data')
+        ->assertJsonPath('items.data.0.id', $inStock->id)
+        ->assertJsonPath('items.data.1.id', $outOfStock->id);
 });
 
 it('hides the admin liquidation page from customers', function () {

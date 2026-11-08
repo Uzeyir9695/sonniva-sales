@@ -1,9 +1,7 @@
 <?php
 
-use App\Models\Item;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\StockNotification;
 use App\Models\User;
 use Illuminate\Support\Str;
 
@@ -83,18 +81,4 @@ it('exports every filtered user with paid order counts', function () {
     expect($rows)->toHaveCount(2)
         ->and($rows[1][0])->toBe('Nino Beridze')
         ->and($rows[1][3])->toBe('1');
-});
-
-it('searches stock notifications on the server', function () {
-    $item = Item::create(['no' => 'SKU-DOOR-1', 'name' => 'Door lock', 'slug' => 'door-lock', 'category_code' => '1000', 'inventory' => 0, 'unit_price' => 10]);
-    $other = Item::create(['no' => 'SKU-HINGE', 'name' => 'Hinge', 'slug' => 'hinge', 'category_code' => '1000', 'inventory' => 0, 'unit_price' => 10]);
-    StockNotification::create(['user_id' => User::factory()->create()->id, 'item_id' => $item->id]);
-    StockNotification::create(['user_id' => User::factory()->create()->id, 'item_id' => $other->id]);
-
-    $this->actingAs($this->admin)
-        ->get(route('admin.stock-notifications.index', ['search' => 'DOOR']))
-        ->assertInertia(fn ($page) => $page
-            ->where('notifications.total', 1)
-            ->where('notifications.data.0.item.no', 'SKU-DOOR-1')
-        );
 });

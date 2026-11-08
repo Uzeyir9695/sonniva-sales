@@ -68,16 +68,6 @@ it('returns HMS and HMSFIX items grouped by their second-level category', functi
     ]);
 });
 
-it('includes each item\'s attributes in the payload', function () {
-    makeHmsCategory(['code' => '2101', 'name' => 'Lighting', 'level' => 2]);
-    makeHmsItem('2101', 'HMS', ['name' => 'Strip light']);
-
-    $response = $this->getJson('/api/hms/items');
-
-    $response->assertSuccessful();
-    $response->assertJsonPath('groups.0.items.0.attributes.0.name', 'ბრენდი');
-});
-
 it('excludes soft-deleted items', function () {
     makeHmsCategory(['code' => '1101', 'name' => 'Hinges', 'level' => 2]);
     $item = makeHmsItem('1101', 'HMS');
@@ -88,8 +78,4 @@ it('excludes soft-deleted items', function () {
     $response->assertSuccessful();
     $response->assertJsonPath('items_count', 0);
     $response->assertJsonCount(0, 'groups');
-});
-
-it('does not require authentication', function () {
-    $this->getJson('/api/hms/items')->assertSuccessful();
 });

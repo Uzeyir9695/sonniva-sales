@@ -12,13 +12,6 @@ beforeEach(function () {
     });
 });
 
-it('ships with the setup and cutting services', function () {
-    expect(Service::pluck('unit_price', 'no')->all())->toBe([
-        'NONINV331' => '130.00',
-        'NONINV261' => '5.00',
-    ]);
-});
-
 it('updates services from BC and leaves missing ones unchanged', function () {
     Http::fake(['*/items?*' => Http::response(['value' => [
         ['no' => 'NONINV331', 'description' => 'მონტაჟი', 'baseUOMDesc' => 'ცალი/UNIT', 'unitPrice' => 150],

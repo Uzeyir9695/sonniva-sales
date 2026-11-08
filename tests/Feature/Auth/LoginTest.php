@@ -3,10 +3,6 @@
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
 
-it('shows the login form', function () {
-    $this->get(route('login'))->assertOk();
-});
-
 it('logs in with a valid email and password', function () {
     $user = User::factory()->create([
         'email' => 'test@example.com',

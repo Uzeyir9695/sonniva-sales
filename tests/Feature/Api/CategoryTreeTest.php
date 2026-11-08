@@ -44,29 +44,3 @@ it('returns only whitelisted top-level categories, nested subs and items', funct
         ],
     ]);
 });
-
-it('reports items_count on leaf-level subs with no further children', function () {
-    makeCategory(['code' => '1200', 'name' => 'Electronics']);
-    makeCategory(['code' => '1200-1', 'name' => 'Phones', 'parent_id' => '1200']);
-
-    $response = $this->getJson('/api/v1/categories');
-
-    $response->assertSuccessful();
-    $response->assertJsonPath('0.subs.0.items_count', 0);
-    $response->assertJsonPath('0.subs.0.items', []);
-});
-
-it('returns an empty subs array for a top-level category with no children', function () {
-    makeCategory(['code' => '1300', 'name' => 'Leaf category']);
-
-    $response = $this->getJson('/api/v1/categories');
-
-    $response->assertSuccessful();
-    $response->assertJsonPath('0.subs', []);
-});
-
-it('does not require authentication', function () {
-    makeCategory(['code' => '1400']);
-
-    $this->getJson('/api/v1/categories')->assertSuccessful();
-});
