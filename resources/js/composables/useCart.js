@@ -206,6 +206,34 @@ export function useCart() {
         }
     }
 
+    async function removeSelectedFromCart(cartRows) {
+        const previousRows = cartRows.map(row => {
+            const key = cartKey(row.item_id, row.selected_uom)
+            return { key, quantity: state.items[key], uom: state.uoms[key], service: state.services[key] }
+        })
+
+        previousRows.forEach(({ key }) => {
+            delete state.items[key]
+            delete state.uoms[key]
+            delete state.services[key]
+        })
+
+        try {
+            await axios.delete(apiRoute('api.cart.remove-selected'), {
+                data: { cart_ids: cartRows.map(row => row.id) },
+            })
+            return true
+        } catch (error) {
+            previousRows.forEach(({ key, quantity, uom, service }) => {
+                if (quantity) state.items[key] = quantity
+                if (uom) state.uoms[key] = uom
+                if (service) state.services[key] = service
+            })
+            console.error('[Cart] remove selected failed', error)
+            return false
+        }
+    }
+
     // ─── Setup service toggle ─────────────────────────────────────────────────
 
     async function toggleService(itemId, selectedUOM = null) {
@@ -343,5 +371,5 @@ export function useCart() {
         { deep: true }
     )
 
-    return { addToCart, buyNow, updateQuantity, removeFromCart, toggleService, isInCart, getQuantity, getSelectedUOM, hasService, isLoading, uniqueCount, count, syncFromServer }
+    return { addToCart, buyNow, updateQuantity, removeFromCart, removeSelectedFromCart, toggleService, isInCart, getQuantity, getSelectedUOM, hasService, isLoading, uniqueCount, count, syncFromServer }
 }

@@ -5,6 +5,9 @@ import { Link, router, usePage } from '@inertiajs/vue3'
 import { useCart } from '@/composables/useCart'
 import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue'
 import InputNumber from 'primevue/inputnumber'
+import ConfirmDialog from 'primevue/confirmdialog'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
 import { STORAGE_KEYS } from '@/constants/storageKeys'
 import { calculateTierPrice, getOriginalPrice, getRetailPrice, activeDiscountType } from '@/composables/usePricing.js'
 import { formatDiscount } from '@/utils/numberFormat.js'
@@ -16,8 +19,10 @@ const props = defineProps({
     subscribedItemIds: { type: Array, default: () => [] },
 })
 
-const { removeFromCart, updateQuantity, isLoading, getQuantity, count, syncFromServer, toggleService, hasService } = useCart()
+const { removeFromCart, removeSelectedFromCart, updateQuantity, isLoading, getQuantity, count, syncFromServer, toggleService, hasService } = useCart()
 const page = usePage()
+const confirm = useConfirm()
+const toast = useToast()
 const isVip = computed(() => page.props.user?.can_view_vip ?? false)
 const canViewWholesales = computed(() => page.props.user?.can_view_wholesales ?? false)
 
@@ -37,7 +42,6 @@ const overLimit = (cartItem) => getQuantity(cartItem.item_id, cartItem.selected_
 
 const anyOverLimit = computed(() => selectedItems.value.some(c => overLimit(c)))
 
-// Filter out items removed client-side
 const items = computed(() =>
     props.cartItems.filter(c => !removedIds.value.includes(rowKey(c)))
 )
@@ -49,6 +53,37 @@ async function handleRemove(cartItem) {
     removedIds.value.push(key)
     selectedIds.value = selectedIds.value.filter(id => id !== key)
     await removeFromCart(cartItem.item_id, cartItem.selected_uom)
+}
+
+const isRemovingSelected = ref(false)
+
+function confirmRemoveSelected() {
+    confirm.require({
+        header: t('cart.removeSelected'),
+        message: t('cart.removeSelectedConfirm', { count: selectedItems.value.length }),
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: { label: t('common.cancel'), severity: 'secondary', outlined: true },
+        acceptProps: { label: t('common.delete'), severity: 'danger' },
+        accept: removeSelected,
+    })
+}
+
+async function removeSelected() {
+    const rows = selectedItems.value
+    const keys = rows.map(c => rowKey(c))
+
+    isRemovingSelected.value = true
+    removedIds.value.push(...keys)
+    selectedIds.value = []
+
+    const removed = await removeSelectedFromCart(rows)
+    isRemovingSelected.value = false
+
+    if (!removed) {
+        removedIds.value = removedIds.value.filter(id => !keys.includes(id))
+        selectedIds.value = keys
+        toast.add({ severity: 'error', detail: t('cart.removeSelectedFailed'), life: 6000 })
+    }
 }
 
 const formatted = (val) => Number(val).toFixed(2)
@@ -192,6 +227,7 @@ function goToCheckout() {
 
 <template>
     <div class="min-h-screen bg-gray-50 sm:my-4 sm:rounded-2xl">
+        <ConfirmDialog />
         <div class="px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
 
             <!-- Header -->
@@ -229,8 +265,7 @@ function goToCheckout() {
                 <!-- ── Item list ── -->
                 <div class="lg:col-span-2 flex flex-col gap-3">
 
-                    <!-- Select all row -->
-                    <div class="flex items-center gap-3 px-1 pb-1">
+                    <div class="flex flex-wrap items-center gap-3 px-1 pb-1">
                         <Checkbox
                             :modelValue="allSelected"
                             :indeterminate="someSelected"
@@ -242,9 +277,21 @@ function goToCheckout() {
                         <label for="select-all" class="text-sm text-gray-500 cursor-pointer select-none">
                             {{ $t('cart.selectAll') }} ({{ items.length }})
                         </label>
-                        <span v-if="selectedIds.length > 0" class="text-xs text-gray-400 ml-auto">
-                            {{ $t('cart.selectedCount', { count: selectedIds.length }) }}
-                        </span>
+                        <div v-if="selectedIds.length > 0" class="flex items-center gap-3 ml-auto">
+                            <span class="text-xs text-gray-400">
+                                {{ $t('cart.selectedCount', { count: selectedIds.length }) }}
+                            </span>
+                            <button
+                                type="button"
+                                @click="confirmRemoveSelected"
+                                :disabled="isRemovingSelected"
+                                class="flex items-center gap-1 text-xs font-medium text-red-500 hover:text-red-600
+                                       cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <i class="pi pi-trash text-xs"></i>
+                                {{ $t('cart.removeSelected') }}
+                            </button>
+                        </div>
                     </div>
 
                     <TransitionGroup name="cart-item">

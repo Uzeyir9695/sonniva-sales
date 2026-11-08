@@ -96,6 +96,7 @@ Route::prefix('v1')->middleware(SetApiLocale::class)->group(function () {
         // ── Cart ─────────────────────────────────────────────────────────
         Route::get('cart', [CartController::class, 'index'])->name('api.cart.index');
         Route::post('cart/sync', [CartController::class, 'syncGuest'])->name('api.cart.sync');
+        Route::delete('cart', [CartController::class, 'removeSelected'])->name('api.cart.remove-selected');
         Route::post('cart/{item}', [CartController::class, 'add'])->name('api.cart.add');
         Route::put('cart/{item}', [CartController::class, 'update'])->name('api.cart.update');
         Route::delete('cart/{item}', [CartController::class, 'remove'])->name('api.cart.remove');

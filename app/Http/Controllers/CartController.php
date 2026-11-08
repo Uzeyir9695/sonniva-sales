@@ -168,7 +168,20 @@ class CartController extends Controller
         ]);
     }
 
-    // Merge guest cart after login
+    public function removeSelected(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'cart_ids' => ['required', 'array', 'min:1'],
+            'cart_ids.*' => ['required', 'uuid'],
+        ]);
+
+        $removed = $request->user()->carts()
+            ->whereIn('id', $validated['cart_ids'])
+            ->delete();
+
+        return response()->json(['removed' => $removed]);
+    }
+
     public function syncGuest(Request $request): JsonResponse
     {
         $eligibleItemIds = Item::whereIn('id', collect($request->items)->pluck('id'))
