@@ -11,6 +11,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\LiquidationController;
 use App\Http\Controllers\Payment\PaymentController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\StockNotificationController;
@@ -68,6 +69,8 @@ Route::prefix('v1')->middleware(SetApiLocale::class)->group(function () {
     Route::get('/item/{item}', [ItemController::class, 'show'])->name('api.items.show');
 
     Route::get('/sales', [SalesController::class, 'index'])->name('api.sales.index');
+
+    Route::get('/liquidation', [LiquidationController::class, 'index'])->name('api.liquidation.index');
 
     Route::middleware('auth:sanctum')->group(function () {
         // ── Account ──────────────────────────────────────────────────────
