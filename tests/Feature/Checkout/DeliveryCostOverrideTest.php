@@ -74,7 +74,7 @@ it('keeps the calculated delivery cost when no override is sent', function () {
         'delivery_cost_override' => null,
     ])->assertRedirect();
 
-    expect((float) Order::latest()->firstOrFail()->delivery_cost)->toBe(6.5);
+    expect((float) Order::latest()->firstOrFail()->delivery_cost)->toBe(7.0);
 });
 
 it('forbids a non-admin from overriding the delivery cost', function () {

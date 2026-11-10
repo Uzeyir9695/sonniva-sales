@@ -55,21 +55,21 @@ const tbilisiZones = computed(() => {
 })
 
 const DELIVERY_RATES = [
-    { maxKg: 1,    region: 10.5, office: 6,   village: 15.5 },
-    { maxKg: 5,    region: 12.5, office: 6,   village: 17.5 },
-    { maxKg: 10,   region: 16,   office: 10,  village: 21   },
-    { maxKg: 15,   region: 21,   office: 15,  village: 26   },
-    { maxKg: 20,   region: 26,   office: 20,  village: 31   },
-    { maxKg: 30,   region: 36,   office: 30,  village: 45   },
-    { maxKg: 50,   region: 65,   office: 50,  village: 80   },
-    { maxKg: 100,  region: 105,  office: 80,  village: 120  },
-    { maxKg: 150,  region: 145,  office: 110, village: 175  },
-    { maxKg: 200,  region: 185,  office: 140, village: 215  },
-    { maxKg: 250,  region: 220,  office: 170, village: 250  },
-    { maxKg: 300,  region: 260,  office: 200, village: 290  },
-    { maxKg: 500,  region: 340,  office: 280, village: 390  },
-    { maxKg: 750,  region: 450,  office: 370, village: 500  },
-    { maxKg: 1000, region: 700,  office: 510, village: 750  },
+    { maxKg: 1,   region: 11.3,   office: 6,      village: 16.7 },
+    { maxKg: 5,   region: 13.5,   office: 6,      village: 18.9 },
+    { maxKg: 10,  region: 17.3,   office: 10,     village: 22.7 },
+    { maxKg: 15,  region: 22.7,   office: 15,     village: 28.1 },
+    { maxKg: 20,  region: 28.1,   office: 20,     village: 33.5 },
+    { maxKg: 30,  region: 38.9,   office: 30,     village: 48.6 },
+    { maxKg: 50,  region: 70.2,   office: 50,     village: 86.4 },
+    { maxKg: 100, region: 113.4,  office: 80,     village: 129.6 },
+    { maxKg: 150, region: 156.6,  office: 110,    village: 189 },
+    { maxKg: 200, region: 199.8,  office: 140,    village: 232.2 },
+    { maxKg: 250, region: 237.6,  office: 170,    village: 270 },
+    { maxKg: 300, region: 280.8,  office: 200,    village: 313.2 },
+    { maxKg: 500, region: 367.2,  office: 280,    village: 421.2 },
+    { maxKg: 750, region: 486,    office: 370,    village: 540 },
+    { maxKg: 1000, region: 756,    office: 510,    village: 810 },
 ]
 
 function weightLabel(rate, index) {

@@ -92,7 +92,7 @@ it('gates the wholesale tier by "can view wholesales" for the gated category onl
 it('charges a normal item the weight-based Tbilisi tariff under 50kg', function () {
     $item = checkoutPreviewTestItem(['weights' => [['uom' => 'PCS', 'weight' => 10]]]);
 
-    expect(previewTbilisiDeliveryCost($item))->toBe(11);
+    expect(previewTbilisiDeliveryCost($item))->toBe(11.9);
 });
 
 it('charges a whitelisted item the flat Tbilisi zone rate even under 50kg', function () {
@@ -118,13 +118,13 @@ it('bills Tbilisi delivery by zone rate when the length attribute exceeds 2 m', 
     'spaced 290 cm' => ['სიგრძე:', '290 სმ', 50],
     'comma decimal 3.66' => ['სიგრძე:', '3,66 მ', 50],
     'prepended unit' => ['სიგრძე', 'მ 6', 50],
-    'exactly 2 m' => ['სიგრძე', '2მ', 11],
-    '1500 mm' => ['სიგრძე:', '1500 მმ', 11],
-    '100mm no space' => ['სიგრძე:', '100mm', 11],
-    'unrelated attr' => ['კაბელის სიგრძე', '10 მ', 11],
-    'no unit' => ['სიგრძე', '6', 11],
-    'inch + metric pair' => ['სიგრძე:', '6" / 160 მმ', 11],
-    'cm then inch' => ['სიგრძე:', '40 სმ, 16"', 11],
+    'exactly 2 m' => ['სიგრძე', '2მ', 11.9],
+    '1500 mm' => ['სიგრძე:', '1500 მმ', 11.9],
+    '100mm no space' => ['სიგრძე:', '100mm', 11.9],
+    'unrelated attr' => ['კაბელის სიგრძე', '10 მ', 11.9],
+    'no unit' => ['სიგრძე', '6', 11.9],
+    'inch + metric pair' => ['სიგრძე:', '6" / 160 მმ', 11.9],
+    'cm then inch' => ['სიგრძე:', '40 სმ, 16"', 11.9],
 ]);
 
 it('leaves regions delivery on the weight-based tariff for a zone-only item', function () {
@@ -138,7 +138,7 @@ it('leaves regions delivery on the weight-based tariff for a zone-only item', fu
         'delivery_type' => 'regions',
         'delivery_price_type' => 'region',
         'cart_ids' => [$cart->id],
-    ])->assertOk()->assertJson(['delivery_cost' => 16]);
+    ])->assertOk()->assertJson(['delivery_cost' => 17.3]);
 });
 
 it('waives delivery entirely for a user flagged has_free_delivery', function () {
