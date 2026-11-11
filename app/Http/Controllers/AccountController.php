@@ -70,12 +70,15 @@ class AccountController extends Controller
             'phone_country' => 'required|string',
             'phone' => ['required', 'string', ...($phoneChanged ? ['phone:phone_country'] : [])],
             'email' => 'nullable|email|unique:users,email,'.$user->id,
-            'tax_id' => 'required|string|max:30',
+            'tax_id' => ['required', 'string', 'max:30', Rule::when($request->input('tax_id') !== $user->tax_id, [
+                Rule::unique(User::class, 'tax_id')->ignore($user->id),
+            ])],
             'address' => [$user->role === 'admin' ? 'nullable' : 'required', 'string', 'max:100'],
         ],
             [
                 'tax_id.required' => __($user->user_type === 'individual' ? 'The ID number is required.' : 'The tax id is required.'),
                 'lastname.required_if' => __('The lastname field is required for the individual users.'),
+                'tax_id.unique' => __('This tax ID is already registered to another customer.'),
             ]);
 
         if ($phoneChanged) {

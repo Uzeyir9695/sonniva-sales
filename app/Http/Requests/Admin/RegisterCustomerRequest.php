@@ -23,9 +23,19 @@ class RegisterCustomerRequest extends FormRequest
             'name' => ['required', 'string', 'max:100'],
             'lastname' => ['required_if:user_type,individual', 'string', 'max:100'],
             'phone' => ['required', 'string', 'phone:GE'],
-            'tax_id' => ['required', 'string', 'max:50'],
+            'tax_id' => ['required', 'string', 'max:50', Rule::unique(User::class, 'tax_id')],
             'email' => ['nullable', 'email', 'max:255', Rule::unique(User::class, 'email')],
             'address' => ['required', 'string', 'max:100'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'tax_id.unique' => __('This tax ID is already registered to another customer.'),
         ];
     }
 }

@@ -55,6 +55,22 @@ it('registers a customer with the phone as the password and queues the BC sync',
     Queue::assertPushed(CallQueuedClosure::class);
 });
 
+it('rejects a tax id that is already registered', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    User::factory()->create(['tax_id' => '01001012345']);
+
+    $this->actingAs($admin)->postJson(route('admin.customers.store'), [
+        'user_type' => 'individual',
+        'name' => 'Giorgi',
+        'lastname' => 'Kapanadze',
+        'phone' => '599123456',
+        'tax_id' => '01001012345',
+        'address' => 'Tbilisi, Rustaveli 1',
+    ])->assertUnprocessable()->assertJsonValidationErrors('tax_id');
+
+    expect(User::where('tax_id', '01001012345')->count())->toBe(1);
+});
+
 it('requires phone and tax id', function () {
     $admin = User::factory()->create(['role' => 'admin']);
 

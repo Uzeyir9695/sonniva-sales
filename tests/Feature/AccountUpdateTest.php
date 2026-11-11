@@ -89,6 +89,32 @@ it('does not block the update when BC is unreachable', function () {
     expect($user->fresh()->tax_id)->toBe('222');
 });
 
+it('blocks the update when the new tax id belongs to another user', function () {
+    Queue::fake();
+
+    User::factory()->create(['tax_id' => '222']);
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE']);
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user, ['tax_id' => '222']))
+        ->assertSessionHasErrors('tax_id');
+
+    expect($user->fresh()->tax_id)->toBe('111');
+});
+
+it('lets a user with a legacy duplicate tax id update other fields', function () {
+    Queue::fake();
+
+    User::factory()->create(['tax_id' => '111']);
+    $user = User::factory()->create(['tax_id' => '111', 'phone_country' => 'GE']);
+
+    $this->actingAs($user)
+        ->put(route('account.update', $user), validPayload($user, ['name' => 'Changed']))
+        ->assertSessionHasNoErrors();
+
+    expect($user->fresh()->name)->toBe('Changed');
+});
+
 it('does not call BC when the tax id is unchanged', function () {
     Queue::fake();
 

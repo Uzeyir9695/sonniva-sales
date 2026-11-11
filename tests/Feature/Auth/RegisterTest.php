@@ -71,6 +71,13 @@ it('rejects registration when the phone is already registered', function () {
     $response->assertSessionHasErrors('phone');
 });
 
+it('rejects registration when the tax id is already registered', function () {
+    User::factory()->create(['tax_id' => '12345678901']);
+
+    $this->post(route('register'), validRegisterPayload())
+        ->assertSessionHasErrors('tax_id');
+});
+
 it('creates the user, links the BC customer, and logs in on correct OTP', function () {
     mockOtpSms();
 
