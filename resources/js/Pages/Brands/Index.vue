@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3'
+import { Head } from '@inertiajs/vue3'
 
 defineProps({
     brands: Array,
@@ -18,15 +18,16 @@ defineProps({
         </div>
 
         <div v-if="brands.length" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-            <Link
+            <!-- Brand links disabled for now; to restore, swap this div back to:
+            <Link :href="route('brands.show', { brand: brand.name })" class="group flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5 transition-colors hover:border-brand-500 hover:bg-brand-50"> -->
+            <div
                 v-for="brand in brands"
                 :key="brand.name"
-                :href="route('brands.show', { brand: brand.name })"
-                class="group flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5 transition-colors hover:border-brand-500 hover:bg-brand-50"
+                class="flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2.5"
             >
-                <span class="truncate text-sm font-semibold uppercase tracking-wide text-gray-800 group-hover:text-gray-950">{{ brand.name }}</span>
-                <span class="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500 group-hover:bg-white">{{ brand.items_count }}</span>
-            </Link>
+                <span class="truncate text-sm font-semibold uppercase tracking-wide text-gray-800">{{ brand.name }}</span>
+                <!-- <span class="shrink-0 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500 group-hover:bg-white">{{ brand.items_count }}</span> -->
+            </div>
         </div>
 
         <div v-else class="flex flex-col items-center justify-center h-72 text-center">
