@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\HmsController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\RegisterController;
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
@@ -71,6 +72,8 @@ Route::prefix('v1')->middleware(SetApiLocale::class)->group(function () {
     Route::get('/sales', [SalesController::class, 'index'])->name('api.sales.index');
 
     Route::get('/liquidation', [LiquidationController::class, 'index'])->name('api.liquidation.index');
+
+    Route::get('/brands', [BrandController::class, 'index'])->name('api.brands.index');
 
     Route::middleware('auth:sanctum')->group(function () {
         // ── Account ──────────────────────────────────────────────────────

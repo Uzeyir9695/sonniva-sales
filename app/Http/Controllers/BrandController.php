@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Attribute;
 use App\Models\Item;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -12,7 +14,7 @@ class BrandController extends Controller
 {
     private const BRAND_ATTRIBUTE_NAME = 'ბრენდი';
 
-    public function index(): Response
+    public function index(Request $request): Response|JsonResponse
     {
         $brands = Cache::remember('brands_list', now()->addHour(), fn () => Attribute::query()
             ->where('name', self::BRAND_ATTRIBUTE_NAME)
@@ -23,6 +25,10 @@ class BrandController extends Controller
             ->orderBy('value')
             ->get()
             ->toArray());
+
+        if ($request->wantsJson()) {
+            return response()->json(['brands' => $brands]);
+        }
 
         return Inertia::render('Brands/Index', [
             'brands' => $brands,
