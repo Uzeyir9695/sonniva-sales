@@ -156,6 +156,16 @@ export function getDisplayUOM(item) {
     return visiblePrices(item)[0]?.UOM ?? null
 }
 
+// Inventory is counted in pieces; a package row's quantity is a number of packages.
+export function packSize(item, selectedUOM = null) {
+    if (item?.unit_price != 0 || !selectedUOM) return 1
+    return (item.weights ?? []).find(w => w.uom === selectedUOM)?.quantity ?? 1
+}
+
+export function maxQuantity(item, selectedUOM = null) {
+    return Math.floor((item?.inventory ?? 0) / packSize(item, selectedUOM))
+}
+
 // Pass item as a getter: usePricing(() => props.item)
 // Prices are sorted by price ASC from the seeder, so prices[0] is always cheapest.
 export function usePricing(item) {

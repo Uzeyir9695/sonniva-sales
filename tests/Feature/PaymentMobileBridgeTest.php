@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Sanctum\Sanctum;
 
+beforeEach(fn () => fakeLiveInventory());
+
 function mobileBridgeTestItem(array $overrides = []): Item
 {
     return Item::create(array_merge([

@@ -23,7 +23,10 @@ function onBehalfItem(array $overrides = []): Item
     ], $overrides));
 }
 
-beforeEach(fn () => Queue::fake());
+beforeEach(function () {
+    Queue::fake();
+    fakeLiveInventory();
+});
 
 it('rejects an admin order without a selected customer', function () {
     $admin = User::factory()->create(['role' => 'admin']);

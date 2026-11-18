@@ -35,7 +35,10 @@ function placeTbilisiInvoiceOrder(User $actingUser, Cart $cart, array $overrides
     ], $overrides));
 }
 
-beforeEach(fn () => Queue::fake());
+beforeEach(function () {
+    Queue::fake();
+    fakeLiveInventory();
+});
 
 it('stores the admin-edited delivery cost instead of the calculated one', function (float $override) {
     $admin = User::factory()->create(['role' => 'admin']);

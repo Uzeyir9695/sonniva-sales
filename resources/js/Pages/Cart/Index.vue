@@ -9,7 +9,7 @@ import ConfirmDialog from 'primevue/confirmdialog'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { STORAGE_KEYS } from '@/constants/storageKeys'
-import { calculateTierPrice, getOriginalPrice, getRetailPrice, activeDiscountType } from '@/composables/usePricing.js'
+import { calculateTierPrice, getOriginalPrice, getRetailPrice, activeDiscountType, maxQuantity } from '@/composables/usePricing.js'
 import { formatDiscount } from '@/utils/numberFormat.js'
 
 const { t } = useI18n()
@@ -38,7 +38,7 @@ onMounted(() => {
     }
 })
 
-const overLimit = (cartItem) => getQuantity(cartItem.item_id, cartItem.selected_uom) > cartItem.item.inventory
+const overLimit = (cartItem) => getQuantity(cartItem.item_id, cartItem.selected_uom) > maxQuantity(cartItem.item, cartItem.selected_uom)
 
 const anyOverLimit = computed(() => selectedItems.value.some(c => overLimit(c)))
 
@@ -397,7 +397,7 @@ function goToCheckout() {
 
                                         <button
                                             @click="updateQuantity(cartItem.item_id, getQuantity(cartItem.item_id, cartItem.selected_uom) + 1, cartItem.selected_uom)"
-                                            :disabled="isLoading(cartItem.item_id, cartItem.selected_uom) || getQuantity(cartItem.item_id, cartItem.selected_uom) >= cartItem.item.inventory"
+                                            :disabled="isLoading(cartItem.item_id, cartItem.selected_uom) || getQuantity(cartItem.item_id, cartItem.selected_uom) >= maxQuantity(cartItem.item, cartItem.selected_uom)"
                                             class="w-8 h-8 flex items-center justify-center cursor-pointer text-gray-500
                                                    hover:bg-gray-50 transition disabled:text-gray-300 disabled:cursor-not-allowed"
                                         >
@@ -437,7 +437,7 @@ function goToCheckout() {
                                     </span>
 
                                     <p v-if="overLimit(cartItem)" class="text-xs text-red-600">
-                                        {{ $t('cart.availableQty', { count: cartItem.item.inventory }) }}
+                                        {{ $t('cart.availableQty', { count: maxQuantity(cartItem.item, cartItem.selected_uom) }) }}
                                     </p>
                                 </div>
 

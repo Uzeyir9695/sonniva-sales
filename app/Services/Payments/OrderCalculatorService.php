@@ -6,6 +6,8 @@ use App\Models\Cart;
 use App\Models\Item;
 use App\Models\Service;
 use App\Models\User;
+use App\Services\BusinessCentralService;
+use Illuminate\Support\Collection;
 
 class OrderCalculatorService
 {
@@ -57,6 +59,8 @@ class OrderCalculatorService
         ['maxKg' => 1000, 'tbilisi' => 410.4, 'region' => 756,   'office' => 510,   'village' => 810],
     ];
 
+    public function __construct(private BusinessCentralService $bc) {}
+
     /**
      * $cartOwnerId owns the cart rows; $buyerId (defaults to the cart owner) is
      * who the order is priced for — they differ when an admin checks out on a
@@ -64,8 +68,9 @@ class OrderCalculatorService
      *
      * @param  list<array{service: Service, quantity: int}>  $services  order-level services, e.g. cutting
      * @param  float|null  $deliveryCostOverride  an admin-entered delivery cost that replaces the calculated one
+     * @param  bool  $liveStock  check stock live from BC instead of the synced items.inventory (order placement only)
      */
-    public function calculate(array $cartIds, string $deliveryType, int|string $cartOwnerId, ?string $deliveryPriceType = null, ?string $city = null, int|string|null $buyerId = null, array $services = [], ?float $deliveryCostOverride = null): array
+    public function calculate(array $cartIds, string $deliveryType, int|string $cartOwnerId, ?string $deliveryPriceType = null, ?string $city = null, int|string|null $buyerId = null, array $services = [], ?float $deliveryCostOverride = null, bool $liveStock = false): array
     {
         $buyer = User::find($buyerId ?? $cartOwnerId);
         $isVip = $buyer?->can_view_vip ?? false;
@@ -80,13 +85,22 @@ class OrderCalculatorService
 
         // Reject if any requested cart row wasn't found in this user's cart
         if ($cartRows->count() !== count($cartIds)) {
-            throw new \InvalidArgumentException('One or more items not found in your cart.');
+            throw new \InvalidArgumentException(__('One or more items not found in your cart.'));
         }
 
-        // Reject if any item is out of stock
-        $outOfStock = $cartRows->filter(fn ($row) => $row->item->inventory <= 0);
+        $inventory = $this->inventory($cartRows, $liveStock);
+
+        $outOfStock = $cartRows->filter(fn ($row) => $inventory[$row->item->no] <= 0);
         if ($outOfStock->isNotEmpty()) {
-            throw new \InvalidArgumentException('One or more items are out of stock.');
+            throw new \InvalidArgumentException(__('One or more items are out of stock.'));
+        }
+
+        $overStock = $cartRows->groupBy('item_id')
+            ->filter(fn ($rows) => $rows->sum(fn ($row) => $row->quantity * $this->packSize($row)) > $inventory[$rows->first()->item->no]);
+        if ($overStock->isNotEmpty()) {
+            throw new \InvalidArgumentException(__('Not enough stock for: :items', [
+                'items' => $overStock->map(fn ($rows) => $rows->first()->item->name)->implode(', '),
+            ]));
         }
 
         $subtotal = 0;
@@ -344,6 +358,41 @@ class OrderCalculatorService
             ?? collect(self::DELIVERY_RATES)->last();
 
         return (float) ($rate[$priceType] ?? 0);
+    }
+
+    /**
+     * Stock in pieces per item no. Falls back to the synced value when BC is unreachable,
+     * so a BC outage doesn't block every order.
+     *
+     * @param  Collection<int, Cart>  $cartRows
+     * @return array<string, int>
+     */
+    private function inventory(Collection $cartRows, bool $live): array
+    {
+        $synced = $cartRows->mapWithKeys(fn (Cart $row) => [$row->item->no => (int) $row->item->inventory])->all();
+
+        if (! $live) {
+            return $synced;
+        }
+
+        try {
+            return $this->bc->getItemsInventory(array_keys($synced));
+        } catch (\Throwable $e) {
+            report($e);
+
+            return $synced;
+        }
+    }
+
+    private function packSize(Cart $cartRow): int
+    {
+        if ($cartRow->item->unit_price != 0 || ! $cartRow->selected_uom) {
+            return 1;
+        }
+
+        $entry = collect($cartRow->item->weights ?? [])->first(fn ($w) => $w['uom'] === $cartRow->selected_uom);
+
+        return (int) ($entry['quantity'] ?? 1);
     }
 
     private function unitWeightKg(Cart $cartRow): float

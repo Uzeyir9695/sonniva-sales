@@ -4,7 +4,7 @@ import { Link, router, usePage } from '@inertiajs/vue3'
 import { useToast } from 'primevue/usetoast'
 import { useI18n } from 'vue-i18n'
 import { useCart } from '@/composables/useCart'
-import { calculateTierPrice, getOriginalPrice } from '@/composables/usePricing.js'
+import { calculateTierPrice, getOriginalPrice, packSize } from '@/composables/usePricing.js'
 import PlacesAutocomplete from '@/Shared/components/PlacesAutocomplete.vue'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 import CustomerPicker from '@/Shared/components/CustomerPicker.vue'
@@ -219,7 +219,7 @@ async function checkOfficeInventory() {
     try {
         const res = await axios.post(route('checkout.office-inventory'), {
             office: selectedOfficeBranch.value,
-            items: items.value.map(c => ({ no: c.item.no, name: c.item.name, qty: c.qty })),
+            items: items.value.map(c => ({ no: c.item.no, name: c.item.name, qty: c.qty * packSize(c.item, c.selected_uom) })),
         })
         officeInventoryShortages.value = res.data.shortages ?? []
         if (officeInventoryShortages.value.length) {

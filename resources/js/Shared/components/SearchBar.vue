@@ -7,7 +7,7 @@ import axios from 'axios';
 import QuickViewDialog from '@/Shared/components/QuickViewDialog.vue';
 import { useCart } from '@/composables/useCart.js';
 import { useGtag } from '@/composables/useGtag.js'
-import { getDisplayPrice, getDisplayUOM, hasDiscount, getOriginalPrice } from '@/composables/usePricing.js'
+import { getDisplayPrice, getDisplayUOM, hasDiscount, getOriginalPrice, maxQuantity } from '@/composables/usePricing.js'
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 
 const props = defineProps({
@@ -220,7 +220,7 @@ defineExpose({ inputRef });
                                 </button>
                                 <button
                                     @click.stop="addToCart(item.id, 1, getDisplayUOM(item))"
-                                    :disabled="(item.inventory > 0 && getQuantity(item.id) >= item.inventory) || (item.inventory <= 0 && isInCart(item.id))"
+                                    :disabled="(item.inventory > 0 && getQuantity(item.id, getDisplayUOM(item)) >= maxQuantity(item, getDisplayUOM(item))) || (item.inventory <= 0 && isInCart(item.id))"
                                     class="relative w-5 sm:w-7 h-5 sm:h-7 rounded-lg cursor-pointer flex items-center justify-center text-gray-400 hover:text-brand-500 hover:bg-brand-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-gray-400 disabled:hover:bg-transparent"
                                     v-tooltip.top="$t('common.addToCart')"
                                 >

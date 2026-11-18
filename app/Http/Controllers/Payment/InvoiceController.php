@@ -91,6 +91,7 @@ class InvoiceController extends Controller
             $buyer->id,
             $services,
             $deliveryCostOverride,
+            liveStock: true,
         );
 
         do {

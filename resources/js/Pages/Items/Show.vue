@@ -10,7 +10,7 @@ import ShareButton from '@/Shared/components/ShareButton.vue';
 import StockNotifyButton from '@/Shared/components/StockNotifyButton.vue';
 import WhatsappOrderDialog from '@/Shared/components/WhatsappOrderDialog.vue';
 import { useCart } from '@/composables/useCart.js';
-import { usePricing, discountedTierPrice } from '@/composables/usePricing.js';
+import { usePricing, discountedTierPrice, maxQuantity } from '@/composables/usePricing.js';
 import { formatDiscount } from '@/utils/numberFormat.js';
 import Breadcrumbs from '@/Shared/components/Breadcrumbs.vue';
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
@@ -63,8 +63,9 @@ const quantity = ref(1)
 const withService = ref(false)
 
 const inStock = computed(() => props.item?.inventory > 0)
-const atMax = computed(() => quantity.value >= props.item?.inventory)
-const overLimit = computed(() => props.item?.inventory > 0 && quantity.value > props.item?.inventory)
+const maxQty = computed(() => maxQuantity(props.item, selectedEntry.value?.UOM ?? null))
+const atMax = computed(() => quantity.value >= maxQty.value)
+const overLimit = computed(() => props.item?.inventory > 0 && quantity.value > maxQty.value)
 
 /* ---------------- Tabs ---------------- */
 const activeTab = ref('0')
@@ -378,7 +379,7 @@ const ogImage = computed(() => {
                         </div>
 
                         <p v-if="overLimit" class="text-xs text-red-600">
-                            {{ $t('cart.availableQty', { count: item.inventory }) }}
+                            {{ $t('cart.availableQty', { count: maxQty }) }}
                         </p>
 
                         <div class="mt-8 space-y-3">

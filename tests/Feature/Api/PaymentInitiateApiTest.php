@@ -8,6 +8,8 @@ use App\Services\Payments\TBCPaymentService;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 
+beforeEach(fn () => fakeLiveInventory());
+
 function paymentInitiateTestItem(array $overrides = []): Item
 {
     return Item::create(array_merge([

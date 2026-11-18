@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Item;
+use App\Services\BusinessCentralService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -47,4 +49,14 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+function fakeLiveInventory(?array $inventory = null): void
+{
+    $bc = Mockery::mock(BusinessCentralService::class, [])->makePartial();
+    $bc->shouldReceive('getItemsInventory')->andReturnUsing(
+        fn (array $itemNos) => $inventory ?? Item::whereIn('no', $itemNos)->pluck('inventory', 'no')->all()
+    );
+
+    test()->instance(BusinessCentralService::class, $bc);
 }

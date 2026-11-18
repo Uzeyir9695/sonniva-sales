@@ -35,7 +35,10 @@ function placeInvoiceOrder(User $actingUser, Cart $cart, array $overrides = [])
     ], $overrides));
 }
 
-beforeEach(fn () => Queue::fake());
+beforeEach(function () {
+    Queue::fake();
+    fakeLiveInventory();
+});
 
 it('adds the cutting service to an admin order total', function () {
     $admin = User::factory()->create(['role' => 'admin']);

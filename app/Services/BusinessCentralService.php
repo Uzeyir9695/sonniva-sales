@@ -137,6 +137,35 @@ class BusinessCentralService
         return $response->json()['value'][0] ?? null;
     }
 
+    /**
+     * Live total stock (all locations) per item no, same source as inventory:sync.
+     * BC leaves out-of-stock items out of the response, so a missing item counts as 0.
+     *
+     * @param  list<string>  $itemNos
+     * @return array<string, int>
+     */
+    public function getItemsInventory(array $itemNos): array
+    {
+        $filter = collect($itemNos)
+            ->map(fn (string $no) => "no eq '".str_replace("'", "''", $no)."'")
+            ->implode(' or ');
+
+        $response = Http::withToken($this->getAccessToken())
+            ->timeout(10)
+            ->get($this->baseUrl.'Production/api/smart/sonniva/v1.0/companies(dc29e11b-78aa-ee11-be38-000d3ab8f033)/items', [
+                '$filter' => $filter,
+                '$select' => 'no,inventory',
+            ]);
+
+        if ($response->failed()) {
+            throw new \Exception('BC items inventory GET failed: '.$response->body());
+        }
+
+        $inventory = collect($response->json('value', []))->pluck('inventory', 'no');
+
+        return collect($itemNos)->mapWithKeys(fn (string $no) => [$no => (int) ($inventory[$no] ?? 0)])->all();
+    }
+
     public function calcInventory($itemNo)
     {
         $fields = [

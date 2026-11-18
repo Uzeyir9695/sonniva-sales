@@ -421,7 +421,7 @@ class ItemController extends Controller
 
         $items = Item::search($q)
             ->with('attributes:id,bc_attribute_id,name,value,item_id')
-            ->get(['id', 'no', 'name', ...Item::LOCALE_NAME_COLUMNS, 'slug', 'unit_price', 'unit_price_override', 'discount', 'fake_price', 'prices', 'images', 'inventory']);
+            ->get(['id', 'no', 'name', ...Item::LOCALE_NAME_COLUMNS, 'slug', 'unit_price', 'unit_price_override', 'discount', 'fake_price', 'prices', 'weights', 'images', 'inventory']);
 
         return response()->json($items);
     }

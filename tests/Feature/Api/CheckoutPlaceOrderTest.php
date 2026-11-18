@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 
+beforeEach(fn () => fakeLiveInventory());
+
 function checkoutTestItem(array $overrides = []): Item
 {
     return Item::create(array_merge([

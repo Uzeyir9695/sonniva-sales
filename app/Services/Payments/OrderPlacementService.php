@@ -30,7 +30,8 @@ class OrderPlacementService
             $data['delivery_type'],
             $userId,
             $data['delivery_price_type'] ?? null,
-            $data['city'] ?? null
+            $data['city'] ?? null,
+            liveStock: true,
         );
 
         do {

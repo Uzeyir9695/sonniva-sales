@@ -79,6 +79,7 @@ class PaymentController extends Controller
                 $request->delivery_price_type,
                 $request->city,
                 $buyer->id,
+                liveStock: true,
             );
         } catch (\InvalidArgumentException $e) {
             return response()->json(['error' => $e->getMessage()], 422);

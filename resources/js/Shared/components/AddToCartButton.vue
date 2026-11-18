@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import InputNumber from 'primevue/inputnumber'
 import { useCart } from '@/composables/useCart.js';
-import { getDisplayUOM } from '@/composables/usePricing.js';
+import { getDisplayUOM, maxQuantity } from '@/composables/usePricing.js';
 import CartCountBadge from '@/Shared/components/CartCountBadge.vue';
 
 const props = defineProps({
@@ -13,7 +13,8 @@ const { addToCart, isInCart, getQuantity } = useCart()
 
 const quantity = ref(1)
 const showStepper = ref(false)
-const overLimit = computed(() => props.item.inventory > 0 && quantity.value > props.item.inventory)
+const maxQty = computed(() => maxQuantity(props.item, getDisplayUOM(props.item)))
+const overLimit = computed(() => props.item.inventory > 0 && quantity.value > maxQty.value)
 
 const isOutOfStock = !props.item.inventory || props.item.inventory === 0
 
@@ -78,7 +79,7 @@ function onMouseLeave() {
                 <button
                     @click.stop="addToCart(item.id, quantity, getDisplayUOM(item))"
                     :disabled="overLimit"
-                    v-tooltip="overLimit ? $t('item.maxQty', { count: item.inventory }) : ''"
+                    v-tooltip="overLimit ? $t('item.maxQty', { count: maxQty }) : ''"
                     class="flex items-center justify-center rounded-xl p-2
                            bg-brand-500 cursor-pointer hover:bg-brand-400 active:scale-95
                            text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
