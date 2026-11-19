@@ -163,7 +163,7 @@ class BusinessCentralService
 
         $inventory = collect($response->json('value', []))->pluck('inventory', 'no');
 
-        return collect($itemNos)->mapWithKeys(fn (string $no) => [$no => (int) ($inventory[$no] ?? 0)])->all();
+        return collect($itemNos)->mapWithKeys(fn (string $no) => [$no => max(0, (int) ($inventory[$no] ?? 0))])->all();
     }
 
     public function calcInventory($itemNo)
@@ -199,8 +199,8 @@ class BusinessCentralService
             ->sum('Remaining_Quantity');
 
         return [
-            'shop1Total' => $shop01Total,
-            'shop2Total' => $shop02Total,
+            'shop1Total' => max(0, $shop01Total),
+            'shop2Total' => max(0, $shop02Total),
         ];
     }
 

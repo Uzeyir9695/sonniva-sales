@@ -112,7 +112,7 @@ class SyncInventoryCommand extends Command
             DB::table('items')
                 ->where('no', $item['no'])
                 ->update([
-                    'inventory' => (int) $item['inventory'],
+                    'inventory' => max(0, (int) $item['inventory']),
                 ]);
         }
 

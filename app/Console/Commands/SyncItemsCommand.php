@@ -179,7 +179,7 @@ class SyncItemsCommand extends Command
                 'name' => $item['description'] ?? null,
                 'description' => $item['itemReview'] ?? null,
                 'slug' => $slug,
-                'inventory' => $item['inventory'] ?? 0,
+                'inventory' => max(0, (int) ($item['inventory'] ?? 0)),
                 'base_uom_desc' => $item['baseUOMDesc'] ?? null,
                 'unit_price' => $item['unitPrice'] ?? 0,
                 'min_qty_unit_price' => $item['minQtyUnitPrice'] ?? 0,
