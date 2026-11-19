@@ -2,7 +2,7 @@
 import { router } from '@inertiajs/vue3'
 import { useToast } from 'primevue/usetoast'
 import { useDebounceFn } from '@vueuse/core'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import axios from 'axios'
 import PrimeInputText from '@/Pages/PrimevueComponents/PrimeInputText.vue'
 
@@ -21,6 +21,43 @@ const uploading = ref({})
 
 function imagesFor(slot) {
     return props.banners[slot] ?? []
+}
+
+const mainImages = ref([])
+const draggedIndex = ref(null)
+const dragOverIndex = ref(null)
+
+watch(() => props.banners.main, (images) => {
+    mainImages.value = [...(images ?? [])]
+}, { immediate: true })
+
+function dragOver(index) {
+    if (draggedIndex.value !== null) dragOverIndex.value = index
+}
+
+function endDrag() {
+    draggedIndex.value = null
+    dragOverIndex.value = null
+}
+
+function dropOn(targetIndex) {
+    const fromIndex = draggedIndex.value
+    endDrag()
+    if (fromIndex === null || fromIndex === targetIndex) return
+
+    const [moved] = mainImages.value.splice(fromIndex, 1)
+    mainImages.value.splice(targetIndex, 0, moved)
+
+    router.put(route('admin.home-page.banners.reorder'), {
+        ids: mainImages.value.map(img => img.id),
+    }, {
+        preserveScroll: true,
+        onSuccess: () => toast.add({ severity: 'success', summary: 'Order saved', life: 2000 }),
+        onError: () => {
+            mainImages.value = [...(props.banners.main ?? [])]
+            toast.add({ severity: 'error', summary: 'Could not save order', life: 3000 })
+        },
+    })
 }
 
 function mainBannerCountFor(id) {
@@ -164,6 +201,7 @@ function onMainFileChange(target, event) {
                     <p class="font-semibold text-gray-800">Main Banner (large left)</p>
                     <p class="text-xs text-gray-400 mt-0.5">Link a slide to an item or a category by searching below, or upload one with no link.</p>
                     <p class="text-xs text-gray-400 mt-0.5">Each slide can also get an optional mobile version (recommended 1080×1350px, 4:5 portrait) shown on phones.</p>
+                    <p class="text-xs text-gray-400 mt-0.5">Drag slides to change the order they appear in.</p>
                 </div>
                 <label
                     for="upload-main"
@@ -263,14 +301,27 @@ function onMainFileChange(target, event) {
 
             <!-- Existing main banners -->
             <div class="pt-2 border-t border-gray-100">
-                <div v-if="imagesFor('main').length" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-3">
+                <div v-if="mainImages.length" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-3">
                     <div
-                        v-for="img in imagesFor('main')"
+                        v-for="(img, index) in mainImages"
                         :key="img.id"
-                        class="rounded-xl overflow-hidden bg-gray-100 shadow-md flex flex-col h-full"
+                        draggable="true"
+                        class="rounded-xl overflow-hidden bg-gray-100 shadow-md flex flex-col h-full cursor-move transition"
+                        :class="{
+                            'opacity-40': draggedIndex === index,
+                            'ring-2 ring-brand-500': dragOverIndex === index && draggedIndex !== index,
+                        }"
+                        @dragstart="draggedIndex = index"
+                        @dragover.prevent="dragOver(index)"
+                        @drop.prevent="dropOn(index)"
+                        @dragend="endDrag"
                     >
                         <div class="relative group aspect-video">
-                            <img :src="img.image_url" alt="banner" class="w-full h-full object-fill" />
+                            <img :src="img.image_url" alt="banner" draggable="false" class="w-full h-full object-fill" />
+                            <span class="absolute top-1.5 left-1.5 flex items-center gap-1 px-1.5 h-7 rounded-lg bg-black/60 text-white text-xs font-semibold">
+                                <i class="pi pi-bars text-[10px]"></i>
+                                {{ index + 1 }}
+                            </span>
                             <span class="absolute bottom-0 left-0 right-0 px-2 py-1 text-[11px] font-medium text-white bg-black/60 truncate">
                                 <template v-if="img.item">{{ img.item.name }}</template>
                                 <template v-else-if="img.category">Category: {{ img.category.name }}</template>

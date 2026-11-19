@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ReorderBannersRequest;
 use App\Models\BannerImage;
 use App\Models\HomeSection;
 use App\Models\HomeSectionImage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -81,6 +83,19 @@ class AdminBannerController extends Controller
         Cache::forget('nav_banners');
 
         return back()->with('message', 'Images uploaded.');
+    }
+
+    public function reorder(ReorderBannersRequest $request): RedirectResponse
+    {
+        DB::transaction(function () use ($request) {
+            foreach ($request->validated('ids') as $index => $id) {
+                BannerImage::whereKey($id)->update(['sort_order' => $index + 1]);
+            }
+        });
+
+        Cache::forget('nav_banners');
+
+        return back()->with('message', 'Banner order saved.');
     }
 
     public function storeMobileImage(Request $request, BannerImage $banner): RedirectResponse

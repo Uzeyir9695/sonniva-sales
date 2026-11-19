@@ -119,6 +119,7 @@ Route::middleware(['auth', NoIndexMiddleware::class])->group(function () {
         // ******** Admin Home Page Banners ********//
         Route::get('/home-page', [AdminBannerController::class, 'index'])->name('home-page.index');
         Route::post('/home-page/banners', [AdminBannerController::class, 'store'])->name('home-page.banners.store');
+        Route::put('/home-page/banners/reorder', [AdminBannerController::class, 'reorder'])->name('home-page.banners.reorder');
         Route::delete('/home-page/banners/{banner}', [AdminBannerController::class, 'destroy'])->name('home-page.banners.destroy');
         Route::post('/home-page/banners/{banner}/mobile-image', [AdminBannerController::class, 'storeMobileImage'])->name('home-page.banners.mobile-image.store');
         Route::delete('/home-page/banners/{banner}/mobile-image', [AdminBannerController::class, 'destroyMobileImage'])->name('home-page.banners.mobile-image.destroy');
