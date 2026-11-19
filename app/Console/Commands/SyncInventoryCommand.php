@@ -119,7 +119,7 @@ class SyncInventoryCommand extends Command
         // BC omits out-of-stock items from the response instead of returning them with 0.
         $zeroed = DB::table('items')
             ->whereNotIn('no', $items->pluck('no'))
-            ->where('inventory', '>', 0)
+            ->where('inventory', '!=', 0)
             ->update(['inventory' => 0]);
 
         // Find which of the waited items just got restocked

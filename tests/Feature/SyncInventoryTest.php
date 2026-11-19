@@ -53,3 +53,14 @@ it('stores negative BC inventory as zero', function () {
 
     expect($item->fresh()->inventory)->toBe(0);
 });
+
+it('zeroes a negative item that BC leaves out of the response', function () {
+    inventoryItem('INV005', 1);
+    $negative = inventoryItem('INV006', -40);
+
+    Http::fake(['*/items?*' => Http::response(['value' => [['no' => 'INV005', 'inventory' => 2]]])]);
+
+    $this->artisan('inventory:sync')->assertSuccessful();
+
+    expect($negative->fresh()->inventory)->toBe(0);
+});
