@@ -62,7 +62,7 @@ function list(key) {
                     <div>
                         <h3 class="font-semibold text-gray-800 mb-3">{{ $t('pol.terms.delZonesH') }}</h3>
                         <div class="space-y-3">
-                            <div v-for="z in [1, 2, 3]" :key="z" class="rounded-xl border border-gray-200 p-4">
+                            <div v-for="z in [1, 2, 3, 4]" :key="z" class="rounded-xl border border-gray-200 p-4">
                                 <p class="font-semibold text-gray-800 mb-2">{{ $t(`pol.terms.zone${z}`) }}</p>
                                 <ul class="space-y-1 text-sm">
                                     <li v-for="n in list(`zone${z}Items`)" :key="n" class="flex items-start gap-2">

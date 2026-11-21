@@ -25,7 +25,7 @@ function checkoutPreviewTestItem(array $overrides = []): Item
     ], $overrides));
 }
 
-function previewTbilisiDeliveryCost(Item $item): int|float
+function previewTbilisiDeliveryCost(Item $item, string $city = 'ვაკე'): int|float
 {
     $user = User::factory()->create();
     $cart = Cart::create(['user_id' => $user->id, 'item_id' => $item->id, 'quantity' => 1]);
@@ -35,7 +35,7 @@ function previewTbilisiDeliveryCost(Item $item): int|float
     return test()->postJson('/api/v1/checkout/preview', [
         'delivery_type' => 'tbilisi',
         'delivery_price_type' => 'tbilisi',
-        'city' => 'ვაკე',
+        'city' => $city,
         'cart_ids' => [$cart->id],
     ])->assertOk()->json('delivery_cost');
 }
@@ -98,14 +98,27 @@ it('charges a normal item the weight-based Tbilisi tariff under 50kg', function 
 it('charges a whitelisted item the flat Tbilisi zone rate even under 50kg', function () {
     $item = checkoutPreviewTestItem(['no' => 'ALU00865-011', 'weights' => [['uom' => 'PCS', 'weight' => 10]]]);
 
-    expect(previewTbilisiDeliveryCost($item))->toBe(50);
+    expect(previewTbilisiDeliveryCost($item))->toBe(90);
 });
 
 it('charges an item in a whitelisted category the flat Tbilisi zone rate even under 50kg', function () {
     $item = checkoutPreviewTestItem(['category_code' => '1419', 'weights' => [['uom' => 'PCS', 'weight' => 10]]]);
 
-    expect(previewTbilisiDeliveryCost($item))->toBe(50);
+    expect(previewTbilisiDeliveryCost($item))->toBe(90);
 });
+
+it('bills each Tbilisi district its zone rate', function (string $city, int $expected) {
+    $item = checkoutPreviewTestItem(['no' => 'ALU00865-011', 'weights' => [['uom' => 'PCS', 'weight' => 10]]]);
+
+    expect(previewTbilisiDeliveryCost($item, $city))->toBe($expected);
+})->with([
+    'zone I' => ['გლდანი', 40],
+    'zone II' => ['დიდუბე', 50],
+    'zone III city' => ['ვერა', 90],
+    'zone III east' => ['ვარკეთილი', 90],
+    'zone IV' => ['ლისი', 100],
+    'zone IV suburb' => ['ნაფეტვრები', 100],
+]);
 
 it('bills Tbilisi delivery by zone rate when the length attribute exceeds 2 m', function (string $name, string $value, int|float $expected) {
     $item = checkoutPreviewTestItem(['weights' => [['uom' => 'PCS', 'weight' => 10]]]);
@@ -113,11 +126,11 @@ it('bills Tbilisi delivery by zone rate when the length attribute exceeds 2 m', 
 
     expect(previewTbilisiDeliveryCost($item))->toBe($expected);
 })->with([
-    'plain 6 m' => ['სიგრძე', '6მ', 50],
-    'colon suffix 6 m' => ['სიგრძე:', '6მ', 50],
-    'spaced 290 cm' => ['სიგრძე:', '290 სმ', 50],
-    'comma decimal 3.66' => ['სიგრძე:', '3,66 მ', 50],
-    'prepended unit' => ['სიგრძე', 'მ 6', 50],
+    'plain 6 m' => ['სიგრძე', '6მ', 90],
+    'colon suffix 6 m' => ['სიგრძე:', '6მ', 90],
+    'spaced 290 cm' => ['სიგრძე:', '290 სმ', 90],
+    'comma decimal 3.66' => ['სიგრძე:', '3,66 მ', 90],
+    'prepended unit' => ['სიგრძე', 'მ 6', 90],
     'exactly 2 m' => ['სიგრძე', '2მ', 11.9],
     '1500 mm' => ['სიგრძე:', '1500 მმ', 11.9],
     '100mm no space' => ['სიგრძე:', '100mm', 11.9],

@@ -50,7 +50,8 @@ const tbilisiZones = computed(() => {
     return [
         { label: t('pol.delivery.zone1'), price: '5-40', color: 'blue', neighborhoods: tm('pol.terms.zone1Items').map(rt) },
         { label: t('pol.delivery.zone2'), price: '5-50', color: 'indigo', neighborhoods: tm('pol.terms.zone2Items').map(rt) },
-        { label: t('pol.delivery.zone3'), price: '5-60', color: 'violet', neighborhoods: tm('pol.terms.zone3Items').map(rt) },
+        { label: t('pol.delivery.zone3'), price: '5-90', color: 'violet', neighborhoods: tm('pol.terms.zone3Items').map(rt) },
+        { label: t('pol.delivery.zone4'), price: '5-100', color: 'purple', neighborhoods: tm('pol.terms.zone4Items').map(rt) },
     ]
 })
 
@@ -165,7 +166,7 @@ function weightLabel(rate, index) {
                     </i18n-t>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div
                         v-for="zone in tbilisiZones"
                         :key="zone.label"
@@ -176,6 +177,7 @@ function weightLabel(rate, index) {
                                  'bg-blue-50': zone.color === 'blue',
                                  'bg-indigo-50': zone.color === 'indigo',
                                  'bg-violet-50': zone.color === 'violet',
+                                 'bg-purple-50': zone.color === 'purple',
                              }"
                         >
                             <span class="font-bold text-gray-800 text-sm">{{ zone.label }}</span>
@@ -184,6 +186,7 @@ function weightLabel(rate, index) {
                                       'text-blue-600': zone.color === 'blue',
                                       'text-indigo-600': zone.color === 'indigo',
                                       'text-violet-600': zone.color === 'violet',
+                                      'text-purple-600': zone.color === 'purple',
                                   }"
                             >{{ zone.price }} ₾</span>
                         </div>
